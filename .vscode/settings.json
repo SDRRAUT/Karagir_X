@@ -1,0 +1,22 @@
+{
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.expo/**",
+    "**/dist/**"
+  ],
+  "java.project.resourceFilters": [
+    "node_modules",
+    ".expo",
+    "dist"
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.expo/**": true,
+    "**/dist/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/dist": true
+  }
+}
