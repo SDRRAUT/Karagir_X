@@ -22,7 +22,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcriptionResult, setTranscriptionResult] = useState<VoiceTranscriptionResult | null>(null);
 
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [pulseAnim] = useState(() => new Animated.Value(1));
   const timerRef = useRef<any>(null);
 
   const primaryPhoto =

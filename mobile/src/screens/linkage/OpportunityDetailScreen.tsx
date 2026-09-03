@@ -17,14 +17,14 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
   const { opportunityId } = route.params;
   const setActiveOpportunity = useMarketLinkageStore((s) => s.setActiveOpportunity);
 
-  const [opportunity, setOpportunity] = useState<MarketOpportunity | null>(null);
+  const [opportunity] = useState<MarketOpportunity>(() => {
+    return MOCK_OPPORTUNITIES.find((o) => o.id === opportunityId) || MOCK_OPPORTUNITIES[0];
+  });
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   useEffect(() => {
-    const found = MOCK_OPPORTUNITIES.find((o) => o.id === opportunityId) || MOCK_OPPORTUNITIES[0];
-    setOpportunity(found);
-    setActiveOpportunity(found);
-  }, [opportunityId, setActiveOpportunity]);
+    setActiveOpportunity(opportunity);
+  }, [opportunity, setActiveOpportunity]);
 
   if (!opportunity) {
     return null;

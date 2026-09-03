@@ -127,12 +127,11 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
             <View style={{ flex: 1, marginLeft: 8 }}>
               <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-                शहर (City)
+                शहर व राज्य (City, State)
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.surface.border, backgroundColor: '#F9F9F9' }]}
-                value={city}
-                onChangeText={setCity}
+                value={`${city}, ${state}`}
                 editable={false}
               />
             </View>

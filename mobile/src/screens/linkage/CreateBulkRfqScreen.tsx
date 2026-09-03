@@ -135,6 +135,17 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </View>
 
+          <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
+            ईमेल (Email ID):
+          </Text>
+          <TextInput
+            style={[styles.input, { borderColor: theme.colors.surface.border }]}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            placeholder="उदा. procurement@tcs.com"
+          />
+
           {/* Craft Category Chips */}
           <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
             शिल्प श्रेणी (Craft Category) *
@@ -190,6 +201,17 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
               />
             </View>
           </View>
+
+          <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
+            आवश्यक डिलीवरी समय सीमा (दिन / Days):
+          </Text>
+          <TextInput
+            style={[styles.input, { borderColor: theme.colors.surface.border }]}
+            value={deadlineDays}
+            onChangeText={setDeadlineDays}
+            keyboardType="numeric"
+            placeholder="उदा. 30 दिन"
+          />
 
           <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
             विशेष निर्देश / लोगो ब्रांडिंग आवश्यकताएं:

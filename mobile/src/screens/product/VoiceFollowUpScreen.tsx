@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
-import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { FOLLOW_UP_QUESTIONS, FollowUpQuestion, voiceService } from '@/api/voiceService';

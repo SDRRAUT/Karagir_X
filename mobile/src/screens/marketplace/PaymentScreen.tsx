@@ -31,7 +31,7 @@ export const PaymentScreen: React.FC<Props> = ({ navigation }) => {
 
     try {
       // 1. Verify Payment Intent in Escrow Vault
-      const paymentResult = await paymentService.verifyPayment('intent_demo', selectedMethod);
+      await paymentService.verifyPayment('intent_demo', selectedMethod);
 
       // 2. Create Order in Escrow Locked State
       const newOrder = await orderService.createOrder({

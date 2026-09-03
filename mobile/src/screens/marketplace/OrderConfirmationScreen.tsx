@@ -14,7 +14,9 @@ type Props = NativeStackScreenProps<RootStackParamList, 'OrderConfirmation'>;
 export const OrderConfirmationScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
   const { orderId } = route.params;
-  const order = useOrderStore((s) => s.getOrderById(orderId)) || useOrderStore((s) => s.currentOrder);
+  const getOrderById = useOrderStore((s) => s.getOrderById);
+  const currentOrder = useOrderStore((s) => s.currentOrder);
+  const order = getOrderById(orderId) || currentOrder;
 
   const orderNumber = order?.orderNumber || 'KS-OD-849201';
   const totalAmount = order?.totalAmount || 2320;
