@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Expo & Builds
+.expo/
+**/.expo/
+dist/
+**/dist/
+web-build/
+**/web-build/
+expo-env.d.ts
+
+# Test & Coverage
+coverage/
+**/coverage/
+*.lcov
+
+# Native artifacts
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.kotlin/
+
+# Metro & Bundler
+.metro-health-check*
+
+# Logs & Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.pem
+.env*.local
+.env.production
+.env.staging
+
+# TypeScript
+*.tsbuildinfo

@@ -1,0 +1,172 @@
+import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UserProfile, AuthTokens } from '@/api/types';
+import { logger } from '@/utils/logger';
+
+const AUTH_STORAGE_KEY = '@kalakar_auth_session';
+
+export interface AuthState {
+  user: UserProfile | null;
+  tokens: AuthTokens | null;
+  isAuthenticated: boolean;
+  activeProfileId: string | null;
+  profilesOnDevice: UserProfile[];
+  isLoading: boolean;
+  isSessionExpired: boolean;
+  sessionExpiryReason: string | null;
+
+  // Actions
+  initialize: () => Promise<void>;
+  setSession: (tokens: AuthTokens, user: UserProfile) => Promise<void>;
+  updateProfile: (patch: Partial<UserProfile>) => Promise<void>;
+  switchProfile: (profileId: string) => Promise<void>;
+  handleSessionExpired: (reason?: string) => Promise<void>;
+  clearSessionExpiry: () => void;
+  logout: () => Promise<void>;
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  tokens: null,
+  isAuthenticated: false,
+  activeProfileId: null,
+  profilesOnDevice: [],
+  isLoading: true,
+  isSessionExpired: false,
+  sessionExpiryReason: null,
+
+  initialize: async () => {
+    try {
+      const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        set({
+          user: parsed.user,
+          tokens: parsed.tokens,
+          isAuthenticated: !!parsed.tokens?.accessToken,
+          activeProfileId: parsed.user?.id || null,
+          profilesOnDevice: parsed.profilesOnDevice || (parsed.user ? [parsed.user] : []),
+          isLoading: false,
+        });
+        logger.info('AUTH_STORE', `Session restored for user ${parsed.user?.id}`);
+        return;
+      }
+    } catch (error) {
+      logger.error('AUTH_STORE', 'Failed to restore auth session', error);
+    }
+    set({ isLoading: false });
+  },
+
+  setSession: async (tokens: AuthTokens, user: UserProfile) => {
+    const currentProfiles = get().profilesOnDevice;
+    const exists = currentProfiles.some((p) => p.id === user.id);
+    const updatedProfiles = exists
+      ? currentProfiles.map((p) => (p.id === user.id ? { ...p, ...user } : p))
+      : [...currentProfiles, user];
+
+    const sessionData = {
+      tokens,
+      user,
+      profilesOnDevice: updatedProfiles,
+    };
+
+    try {
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionData));
+    } catch (error) {
+      logger.error('AUTH_STORE', 'Failed to persist session to storage', error);
+    }
+
+    set({
+      tokens,
+      user,
+      isAuthenticated: true,
+      activeProfileId: user.id,
+      profilesOnDevice: updatedProfiles,
+      isSessionExpired: false,
+      sessionExpiryReason: null,
+    });
+    logger.info('AUTH_STORE', `Session initialized for user ${user.id}`);
+  },
+
+  updateProfile: async (patch: Partial<UserProfile>) => {
+    const currentUser = get().user;
+    if (!currentUser) return;
+
+    const updatedUser: UserProfile = { ...currentUser, ...patch };
+    const updatedProfiles = get().profilesOnDevice.map((p) =>
+      p.id === updatedUser.id ? updatedUser : p
+    );
+
+    const sessionData = {
+      tokens: get().tokens,
+      user: updatedUser,
+      profilesOnDevice: updatedProfiles,
+    };
+
+    try {
+      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionData));
+    } catch (error) {
+      logger.error('AUTH_STORE', 'Failed to update persisted profile', error);
+    }
+
+    set({
+      user: updatedUser,
+      profilesOnDevice: updatedProfiles,
+    });
+    logger.info('AUTH_STORE', `Profile updated for user ${updatedUser.id}`);
+  },
+
+  switchProfile: async (profileId: string) => {
+    const target = get().profilesOnDevice.find((p) => p.id === profileId);
+    if (!target) {
+      logger.warn('AUTH_STORE', `Target profile not found on device: ${profileId}`);
+      return;
+    }
+
+    set({
+      user: target,
+      activeProfileId: target.id,
+    });
+    logger.info('AUTH_STORE', `Switched active profile to ${target.id}`);
+  },
+
+  handleSessionExpired: async (reason: string = 'Session expired. Please log in again.') => {
+    try {
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      logger.error('AUTH_STORE', 'Failed to clear storage on expiry', error);
+    }
+
+    set({
+      tokens: null,
+      user: null,
+      isAuthenticated: false,
+      activeProfileId: null,
+      isSessionExpired: true,
+      sessionExpiryReason: reason,
+    });
+    logger.warn('AUTH_STORE', `Session expired: ${reason}`);
+  },
+
+  clearSessionExpiry: () => {
+    set({ isSessionExpired: false, sessionExpiryReason: null });
+  },
+
+  logout: async () => {
+    try {
+      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      logger.error('AUTH_STORE', 'Failed to clear session storage', error);
+    }
+
+    set({
+      user: null,
+      tokens: null,
+      isAuthenticated: false,
+      activeProfileId: null,
+      isSessionExpired: false,
+      sessionExpiryReason: null,
+    });
+    logger.info('AUTH_STORE', 'User session terminated');
+  },
+}));
