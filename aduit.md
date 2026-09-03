@@ -136,8 +136,8 @@
 | `ART-SCR-09` | Welcome Tutorial Screen | Built & Tested ✅ | `src/screens/auth/OnboardingScreen.tsx` |
 | `ART-SCR-10` | Artisan Home Dashboard | Built & Tested ✅ | `src/screens/HomeScreen.tsx` |
 | `ART-SCR-11` | Profile & Multi-Account Switcher | Built & Tested ✅ | `src/screens/ProfileScreen.tsx` |
-| `ART-SCR-12` | Aadhaar e-KYC Verification | Remaining ⚪ | Standalone camera OCR KYC |
-| `ART-SCR-13` | Bank Account & Payout Setup | Remaining ⚪ | Bank IFSC validation screen |
+| `ART-SCR-12` | Aadhaar e-KYC Verification | Excluded ❌ | Excluded per User Directive (No Aadhaar KYC required) |
+| `ART-SCR-13` | Bank Account & Payout Setup | Excluded ❌ | Excluded per User Directive (No Bank Setup required) |
 | `ART-SCR-14` | Camera Permission Primer | Built & Tested ✅ | `src/screens/product/CameraPermissionScreen.tsx` |
 | `ART-SCR-15` | Product Camera Capture | Built & Tested ✅ | `src/screens/product/CameraCaptureScreen.tsx` |
 | `ART-SCR-16` | Photo Review & Gallery | Built & Tested ✅ | `src/screens/product/PhotoReviewScreen.tsx` |
@@ -262,17 +262,13 @@ All **20 core REST endpoints** are defined in `src/api/endpoints.ts` and managed
 ## 3. What Remains to Build (Prioritized Roadmap)
 
 ### Phase A: Auxiliary Mobile Screens
-1. **Aadhaar e-KYC Verification (`ART-SCR-12`)**:
-   - Camera OCR for Aadhaar card and DigiLocker OTP flow.
-2. **Bank Account & IFSC Setup (`ART-SCR-13`)**:
-   - Account number, IFSC code validation, and Jan-Dhan linking.
-3. **Printable QR Packaging Tag Generator (`ART-SCR-25`)**:
+1. **Printable QR Packaging Tag Generator (`ART-SCR-25`)**:
    - PDF export of 2-inch shipping labels with Craft Passport QR.
-4. **Artisan Inventory & Stock Update Modal (`ART-SCR-27`)**:
+2. **Artisan Inventory & Stock Update Modal (`ART-SCR-27`)**:
    - Dedicated modal for quick inventory updates and price edits.
-5. **Buyer Physical QR Delivery Scanner (`BUY-SCR-12`)**:
+3. **Buyer Physical QR Delivery Scanner (`BUY-SCR-12`)**:
    - Camera scanner that reads the parcel QR tag upon delivery to trigger escrow release.
-6. **Buyer Reviews & Return Disputes (`BUY-SCR-13`, `BUY-SCR-14`)**:
+4. **Buyer Reviews & Return Disputes (`BUY-SCR-13`, `BUY-SCR-14`)**:
    - 5-star rating, review photo upload, and 48-hour return dispute initiation.
 
 ### Phase B: Cloud Backend & Database Infrastructure
