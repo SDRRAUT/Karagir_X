@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@/theme/ThemeProvider';
@@ -7,6 +8,8 @@ import { RootNavigator } from '@/navigation/RootNavigator';
 import { setupApiClient } from '@/api/setup';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAppStore } from '@/store/useAppStore';
+
+LogBox.ignoreAllLogs(true);
 
 export default function App() {
   useEffect(() => {

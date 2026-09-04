@@ -1,15 +1,29 @@
+/**
+ * Kalakar Setu — Touch & Radius Tokens
+ *
+ * Minimum 48dp touch targets. 4-tier radius system.
+ */
+
 export const touch = {
-  minTargetSize: 56, // Enforces 56dp x 56dp minimum touch target for rural artisans
-  buttonHeightPrimary: 56,
-  buttonHeightDecision: 64,
-  floatingMicSize: 68,
+  minTargetSize: 48,           // WCAG AA minimum
+  buttonHeight: 48,            // Standard button height
+  floatingMicSize: 56,         // FAB size (reduced from 68)
+
   radii: {
-    xs: 4,
-    sm: 8,
-    md: 12,
-    card: 16,
-    pill: 999,
+    sm: 8,                     // Chips, badges, inline elements
+    md: 12,                    // Cards, inputs, buttons
+    lg: 16,                    // Image containers, modals
+    full: 9999,                // Avatars, pills, FAB
+
+    // Legacy aliases
+    xs: 8,
+    card: 12,
+    pill: 9999,
   },
+
+  // Legacy aliases
+  buttonHeightPrimary: 48,
+  buttonHeightDecision: 48,
 } as const;
 
 export type TouchTokens = typeof touch;

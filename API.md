@@ -578,4 +578,32 @@ Every error response returns standard RFC 7807 Problem Details:
 
 ---
 
+# 5. Supabase Client Data Access Layer & Mobile SDK Contracts
+
+The mobile client accesses Supabase via the official `@supabase/supabase-js` v2 client configured with AsyncStorage session persistence and automatic token refresh.
+
+### 5.1 Authentication Services (`authService.ts`)
+- `authService.sendOtp(phone, language, role)`: Sends SMS OTP via `supabase.auth.signInWithOtp` (with deterministic identity fallback for test environments).
+- `authService.verifyOtp(sessionId, otpCode, phone, role, language)`: Validates OTP token, creates user session, triggers automatic `public.profiles` provisioning via Postgres trigger, and retrieves unified `UserProfile`.
+- `authService.loginWithPassword(identifier, password, role)`: Direct email/phone credentials signin via `supabase.auth.signInWithPassword`.
+- `authService.getProfile(userId)`: Queries `public.profiles` with nested `artisan_profiles` data.
+- `authService.setupProfile(artisanId, profileData)`: Updates `public.profiles` and upserts `public.artisan_profiles`.
+- `authService.logout()`: Terminates active Supabase session and purges local credentials.
+
+### 5.2 Product & Catalog Services (`productService.ts`)
+- `productService.uploadProductImage(uri, artisanId, filename)`: Securely streams binary photo to `product-images` storage bucket under `{artisanId}/{filename}`.
+- `productService.createProduct(payload)`: Inserts product record into `public.products`, associates images into `public.product_images`, and generates a verified digital craft passport in `public.craft_passports`.
+
+### 5.3 Marketplace & Discovery Services (`marketplaceService.ts`)
+- `marketplaceService.getCategories()`: Fetches official handicraft categories with cluster counts from `public.categories`.
+- `marketplaceService.getProducts(filters)`: Executes relational query joining `products`, `product_images`, `craft_passports`, `categories`, and `artisan_profiles` with RLS enforcing `status = 'ACTIVE'`.
+- `marketplaceService.getProductById(productId)`: Fetches full product detail with verified provenance and artisan bio.
+
+### 5.4 Order & Escrow Services (`orderService.ts`)
+- `orderService.createOrder(payload)`: Creates master buyer order in `public.orders`, partitions fulfillment into artisan-specific records in `public.sub_orders`, creates line items in `public.order_items`, and locks transaction funds in `public.escrow_ledger`.
+- `orderService.getBuyerOrders(buyerId)`: Retrieves orders filtered by authenticated buyer identity under RLS.
+- `orderService.getArtisanSubOrders(artisanId)`: Retrieves artisan fulfillment tasks under RLS.
+
+---
+
 *End of Production API Contract Specification — Kalakar Setu Platform*

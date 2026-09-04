@@ -1,31 +1,54 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
-  TouchableOpacity,
-  TouchableOpacityProps,
+  Pressable,
+  PressableProps,
   StyleSheet,
   ActivityIndicator,
   View,
   ViewStyle,
+  Animated,
 } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'terracotta' | 'outline' | 'danger';
+export type ButtonVariant = 'filled' | 'tonal' | 'outlined' | 'ghost' | 'danger';
+// Legacy variants mapped to new ones
+type LegacyVariant = 'primary' | 'secondary' | 'terracotta' | 'outline';
+
 export type ButtonSize = 'default' | 'decision';
 
-export interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends PressableProps {
   label: string;
-  variant?: ButtonVariant;
+  variant?: ButtonVariant | LegacyVariant;
   size?: ButtonSize;
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
 
+const LEGACY_MAP: Record<string, ButtonVariant> = {
+  primary: 'filled',
+  terracotta: 'filled',
+  secondary: 'tonal',
+  outline: 'outlined',
+};
+
+/**
+ * Button — Primary interactive component.
+ *
+ * Variants:
+ * - filled:   Brand primary bg, white text. Main CTA.
+ * - tonal:    Brand primary light bg, brand primary text. Secondary actions.
+ * - outlined: Transparent bg, border, dark text. Tertiary actions.
+ * - ghost:    Transparent bg, brand primary text. Inline links, cancel.
+ * - danger:   Error red bg, white text. Destructive only.
+ *
+ * Height: 48dp for all sizes. Touch target padding handles accessibility.
+ */
 export const Button: React.FC<ButtonProps> = ({
   label,
-  variant = 'primary',
-  size = 'default',
+  variant: rawVariant = 'filled',
+  size: _size = 'default', // size is now ignored — 48dp for all
   isLoading = false,
   disabled = false,
   leftIcon,
@@ -34,76 +57,109 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const theme = useTheme();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const isOutline = variant === 'outline';
-  const height = size === 'decision' ? theme.touch.buttonHeightDecision : theme.touch.buttonHeightPrimary;
+  // Map legacy variants
+  const variant = LEGACY_MAP[rawVariant as string] || rawVariant as ButtonVariant;
 
-  let backgroundColor: string = theme.colors.primary.emerald700;
-  let textColor: string = theme.colors.text.inverse;
+  const handlePressIn = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: theme.motion.scale.buttonPress,
+      duration: theme.motion.duration.fast,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim, theme]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: theme.motion.duration.fast,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim, theme]);
+
+  // Color resolution
+  let backgroundColor: string;
+  let textColor: string;
   let borderColor: string = 'transparent';
+  let borderWidth: number = 0;
 
   switch (variant) {
-    case 'terracotta':
-      backgroundColor = theme.colors.terracotta.primary;
+    case 'filled':
+      backgroundColor = theme.colors.brand.primary;
+      textColor = theme.colors.text.inverse;
       break;
-    case 'outline':
+    case 'tonal':
+      backgroundColor = theme.colors.brand.primaryLight;
+      textColor = theme.colors.brand.primary;
+      break;
+    case 'outlined':
       backgroundColor = 'transparent';
-      textColor = theme.colors.primary.emerald700;
-      borderColor = theme.colors.primary.emerald700;
+      textColor = theme.colors.text.primary;
+      borderColor = theme.colors.border.default;
+      borderWidth = 1;
       break;
-    case 'secondary':
-      backgroundColor = theme.colors.surface.subtle;
-      textColor = theme.colors.primary.emerald700;
-      borderColor = theme.colors.surface.border;
+    case 'ghost':
+      backgroundColor = 'transparent';
+      textColor = theme.colors.brand.primary;
       break;
     case 'danger':
-      backgroundColor = theme.colors.status.danger;
+      backgroundColor = theme.colors.status.error;
+      textColor = theme.colors.text.inverse;
       break;
+    default:
+      backgroundColor = theme.colors.brand.primary;
+      textColor = theme.colors.text.inverse;
   }
 
+  // Disabled overrides
   if (disabled) {
-    backgroundColor = isOutline ? 'transparent' : theme.colors.surface.subtle;
-    textColor = theme.colors.text.muted;
-    borderColor = isOutline ? theme.colors.surface.border : 'transparent';
+    backgroundColor = variant === 'ghost' || variant === 'outlined'
+      ? 'transparent'
+      : theme.colors.surface.subtle;
+    textColor = theme.colors.text.tertiary;
+    borderColor = variant === 'outlined' ? theme.colors.border.default : 'transparent';
   }
 
   const containerStyle: ViewStyle = {
-    height,
-    minHeight: theme.touch.minTargetSize, // Enforces >=56dp touch boundary
+    height: theme.touch.buttonHeight,
+    minHeight: theme.touch.minTargetSize,
     backgroundColor,
-    borderRadius: theme.touch.radii.card,
-    borderWidth: isOutline ? 2 : 0,
+    borderRadius: theme.touch.radii.md,
+    borderWidth,
     borderColor,
-    ...(!isOutline && !disabled ? theme.shadows.level1 : {}),
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      disabled={disabled || isLoading}
-      style={[styles.base, containerStyle, style]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled: disabled || isLoading, busy: isLoading }}
-      {...props}
-    >
-      {isLoading ? (
-        <ActivityIndicator color={textColor} size="small" />
-      ) : (
-        <View style={styles.contentRow}>
-          {leftIcon && <View style={styles.iconWrapper}>{leftIcon}</View>}
-          <Text
-            variant={size === 'decision' ? 'headlineMedium' : 'bodyLarge'}
-            weight="bold"
-            color={textColor}
-            style={styles.label}
-          >
-            {label}
-          </Text>
-          {rightIcon && <View style={styles.iconWrapper}>{rightIcon}</View>}
-        </View>
-      )}
-    </TouchableOpacity>
+    <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, typeof style === 'object' ? style : undefined]}>
+      <Pressable
+        disabled={disabled || isLoading}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[styles.base, containerStyle]}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: disabled || isLoading, busy: isLoading }}
+        {...props}
+      >
+        {isLoading ? (
+          <ActivityIndicator color={textColor} size="small" />
+        ) : (
+          <View style={styles.contentRow}>
+            {leftIcon && <View style={styles.iconWrapper}>{leftIcon}</View>}
+            <Text
+              variant="labelLarge"
+              weight="semiBold"
+              color={textColor}
+              style={styles.label}
+            >
+              {label}
+            </Text>
+            {rightIcon && <View style={styles.iconWrapper}>{rightIcon}</View>}
+          </View>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -121,7 +177,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconWrapper: {
-    marginHorizontal: 8,
+    marginHorizontal: 6,
   },
   label: {
     textAlign: 'center',

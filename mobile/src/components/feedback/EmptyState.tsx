@@ -3,9 +3,11 @@ import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
+import { Icon, IconName } from '@/components/icons/Icon';
 
 export interface EmptyStateProps {
-  icon?: string;
+  icon?: string | React.ReactNode;
+  iconName?: IconName;
   title: string;
   description: string;
   actionLabel?: string;
@@ -14,7 +16,8 @@ export interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = '🏺',
+  icon,
+  iconName = 'bagOutline',
   title,
   description,
   actionLabel,
@@ -25,18 +28,50 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Text style={styles.icon}>{icon}</Text>
-      <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary} style={styles.title}>
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            backgroundColor: theme.colors.surface.subtle,
+            borderColor: theme.colors.border.subtle,
+          },
+        ]}
+      >
+        {React.isValidElement(icon) ? (
+          icon
+        ) : typeof icon === 'string' && icon.length > 2 ? (
+          <Text style={styles.textIcon}>{icon}</Text>
+        ) : (
+          <Icon
+            name={iconName}
+            size={40}
+            color={theme.colors.brand.primary}
+          />
+        )}
+      </View>
+
+      <Text
+        variant="headlineSmall"
+        weight="bold"
+        color={theme.colors.text.primary}
+        style={styles.title}
+      >
         {title}
       </Text>
-      <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.description}>
+
+      <Text
+        variant="bodyMedium"
+        color={theme.colors.text.secondary}
+        style={styles.description}
+      >
         {description}
       </Text>
+
       {actionLabel && onPressAction && (
         <Button
           label={actionLabel}
           onPress={onPressAction}
-          variant="primary"
+          variant="tonal"
           style={styles.actionButton}
         />
       )}
@@ -51,9 +86,17 @@ const styles = StyleSheet.create({
     padding: 32,
     width: '100%',
   },
-  icon: {
-    fontSize: 64,
-    marginBottom: 16,
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+  },
+  textIcon: {
+    fontSize: 40,
   },
   title: {
     textAlign: 'center',
@@ -62,8 +105,10 @@ const styles = StyleSheet.create({
   description: {
     textAlign: 'center',
     marginBottom: 24,
+    maxWidth: 280,
+    lineHeight: 20,
   },
   actionButton: {
-    minWidth: 200,
+    minWidth: 180,
   },
 });

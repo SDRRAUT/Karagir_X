@@ -2,45 +2,68 @@ import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
+import { Icon, IconName } from '@/components/icons/Icon';
 
-export type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'gold';
+export type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'gold' | 'neutral';
 
 export interface BadgeProps {
   label: string;
   variant?: BadgeVariant;
-  icon?: string;
+  iconName?: IconName;
+  icon?: React.ReactNode;
+  size?: 'small' | 'medium';
   style?: ViewStyle;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
   label,
-  variant = 'info',
+  variant = 'neutral',
+  iconName,
   icon,
+  size = 'small',
   style,
 }) => {
   const theme = useTheme();
 
   let backgroundColor: string = theme.colors.surface.subtle;
-  let textColor: string = theme.colors.text.primary;
+  let textColor: string = theme.colors.text.secondary;
+  let borderColor: string = 'transparent';
 
   switch (variant) {
     case 'success':
-      backgroundColor = theme.colors.primary.emerald100;
-      textColor = theme.colors.primary.emerald700;
+      backgroundColor = theme.colors.brand.secondaryLight;
+      textColor = theme.colors.brand.secondary;
+      borderColor = 'rgba(27, 94, 59, 0.2)';
       break;
     case 'warning':
-      backgroundColor = theme.colors.terracotta.light;
+      backgroundColor = theme.colors.status.warningLight;
       textColor = theme.colors.status.warning;
+      borderColor = 'rgba(230, 126, 34, 0.2)';
       break;
     case 'danger':
-      backgroundColor = '#FFEBEE';
-      textColor = theme.colors.status.danger;
+      backgroundColor = theme.colors.status.errorLight;
+      textColor = theme.colors.status.error;
+      borderColor = 'rgba(211, 47, 47, 0.2)';
+      break;
+    case 'info':
+      backgroundColor = theme.colors.status.infoLight;
+      textColor = theme.colors.status.info;
+      borderColor = 'rgba(25, 118, 210, 0.2)';
       break;
     case 'gold':
-      backgroundColor = theme.colors.ochre.light;
-      textColor = theme.colors.ochre.dark;
+      backgroundColor = theme.colors.brand.accentLight;
+      textColor = '#7A5B0B';
+      borderColor = 'rgba(212, 165, 54, 0.3)';
+      break;
+    case 'neutral':
+    default:
+      backgroundColor = theme.colors.surface.subtle;
+      textColor = theme.colors.text.secondary;
+      borderColor = theme.colors.border.subtle;
       break;
   }
+
+  const isSmall = size === 'small';
 
   return (
     <View
@@ -48,13 +71,29 @@ export const Badge: React.FC<BadgeProps> = ({
         styles.badge,
         {
           backgroundColor,
-          borderRadius: theme.touch.radii.pill,
+          borderColor,
+          borderWidth: 1,
+          borderRadius: theme.touch.radii.full,
+          paddingHorizontal: isSmall ? 8 : 12,
+          paddingVertical: isSmall ? 3 : 5,
         },
         style,
       ]}
+      accessibilityRole="text"
     >
-      {icon && <Text style={styles.icon}>{icon}</Text>}
-      <Text variant="bodySmall" weight="bold" color={textColor}>
+      {icon ? (
+        <View style={styles.iconWrapper}>{icon}</View>
+      ) : iconName ? (
+        <View style={styles.iconWrapper}>
+          <Icon name={iconName} size={isSmall ? 12 : 14} color={textColor} />
+        </View>
+      ) : null}
+      <Text
+        variant="labelMedium"
+        weight="semiBold"
+        color={textColor}
+        style={{ fontSize: isSmall ? 11 : 12, lineHeight: isSmall ? 14 : 16 }}
+      >
         {label}
       </Text>
     </View>
@@ -66,11 +105,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
   },
-  icon: {
+  iconWrapper: {
     marginRight: 4,
-    fontSize: 12,
   },
 });

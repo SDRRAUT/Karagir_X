@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 
@@ -53,6 +54,10 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
   const handlePress = (keyConfig: KeyConfig) => {
     if (disabled) return;
 
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    } catch {}
+
     if (keyConfig.key === 'BACKSPACE') {
       onPressBackspace();
     } else if (keyConfig.key === 'CONFIRM') {
@@ -72,12 +77,15 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
 
             let bgColor: string = theme.colors.surface.card;
             let textColor: string = theme.colors.text.primary;
+            let borderColor: string = theme.colors.border.default;
 
             if (isConfirm) {
-              bgColor = theme.colors.primary.emerald700;
+              bgColor = theme.colors.brand.secondary;
+              borderColor = theme.colors.brand.secondary;
               textColor = theme.colors.text.inverse;
             } else if (isBackspace) {
               bgColor = theme.colors.surface.subtle;
+              textColor = theme.colors.status.error;
             }
 
             return (
@@ -92,9 +100,9 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
                   styles.key,
                   {
                     backgroundColor: bgColor,
-                    borderColor: theme.colors.surface.border,
+                    borderColor,
                     borderRadius: theme.touch.radii.md,
-                    ...theme.shadows.level1,
+                    ...theme.shadows.low,
                   },
                 ]}
               >
@@ -108,6 +116,7 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
                 </Text>
                 <Text
                   variant="bodySmall"
+                  weight="medium"
                   color={isConfirm ? theme.colors.text.inverse : theme.colors.text.secondary}
                   style={styles.subText}
                 >
@@ -134,16 +143,16 @@ const styles = StyleSheet.create({
   },
   key: {
     flex: 1,
-    height: 64, // 64dp key height per Design System spec
-    minHeight: 56, // >=56dp touch boundary
+    height: 60,
+    minHeight: 52,
     marginHorizontal: 4,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   keyText: {
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 22,
+    lineHeight: 26,
   },
   subText: {
     fontSize: 11,

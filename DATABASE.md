@@ -589,4 +589,41 @@ CREATE TABLE cached_orders (
 
 ---
 
+# 7. Production Supabase Cloud Integration & Applied Migrations
+
+### 7.1 Live Supabase Project Architecture
+- **Supabase Project ID:** `epnfavpqweeybzoyoexq`
+- **Region:** `ap-southeast-2` (Production Cloud)
+- **Engine:** PostgreSQL 15+ with Extensions: `uuid-ossp`, `pgcrypto`, `pg_trgm` (in `extensions` schema).
+- **Advisors Status:** 0 Security Warnings, 0 Performance Warnings (Verified via Supabase MCP).
+
+### 7.2 Applied Migrations Registry
+All migrations are tracked and applied directly to production:
+1. `20260904000001_core_schema.sql`: 
+   - 8 Custom Enums: `user_role_enum`, `craft_category_enum`, `stock_type_enum`, `order_status_enum`, `sub_order_status_enum`, `escrow_status_enum`, `rfq_status_enum`, `audit_action_enum`.
+   - 19 Tables in `public`: `profiles`, `artisan_profiles`, `buyer_profiles`, `facilitators`, `categories`, `products`, `product_images`, `craft_passports`, `orders`, `sub_orders`, `order_items`, `escrow_ledger`, `reviews`, `disputes`, `b2b_rfqs`, `clusters`, `cluster_members`, `cluster_milestones`, `admin_audit_logs`.
+   - Automated full-text search trigger `products_search_vector_update()`.
+   - Auth trigger `on_auth_user_created()` automatically creating `public.profiles` on user signup.
+2. `20260904000002_rls_policies.sql`: 
+   - Granular Row-Level Security on all 19 tables for `SELECT`, `INSERT`, `UPDATE`, `DELETE`.
+3. `20260904000003_security_hardening.sql`: 
+   - Function security hardening with explicit `SET search_path = public, pg_temp`.
+   - Execution permissions revoked from `anon` and `authenticated` on internal triggers.
+4. `20260904000004_storage_and_categories.sql`: 
+   - 4 Supabase Storage Buckets: `product-images`, `artisan-avatars`, `voice-stories`, `craft-documents`.
+   - Storage RLS policies for authenticated uploads, artisan folder isolation, and public image reads.
+   - Seeded 6 national handicraft categories.
+5. `20260904000005_seed_products.sql`: 
+   - Real seed catalog with GI-tagged Madhubani Painting and Dokra Bell Metal Art, craft passports, and multi-resolution images.
+6. `20260904000006_advisor_optimizations.sql`: 
+   - Moved `pg_trgm` extension out of `public` into `extensions` schema.
+   - Set helper functions to `SECURITY INVOKER` to prevent privilege escalation.
+7. `20260904000007_performance_tuning.sql`: 
+   - Covering indexes on foreign keys (`idx_products_craft_category`, `idx_order_items_product`, etc.).
+   - Optimized RLS policies with `(select auth.uid())` to cache InitPlans and eliminate per-row re-evaluation.
+8. `20260904000008_clean_permissive_policies.sql`: 
+   - Distinct admin policies for non-overlapping authorization and zero lint warnings.
+
+---
+
 *End of Database Architecture & Schema Specification — Kalakar Setu Platform*

@@ -35,13 +35,25 @@ yarn-debug.*
 yarn-error.*
 *.log
 
-# OS & Environment
+# OS & Environment & Secrets
 .DS_Store
 Thumbs.db
 *.pem
-.env*.local
-.env.production
-.env.staging
+*.key
+*.p12
+*.p8
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example
+*.local
+serviceAccountKey.json
+
+# IDE & Editor caches
+.vscode/
+!.vscode/settings.json
+.idea/
 
 # TypeScript
 *.tsbuildinfo

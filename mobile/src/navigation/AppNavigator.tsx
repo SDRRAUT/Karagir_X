@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme/ThemeProvider';
 import { MainTabParamList } from './types';
@@ -6,7 +7,7 @@ import { HomeScreen } from '@/screens/HomeScreen';
 import { OrdersScreen } from '@/screens/OrdersScreen';
 import { KhataScreen } from '@/screens/KhataScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
-import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -17,20 +18,21 @@ export const AppNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary.emerald700,
-        tabBarInactiveTintColor: theme.colors.text.secondary,
+        tabBarActiveTintColor: theme.colors.brand.primary,
+        tabBarInactiveTintColor: theme.colors.text.tertiary,
         tabBarStyle: {
-          height: 72, // 72dp clearance per Design System Section 12.1
+          height: Platform.OS === 'ios' ? 84 : 64,
           backgroundColor: theme.colors.surface.card,
-          borderTopWidth: 1.5,
-          borderTopColor: theme.colors.surface.border,
-          paddingBottom: 10,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.border.subtle,
+          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
           paddingTop: 8,
-          ...theme.shadows.level4,
+          ...theme.shadows.medium,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '700',
+          fontSize: 11,
+          fontFamily: theme.typography.fonts.medium,
+          fontWeight: '600',
         },
       }}
     >
@@ -38,34 +40,73 @@ export const AppNavigator: React.FC = () => {
         name="HomeTab"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'होम (Home)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>🏠</Text>,
+          tabBarLabel: 'होम',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={focused ? styles.activeIconWrap : undefined}>
+              <Icon
+                name={focused ? 'home' : 'homeOutline'}
+                size={22}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
       <Tab.Screen
         name="OrdersTab"
         component={OrdersScreen}
         options={{
-          tabBarLabel: 'ऑर्डर (Orders)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>📦</Text>,
+          tabBarLabel: 'ऑर्डर',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={focused ? styles.activeIconWrap : undefined}>
+              <Icon
+                name={focused ? 'orders' : 'ordersOutline'}
+                size={22}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
       <Tab.Screen
         name="KhataTab"
         component={KhataScreen}
         options={{
-          tabBarLabel: 'खाता (Khata)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>💰</Text>,
+          tabBarLabel: 'खाता',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={focused ? styles.activeIconWrap : undefined}>
+              <Icon
+                name={focused ? 'wallet' : 'walletOutline'}
+                size={22}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'प्रोफाइल (Profile)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>👤</Text>,
+          tabBarLabel: 'प्रोफ़ाइल',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={focused ? styles.activeIconWrap : undefined}>
+              <Icon
+                name={focused ? 'profile' : 'profileOutline'}
+                size={22}
+                color={color}
+              />
+            </View>
+          ),
         }}
       />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  activeIconWrap: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+});

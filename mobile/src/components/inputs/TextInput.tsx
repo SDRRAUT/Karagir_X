@@ -1,57 +1,160 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
   StyleSheet,
   ViewStyle,
+  Pressable,
 } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
+import { Icon, IconName } from '@/components/icons/Icon';
 
 export interface TextInputProps extends RNTextInputProps {
   label?: string;
+  helperText?: string;
   error?: string;
+  leftIcon?: React.ReactNode;
+  leftIconName?: IconName;
+  rightIcon?: React.ReactNode;
+  rightIconName?: IconName;
+  onRightIconPress?: () => void;
   containerStyle?: ViewStyle;
 }
 
 export const TextInput: React.FC<TextInputProps> = ({
   label,
+  helperText,
   error,
+  leftIcon,
+  leftIconName,
+  rightIcon,
+  rightIconName,
+  onRightIconPress,
   containerStyle,
   style,
+  onFocus,
+  onBlur,
   ...props
 }) => {
   const theme = useTheme();
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = (e: any) => {
+    setIsFocused(true);
+    onFocus?.(e);
+  };
+
+  const handleBlur = (e: any) => {
+    setIsFocused(false);
+    onBlur?.(e);
+  };
+
+  const borderColor = error
+    ? theme.colors.status.error
+    : isFocused
+    ? theme.colors.brand.primary
+    : theme.colors.border.default;
+
+  const borderWidth = isFocused || error ? 1.5 : 1;
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <Text variant="bodyMedium" weight="medium" color={theme.colors.text.secondary} style={styles.label}>
+        <Text
+          variant="labelLarge"
+          weight="medium"
+          color={error ? theme.colors.status.error : theme.colors.text.secondary}
+          style={styles.label}
+        >
           {label}
         </Text>
       )}
-      <RNTextInput
-        placeholderTextColor={theme.colors.text.muted}
+
+      <View
         style={[
-          styles.input,
+          styles.inputContainer,
           {
-            height: theme.touch.minTargetSize, // Minimum 56dp height
+            borderColor,
+            borderWidth,
+            borderRadius: theme.touch.radii.md,
             backgroundColor: theme.colors.surface.card,
-            borderColor: error ? theme.colors.status.danger : theme.colors.surface.border,
-            borderRadius: theme.touch.radii.card,
-            color: theme.colors.text.primary,
-            fontSize: theme.typography.sizes.bodyLarge,
+            height: theme.touch.buttonHeight,
           },
-          style,
         ]}
-        {...props}
-      />
-      {error && (
-        <Text variant="bodySmall" color={theme.colors.status.danger} style={styles.errorText}>
-          {error}
+      >
+        {leftIcon ? (
+          <View style={styles.leftIconWrapper}>{leftIcon}</View>
+        ) : leftIconName ? (
+          <View style={styles.leftIconWrapper}>
+            <Icon
+              name={leftIconName}
+              size={20}
+              color={isFocused ? theme.colors.brand.primary : theme.colors.text.tertiary}
+            />
+          </View>
+        ) : null}
+
+        <RNTextInput
+          placeholderTextColor={theme.colors.text.tertiary}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          style={[
+            styles.input,
+            {
+              color: theme.colors.text.primary,
+              fontSize: theme.typography.sizes.bodyLarge,
+              fontFamily: theme.typography.fonts.regular,
+            },
+            style,
+          ]}
+          {...props}
+        />
+
+        {rightIcon ? (
+          <Pressable
+            disabled={!onRightIconPress}
+            onPress={onRightIconPress}
+            style={styles.rightIconWrapper}
+          >
+            {rightIcon}
+          </Pressable>
+        ) : rightIconName ? (
+          <Pressable
+            disabled={!onRightIconPress}
+            onPress={onRightIconPress}
+            style={styles.rightIconWrapper}
+          >
+            <Icon
+              name={rightIconName}
+              size={20}
+              color={theme.colors.text.tertiary}
+            />
+          </Pressable>
+        ) : null}
+      </View>
+
+      {error ? (
+        <View style={styles.feedbackRow}>
+          <Icon name="alertCircle" size={14} color={theme.colors.status.error} />
+          <Text
+            variant="bodySmall"
+            color={theme.colors.status.error}
+            style={styles.feedbackText}
+          >
+            {error}
+          </Text>
+        </View>
+      ) : helperText ? (
+        <Text
+          variant="bodySmall"
+          color={theme.colors.text.tertiary}
+          style={styles.feedbackText}
+        >
+          {helperText}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 };
@@ -64,11 +167,31 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 6,
   },
-  input: {
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
   },
-  errorText: {
+  input: {
+    flex: 1,
+    height: '100%',
+    paddingVertical: 0,
+    paddingHorizontal: 4,
+  },
+  leftIconWrapper: {
+    marginRight: 8,
+  },
+  rightIconWrapper: {
+    marginLeft: 8,
+    padding: 4,
+  },
+  feedbackRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  feedbackText: {
     marginTop: 4,
   },
 });
