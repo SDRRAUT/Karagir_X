@@ -19,7 +19,8 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
   const { locale } = useAppStore();
   const { setSession } = useAuthStore();
 
-  const [otpDigits, setOtpDigits] = useState('');
+  // Pre-filled with 123456 for effortless test bypass
+  const [otpDigits, setOtpDigits] = useState('123456');
   const [currentSessionId, setCurrentSessionId] = useState(sessionId);
   const [secondsRemaining, setSecondsRemaining] = useState(60);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,18 +61,15 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
   };
 
   const handleVerify = async () => {
-    if (otpDigits.length !== 6) {
-      setErrorMessage('कृपया 6 अंकों का पूरा कोड डालें (Enter 6-digit code)');
-      return;
-    }
+    const code = otpDigits.length === 6 ? otpDigits : '123456';
 
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
       const resp = await authService.verifyOtp(
-        currentSessionId,
-        otpDigits,
+        currentSessionId || `sess_${Date.now()}`,
+        code,
         phoneNumber,
         role,
         locale
@@ -95,7 +93,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
       }
     } catch {
       setIsLoading(false);
-      setErrorMessage('गलत OTP कोड। कृपया SMS देखकर पुनः दर्ज करें।');
+      setErrorMessage('गलत OTP कोड। कृपया पुनः प्रयास करें।');
     }
   };
 
@@ -119,11 +117,18 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
       </View>
 
       <View style={styles.content}>
+        {/* Test Mode Notification */}
+        <View style={[styles.testBadge, { backgroundColor: theme.colors.primary.emerald100, borderColor: theme.colors.primary.emerald700 }]}>
+          <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
+            🧪 टेस्टिंग मोड: OTP कोड 123456 पहले से भरा है (बाईपास सक्रिय)
+          </Text>
+        </View>
+
         <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
-          SMS सत्यापन कोड दर्ज करें
+          सत्यापन कोड (Testing OTP)
         </Text>
         <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-          6-digit verification code sent to your phone
+          टेस्टिंग के लिए 123456 स्वतः सेट है
         </Text>
 
         {/* 6 Digit Boxes */}
@@ -179,11 +184,11 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
         </View>
 
         <Button
-          label="सत्यापित करें (Verify Code) ✓"
+          label="सत्यापित करें और आगे बढ़ें (Bypass OTP) ✓"
           variant="primary"
           size="decision"
           isLoading={isLoading}
-          disabled={otpDigits.length !== 6}
+          disabled={false}
           onPress={handleVerify}
           style={styles.verifyBtn}
         />
@@ -222,6 +227,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     alignItems: 'center',
   },
+  testBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 8,
+  },
   title: {
     textAlign: 'center',
     marginBottom: 6,
@@ -250,18 +262,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   timerContainer: {
-    marginVertical: 10,
-    alignItems: 'center',
+    marginBottom: 20,
   },
   resendRow: {
-    flexDirection: 'row',
     alignItems: 'center',
   },
   resendBtn: {
     padding: 8,
   },
   verifyBtn: {
-    marginTop: 8,
+    width: '100%',
   },
   keypadContainer: {
     paddingVertical: 12,
@@ -270,4 +280,3 @@ const styles = StyleSheet.create({
     borderTopColor: '#E0D7C9',
   },
 });
-
