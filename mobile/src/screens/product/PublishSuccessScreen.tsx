@@ -30,28 +30,35 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Celebration Header */}
         <View style={styles.headerBox}>
-          <Text style={styles.confettiIcon}>🎉</Text>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700} style={styles.title}>
+          <View style={styles.celebrateCircle}>
+            <Text style={{ fontSize: 36 }}>🎉</Text>
+          </View>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
             बधाई हो! आपका प्रोडक्ट लाइव है
           </Text>
-          <Text variant="headlineSmall" color={theme.colors.terracotta.primary} style={styles.vernacularTitle}>
-            Congratulations! Your Craft is Now Live
+          <Text variant="bodyMedium" color={theme.colors.terracotta[600]} style={styles.vernacularTitle}>
+            Congratulations! Your Craft is Now Live on Marketplace
           </Text>
         </View>
 
-        {/* Digital Craft Passport Card */}
-        <Card style={styles.passportCard}>
+        {/* Digital Craft Passport Card (Stitch Passport style) */}
+        <Card style={styles.passportCard} variant="elevated">
           <View style={styles.passportHeader}>
-            <Text style={styles.shieldIcon}>🛡️</Text>
-            <View>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+            <View style={styles.shieldBox}>
+              <Text style={{ fontSize: 22 }}>🛡️</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.passportBadge}>
+                <Text style={styles.passportBadgeText}>GI CERTIFIED DIGITAL PASSPORT</Text>
+              </View>
+              <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
                 डिजिटल शिल्प पासपोर्ट (Craft Passport)
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
                 100% प्रामाणिक हस्तनिर्मित सत्यापन
               </Text>
             </View>
@@ -67,22 +74,22 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
               }}
               style={styles.qrImage}
             />
-            <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 8 }}>
-              इस QR कोड को स्कैन करके खरीदार आपकी कहानी और शिल्पकारी देख सकते हैं।
+            <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={styles.qrCaption}>
+              इस QR कोड को स्कैन करके खरीदार आपकी कहानी, प्रामाणिकता और हस्तनिर्मित वीडियो देख सकते हैं।
             </Text>
           </View>
         </Card>
 
         {/* Product Summary Pill Card */}
-        <Card style={styles.summaryCard}>
-          <Text variant="bodyMedium" weight="bold" color={theme.colors.text.primary}>
+        <Card style={styles.summaryCard} variant="elevated">
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
             {publishedProduct?.title.hi || 'पारंपरिक हस्तकला पेंटिंग'}
           </Text>
           <View style={styles.priceRow}>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              विक्रय मूल्य (Listing Price):
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+              लिस्टिंग विक्रय मूल्य (Live Price):
             </Text>
-            <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{(publishedProduct?.sellingPrice || 2150).toLocaleString('en-IN')}
             </Text>
           </View>
@@ -91,17 +98,17 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
         {/* Action Buttons */}
         <View style={styles.buttonStack}>
           <Button
-            label="व्हाट्सएप पर शेयर करें (Share on WhatsApp) 📲"
+            label="व्हाट्सएप पर शेयर करें (WhatsApp) 📲"
             variant="secondary"
-            size="decision"
+            size="default"
             onPress={handleShareWhatsApp}
             style={styles.shareBtn}
           />
 
           <Button
-            label="होम डैशबोर्ड पर जाएं (Go to Dashboard) 🏠"
+            label="होम डैशबोर्ड पर जाएं (Go to Home Dashboard) 🏠"
             variant="primary"
-            size="decision"
+            size="default"
             onPress={handleGoHome}
           />
         </View>
@@ -115,29 +122,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 24,
+    padding: 20,
     alignItems: 'center',
+    paddingBottom: 40,
   },
   headerBox: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 18,
   },
-  confettiIcon: {
-    fontSize: 56,
-    marginBottom: 8,
+  celebrateCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#FFF2EB',
+    borderWidth: 2,
+    borderColor: '#E85D2A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   vernacularTitle: {
     textAlign: 'center',
-    marginBottom: 16,
+    fontWeight: '600',
   },
   passportCard: {
     width: '100%',
-    padding: 16,
-    alignItems: 'center',
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
     marginBottom: 16,
   },
   passportHeader: {
@@ -145,9 +163,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  shieldIcon: {
-    fontSize: 28,
-    marginRight: 10,
+  shieldBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#E8F5EE',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  passportBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E8F5EE',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  passportBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#1B5E38',
+    letterSpacing: 0.5,
   },
   qrContainer: {
     alignItems: 'center',
@@ -156,6 +193,11 @@ const styles = StyleSheet.create({
     width: 180,
     height: 180,
     borderRadius: 12,
+  },
+  qrCaption: {
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 18,
   },
   summaryCard: {
     width: '100%',

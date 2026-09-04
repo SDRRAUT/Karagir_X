@@ -50,11 +50,11 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           },
         ]}
       />
-      {message && (
+      {message ? (
         <Text variant="bodyMedium" weight="medium" color={theme.colors.text.secondary} style={styles.message}>
           {message}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 };

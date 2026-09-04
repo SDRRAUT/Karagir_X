@@ -4,10 +4,12 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 export interface CardProps extends ViewProps {
   elevationLevel?: 0 | 1 | 2 | 3;
+  variant?: 'elevated' | 'outlined' | 'flat' | string;
 }
 
 export const Card: React.FC<CardProps> = ({
   elevationLevel = 1,
+  variant,
   style,
   children,
   ...props
@@ -15,7 +17,7 @@ export const Card: React.FC<CardProps> = ({
   const theme = useTheme();
 
   const shadowStyle =
-    elevationLevel === 0
+    variant === 'flat' || variant === 'outlined' || elevationLevel === 0
       ? theme.shadows.level0
       : elevationLevel === 1
       ? theme.shadows.level1
@@ -26,8 +28,8 @@ export const Card: React.FC<CardProps> = ({
   const cardStyle: ViewStyle = {
     backgroundColor: theme.colors.surface.card,
     borderRadius: theme.touch.radii.card,
-    borderWidth: 1.5,
-    borderColor: theme.colors.surface.border,
+    borderWidth: variant === 'flat' ? 0 : 1.5,
+    borderColor: variant === 'flat' ? 'transparent' : theme.colors.surface.border,
     padding: theme.spacing.md,
     ...shadowStyle,
   };

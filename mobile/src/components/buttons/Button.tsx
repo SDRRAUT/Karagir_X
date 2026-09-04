@@ -10,8 +10,8 @@ import {
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'terracotta' | 'outline' | 'danger';
-export type ButtonSize = 'default' | 'decision';
+export type ButtonVariant = 'primary' | 'secondary' | 'terracotta' | 'outline' | 'danger' | 'forest';
+export type ButtonSize = 'default' | 'decision' | 'sm';
 
 export interface ButtonProps extends TouchableOpacityProps {
   label: string;
@@ -36,50 +36,62 @@ export const Button: React.FC<ButtonProps> = ({
   const theme = useTheme();
 
   const isOutline = variant === 'outline';
-  const height = size === 'decision' ? theme.touch.buttonHeightDecision : theme.touch.buttonHeightPrimary;
+  const height =
+    size === 'decision'
+      ? theme.touch.buttonHeightDecision
+      : size === 'sm'
+      ? 44
+      : theme.touch.buttonHeightPrimary;
 
-  let backgroundColor: string = theme.colors.primary.emerald700;
+  let backgroundColor: string = theme.colors.brand.primary; // Stitch Terracotta #E85D2A
   let textColor: string = theme.colors.text.inverse;
   let borderColor: string = 'transparent';
 
   switch (variant) {
+    case 'primary':
     case 'terracotta':
-      backgroundColor = theme.colors.terracotta.primary;
+      backgroundColor = theme.colors.brand.primary;
+      textColor = theme.colors.text.inverse;
       break;
     case 'outline':
       backgroundColor = 'transparent';
-      textColor = theme.colors.primary.emerald700;
-      borderColor = theme.colors.primary.emerald700;
+      textColor = theme.colors.brand.primary;
+      borderColor = theme.colors.brand.primary;
       break;
     case 'secondary':
-      backgroundColor = theme.colors.surface.subtle;
-      textColor = theme.colors.primary.emerald700;
-      borderColor = theme.colors.surface.border;
+      backgroundColor = theme.colors.surface.subtle; // #F6F1EA
+      textColor = theme.colors.charcoal[900];
+      borderColor = theme.colors.surface.border; // #EFEAE3
+      break;
+    case 'forest':
+      backgroundColor = theme.colors.primary.emerald700; // #1B5E38
+      textColor = theme.colors.text.inverse;
       break;
     case 'danger':
       backgroundColor = theme.colors.status.danger;
+      textColor = theme.colors.text.inverse;
       break;
   }
 
   if (disabled) {
-    backgroundColor = isOutline ? 'transparent' : theme.colors.surface.subtle;
+    backgroundColor = isOutline ? 'transparent' : theme.colors.sand[200];
     textColor = theme.colors.text.muted;
     borderColor = isOutline ? theme.colors.surface.border : 'transparent';
   }
 
   const containerStyle: ViewStyle = {
     height,
-    minHeight: theme.touch.minTargetSize, // Enforces >=56dp touch boundary
+    minHeight: size === 'sm' ? 44 : theme.touch.minTargetSize,
     backgroundColor,
-    borderRadius: theme.touch.radii.card,
-    borderWidth: isOutline ? 2 : 0,
+    borderRadius: theme.borderRadius.lg, // Stitch 12px
+    borderWidth: isOutline || variant === 'secondary' ? 1.5 : 0,
     borderColor,
-    ...(!isOutline && !disabled ? theme.shadows.level1 : {}),
+    ...(!isOutline && !disabled ? (variant === 'primary' ? theme.shadows.level2 : theme.shadows.level1) : {}),
   };
 
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       disabled={disabled || isLoading}
       style={[styles.base, containerStyle, style]}
       accessibilityRole="button"
@@ -93,7 +105,7 @@ export const Button: React.FC<ButtonProps> = ({
         <View style={styles.contentRow}>
           {leftIcon && <View style={styles.iconWrapper}>{leftIcon}</View>}
           <Text
-            variant={size === 'decision' ? 'headlineMedium' : 'bodyLarge'}
+            variant={size === 'decision' ? 'headlineMedium' : size === 'sm' ? 'bodySmall' : 'bodyLarge'}
             weight="bold"
             color={textColor}
             style={styles.label}

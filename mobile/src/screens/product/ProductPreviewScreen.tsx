@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { productService } from '@/api/productService';
 
@@ -68,28 +69,17 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          कैटलॉग पूर्वावलोकन (Preview)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="कैटलॉग पूर्वावलोकन"
+        subtitle="Catalog & Digital Passport"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Main Product Image Carousel / Cover */}
-        <Card style={styles.imageCard}>
+        <Card style={styles.imageCard} variant="elevated">
           {primaryPhoto ? (
             <Image
               source={{ uri: primaryPhoto.enhancedUri || primaryPhoto.uri }}
@@ -103,57 +93,62 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           )}
 
           {/* Badge Over Photo */}
-          <View style={[styles.categoryBadge, { backgroundColor: theme.colors.primary.emerald700 }]}>
-            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              {craftCategoryName}
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryBadgeText}>
+              ✓ {craftCategoryName || 'प्रमाणित हस्तशिल्प'}
             </Text>
           </View>
         </Card>
 
         {/* Trilingual Language Selector Tabs */}
         <View style={styles.langRow}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.langLabel}>
-            भाषा बदलें (Language):
+          <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.langLabel}>
+            भाषा चुनें (Language):
           </Text>
           <View style={styles.langButtons}>
-            {(['hi', 'en', 'bn'] as const).map((lang) => (
-              <TouchableOpacity
-                key={lang}
-                onPress={() => setSelectedLang(lang)}
-                style={[
-                  styles.langBtn,
-                  selectedLang === lang && {
-                    backgroundColor: theme.colors.primary.emerald700,
-                    borderColor: theme.colors.primary.emerald700,
-                  },
-                ]}
-              >
-                <Text
-                  variant="bodySmall"
-                  weight="bold"
-                  color={selectedLang === lang ? '#FFFFFF' : theme.colors.text.primary}
+            {(['hi', 'en', 'bn'] as const).map((lang) => {
+              const isSelected = selectedLang === lang;
+              return (
+                <TouchableOpacity
+                  key={lang}
+                  onPress={() => setSelectedLang(lang)}
+                  style={[
+                    styles.langBtn,
+                    isSelected ? styles.langBtnActive : styles.langBtnInactive,
+                  ]}
                 >
-                  {lang === 'hi' ? 'हिन्दी' : lang === 'en' ? 'English' : 'বাংলা'}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    variant="bodySmall"
+                    weight="bold"
+                    color={isSelected ? '#FFFFFF' : theme.colors.charcoal[800]}
+                  >
+                    {lang === 'hi' ? 'हिन्दी' : lang === 'en' ? 'English' : 'বাংলা'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
         {/* Product Details Card */}
-        <Card style={styles.detailsCard}>
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary} style={styles.titleText}>
+        <Card style={styles.detailsCard} variant="elevated">
+          <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.titleText}>
             {displayTitle}
           </Text>
 
           {/* Price Bar */}
           <View style={styles.priceRow}>
-            <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700}>
-              ₹{(finalSellingPrice || 2150).toLocaleString('en-IN')}
-            </Text>
-            <View style={[styles.verifiedBadge, { backgroundColor: theme.colors.primary.emerald100 }]}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900}>
-                ✓ प्रामाणिक हस्तशिल्प
+            <View>
+              <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+                स्वीकृत विक्रय मूल्य (Selling Price)
+              </Text>
+              <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={{ marginTop: 2 }}>
+                ₹{(finalSellingPrice || 2150).toLocaleString('en-IN')}
+              </Text>
+            </View>
+            <View style={styles.verifiedBadge}>
+              <Text style={styles.verifiedBadgeText}>
+                ✓ 100% प्रामाणिक हस्तशिल्प
               </Text>
             </View>
           </View>
@@ -161,27 +156,27 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.divider} />
 
           {/* Cultural Storytelling Copy */}
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={styles.sectionHeading}>
+          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionHeading}>
             शिल्प की कहानी (Artisan Story):
           </Text>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.descriptionText}>
+          <Text variant="bodyMedium" color={theme.colors.charcoal[700]} style={styles.descriptionText}>
             {displayDescription}
           </Text>
 
           {/* Care Instructions */}
-          {careInstructions.hi ? (
-            <View style={[styles.careBox, { backgroundColor: '#FFF8E1' }]}>
-              <Text variant="bodySmall" weight="bold" color="#795548">
+          {Boolean(careInstructions.hi) && (
+            <View style={styles.careBox}>
+              <Text variant="bodySmall" weight="bold" color="#59413A">
                 💡 देखभाल के निर्देश: {careInstructions.hi}
               </Text>
             </View>
-          ) : null}
+          )}
 
           {/* Tags */}
           <View style={styles.tagsContainer}>
             {tags.map((tag, idx) => (
               <View key={idx} style={styles.tagPill}>
-                <Text variant="bodySmall" color={theme.colors.primary.emerald700}>
+                <Text style={styles.tagText}>
                   #{tag}
                 </Text>
               </View>
@@ -191,11 +186,11 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Sticky Bottom Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
           label={isPublishing ? 'पब्लिश हो रहा है...' : 'दुकान में पब्लिश करें (Publish to Store) 🚀'}
           variant="primary"
-          size="decision"
+          size="default"
           isLoading={isPublishing}
           onPress={handlePublish}
         />
@@ -208,19 +203,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
@@ -228,16 +210,19 @@ const styles = StyleSheet.create({
   imageCard: {
     padding: 0,
     overflow: 'hidden',
-    borderRadius: 20,
+    borderRadius: 16,
     position: 'relative',
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
+    backgroundColor: '#FFFFFF',
   },
   mainImage: {
     width: '100%',
     height: 280,
   },
   placeholderImage: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#F3EFE9',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -245,9 +230,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     left: 12,
+    backgroundColor: 'rgba(232, 93, 42, 0.92)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: 5,
+    borderRadius: 8,
+  },
+  categoryBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   langRow: {
     flexDirection: 'row',
@@ -264,34 +255,50 @@ const styles = StyleSheet.create({
   langBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderRadius: 12,
     marginLeft: 6,
+    borderWidth: 1,
+  },
+  langBtnActive: {
+    backgroundColor: '#E85D2A',
+    borderColor: '#E85D2A',
+  },
+  langBtnInactive: {
     backgroundColor: '#FFFFFF',
+    borderColor: '#EFEAE3',
   },
   detailsCard: {
-    padding: 16,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
   },
   titleText: {
     lineHeight: 28,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   verifiedBadge: {
+    backgroundColor: '#E8F5EE',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
   },
+  verifiedBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#1B5E38',
+  },
   divider: {
     height: 1,
-    backgroundColor: '#E0D7C9',
-    marginVertical: 12,
+    backgroundColor: '#EFEAE3',
+    marginVertical: 14,
   },
   sectionHeading: {
     marginBottom: 6,
@@ -301,8 +308,11 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   careBox: {
-    padding: 10,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: '#FFF7E8',
+    borderWidth: 1,
+    borderColor: '#FFE082',
     marginBottom: 14,
   },
   tagsContainer: {
@@ -310,21 +320,32 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   tagPill: {
-    backgroundColor: '#F3EFE6',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: '#F3EFE9',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     marginRight: 6,
     marginBottom: 6,
+  },
+  tagText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#E85D2A',
   },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    shadowColor: '#141815',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });
+

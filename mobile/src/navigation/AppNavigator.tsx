@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/theme/ThemeProvider';
 import { MainTabParamList } from './types';
@@ -17,19 +18,19 @@ export const AppNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.primary.emerald700,
+        tabBarActiveTintColor: theme.colors.brand.primary, // Stitch Terracotta #E85D2A
         tabBarInactiveTintColor: theme.colors.text.secondary,
         tabBarStyle: {
-          height: 72, // 72dp clearance per Design System Section 12.1
+          height: 70,
           backgroundColor: theme.colors.surface.card,
-          borderTopWidth: 1.5,
-          borderTopColor: theme.colors.surface.border,
-          paddingBottom: 10,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.sand[200],
+          paddingBottom: 8,
           paddingTop: 8,
           ...theme.shadows.level4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '700',
         },
       }}
@@ -39,7 +40,12 @@ export const AppNavigator: React.FC = () => {
         component={HomeScreen}
         options={{
           tabBarLabel: 'होम (Home)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>🏠</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Text style={{ fontSize: 20 }}>🏠</Text>
+              {focused && <View style={[styles.activeDot, { backgroundColor: theme.colors.brand.primary }]} />}
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -47,7 +53,12 @@ export const AppNavigator: React.FC = () => {
         component={OrdersScreen}
         options={{
           tabBarLabel: 'ऑर्डर (Orders)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>📦</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Text style={{ fontSize: 20 }}>📦</Text>
+              {focused && <View style={[styles.activeDot, { backgroundColor: theme.colors.brand.primary }]} />}
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -55,7 +66,12 @@ export const AppNavigator: React.FC = () => {
         component={KhataScreen}
         options={{
           tabBarLabel: 'खाता (Khata)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>💰</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Text style={{ fontSize: 20 }}>💰</Text>
+              {focused && <View style={[styles.activeDot, { backgroundColor: theme.colors.brand.primary }]} />}
+            </View>
+          ),
         }}
       />
       <Tab.Screen
@@ -63,9 +79,27 @@ export const AppNavigator: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'प्रोफाइल (Profile)',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 22, color }}>👤</Text>,
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.tabIconContainer}>
+              <Text style={{ fontSize: 20 }}>👤</Text>
+              {focused && <View style={[styles.activeDot, { backgroundColor: theme.colors.brand.primary }]} />}
+            </View>
+          ),
         }}
       />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    marginTop: 2,
+  },
+});

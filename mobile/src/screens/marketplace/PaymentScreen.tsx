@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/navigation/types';
+ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useCartStore } from '@/store/useCartStore';
 import { useOrderStore } from '@/store/useOrderStore';
 import { orderService } from '@/api/orderService';
@@ -30,10 +31,8 @@ export const PaymentScreen: React.FC<Props> = ({ navigation }) => {
     setIsProcessing(true);
 
     try {
-      // 1. Verify Payment Intent in Escrow Vault
       await paymentService.verifyPayment('intent_demo', selectedMethod);
 
-      // 2. Create Order in Escrow Locked State
       const newOrder = await orderService.createOrder({
         items: items.map((i) => ({
           productId: i.productId,
@@ -66,168 +65,132 @@ export const PaymentScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const methods: { id: PaymentMethodType; icon: string; title: string; desc: string; badge?: string }[] = [
+    {
+      id: 'UPI',
+      icon: '⚡',
+      title: 'UPI (GPay, PhonePe, Paytm, BHIM)',
+      desc: 'शून्य अतिरिक्त शुल्क • तुरंत एस्क्रो लॉकिंग',
+      badge: 'सर्वाधिक लोकप्रिय',
+    },
+    {
+      id: 'CARDS',
+      icon: '💳',
+      title: 'क्रेडिट / डेबिट कार्ड (Cards)',
+      desc: 'Visa, MasterCard, RuPay सुरक्षित 3D Secure OTP',
+    },
+    {
+      id: 'NETBANKING',
+      icon: '🏦',
+      title: 'नेट बैंकिंग (NetBanking)',
+      desc: 'SBI, HDFC, ICICI, PNB सहित 50+ भारतीय बैंक',
+    },
+    {
+      id: 'COD',
+      icon: '📦',
+      title: 'कैश ऑन डिलीवरी (Cash on Delivery)',
+      desc: 'पार्सल डाकिए से मिलने पर नकद भुगतान करें',
+    },
+  ];
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          सुरक्षित भुगतान (Escrow Vault)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="सुरक्षित भुगतान (Escrow Vault)"
+        subtitle="RBI Nodal Escrow Protection"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Nodal Escrow Safety Guarantee Box */}
-        <Card style={[styles.escrowCard, { backgroundColor: theme.colors.primary.emerald100, borderColor: theme.colors.primary.emerald700 }]}>
-          <View style={styles.escrowHeader}>
-            <Text style={{ fontSize: 32, marginRight: 10 }}>🛡️</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald900}>
-                RBI नोडल एस्क्रो सुरक्षित भुगतान
+        <View style={styles.escrowBanner}>
+          <View style={styles.escrowIconBox}>
+            <Text style={{ fontSize: 24 }}>🛡️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={styles.escrowBadge}>
+              <Text style={styles.escrowBadgeText}>100% ESCROW PROTECTED</Text>
+            </View>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.forest[800]}>
+              RBI नोडल एस्क्रो सुरक्षित प्रणाली
+            </Text>
+            <Text variant="bodySmall" color={theme.colors.forest[700]} style={{ marginTop: 2, lineHeight: 18 }}>
+              शून्य-शोषण गारंटी: आपकी राशि सुरक्षित रहेगी और पार्सल मिलने व संतुष्ट होने पर ही कारीगर को जारी होगी।
+            </Text>
+          </View>
+        </View>
+
+        {/* Amount to Pay Banner */}
+        <Card style={styles.amountCard} variant="elevated">
+          <View style={styles.amountContentRow}>
+            <View>
+              <Text variant="bodySmall" color={theme.colors.charcoal[500]} weight="medium">
+                कुल भुगतान राशि (Amount to Pay)
               </Text>
-              <Text variant="bodySmall" color={theme.colors.primary.emerald900} style={{ marginTop: 2 }}>
-                100% शून्य-शोषण गारंटी: आपका पैसा सुरक्षित रहता है और पार्सल मिलने पर ही कारीगर को जारी किया जाता है।
+              <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={{ marginTop: 2 }}>
+                ₹{total.toLocaleString('en-IN')}
               </Text>
+            </View>
+            <View style={styles.verifiedBadge}>
+              <Text style={styles.verifiedBadgeText}>✓ ऑल टैक्स शामिल</Text>
             </View>
           </View>
         </Card>
 
-        {/* Amount to Pay Banner */}
-        <View style={styles.amountCard}>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary}>
-            कुल भुगतान राशि (Amount to Pay):
-          </Text>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700}>
-            ₹{total.toLocaleString('en-IN')}
-          </Text>
-        </View>
-
         {/* Payment Methods */}
-        <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.sectionTitle}>
+        <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionTitle}>
           भुगतान का तरीका चुनें:
         </Text>
 
-        {/* UPI Option */}
-        <TouchableOpacity
-          onPress={() => setSelectedMethod('UPI')}
-          style={[
-            styles.methodCard,
-            selectedMethod === 'UPI' && {
-              borderColor: theme.colors.primary.emerald700,
-              backgroundColor: theme.colors.primary.emerald50 || '#F0F9F0',
-              borderWidth: 2,
-            },
-          ]}
-        >
-          <View style={styles.methodRow}>
-            <Text style={{ fontSize: 26, marginRight: 12 }}>⚡</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-                UPI (Google Pay, PhonePe, Paytm, BHIM)
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                शून्य अतिरिक्त शुल्क • तुरंत एस्क्रो लॉकिंग
-              </Text>
-            </View>
-            <View style={[styles.radioCircle, selectedMethod === 'UPI' && styles.radioSelected]} />
-          </View>
-        </TouchableOpacity>
+        {methods.map((method) => {
+          const isSelected = selectedMethod === method.id;
+          return (
+            <TouchableOpacity
+              key={method.id}
+              activeOpacity={0.85}
+              onPress={() => setSelectedMethod(method.id)}
+              style={[
+                styles.methodCard,
+                isSelected ? styles.methodCardSelected : styles.methodCardNormal,
+              ]}
+            >
+              <View style={styles.methodRow}>
+                <View style={[styles.methodIconBox, isSelected && styles.methodIconBoxSelected]}>
+                  <Text style={{ fontSize: 22 }}>{method.icon}</Text>
+                </View>
 
-        {/* Cards Option */}
-        <TouchableOpacity
-          onPress={() => setSelectedMethod('CARDS')}
-          style={[
-            styles.methodCard,
-            selectedMethod === 'CARDS' && {
-              borderColor: theme.colors.primary.emerald700,
-              backgroundColor: theme.colors.primary.emerald50 || '#F0F9F0',
-              borderWidth: 2,
-            },
-          ]}
-        >
-          <View style={styles.methodRow}>
-            <Text style={{ fontSize: 26, marginRight: 12 }}>💳</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-                क्रेडिट / डेबिट कार्ड (Cards)
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                Visa, MasterCard, RuPay सुरक्षित 3D Secure OTP
-              </Text>
-            </View>
-            <View style={[styles.radioCircle, selectedMethod === 'CARDS' && styles.radioSelected]} />
-          </View>
-        </TouchableOpacity>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+                      {method.title}
+                    </Text>
+                    {Boolean(method.badge) && (
+                      <View style={styles.popularBadge}>
+                        <Text style={styles.popularBadgeText}>{method.badge}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
+                    {method.desc}
+                  </Text>
+                </View>
 
-        {/* NetBanking Option */}
-        <TouchableOpacity
-          onPress={() => setSelectedMethod('NETBANKING')}
-          style={[
-            styles.methodCard,
-            selectedMethod === 'NETBANKING' && {
-              borderColor: theme.colors.primary.emerald700,
-              backgroundColor: theme.colors.primary.emerald50 || '#F0F9F0',
-              borderWidth: 2,
-            },
-          ]}
-        >
-          <View style={styles.methodRow}>
-            <Text style={{ fontSize: 26, marginRight: 12 }}>🏦</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-                नेट बैंकिंग (NetBanking)
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                SBI, HDFC, ICICI, PNB सहित 50+ भारतीय बैंक
-              </Text>
-            </View>
-            <View style={[styles.radioCircle, selectedMethod === 'NETBANKING' && styles.radioSelected]} />
-          </View>
-        </TouchableOpacity>
-
-        {/* COD Option */}
-        <TouchableOpacity
-          onPress={() => setSelectedMethod('COD')}
-          style={[
-            styles.methodCard,
-            selectedMethod === 'COD' && {
-              borderColor: theme.colors.primary.emerald700,
-              backgroundColor: theme.colors.primary.emerald50 || '#F0F9F0',
-              borderWidth: 2,
-            },
-          ]}
-        >
-          <View style={styles.methodRow}>
-            <Text style={{ fontSize: 26, marginRight: 12 }}>📦</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-                कैश ऑन डिलीवरी (Cash on Delivery)
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                पार्सल डाकिए से मिलने पर नकद भुगतान करें
-              </Text>
-            </View>
-            <View style={[styles.radioCircle, selectedMethod === 'COD' && styles.radioSelected]} />
-          </View>
-        </TouchableOpacity>
+                <View style={[styles.radioCircle, isSelected && styles.radioSelected]}>
+                  {isSelected && <View style={styles.radioInner} />}
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       {/* Sticky Bottom Pay Button */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
           label={isProcessing ? 'सुरक्षित भुगतान हो रहा है...' : `₹${total.toLocaleString('en-IN')} का भुगतान करें 🔒`}
           variant="primary"
-          size="decision"
+          size="default"
           isLoading={isProcessing}
           onPress={handlePayNow}
         />
@@ -240,76 +203,144 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
   },
-  escrowCard: {
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    marginBottom: 16,
-  },
-  escrowHeader: {
+  escrowBanner: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#E8F5EE',
+    borderWidth: 1,
+    borderColor: '#C3E6D0',
+    marginBottom: 16,
+  },
+  escrowIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  escrowBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#1B5E38',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  escrowBadgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
   amountCard: {
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
+    marginBottom: 20,
+  },
+  amountContentRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0D7C9',
-    marginBottom: 16,
+  },
+  verifiedBadge: {
+    backgroundColor: '#F3EFE9',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  verifiedBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#59413A',
   },
   sectionTitle: {
     marginBottom: 12,
   },
   methodCard: {
     padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E0D7C9',
-    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     marginBottom: 12,
+    borderWidth: 1.5,
+  },
+  methodCardNormal: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#EFEAE3',
+  },
+  methodCardSelected: {
+    backgroundColor: '#FFF8F5',
+    borderColor: '#E85D2A',
   },
   methodRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  radioCircle: {
-    width: 20,
-    height: 20,
+  methodIconBox: {
+    width: 40,
+    height: 40,
     borderRadius: 10,
+    backgroundColor: '#F7F4F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  methodIconBoxSelected: {
+    backgroundColor: '#FFE9DE',
+  },
+  popularBadge: {
+    marginLeft: 8,
+    backgroundColor: '#FFF2EB',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  popularBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#E85D2A',
+  },
+  radioCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#C0B6A3',
+    borderColor: '#D8D1C7',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   radioSelected: {
-    borderColor: '#1E5631',
-    backgroundColor: '#1E5631',
+    borderColor: '#E85D2A',
+  },
+  radioInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#E85D2A',
   },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    shadowColor: '#141815',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });
+

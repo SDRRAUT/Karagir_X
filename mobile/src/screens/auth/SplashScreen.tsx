@@ -35,34 +35,45 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   }, [navigation, isAuthenticated, user, isSessionExpired, isInitialized]);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
-        {/* Emblem */}
+        {/* Cultural Brand Emblem */}
         <View
           style={[
             styles.emblemContainer,
             {
-              backgroundColor: theme.colors.primary.emerald100,
-              borderColor: theme.colors.primary.emerald700,
+              backgroundColor: theme.colors.brand.light, // #FFF2EB
+              borderColor: theme.colors.brand.primary,
+              ...theme.shadows.level2,
             },
           ]}
         >
           <Text style={styles.emblemEmoji}>🏺</Text>
         </View>
 
-        {/* Title & Tagline */}
-        <Text variant="displayLarge" weight="bold" color={theme.colors.primary.emerald700} style={styles.title}>
+        {/* Title & Tagline in Stitch Identity */}
+        <Text
+          variant="displayLarge"
+          weight="bold"
+          color={theme.colors.brand.primary}
+          style={styles.title}
+        >
           कलाकार सेतु
         </Text>
-        <Text variant="headlineMedium" color={theme.colors.terracotta.primary} style={styles.tagline}>
+        <Text
+          variant="headlineMedium"
+          weight="semiBold"
+          color={theme.colors.charcoal[900]}
+          style={styles.tagline}
+        >
           कला से बाज़ार तक
         </Text>
         <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.subtext}>
-          Marginalized Artisans Market Linkage
+          Marginalized Artisans Direct Market Linkage
         </Text>
 
         <View style={styles.spinnerContainer}>
-          <LoadingSpinner size={36} message="" />
+          <LoadingSpinner size={36} />
         </View>
       </View>
     </SafeAreaView>
@@ -80,20 +91,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emblemContainer: {
-    width: 108,
-    height: 108,
-    borderRadius: 54,
-    borderWidth: 2,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    borderWidth: 2.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
   emblemEmoji: {
-    fontSize: 54,
+    fontSize: 50,
   },
   title: {
     textAlign: 'center',
     marginBottom: 6,
+    letterSpacing: -0.5,
   },
   tagline: {
     textAlign: 'center',
@@ -101,11 +113,10 @@ const styles = StyleSheet.create({
   },
   subtext: {
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   spinnerContainer: {
     position: 'absolute',
     bottom: 48,
   },
 });
-

@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { TactileKeypad } from '@/components/inputs/TactileKeypad';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -46,7 +47,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
 
     try {
-      // Testing Mode: OTP Verification bypassed per user directive for testing
+      // Direct Testing Auth mode
       const resp = await authService.verifyOtp(
         `test_session_${Date.now()}`,
         '123456',
@@ -79,49 +80,64 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const roleLabel =
     role === 'ARTISAN'
-      ? 'कारीगर खाता'
+      ? 'कारीगर खाता (Artisan)'
       : role === 'BUYER'
-      ? 'खरीदार खाता'
-      : 'सहयोगी खाता';
+      ? 'खरीदार खाता (Buyer)'
+      : 'सहयोगी खाता (Facilitator)';
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      {/* Stitch Master Header */}
+      <AppHeader
+        showBack
+        showBrand
+        rightAction={
+          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
+            <Text variant="caption" weight="bold" color={theme.colors.charcoal[800]}>
+              मदद / Help
+            </Text>
+          </View>
+        }
+      />
+
+      {/* Multi-segment visual stepper matching Stitch screenshot */}
+      <View style={styles.stepperContainer}>
+        <View style={styles.stepperBars}>
+          <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.primary }]} />
+          <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.primary }]} />
+          <View style={[styles.stepperBar, { backgroundColor: theme.colors.sand[200] }]} />
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={[styles.roleStagePill, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
+            <Text variant="caption" weight="bold" color="#065F46">
+              {roleLabel}
+            </Text>
+          </View>
+          <Text variant="caption" color={theme.colors.text.secondary}>
+            चरण 2/3
           </Text>
-        </TouchableOpacity>
-        <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700} style={styles.rolePill}>
-          {roleLabel}
-        </Text>
+        </View>
       </View>
 
       <View style={styles.content}>
-        {/* Testing Mode Badge */}
-        <View style={[styles.testBadge, { backgroundColor: theme.colors.primary.emerald100, borderColor: theme.colors.primary.emerald700 }]}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
+        {/* Testing Mode Alert Banner */}
+        <View style={styles.testModeBadge}>
+          <Text variant="bodySmall" weight="bold" color={theme.colors.brand.primary}>
             🧪 टेस्टिंग मोड: OTP सत्यापन हटाया गया है (Direct Test Login)
           </Text>
         </View>
 
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
-          अपना मोबाइल नंबर दर्ज करें
-        </Text>
-        <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-          नंबर दर्ज करते ही सीधा लॉगिन हो जाएगा (बिना OTP)
-        </Text>
-
-        {/* Quick Demo Autofill Button */}
+        {/* 1-Click Quick Fill Action Button */}
         <TouchableOpacity
           testID="quick-demo-btn"
-          style={[styles.quickDemoBtn, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.surface.border }]}
+          style={[
+            styles.quickDemoBtn,
+            {
+              backgroundColor: '#FEF3C7',
+              borderColor: '#FDE68A',
+              ...theme.shadows.level1,
+            },
+          ]}
           onPress={() => {
             setPhoneNumber('9876543210');
             handleLogin('9876543210');
@@ -129,12 +145,36 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
           accessibilityRole="button"
           accessibilityLabel="Fill demo phone and login"
         >
-          <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
+          <Text variant="bodySmall" weight="bold" color="#92400E">
             ⚡ टेस्ट नंबर 9876543210 से 1-क्लिक लॉगिन करें
           </Text>
         </TouchableOpacity>
 
-        {/* Big Phone Input Display */}
+        {/* Bolie Saathi Voice Guide Bar */}
+        <View style={[styles.voiceBar, { backgroundColor: '#FFF9E6', borderColor: '#FDE68A' }]}>
+          <View style={styles.voiceBarLeft}>
+            <View style={[styles.voiceMicCircle, { backgroundColor: theme.colors.brand.primary }]}>
+              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>🎙️</Text>
+            </View>
+            <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
+              बोलिए साथी: <Text variant="caption" color={theme.colors.text.secondary}>बोलकर नंबर भरें</Text>
+            </Text>
+          </View>
+          <View style={[styles.tapSpeakPill, { borderColor: theme.colors.brand.primary }]}>
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              Tap to Speak
+            </Text>
+          </View>
+        </View>
+
+        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
+          अपना मोबाइल नंबर दर्ज करें
+        </Text>
+        <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
+          नंबर दर्ज करते ही सीधा सुरक्षित लॉगिन हो जाएगा
+        </Text>
+
+        {/* Phone Input Display Card */}
         <View
           style={[
             styles.phoneDisplayCard,
@@ -143,16 +183,21 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               borderColor: errorMessage
                 ? theme.colors.status.danger
                 : phoneNumber.length === 10
-                ? theme.colors.primary.emerald700
-                : theme.colors.surface.border,
+                ? theme.colors.brand.primary
+                : theme.colors.sand[200],
               ...theme.shadows.level1,
             },
           ]}
         >
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700} style={styles.countryCode}>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.brand.primary} style={styles.countryCode}>
             🇮🇳 +91
           </Text>
-          <Text variant="numeralExtraBold" weight="bold" color={theme.colors.text.primary} style={styles.phoneDigits}>
+          <Text
+            variant="numeralExtraBold"
+            weight="bold"
+            color={phoneNumber ? theme.colors.charcoal[900] : theme.colors.text.muted}
+            style={styles.phoneDigits}
+          >
             {phoneNumber ? `${phoneNumber.slice(0, 5)} ${phoneNumber.slice(5)}` : '__________'}
           </Text>
         </View>
@@ -174,8 +219,17 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         />
       </View>
 
-      {/* Tactile Keypad */}
-      <View style={[styles.keypadContainer, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level3 }]}>
+      {/* Tactile Keypad Container */}
+      <View
+        style={[
+          styles.keypadContainer,
+          {
+            backgroundColor: theme.colors.surface.card,
+            borderTopColor: theme.colors.sand[200],
+            ...theme.shadows.level4,
+          },
+        ]}
+      >
         <TactileKeypad
           onPressDigit={handleDigit}
           onPressBackspace={handleBackspace}
@@ -191,21 +245,65 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  rolePill: {
+  helpPill: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    backgroundColor: '#E8F5E9',
-    borderRadius: 999,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  stepperContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  stepperBars: {
+    flexDirection: 'row',
+    gap: 6,
+    flex: 1,
+    maxWidth: 150,
+  },
+  stepperBar: {
+    height: 6,
+    flex: 1,
+    borderRadius: 3,
+  },
+  roleStagePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  voiceBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  voiceBarLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  voiceMicCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tapSpeakPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 14,
+    borderWidth: 1,
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -213,23 +311,35 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     alignItems: 'center',
   },
-  testBadge: {
+  roleBadge: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
     borderWidth: 1,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   title: {
     textAlign: 'center',
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   subtitle: {
     textAlign: 'center',
     marginBottom: 12,
   },
-  quickDemoBtn: {
+  testModeBadge: {
+    backgroundColor: '#EBF7EE',
+    borderColor: '#86C29B',
+    borderWidth: 1,
+    borderRadius: 12,
     paddingHorizontal: 14,
+    paddingVertical: 8,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickDemoBtn: {
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
@@ -244,7 +354,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 16,
     paddingHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   countryCode: {
     marginRight: 12,
@@ -260,9 +370,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   keypadContainer: {
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 8,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
   },
 });

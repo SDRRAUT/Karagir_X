@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { MOCK_OPPORTUNITIES } from '@/api/marketLinkageService';
 import { MarketOpportunity, useMarketLinkageStore } from '@/store/useMarketLinkageStore';
 
@@ -39,39 +40,35 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          ऑर्डर विवरण (Production Brief)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
+      <AppHeader
+        title="ऑर्डर विवरण (Production Brief)"
+        subtitle="Corporate RFQ Brief"
+        showBack={true}
+        onBackPress={() => navigation.goBack()}
+        onVoicePress={() => {}}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Buyer Verified Card */}
         <Card style={styles.buyerCard}>
           <View style={styles.buyerRow}>
-            <Text style={{ fontSize: 32, marginRight: 12 }}>🏢</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-                सत्यापित कॉर्पोरेट खरीदार (Verified Buyer)
-              </Text>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+            <View style={[styles.buyerIconCircle, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
+              <Text style={{ fontSize: 24 }}>🏢</Text>
+            </View>
+            <View style={{ flex: 1, paddingLeft: 12 }}>
+              <View style={styles.badgeRow}>
+                <View style={[styles.verifiedPill, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+                  <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
+                    सत्यापित कॉर्पोरेट खरीदार ✓
+                  </Text>
+                </View>
+              </View>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginTop: 2 }}>
                 {opportunity.buyerName}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                कुल थोक मांग: {opportunity.totalOrderQuantity} पीस
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                कुल थोक मांग: {opportunity.totalOrderQuantity} पीस • {opportunity.craftCategoryName}
               </Text>
             </View>
           </View>
@@ -80,28 +77,31 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
         {/* Vernacular Audio Explanation Brief */}
         <TouchableOpacity
           onPress={handleToggleAudio}
-          style={[styles.audioCard, { borderColor: theme.colors.primary.emerald700 }]}
+          style={[styles.audioCard, { borderColor: theme.colors.terracotta.primary }]}
+          activeOpacity={0.85}
           accessibilityRole="button"
           accessibilityLabel="Play audio production brief"
         >
-          <Text style={{ fontSize: 30, marginRight: 12 }}>{isPlayingAudio ? '⏸️' : '🎧'}</Text>
-          <View style={{ flex: 1 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
-              {isPlayingAudio ? 'ऑडियो बज रहा है (Playing)...' : 'ऑर्डर का विवरण बोलकर सुनें (Audio Brief)'}
+          <View style={[styles.audioIconCircle, { backgroundColor: theme.colors.terracotta.primary }]}>
+            <Text style={{ fontSize: 18, color: '#FFFFFF' }}>{isPlayingAudio ? '⏸️' : '🎧'}</Text>
+          </View>
+          <View style={{ flex: 1, paddingLeft: 12 }}>
+            <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+              {isPlayingAudio ? 'ऑडियो बज रहा है (Playing)...' : 'ऑर्डर का विवरण बोलकर सुनें'}
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              {isPlayingAudio ? 'टैप करके रोकें' : 'सुनिए इस ऑर्डर में आपको क्या और कब तक बनाना है'}
+            <Text variant="labelSmall" color={theme.colors.text.secondary}>
+              {isPlayingAudio ? 'रोकने के लिए टैप करें' : 'सुनिए इस ऑर्डर में आपको क्या और कब तक बनाना है'}
             </Text>
           </View>
         </TouchableOpacity>
 
         {/* Audio Transcript Card */}
         {isPlayingAudio && (
-          <Card style={[styles.transcriptCard, { backgroundColor: '#F0F9F0' }]}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900} style={{ marginBottom: 4 }}>
-              ऑडियो संदेश:
+          <Card style={[styles.transcriptCard, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
+            <Text variant="labelSmall" weight="bold" color="#1B5E38" style={{ marginBottom: 4 }}>
+              📢 बोली-साथी ऑडियो संदेश:
             </Text>
-            <Text variant="bodyMedium" color={theme.colors.primary.emerald900} style={{ lineHeight: 20 }}>
+            <Text variant="bodySmall" color="#1B5E38" style={{ lineHeight: 20 }}>
               "{opportunity.audioBriefTranscriptHi}"
             </Text>
           </Card>
@@ -114,52 +114,52 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
           </Text>
 
           <View style={styles.specRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
               आवंटित कोटा (Your Sub-Quota):
             </Text>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               {opportunity.artisanAllocatedQuota} पीस
             </Text>
           </View>
 
           <View style={styles.specRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
               तय दर प्रति पीस:
             </Text>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               ₹{opportunity.unitRateArtisan} / पीस
             </Text>
           </View>
 
           <View style={styles.specRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
               निर्माण समय सीमा (Timeline):
             </Text>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               {opportunity.deadlineDate}
             </Text>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
 
           <View style={styles.specRow}>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-              कुल पक्की कमाई (Total Payout):
+            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
+              कुल पक्की कमाई:
             </Text>
-            <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="headlineSmall" weight="bold" color="#1B5E38">
               ₹{opportunity.totalPotentialPayout.toLocaleString('en-IN')}
             </Text>
           </View>
 
           {/* Advance Working Capital Banner */}
-          <View style={[styles.advanceNotice, { backgroundColor: theme.colors.primary.emerald100 }]}>
+          <View style={[styles.advanceNotice, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
             <Text style={{ fontSize: 20, marginRight: 8 }}>💰</Text>
             <View style={{ flex: 1 }}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900}>
+              <Text variant="labelSmall" weight="bold" color="#1B5E38">
                 30% अग्रिम भुगतान गारंटी (Working Capital):
               </Text>
-              <Text variant="bodySmall" color={theme.colors.primary.emerald900}>
-                स्वीकार करते ही ₹{opportunity.upfrontMaterialAdvance.toLocaleString('en-IN')} आपके खाते में जमा होंगे।
+              <Text variant="labelSmall" color="#1B5E38">
+                स्वीकार करते ही ₹{opportunity.upfrontMaterialAdvance.toLocaleString('en-IN')} आपके बैंक खाते में जमा होंगे।
               </Text>
             </View>
           </View>
@@ -167,13 +167,13 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
 
         {/* Technical Specifications */}
         <Card style={styles.specsCard}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 10 }}>
             उत्पाद की गुणवत्ता व आवश्यकताएं:
           </Text>
           {opportunity.technicalSpecs.map((spec, index) => (
             <View key={index} style={styles.bulletRow}>
-              <Text style={styles.bulletDot}>•</Text>
-              <Text variant="bodyMedium" color={theme.colors.text.secondary} style={{ flex: 1, lineHeight: 20 }}>
+              <Text style={[styles.bulletDot, { color: theme.colors.terracotta.primary }]}>•</Text>
+              <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ flex: 1, lineHeight: 20 }}>
                 {spec}
               </Text>
             </View>
@@ -182,11 +182,10 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
       </ScrollView>
 
       {/* Bottom Sticky Action Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF' }]}>
         <Button
           label="कोटेशन स्वीकार करें व 30% एडवांस लें 🚀"
           variant="primary"
-          size="decision"
           onPress={handleProceedToQuote}
         />
       </View>
@@ -198,30 +197,34 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
   },
   buyerCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
   buyerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  buyerIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeRow: {
+    flexDirection: 'row',
+  },
+  verifiedPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: 2,
   },
   audioCard: {
     flexDirection: 'row',
@@ -232,11 +235,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginBottom: 12,
   },
+  audioIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   transcriptCard: {
+    borderRadius: 14,
     padding: 14,
     marginBottom: 14,
   },
   payoutCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
@@ -248,27 +260,26 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0D7C9',
     marginVertical: 10,
   },
   advanceNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 10,
+    padding: 12,
+    borderRadius: 12,
     marginTop: 12,
   },
   specsCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
   bulletRow: {
     flexDirection: 'row',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   bulletDot: {
     fontSize: 18,
-    color: '#1E5631',
     marginRight: 8,
     lineHeight: 20,
   },
@@ -279,7 +290,12 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 6,
   },
 });

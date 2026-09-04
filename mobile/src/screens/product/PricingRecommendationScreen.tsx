@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -7,14 +7,24 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
-import { PriceLedgerCard, PriceLedgerItem } from '@/components/cards/PriceLedgerCard';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PricingRecommendation'>;
 
 export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const { pricing, finalSellingPrice, setFinalSellingPrice } = useProductDraftStore();
+  const {
+    pricing,
+    finalSellingPrice,
+    setFinalSellingPrice,
+    photos,
+    primaryPhotoId,
+    craftCategoryName,
+  } = useProductDraftStore();
+
+  const primaryPhoto =
+    photos.find((p) => p.id === primaryPhotoId) || photos[0];
 
   const suggestedPrice = pricing?.suggested_price || 2150;
   const currentPrice = finalSellingPrice > 0 ? finalSellingPrice : suggestedPrice;
@@ -36,98 +46,150 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
     navigation.navigate('ProductPreview');
   };
 
-  const ledgerItems: PriceLedgerItem[] = [
-    {
-      icon: '🧵',
-      label: 'कच्चा माल (Materials)',
-      amount: pricing?.breakdown.material_cost || 350,
-    },
-    {
-      icon: '⏳',
-      label: 'कारीगर मेहनत (Labor Hours)',
-      amount: pricing?.breakdown.labor_cost || 1400,
-    },
-    {
-      icon: '🎨',
-      label: 'शिल्प जटिलता (Craft Complexity)',
-      amount: pricing?.breakdown.complexity_fee || 350,
-    },
-    {
-      icon: '📦',
-      label: 'सुरक्षित पैकेजिंग (Packaging)',
-      amount: pricing?.breakdown.packaging_cost || 80,
-    },
-    {
-      icon: '📈',
-      label: 'बाज़ार मांग संतुलन (Market Demand)',
-      amount: pricing?.breakdown.market_demand_adjustment || 120,
-    },
-  ];
+  const materialCost = pricing?.breakdown.material_cost || 350;
+  const laborCost = pricing?.breakdown.labor_cost || 1400;
+  const packagingCost = pricing?.breakdown.packaging_cost || 80;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          उचित दाम सुझाव (Fair Pricing)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="उचित दाम सलाहकार"
+        subtitle="उचित दाम सुझाव • Fair Price Advisor"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Vernacular Audio Explanation Card */}
-        <View
-          style={[
-            styles.voiceCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
-          <Text style={styles.speakerIcon}>🔊</Text>
-          <Text variant="bodyMedium" color={theme.colors.text.primary} style={styles.voiceText}>
-            "यह दाम आपकी मेहनत, समय और सामग्री के आधार पर AI द्वारा सुझाया गया है।"
-          </Text>
+        <View style={styles.voiceCard}>
+          <View style={styles.speakerBox}>
+            <Text style={{ fontSize: 20 }}>💡</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.voiceTagText}>निष्पक्ष मूल्य निर्धारण • FAIR VALUE</Text>
+            <Text variant="bodySmall" color={theme.colors.charcoal[800]} style={styles.voiceText}>
+              "यह दाम आपकी मेहनत, समय और सामग्री के आधार पर AI द्वारा निष्पक्ष तय किया गया है।"
+            </Text>
+          </View>
         </View>
 
-        {/* Detailed Transparent Price Ledger Card */}
-        <PriceLedgerCard
-          items={ledgerItems}
-          suggestedPrice={suggestedPrice}
-          takeHomeAmount={takeHome}
-          platformFeeAmount={platformFee}
-        />
+        {/* Product & Suggested Range Card (Matches Stitch Fair_Price_Advisor.html) */}
+        <Card style={styles.mainAdvisorCard} variant="elevated">
+          <View style={styles.productRow}>
+            {primaryPhoto ? (
+              <Image
+                source={{ uri: primaryPhoto.enhancedUri || primaryPhoto.uri }}
+                style={styles.productThumb}
+              />
+            ) : (
+              <View style={[styles.productThumb, styles.thumbPlaceholder]}>
+                <Text style={{ fontSize: 24 }}>🏺</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.productLabel}>उत्पाद / PRODUCT</Text>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
+                {craftCategoryName || 'हस्तनिर्मित शिल्प (Handcrafted Craft)'}
+              </Text>
+            </View>
+          </View>
 
-        {/* Price Adjustment Controls */}
-        <Card style={styles.adjustmentCard}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={styles.adjustTitle}>
-            अंतिम विक्रय मूल्य तय करें (Your Final Price):
+          <View style={styles.divider} />
+
+          <View style={styles.rangeHeaderRow}>
+            <View>
+              <Text style={styles.rangeLabel}>सुझाया गया मूल्य दायरा (SUGGESTED RANGE)</Text>
+              <Text variant="headlineLarge" weight="bold" color={theme.colors.terracotta[600]} style={{ marginTop: 2 }}>
+                ₹{Math.round(suggestedPrice * 0.95)} - ₹{Math.round(suggestedPrice * 1.15)}
+              </Text>
+            </View>
+            <View style={styles.demandBadge}>
+              <Text style={styles.demandBadgeText}>📈 उच्च मांग (High Demand)</Text>
+            </View>
+          </View>
+
+          <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={styles.insightText}>
+            "समान प्रामाणिक हस्तशिल्प बाज़ार में इस सीज़न अच्छे दाम पर बिक रहे हैं। आपकी बारीक कारीगरी अतिरिक्त मूल्य जोड़ती है।"
           </Text>
+        </Card>
+
+        {/* Cost Breakdown Card (Stitch Breakdown layout) */}
+        <Card style={styles.breakdownCard} variant="elevated">
+          <Text style={styles.breakdownTitle}>लागत विवरण (COST BREAKDOWN)</Text>
+
+          <View style={styles.breakdownItem}>
+            <View style={styles.breakdownLeft}>
+              <Text style={styles.breakdownIcon}>🧵</Text>
+              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
+                कच्चा माल (Materials)
+              </Text>
+            </View>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+              ₹{materialCost.toLocaleString('en-IN')}
+            </Text>
+          </View>
+
+          <View style={styles.itemDivider} />
+
+          <View style={styles.breakdownItem}>
+            <View style={styles.breakdownLeft}>
+              <Text style={styles.breakdownIcon}>⏳</Text>
+              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
+                कारीगर श्रम (Labour Hours)
+              </Text>
+            </View>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+              ₹{laborCost.toLocaleString('en-IN')}
+            </Text>
+          </View>
+
+          <View style={styles.itemDivider} />
+
+          <View style={styles.breakdownItem}>
+            <View style={styles.breakdownLeft}>
+              <Text style={styles.breakdownIcon}>📦</Text>
+              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
+                सुरक्षित पैकेजिंग (Packaging)
+              </Text>
+            </View>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+              ₹{packagingCost.toLocaleString('en-IN')}
+            </Text>
+          </View>
+
+          <View style={styles.itemDivider} />
+
+          <View style={styles.breakdownItem}>
+            <View style={styles.breakdownLeft}>
+              <Text style={styles.breakdownIcon}>🏦</Text>
+              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
+                खाते में प्राप्त राशि (Artisan Take-home)
+              </Text>
+            </View>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.forest[700]}>
+              ₹{takeHome.toLocaleString('en-IN')}
+            </Text>
+          </View>
+        </Card>
+
+        {/* Price Stepper Controls */}
+        <Card style={styles.adjustmentCard} variant="elevated">
+          <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[500]} style={styles.adjustTitle}>
+            अंतिम विक्रय मूल्य तय करें (SET FINAL PRICE):
+          </Text>
+
           <View style={styles.stepperRow}>
             <TouchableOpacity
               testID="decrease-price-btn"
               onPress={() => handleAdjustPrice(-50)}
-              style={[styles.stepBtn, { backgroundColor: theme.colors.surface.parchment }]}
+              style={styles.stepBtn}
+              activeOpacity={0.7}
             >
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary}>
-                -
-              </Text>
+              <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
 
             <View style={styles.priceDisplay}>
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
                 ₹{price.toLocaleString('en-IN')}
               </Text>
             </View>
@@ -135,18 +197,17 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
             <TouchableOpacity
               testID="increase-price-btn"
               onPress={() => handleAdjustPrice(50)}
-              style={[styles.stepBtn, { backgroundColor: theme.colors.surface.parchment }]}
+              style={styles.stepBtn}
+              activeOpacity={0.7}
             >
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary}>
-                +
-              </Text>
+              <Text style={styles.stepBtnText}>+</Text>
             </TouchableOpacity>
           </View>
 
           {price < minFloor && (
             <View style={styles.warningBox}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-                ⚠️ चेतावनी: यह मूल्य न्यूनतम लागत (₹{minFloor}) से कम है।
+              <Text variant="bodySmall" weight="bold" color="#B71C1C">
+                ⚠️ चेतावनी: यह मूल्य न्यूनतम कानूनी लागत (₹{minFloor}) से कम है।
               </Text>
             </View>
           )}
@@ -154,11 +215,11 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
       </ScrollView>
 
       {/* Sticky Bottom Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="कैटलॉग समीक्षा करें (Review Catalog) →"
+          label="दाम स्वीकृत करें व कैटलॉग समीक्षा करें (Confirm & Review) ✓"
           variant="primary"
-          size="decision"
+          size="default"
           onPress={handleProceed}
         />
       </View>
@@ -170,19 +231,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
@@ -192,24 +240,142 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
+    backgroundColor: '#FFF7E8',
     borderWidth: 1,
+    borderColor: '#F4B942',
     marginBottom: 16,
   },
-  speakerIcon: {
-    fontSize: 26,
+  speakerBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 10,
   },
+  voiceTagText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#9C6E00',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
   voiceText: {
-    flex: 1,
-    lineHeight: 20,
+    lineHeight: 18,
+  },
+  mainAdvisorCard: {
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
+    marginBottom: 16,
+  },
+  productRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  productThumb: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  thumbPlaceholder: {
+    backgroundColor: '#F3EFE9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8A827B',
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#EFEAE3',
+    marginBottom: 14,
+  },
+  rangeHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  rangeLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8A827B',
+    letterSpacing: 0.5,
+  },
+  demandBadge: {
+    backgroundColor: '#FFF7E8',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FFE082',
+  },
+  demandBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#9C6E00',
+  },
+  insightText: {
+    marginTop: 6,
+    lineHeight: 18,
+    fontStyle: 'italic',
+  },
+  breakdownCard: {
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
+    marginBottom: 16,
+  },
+  breakdownTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#8A827B',
+    letterSpacing: 0.5,
+    marginBottom: 14,
+  },
+  breakdownItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  breakdownLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  breakdownIcon: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  itemDivider: {
+    height: 1,
+    backgroundColor: '#F4EFEA',
+    marginVertical: 10,
   },
   adjustmentCard: {
-    marginTop: 16,
-    padding: 16,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
+    marginBottom: 20,
+    alignItems: 'center',
   },
   adjustTitle: {
+    letterSpacing: 0.5,
     marginBottom: 12,
-    textAlign: 'center',
   },
   stepperRow: {
     flexDirection: 'row',
@@ -217,33 +383,46 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepBtn: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
+    borderColor: '#EFEAE3',
+    backgroundColor: '#F7F4F0',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  stepBtnText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#141815',
+  },
   priceDisplay: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 28,
     alignItems: 'center',
   },
   warningBox: {
     marginTop: 12,
-    padding: 8,
+    padding: 10,
     borderRadius: 8,
     backgroundColor: '#FFEBEE',
     alignItems: 'center',
+    width: '100%',
   },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    shadowColor: '#141815',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });
+

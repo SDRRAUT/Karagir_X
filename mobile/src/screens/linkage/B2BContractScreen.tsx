@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useMarketLinkageStore } from '@/store/useMarketLinkageStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'B2BContract'>;
@@ -33,24 +34,25 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
-          B2B क्लस्टर अनुबंध (Active Contract)
-        </Text>
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
+      <AppHeader
+        title="B2B क्लस्टर अनुबंध"
+        subtitle="Active Digital Contract"
+        showBack={true}
+        onBackPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+        onVoicePress={() => {}}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Celebration Card */}
+        {/* Celebration Box */}
         <View style={styles.celebrationBox}>
-          <View style={[styles.checkCircle, { backgroundColor: theme.colors.primary.emerald100, borderColor: theme.colors.primary.emerald700 }]}>
-            <Text style={{ fontSize: 40 }}>📜</Text>
+          <View style={[styles.checkCircle, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
+            <Text style={{ fontSize: 36 }}>📜</Text>
           </View>
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700} style={styles.title}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.title}>
             अनुबंध सफलतापूर्वक सक्रिय हुआ!
           </Text>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.subtitle}>
+          <Text variant="labelSmall" color={theme.colors.text.secondary} style={styles.subtitle}>
             क्लस्टर अनुबंध संख्या: #{contractNumber}
           </Text>
         </View>
@@ -59,44 +61,44 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
         <Card style={styles.overviewCard}>
           <View style={styles.contractRow}>
             <View style={{ flex: 1 }}>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 संस्थागत खरीदार:
               </Text>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
                 {buyerName}
               </Text>
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: theme.colors.primary.emerald100 }]}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900}>
-                सक्रिय (ACTIVE)
+            <View style={[styles.statusBadge, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
+              <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                सक्रिय (ACTIVE) ✓
               </Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
 
           <View style={styles.metricRow}>
             <View style={styles.metricCol}>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 स्वीकृत कोटा:
               </Text>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
                 {quota} पीस
               </Text>
             </View>
             <View style={styles.metricCol}>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 कुल अनुबंध मूल्य:
               </Text>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
                 ₹{totalValue.toLocaleString('en-IN')}
               </Text>
             </View>
             <View style={styles.metricCol}>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 एडवांस भुगतान:
               </Text>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="labelLarge" weight="bold" color="#1B5E38">
                 ₹{advanceAmount.toLocaleString('en-IN')}
               </Text>
             </View>
@@ -111,25 +113,25 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
 
           {/* Milestone 1 */}
           <View style={styles.stepRow}>
-            <View style={[styles.stepCircle, { backgroundColor: theme.colors.primary.emerald700 }]}>
+            <View style={[styles.stepCircle, { backgroundColor: '#1B5E38' }]}>
               <Text style={styles.stepCheck}>✓</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <View style={styles.stepHeader}>
-                <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+                <Text variant="labelMedium" weight="bold" color="#1B5E38">
                   चरण 1: 30% अग्रिम सामग्री भुगतान
                 </Text>
-                <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                  ₹{advanceAmount} (जारी हुआ)
+                <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  ₹{advanceAmount} जारी हुआ
                 </Text>
               </View>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
                 कच्चा माल खरीदने के लिए राशि आपके बैंक खाते में जमा हो चुकी है।
               </Text>
             </View>
           </View>
 
-          <View style={styles.stepLine} />
+          <View style={[styles.stepLine, { backgroundColor: '#1B5E38' }]} />
 
           {/* Milestone 2 */}
           <View style={styles.stepRow}>
@@ -138,36 +140,36 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <View style={styles.stepHeader}>
-                <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+                <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                   चरण 2: 50% निर्माण व फोटो सत्यापन
                 </Text>
-                <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary}>
+                <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary}>
                   ₹{Math.round(totalValue * 0.4)}
                 </Text>
               </View>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
                 आधा कोटा बनने पर ऐप में फोटो लें। सत्यापन पर राशि बैंक में आएगी।
               </Text>
             </View>
           </View>
 
-          <View style={styles.stepLine} />
+          <View style={[styles.stepLine, { backgroundColor: theme.colors.border.subtle }]} />
 
           {/* Milestone 3 */}
           <View style={styles.stepRow}>
-            <View style={[styles.stepCircle, { backgroundColor: '#BDBDBD' }]}>
-              <Text style={styles.stepCheck}>3</Text>
+            <View style={[styles.stepCircle, { backgroundColor: theme.colors.border.subtle }]}>
+              <Text style={[styles.stepCheck, { color: theme.colors.text.secondary }]}>3</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <View style={styles.stepHeader}>
-                <Text variant="bodyLarge" weight="bold" color={theme.colors.text.secondary}>
+                <Text variant="labelMedium" weight="bold" color={theme.colors.text.secondary}>
                   चरण 3: क्लस्टर डिस्पैच व शेष भुगतान
                 </Text>
-                <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary}>
+                <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary}>
                   ₹{totalValue - advanceAmount - Math.round(totalValue * 0.4)}
                 </Text>
               </View>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
                 क्लस्टर डिब्बे में एकत्रित होने और स्पीड पोस्ट रवाना होने पर।
               </Text>
             </View>
@@ -177,33 +179,34 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
         {/* Cluster Coordinator Support Card */}
         <Card style={styles.coordinatorCard}>
           <View style={styles.coordinatorRow}>
-            <Text style={{ fontSize: 28, marginRight: 10 }}>🧑‍🏫</Text>
-            <View style={{ flex: 1 }}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                आपके स्थानीय क्लस्टर समन्वयक (Lead):
+            <View style={[styles.leadIconCircle, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
+              <Text style={{ fontSize: 22 }}>🧑‍🏫</Text>
+            </View>
+            <View style={{ flex: 1, paddingHorizontal: 12 }}>
+              <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
+                स्थानीय क्लस्टर समन्वयक (Lead):
               </Text>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
                 {leadName}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 फोन: {leadPhone}
               </Text>
             </View>
-            <TouchableOpacity onPress={handleSosAssistance} style={styles.sosBtn}>
-              <Text variant="bodySmall" weight="bold" color="#D32F2F">
+            <TouchableOpacity onPress={handleSosAssistance} style={styles.sosBtn} activeOpacity={0.8}>
+              <Text variant="labelSmall" weight="bold" color="#BA1A1A">
                 🆘 सहायता
               </Text>
             </TouchableOpacity>
           </View>
         </Card>
 
-        {/* Action Button */}
+        {/* Return to Dashboard */}
         <Button
-          label="होम डैशबोर्ड पर जाएं (Back to Dashboard) 🏠"
+          label="होम डैशबोर्ड पर जाएं (Back to Home)"
           variant="primary"
-          size="default"
           onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
-          style={{ marginTop: 10 }}
+          style={{ marginTop: 8, marginBottom: 20 }}
         />
       </ScrollView>
     </SafeAreaView>
@@ -214,26 +217,21 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   celebrationBox: {
     alignItems: 'center',
-    marginVertical: 12,
+    marginVertical: 14,
   },
   checkCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 2,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 10,
   },
   title: {
     textAlign: 'center',
@@ -243,32 +241,34 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   overviewCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
   contractRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   statusBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0D7C9',
     marginVertical: 10,
   },
   metricRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   metricCol: {
-    flex: 1,
     alignItems: 'center',
   },
   milestoneCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
@@ -282,39 +282,44 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
   stepCheck: {
     color: '#FFFFFF',
+    fontSize: 13,
     fontWeight: 'bold',
-    fontSize: 14,
   },
   stepHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 2,
+    alignItems: 'center',
   },
   stepLine: {
     width: 2,
     height: 24,
-    backgroundColor: '#E0E0E0',
     marginLeft: 13,
-    marginVertical: 2,
+    marginVertical: 4,
   },
   coordinatorCard: {
+    borderRadius: 16,
     padding: 14,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#1E5631',
+    marginBottom: 14,
   },
   coordinatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  leadIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sosBtn: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#D32F2F',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    backgroundColor: 'rgba(186, 26, 26, 0.1)',
   },
 });

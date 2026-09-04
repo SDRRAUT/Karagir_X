@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { marketplaceService, MarketplaceProduct } from '@/api/marketplaceService';
@@ -21,6 +22,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   const addItemToCart = useCartStore((s) => s.addItem);
+  const totalCartCount = useCartStore((s) => s.getTotalCount());
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
 
@@ -30,7 +32,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   if (!product) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
         <View style={styles.centerBox}>
           <Text variant="bodyLarge" color={theme.colors.text.secondary}>
             लोड हो रहा है...
@@ -79,53 +81,72 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      {/* Stitch Top Header */}
+      <AppHeader
+        showBack
+        showBrand={false}
+        title="Kalakar Setu"
+        subtitle="Product Details"
+        rightAction={
+          <View style={styles.headerIconsRow}>
+            <TouchableOpacity
+              style={styles.headerActionBtn}
+              onPress={() =>
+                toggleWishlist({
+                  productId: product.id,
+                  title: product.title.hi,
+                  price: product.price,
+                  imageUri: product.images[0],
+                  craftCategoryName: product.categoryName,
+                  artisanName: product.artisan.name,
+                  artisanState: product.artisan.state,
+                })
+              }
+            >
+              <Text style={{ fontSize: 18 }}>{isSaved ? '❤️' : '🤍'}</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() =>
-            toggleWishlist({
-              productId: product.id,
-              title: product.title.hi,
-              price: product.price,
-              imageUri: product.images[0],
-              craftCategoryName: product.categoryName,
-              artisanName: product.artisan.name,
-              artisanState: product.artisan.state,
-            })
-          }
-          style={styles.headerHeart}
-          accessibilityLabel="Wishlist"
-        >
-          <Text style={{ fontSize: 24 }}>{isSaved ? '❤️' : '🤍'}</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerActionBtn}
+              onPress={() => navigation.navigate('Cart')}
+            >
+              <Text style={{ fontSize: 18 }}>🛍️</Text>
+              {totalCartCount > 0 && (
+                <View style={[styles.cartBadge, { backgroundColor: theme.colors.brand.primary }]}>
+                  <Text style={styles.cartBadgeText}>{totalCartCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        }
+      />
+
+      {/* Origin Authenticated Bar */}
+      <View style={[styles.originBar, { backgroundColor: theme.colors.surface.card, borderBottomColor: theme.colors.sand[200] }]}>
+        <View style={styles.originLeft}>
+          <Text style={{ fontSize: 16 }}>🛡️</Text>
+          <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+            GI AUTHENTICATED ORIGIN
+          </Text>
+        </View>
+        <Text variant="caption" color={theme.colors.text.secondary}>
+          {product.artisan.cluster}
+        </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Main Studio Image */}
-        <Card style={styles.imageCard}>
+        {/* Main Product Image with 360 Studio Tag */}
+        <View style={[styles.imageContainer, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}>
           <Image source={{ uri: product.images[0] }} style={styles.mainImage} resizeMode="cover" />
-          <View style={[styles.categoryTag, { backgroundColor: theme.colors.primary.emerald700 }]}>
-            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              {product.categoryName}
-            </Text>
+          <View style={[styles.studioBadge, { backgroundColor: 'rgba(20,24,21,0.75)' }]}>
+            <Text style={styles.studioBadgeText}>🔄 360° Studio View</Text>
           </View>
-        </Card>
+        </View>
 
-        {/* Title & Price Header */}
+        {/* Title & Price Card */}
         <Card style={styles.infoCard}>
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary} style={styles.productTitle}>
+          <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.productTitle}>
             {product.title.hi}
           </Text>
           <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.enTitle}>
@@ -134,61 +155,87 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
           <View style={styles.priceRow}>
             <View>
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="displayLarge" weight="bold" color={theme.colors.brand.primary}>
                 ₹{product.price.toLocaleString('en-IN')}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                (सभी कर व डाक पैकेजिंग शामिल)
+              <Text variant="caption" color={theme.colors.text.muted}>
+                (डाक डिलीवरी व कर शामिल / Inclusive of Taxes & India Post)
               </Text>
             </View>
-            <View style={[styles.ratingPill, { backgroundColor: theme.colors.primary.emerald100 }]}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900}>
+            <View style={[styles.ratingPill, { backgroundColor: theme.colors.sand[100] }]}>
+              <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
                 ⭐ {product.rating} ({product.reviewsCount} समीक्षाएं)
               </Text>
             </View>
           </View>
         </Card>
 
+        {/* Fair Price Breakdown Card */}
+        <Card style={styles.fairPriceCard}>
+          <View style={styles.fairPriceHeader}>
+            <Text style={{ fontSize: 18 }}>⚖️</Text>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
+              पारदर्शी मूल्य नीति (Fair Price Breakdown)
+            </Text>
+          </View>
+          <View style={styles.breakdownRow}>
+            <Text variant="caption" color={theme.colors.text.secondary}>कारीगर का सीधा हिस्सा (Direct to Artisan)</Text>
+            <Text variant="caption" weight="bold" color={theme.colors.primary.emerald700}>85% (₹{(product.price * 0.85).toFixed(0)})</Text>
+          </View>
+          <View style={styles.breakdownRow}>
+            <Text variant="caption" color={theme.colors.text.secondary}>सामग्री व मिट्टी लागत (Raw Materials)</Text>
+            <Text variant="caption" weight="semiBold" color={theme.colors.charcoal[800]}>₹{(product.price * 0.25).toFixed(0)}</Text>
+          </View>
+          <View style={styles.breakdownRow}>
+            <Text variant="caption" color={theme.colors.text.secondary}>हस्तशिल्प श्रम (Craftsmanship Hours)</Text>
+            <Text variant="caption" weight="semiBold" color={theme.colors.charcoal[800]}>{product.passport.laborHours} घंटे</Text>
+          </View>
+          <View style={styles.breakdownRow}>
+            <Text variant="caption" color={theme.colors.text.secondary}>सुरक्षित पैकेजिंग व डाक (India Post Logistics)</Text>
+            <Text variant="caption" weight="semiBold" color={theme.colors.charcoal[800]}>₹{(product.price * 0.15).toFixed(0)}</Text>
+          </View>
+        </Card>
+
         {/* Digital Craft Passport Card */}
-        <Card style={[styles.passportCard, { borderColor: theme.colors.primary.emerald700 }]}>
+        <Card style={[styles.passportCard, { borderColor: theme.colors.brand.primary }]}>
           <View style={styles.passportHeader}>
-            <Text style={{ fontSize: 26, marginRight: 8 }}>🛡️</Text>
+            <Text style={{ fontSize: 24, marginRight: 8 }}>📜</Text>
             <View style={{ flex: 1 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
                 डिजिटल शिल्प पासपोर्ट (Craft Passport)
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="caption" color={theme.colors.text.secondary}>
                 आईडी: {product.passport.passportId} • {product.passport.verificationBadge}
               </Text>
             </View>
           </View>
 
-          <View style={styles.passportDivider} />
+          <View style={[styles.passportDivider, { backgroundColor: theme.colors.sand[200] }]} />
 
           <View style={styles.passportRow}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
               📍 मूल उत्पत्ति स्थल:
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
+            <Text variant="caption" color={theme.colors.text.secondary}>
               {product.passport.provenanceVillage}
             </Text>
           </View>
 
           <View style={styles.passportRow}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
               🧵 प्रयुक्त प्राकृतिक सामग्री:
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
+            <Text variant="caption" color={theme.colors.text.secondary}>
               {product.passport.materialsUsed.join(', ')}
             </Text>
           </View>
 
           <View style={styles.passportRow}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
-              ⏳ निर्माण में लगा श्रम:
+            <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
+              ⏳ समर्पित निर्माण समय:
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              {product.passport.laborHours} घंटे का समर्पित हस्तशिल्प
+            <Text variant="caption" color={theme.colors.text.secondary}>
+              {product.passport.laborHours} घंटे का पारंपरिक श्रम
             </Text>
           </View>
         </Card>
@@ -196,19 +243,17 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {/* Artisan Audio Voice Story Player */}
         <TouchableOpacity
           onPress={handleToggleVoice}
-          style={[styles.audioPlayerCard, { backgroundColor: theme.colors.surface.card }]}
+          style={[styles.audioPlayerCard, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}
           accessibilityRole="button"
           accessibilityLabel="Play artisan story audio"
         >
-          <Text style={{ fontSize: 32, marginRight: 12 }}>{isPlayingAudio ? '⏸️' : '🎧'}</Text>
+          <Text style={{ fontSize: 28, marginRight: 12 }}>{isPlayingAudio ? '⏸️' : '🎧'}</Text>
           <View style={{ flex: 1 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
               {isPlayingAudio ? 'आवाज़ बज रही है (Playing)...' : 'कारीगर की जुबानी सुनें (Artisan Voice Story)'}
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              {isPlayingAudio
-                ? 'टैप करके रोकें'
-                : 'सुनिए कारीगर ने इस शिल्प को कैसे और क्यों बनाया'}
+            <Text variant="caption" color={theme.colors.text.secondary}>
+              {isPlayingAudio ? 'टैप करके रोकें' : 'सुनिए कारीगर ने इस शिल्प को कैसे और क्यों बनाया'}
             </Text>
           </View>
         </TouchableOpacity>
@@ -216,17 +261,17 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {/* Artisan Profile Card */}
         <Card style={styles.artisanCard}>
           <View style={styles.artisanHeader}>
-            <View style={styles.artisanAvatar}>
-              <Text style={{ fontSize: 30 }}>👩‍🎨</Text>
+            <View style={[styles.artisanAvatar, { backgroundColor: theme.colors.brand.light }]}>
+              <Text style={{ fontSize: 26 }}>👩‍🎨</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
                 {product.artisan.name}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.terracotta.primary}>
+              <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
                 {product.artisan.cluster}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="caption" color={theme.colors.text.secondary}>
                 अनुभव: {product.artisan.craftYears} वर्ष • {product.artisan.community}
               </Text>
             </View>
@@ -235,30 +280,33 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* Storytelling Description */}
         <Card style={styles.descriptionCard}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} style={{ marginBottom: 6 }}>
             शिल्प का सांस्कृतिक विवरण:
           </Text>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={{ lineHeight: 22 }}>
+          <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.descText}>
             {product.description.hi}
+          </Text>
+          <Text variant="caption" color={theme.colors.text.muted} style={[styles.descText, { marginTop: 8 }]}>
+            {product.description.en}
           </Text>
         </Card>
       </ScrollView>
 
-      {/* Sticky Bottom Actions Bar */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      {/* Sticky Dual Bottom Action Bar */}
+      <View style={[styles.stickyBottomBar, { backgroundColor: theme.colors.surface.card, borderTopColor: theme.colors.sand[200], ...theme.shadows.level4 }]}>
         <Button
-          label="कार्ट में जोड़ें (Add to Cart) 🛒"
+          label="कार्ट में जोड़ें"
           variant="secondary"
           size="default"
           onPress={handleAddToCart}
-          style={styles.cartBtn}
+          style={styles.cartButton}
         />
         <Button
-          label="अभी खरीदें (Buy Now) ⚡"
+          label="अभी खरीदें →"
           variant="primary"
           size="default"
           onPress={handleBuyNow}
-          style={styles.buyBtn}
+          style={styles.buyButton}
         />
       </View>
     </SafeAreaView>
@@ -269,68 +317,121 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
+  centerBox: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerIconsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerActionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  originBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
   },
-  backBtn: {
-    padding: 4,
-  },
-  headerHeart: {
-    padding: 6,
+  originLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   content: {
     padding: 16,
-    paddingBottom: 110,
+    paddingBottom: 100,
   },
-  imageCard: {
-    padding: 0,
+  imageContainer: {
+    width: '100%',
+    height: 260,
+    borderRadius: 16,
+    borderWidth: 1,
     overflow: 'hidden',
-    borderRadius: 20,
     position: 'relative',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   mainImage: {
     width: '100%',
-    height: 300,
+    height: '100%',
   },
-  categoryTag: {
+  studioBadge: {
     position: 'absolute',
-    top: 12,
-    left: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    bottom: 12,
+    right: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: 12,
+  },
+  studioBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '600',
   },
   infoCard: {
     padding: 16,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   productTitle: {
-    lineHeight: 28,
+    marginBottom: 2,
   },
   enTitle: {
-    marginTop: 4,
     marginBottom: 12,
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   ratingPill: {
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  fairPriceCard: {
+    padding: 14,
+    marginBottom: 12,
+  },
+  fairPriceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  breakdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
   },
   passportCard: {
-    padding: 16,
+    padding: 14,
     borderWidth: 1.5,
-    marginBottom: 14,
-    backgroundColor: '#F9FBF9',
+    marginBottom: 12,
   },
   passportHeader: {
     flexDirection: 'row',
@@ -338,11 +439,12 @@ const styles = StyleSheet.create({
   },
   passportDivider: {
     height: 1,
-    backgroundColor: '#E0EAE0',
     marginVertical: 10,
   },
   passportRow: {
-    marginBottom: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 3,
   },
   audioPlayerCard: {
     flexDirection: 'row',
@@ -350,51 +452,45 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 16,
     borderWidth: 1.5,
-    borderColor: '#D4AF37',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   artisanCard: {
     padding: 14,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   artisanHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   artisanAvatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#F3EFE6',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   descriptionCard: {
-    padding: 16,
-    marginBottom: 14,
+    padding: 14,
+    marginBottom: 12,
   },
-  bottomBar: {
+  descText: {
+    lineHeight: 20,
+  },
+  stickyBottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
-    padding: 16,
-    paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    gap: 12,
   },
-  cartBtn: {
-    flex: 1,
-    marginRight: 8,
+  cartButton: {
+    flex: 0.45,
   },
-  buyBtn: {
-    flex: 1,
-    marginLeft: 8,
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  buyButton: {
+    flex: 0.55,
   },
 });

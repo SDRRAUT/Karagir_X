@@ -25,15 +25,15 @@ export const StatCard: React.FC<StatCardProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: theme.colors.primary.emerald900,
-          borderRadius: theme.touch.radii.card,
-          padding: theme.spacing.md,
-          ...theme.shadows.level2,
+          backgroundColor: '#123922', // Stitch Forest Green Gradient base
+          borderColor: '#27593C',
+          borderRadius: theme.borderRadius.xl,
+          ...theme.shadows.deepCard,
         },
       ]}
     >
       <View style={styles.topRow}>
-        <Text variant="bodyLarge" weight="medium" color={theme.colors.primary.emerald100}>
+        <Text variant="bodyMedium" weight="semiBold" color="#D1FAE5">
           {title}
         </Text>
         {onPressAudio && (
@@ -43,36 +43,37 @@ export const StatCard: React.FC<StatCardProps> = ({
             onPress={onPressAudio}
             style={styles.speakerButton}
           >
-            <Text variant="headlineMedium" color={theme.colors.text.inverse}>
-              🔊
-            </Text>
+            <Text style={styles.speakerIcon}>🔊</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <Text variant="displayLarge" weight="bold" color={theme.colors.text.inverse} style={styles.amount}>
-        {amountFormatted}
-      </Text>
-
-      <View style={styles.bottomRow}>
+      <View style={styles.amountRow}>
+        <Text variant="displayLarge" weight="bold" color="#FFFFFF" style={styles.amount}>
+          {amountFormatted}
+        </Text>
         {trendText && (
-          <View
-            style={[
-              styles.trendPill,
-              { backgroundColor: theme.colors.primary.emerald700, borderRadius: theme.touch.radii.sm },
-            ]}
-          >
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.inverse}>
+          <View style={styles.trendPill}>
+            <Text variant="caption" weight="bold" color="#D1FAE5">
               {trendText}
             </Text>
           </View>
         )}
-        {subtitle && (
-          <Text variant="bodySmall" color={theme.colors.primary.emerald100} style={styles.subtitle}>
+      </View>
+
+      {subtitle && (
+        <View style={styles.bottomRow}>
+          <View style={styles.liveIndicator}>
+            <View style={styles.liveDot} />
+            <Text variant="caption" color="#A7F3D0">
+              सक्रिय भुगतान खाता:
+            </Text>
+          </View>
+          <Text variant="caption" weight="semiBold" color="#FFFFFF">
             {subtitle}
           </Text>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -80,7 +81,9 @@ export const StatCard: React.FC<StatCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    marginVertical: 8,
+    padding: 18,
+    borderWidth: 1,
+    marginVertical: 10,
   },
   topRow: {
     flexDirection: 'row',
@@ -88,22 +91,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   speakerButton: {
-    padding: 4,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  speakerIcon: {
+    fontSize: 14,
+  },
+  amountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
+    marginTop: 6,
+    marginBottom: 12,
   },
   amount: {
-    marginVertical: 10,
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: -0.5,
+  },
+  trendPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: '#256F43',
+    borderRadius: 6,
   },
   bottomRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(16, 185, 129, 0.2)',
   },
-  trendPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  subtitle: {
-    marginLeft: 8,
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#34D399',
   },
 });

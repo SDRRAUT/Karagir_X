@@ -71,13 +71,14 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
             const isBackspace = item.key === 'BACKSPACE';
 
             let bgColor: string = theme.colors.surface.card;
-            let textColor: string = theme.colors.text.primary;
+            let textColor: string = theme.colors.charcoal[900];
 
             if (isConfirm) {
-              bgColor = theme.colors.primary.emerald700;
+              bgColor = theme.colors.brand.primary; // Stitch Terracotta #E85D2A
               textColor = theme.colors.text.inverse;
             } else if (isBackspace) {
-              bgColor = theme.colors.surface.subtle;
+              bgColor = theme.colors.sand[100];
+              textColor = theme.colors.charcoal[800];
             }
 
             return (
@@ -92,8 +93,8 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
                   styles.key,
                   {
                     backgroundColor: bgColor,
-                    borderColor: theme.colors.surface.border,
-                    borderRadius: theme.touch.radii.md,
+                    borderColor: isConfirm ? theme.colors.brand.primary : theme.colors.sand[200],
+                    borderRadius: theme.borderRadius.lg,
                     ...theme.shadows.level1,
                   },
                 ]}
@@ -108,7 +109,7 @@ export const TactileKeypad: React.FC<TactileKeypadProps> = ({
                 </Text>
                 <Text
                   variant="bodySmall"
-                  color={isConfirm ? theme.colors.text.inverse : theme.colors.text.secondary}
+                  color={isConfirm ? theme.colors.text.inverse : theme.colors.text.muted}
                   style={styles.subText}
                 >
                   {item.labelHi}
@@ -134,16 +135,16 @@ const styles = StyleSheet.create({
   },
   key: {
     flex: 1,
-    height: 64, // 64dp key height per Design System spec
-    minHeight: 56, // >=56dp touch boundary
-    marginHorizontal: 4,
+    height: 62,
+    minHeight: 56,
+    marginHorizontal: 5,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   keyText: {
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 22,
+    lineHeight: 26,
   },
   subText: {
     fontSize: 11,

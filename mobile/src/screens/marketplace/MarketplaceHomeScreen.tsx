@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image, FlatList } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -9,14 +9,13 @@ import { Card } from '@/components/cards/Card';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useMarketplaceStore } from '@/store/useMarketplaceStore';
-import { marketplaceService, MarketplaceProduct, CRAFT_CATEGORIES } from '@/api/marketplaceService';
+import { marketplaceService, MarketplaceProduct } from '@/api/marketplaceService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'MarketplaceHome'>;
 
 export const MarketplaceHomeScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
-  const wishlistItems = useWishlistStore((s) => s.items);
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
 
@@ -27,244 +26,226 @@ export const MarketplaceHomeScreen: React.FC<Props> = ({ navigation }) => {
     marketplaceService.getProducts({ categoryCode: filters.categoryCode }).then(setProducts);
   }, [filters.categoryCode]);
 
-  const renderProductItem = ({ item }: { item: MarketplaceProduct }) => {
-    const isSaved = isInWishlist(item.id);
-
-    return (
-      <TouchableOpacity
-        style={styles.productCardTouch}
-        onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
-        accessibilityRole="button"
-        accessibilityLabel={item.title.hi}
-      >
-        <Card style={styles.productCard}>
-          <Image source={{ uri: item.images[0] }} style={styles.productImage} resizeMode="cover" />
-
-          {/* Wishlist Heart Button */}
-          <TouchableOpacity
-            style={styles.wishlistBtn}
-            onPress={() =>
-              toggleWishlist({
-                productId: item.id,
-                title: item.title.hi,
-                price: item.price,
-                imageUri: item.images[0],
-                craftCategoryName: item.categoryName,
-                artisanName: item.artisan.name,
-                artisanState: item.artisan.state,
-              })
-            }
-          >
-            <Text style={{ fontSize: 16 }}>{isSaved ? '❤️' : '🤍'}</Text>
-          </TouchableOpacity>
-
-          <View style={styles.cardDetails}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-              {item.artisan.state} • {item.categoryName.split(' ')[0]}
-            </Text>
-            <Text
-              variant="bodyMedium"
-              weight="bold"
-              color={theme.colors.text.primary}
-              numberOfLines={2}
-              style={styles.productTitle}
-            >
-              {item.title.hi}
-            </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary} numberOfLines={1}>
-              द्वारा: {item.artisan.name}
-            </Text>
-            <View style={styles.priceRow}>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald700}>
-                ₹{item.price.toLocaleString('en-IN')}
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                ⭐ {item.rating}
-              </Text>
-            </View>
-          </View>
-        </Card>
-      </TouchableOpacity>
-    );
-  };
+  const CATEGORY_ITEMS = [
+    { code: undefined, label: '🔥 Top Deals', emoji: '🔥' },
+    { code: 'POTTERY', label: '🏺 Terracotta', emoji: '🏺' },
+    { code: 'TEXTILE', label: '🧵 Handloom', emoji: '🧵' },
+    { code: 'METAL', label: '✨ Brass Art', emoji: '✨' },
+    { code: 'WOOD', label: '🪵 Woodcraft', emoji: '🪵' },
+    { code: 'PAINTING', label: '🎨 Folk Art', emoji: '🎨' },
+  ];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Top Header Bar */}
-      <View style={styles.header}>
-        <View>
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
-            कलाकार सेतु
-          </Text>
-          <Text variant="bodySmall" color={theme.colors.text.secondary}>
-            📍 डिलीवरी: भारत भर में (1,55,000+ डाकघर)
-          </Text>
-        </View>
-
-        <View style={styles.headerIcons}>
-          {/* Wishlist Header Icon */}
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      {/* Stitch Fixed Header Bar */}
+      <View style={[styles.headerContainer, { backgroundColor: theme.colors.sand[50], borderBottomColor: theme.colors.sand[200] }]}>
+        <View style={styles.headerTopRow}>
           <TouchableOpacity
-            style={styles.iconBtn}
-            onPress={() => navigation.navigate('Wishlist')}
-            accessibilityLabel="Wishlist"
+            style={styles.brandGroup}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+            accessibilityRole="button"
           >
-            <Text style={{ fontSize: 22 }}>❤️</Text>
-            {wishlistItems.length > 0 && (
-              <View style={[styles.badge, { backgroundColor: theme.colors.terracotta.primary }]}>
-                <Text style={styles.badgeCount}>{wishlistItems.length}</Text>
-              </View>
-            )}
+            <View style={[styles.brandEmblem, { backgroundColor: theme.colors.brand.primary }]}>
+              <Text style={styles.brandIcon}>क</Text>
+            </View>
+            <View>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.brand.primary}>
+                Kalakar Setu
+              </Text>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                Direct Artisan Marketplace
+              </Text>
+            </View>
           </TouchableOpacity>
 
-          {/* Cart Header Icon */}
-          <TouchableOpacity
-            style={styles.iconBtn}
-            onPress={() => navigation.navigate('Cart')}
-            accessibilityLabel="Cart"
-          >
-            <Text style={{ fontSize: 22 }}>🛒</Text>
-            {totalCartCount > 0 && (
-              <View style={[styles.badge, { backgroundColor: theme.colors.primary.emerald700 }]}>
-                <Text style={styles.badgeCount}>{totalCartCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}
+              onPress={() => navigation.navigate('Wishlist')}
+              accessibilityLabel="Wishlist"
+            >
+              <Text style={{ fontSize: 16 }}>🤍</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}
+              onPress={() => navigation.navigate('Cart')}
+              accessibilityLabel="Cart"
+            >
+              <Text style={{ fontSize: 16 }}>🛍️</Text>
+              {totalCartCount > 0 && (
+                <View style={[styles.cartBadge, { backgroundColor: theme.colors.brand.primary }]}>
+                  <Text style={styles.cartBadgeText}>{totalCartCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {/* Stitch Search Bar with Mic & Visual Search triggers */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate('Search')}
+          style={[styles.searchBar, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200], ...theme.shadows.level1 }]}
+        >
+          <Text style={styles.searchIcon}>🔍</Text>
+          <Text variant="bodySmall" color={theme.colors.text.muted} style={styles.searchPlaceholder}>
+            Search handmade diyas, Chanderi sarees, brass art...
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Search')}>
+            <Text style={styles.searchActionIcon}>🎙️</Text>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Search Input Bar */}
-        <TouchableOpacity
-          style={[styles.searchBar, { borderColor: theme.colors.surface.border }]}
-          onPress={() => navigation.navigate('Search')}
-          accessibilityRole="button"
-          accessibilityLabel="Search craft products"
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Horizontal Category Squircle Strip (Stitch style) */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesStrip}
         >
-          <Text style={{ fontSize: 18, marginRight: 8 }}>🔍</Text>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={{ flex: 1 }}>
-            शिल्प, साड़ी या कारीगर खोजें...
-          </Text>
-          <Text style={{ fontSize: 18 }}>🎙️</Text>
-        </TouchableOpacity>
-
-        {/* Hero Craft Banner */}
-        <Card
-          style={[
-            styles.heroBanner,
-            { backgroundColor: theme.colors.primary.emerald800, borderRadius: 20 },
-          ]}
-        >
-          <View style={{ flex: 1, paddingRight: 10 }}>
-            <Text variant="bodySmall" weight="bold" color="#D4AF37">
-              100% प्रामाणिक व सत्यापित
-            </Text>
-            <Text variant="headlineMedium" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
-              सीधे ग्रामीण कारीगरों से खरीदें
-            </Text>
-            <Text variant="bodySmall" color="#E0D7C9">
-              बिना किसी बिचौलिये के। हर खरीद पर डिजिटल शिल्प पासपोर्ट।
-            </Text>
-          </View>
-          <Text style={{ fontSize: 48 }}>🏺</Text>
-        </Card>
-
-        {/* Categories Strip */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            पारंपरिक शिल्प श्रेणियां (Categories)
-          </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Categories')}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-              सभी देखें →
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-          <TouchableOpacity
-            onPress={() => setCategoryFilter(null)}
-            style={[
-              styles.catChip,
-              !filters.categoryCode && {
-                backgroundColor: theme.colors.primary.emerald700,
-                borderColor: theme.colors.primary.emerald700,
-              },
-            ]}
-          >
-            <Text
-              variant="bodySmall"
-              weight="bold"
-              color={!filters.categoryCode ? '#FFFFFF' : theme.colors.text.primary}
-            >
-              ✨ सभी शिल्प
-            </Text>
-          </TouchableOpacity>
-
-          {CRAFT_CATEGORIES.map((cat) => {
+          {CATEGORY_ITEMS.map((cat, idx) => {
             const isSelected = filters.categoryCode === cat.code;
             return (
               <TouchableOpacity
-                key={cat.code}
-                onPress={() => setCategoryFilter(isSelected ? null : cat.code)}
-                style={[
-                  styles.catChip,
-                  isSelected && {
-                    backgroundColor: theme.colors.primary.emerald700,
-                    borderColor: theme.colors.primary.emerald700,
-                  },
-                ]}
+                key={idx}
+                onPress={() => setCategoryFilter(cat.code || null)}
+                style={styles.categoryItem}
+                accessibilityRole="button"
+                accessibilityLabel={cat.label}
               >
-                <Text style={{ marginRight: 4 }}>{cat.icon}</Text>
-                <Text
-                  variant="bodySmall"
-                  weight="bold"
-                  color={isSelected ? '#FFFFFF' : theme.colors.text.primary}
+                <View
+                  style={[
+                    styles.categorySquircle,
+                    {
+                      backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
+                      borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
+                      ...theme.shadows.level1,
+                    },
+                  ]}
                 >
-                  {cat.nameHi}
+                  <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
+                </View>
+                <Text
+                  variant="caption"
+                  weight={isSelected ? 'bold' : 'medium'}
+                  color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
+                  style={styles.categoryLabel}
+                >
+                  {cat.label}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </ScrollView>
 
-        {/* Master Artisan Spotlight */}
-        <Card style={styles.artisanSpotlight}>
-          <View style={styles.artisanRow}>
-            <View style={styles.artisanAvatar}>
-              <Text style={{ fontSize: 32 }}>👨‍🎨</Text>
-            </View>
-            <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-                माह के मास्टर शिल्पकार (Artisan of the Month)
+        {/* Hero Festive Banner (Craft Utsav) */}
+        <View style={styles.bannerContainer}>
+          <View style={[styles.heroBanner, { backgroundColor: '#C84616', borderColor: '#E85D2A', ...theme.shadows.level2 }]}>
+            <View style={styles.bannerContent}>
+              <View style={[styles.bannerPill, { backgroundColor: '#FACC15' }]}>
+                <Text style={styles.bannerPillText}>GREAT INDIAN CRAFT UTSAV</Text>
+              </View>
+              <Text variant="headlineMedium" weight="bold" color="#FFFFFF" style={styles.bannerTitle}>
+                सीधा कारीगर से, शुद्ध हस्तशिल्प
               </Text>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-                सुखराम बघेल • बस्तर, छत्तीसगढ़
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                27 वर्षों से 4000 साल पुरानी ढोकरा लॉस्ट-वैक्स धातु कला के संरक्षक।
+              <Text variant="caption" color="#FFDBD0" style={styles.bannerSubtitle}>
+                100% Fair Price Guaranteed • No Middleman Cut
               </Text>
             </View>
+            <Text style={styles.bannerDecorEmoji}>🏺</Text>
           </View>
-        </Card>
-
-        {/* Curated Products Section */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            सत्यापित हस्तशिल्प (Verified Crafts)
-          </Text>
-          <Text variant="bodySmall" color={theme.colors.text.secondary}>
-            {products.length} उत्पाद
-          </Text>
         </View>
 
-        <FlatList
-          data={products}
-          renderItem={renderProductItem}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          scrollEnabled={false}
-          contentContainerStyle={styles.productsGrid}
-        />
+        {/* Meet the Maker Row */}
+        <View style={styles.sectionHeaderRow}>
+          <View>
+            <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
+              कारीगर से मिलें (Meet the Maker)
+            </Text>
+            <Text variant="caption" color={theme.colors.text.secondary}>
+              Stories and heritage craft from across India
+            </Text>
+          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Categories')}>
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              सभी देखें →
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Curated Products Grid */}
+        <View style={styles.productsGrid}>
+          {products.map((item) => {
+            const isSaved = isInWishlist(item.id);
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.productCardTouch}
+                onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
+                accessibilityRole="button"
+                accessibilityLabel={item.title.hi}
+              >
+                <Card style={styles.productCard}>
+                  <View style={styles.imageContainer}>
+                    <Image source={{ uri: item.images[0] }} style={styles.productImage} resizeMode="cover" />
+                    <TouchableOpacity
+                      style={[styles.wishlistBtn, { backgroundColor: 'rgba(255,255,255,0.85)' }]}
+                      onPress={() =>
+                        toggleWishlist({
+                          productId: item.id,
+                          title: item.title.hi,
+                          price: item.price,
+                          imageUri: item.images[0],
+                          craftCategoryName: item.categoryName,
+                          artisanName: item.artisan.name,
+                          artisanState: item.artisan.state,
+                        })
+                      }
+                    >
+                      <Text style={{ fontSize: 14 }}>{isSaved ? '❤️' : '🤍'}</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.cardDetails}>
+                    <View style={styles.originRow}>
+                      <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+                        {item.artisan.state} • {item.categoryName.split(' ')[0]}
+                      </Text>
+                      <Text variant="caption" color={theme.colors.text.secondary}>
+                        ⭐ {item.rating}
+                      </Text>
+                    </View>
+
+                    <Text
+                      variant="bodyMedium"
+                      weight="bold"
+                      color={theme.colors.charcoal[900]}
+                      numberOfLines={1}
+                      style={styles.productTitle}
+                    >
+                      {item.title.hi}
+                    </Text>
+
+                    <Text variant="caption" color={theme.colors.text.secondary} numberOfLines={1}>
+                      द्वारा: {item.artisan.name}
+                    </Text>
+
+                    <View style={styles.priceRow}>
+                      <Text variant="headlineSmall" weight="bold" color={theme.colors.brand.primary}>
+                        ₹{item.price.toLocaleString('en-IN')}
+                      </Text>
+                      <View style={[styles.fairTag, { backgroundColor: theme.colors.ochre.light }]}>
+                        <Text style={styles.fairTagText}>Fair Share ✓</Text>
+                      </View>
+                    </View>
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -274,135 +255,218 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
+  headerContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+  },
+  headerTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    marginBottom: 8,
   },
-  headerIcons: {
+  brandGroup: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  iconBtn: {
-    padding: 6,
-    marginLeft: 8,
+  brandEmblem: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandIcon: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    lineHeight: 22,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  iconButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
   },
-  badge: {
+  cartBadge: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    minWidth: 18,
+    top: -3,
+    right: -3,
+    width: 18,
     height: 18,
     borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
   },
-  badgeCount: {
+  cartBadgeText: {
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: 'bold',
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    marginTop: 2,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  searchPlaceholder: {
+    flex: 1,
+  },
+  searchActionIcon: {
+    fontSize: 18,
+    marginLeft: 8,
+  },
+  scrollContent: {
+    paddingBottom: 96,
+  },
+  categoriesStrip: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginVertical: 10,
+    gap: 12,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    width: 68,
+  },
+  categorySquircle: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  categoryEmoji: {
+    fontSize: 24,
+  },
+  categoryLabel: {
+    textAlign: 'center',
+  },
+  bannerContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   heroBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 18,
-    marginVertical: 10,
-  },
-  sectionHeader: {
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 18,
+    overflow: 'hidden',
+  },
+  bannerContent: {
+    flex: 1,
+  },
+  bannerPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+  },
+  bannerPillText: {
+    color: '#141815',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  bannerTitle: {
+    marginBottom: 2,
+  },
+  bannerSubtitle: {
+    marginTop: 2,
+  },
+  bannerDecorEmoji: {
+    fontSize: 48,
+    opacity: 0.9,
+    marginLeft: 8,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    paddingHorizontal: 16,
     marginBottom: 10,
   },
-  categoryScroll: {
-    marginBottom: 12,
-  },
-  catChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
-    backgroundColor: '#FFFFFF',
-    marginRight: 8,
-  },
-  artisanSpotlight: {
-    padding: 14,
-    marginVertical: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: '#C85A32',
-  },
-  artisanRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  artisanAvatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#F3EFE6',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   productsGrid: {
-    paddingBottom: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
   },
   productCardTouch: {
-    flex: 0.5,
-    margin: 6,
+    width: '48%',
+    marginBottom: 14,
   },
   productCard: {
     padding: 0,
     overflow: 'hidden',
-    borderRadius: 16,
+  },
+  imageContainer: {
     position: 'relative',
+    width: '100%',
+    height: 130,
   },
   productImage: {
     width: '100%',
-    height: 150,
+    height: '100%',
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
   },
   wishlistBtn: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    top: 6,
+    right: 6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cardDetails: {
     padding: 10,
   },
+  originRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   productTitle: {
-    marginTop: 4,
-    lineHeight: 18,
+    marginBottom: 2,
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
+  },
+  fairTag: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  fairTagText: {
+    color: '#975B00',
+    fontSize: 9,
+    fontWeight: 'bold',
   },
 });

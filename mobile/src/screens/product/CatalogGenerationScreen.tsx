@@ -41,7 +41,6 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
     let isMounted = true;
 
     async function runGeneration() {
-      // Step 2: Catalog Synthesis
       try {
         const catalogResult = await catalogSynthesisService.synthesizeCatalog({
           entities: {
@@ -56,7 +55,6 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
           setCompletedSteps([1, 2, 3]);
         }
 
-        // Step 4: Pricing Engine
         const laborHours = Number(interviewAnswers['labor_time']) || 24;
         const pricingResult = await pricingService.calculateFairPrice({
           laborHours,
@@ -68,7 +66,6 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
           setPricingResult(pricingResult);
           setCompletedSteps([1, 2, 3, 4]);
 
-          // Small delay then proceed to Pricing Recommendation
           setTimeout(() => {
             if (isMounted) {
               navigation.replace('PricingRecommendation');
@@ -90,30 +87,22 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
   }, [extractedEntities, interviewAnswers, voiceTranscript, setCatalogSynthesis, setPricingResult, navigation]);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
         {/* Animated Charkha / Loom Icon */}
-        <View
-          style={[
-            styles.animCircle,
-            {
-              backgroundColor: theme.colors.primary.emerald100,
-              borderColor: theme.colors.primary.emerald700,
-            },
-          ]}
-        >
+        <View style={styles.animCircle}>
           <Text style={styles.animEmoji}>🧶</Text>
         </View>
 
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
+        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
           AI कैटलॉग तैयार हो रहा है
         </Text>
-        <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.subtitle}>
-          आपकी कला को दुनिया के सामने पेश करने के लिए AI विवरण लिख रहा है...
+        <Text variant="bodyMedium" color={theme.colors.charcoal[600]} style={styles.subtitle}>
+          आपकी कला को दुनिया के सामने पेश करने के लिए AI विवरण और डिजिटल पासपोर्ट तैयार कर रहा है...
         </Text>
 
         {/* Step-by-Step Progress Card */}
-        <Card style={styles.progressCard}>
+        <Card style={styles.progressCard} variant="elevated">
           {STEPS.map((step) => {
             const isDone = completedSteps.includes(step.id);
             const isCurrent = !isDone && completedSteps.includes(step.id - 1);
@@ -125,24 +114,26 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
                     styles.stepBadge,
                     {
                       backgroundColor: isDone
-                        ? theme.colors.primary.emerald700
+                        ? '#1B5E38'
                         : isCurrent
-                        ? theme.colors.terracotta.primary
-                        : '#E0E0E0',
+                        ? '#E85D2A'
+                        : '#EFEAE3',
                     },
                   ]}
                 >
-                  <Text style={styles.badgeText}>{isDone ? '✓' : step.id}</Text>
+                  <Text style={[styles.badgeText, !isDone && !isCurrent && { color: '#8A827B' }]}>
+                    {isDone ? '✓' : step.id}
+                  </Text>
                 </View>
                 <View style={styles.stepTexts}>
                   <Text
                     variant="bodyMedium"
-                    weight={isDone || isCurrent ? 'bold' : 'regular'}
-                    color={isDone ? theme.colors.primary.emerald700 : theme.colors.text.primary}
+                    weight={isDone || isCurrent ? 'bold' : 'medium'}
+                    color={isDone ? '#1B5E38' : isCurrent ? '#E85D2A' : theme.colors.charcoal[800]}
                   >
                     {step.labelHi}
                   </Text>
-                  <Text variant="bodySmall" color={theme.colors.text.secondary}>
+                  <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
                     {step.labelEn}
                   </Text>
                 </View>
@@ -152,18 +143,11 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
         </Card>
 
         {/* Vernacular Audio Readout */}
-        <View
-          style={[
-            styles.voiceCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
-          <Text style={styles.speakerIcon}>🔊</Text>
-          <Text variant="bodyMedium" color={theme.colors.text.primary} style={styles.voiceText}>
+        <View style={styles.voiceCard}>
+          <View style={styles.speakerBox}>
+            <Text style={{ fontSize: 20 }}>🔊</Text>
+          </View>
+          <Text variant="bodyMedium" color={theme.colors.charcoal[800]} style={styles.voiceText}>
             "आपकी दुकान की लिस्टिंग बन रही है। बस कुछ सेकंड और..."
           </Text>
         </View>
@@ -183,16 +167,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   animCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     borderWidth: 2,
+    borderColor: '#E85D2A',
+    backgroundColor: '#FFF2EB',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
   animEmoji: {
-    fontSize: 48,
+    fontSize: 44,
   },
   title: {
     textAlign: 'center',
@@ -201,12 +187,17 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'center',
     marginBottom: 24,
-    lineHeight: 20,
+    lineHeight: 22,
+    maxWidth: 300,
   },
   progressCard: {
     width: '100%',
-    padding: 16,
+    padding: 20,
     marginBottom: 20,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
   },
   stepRow: {
     flexDirection: 'row',
@@ -224,7 +215,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 13,
   },
   stepTexts: {
     flex: 1,
@@ -233,15 +224,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    borderRadius: 14,
+    borderRadius: 16,
+    backgroundColor: '#FFF7E8',
     borderWidth: 1,
+    borderColor: '#F4B942',
     width: '100%',
   },
-  speakerIcon: {
-    fontSize: 24,
-    marginRight: 10,
+  speakerBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
   voiceText: {
     flex: 1,
+    lineHeight: 20,
   },
 });
+

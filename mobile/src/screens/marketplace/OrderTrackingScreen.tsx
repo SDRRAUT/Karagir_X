@@ -6,6 +6,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useOrderStore, TrackingMilestone } from '@/store/useOrderStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderTracking'>;
@@ -77,53 +78,46 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          लाइव ऑर्डर ट्रैकिंग (Tracking)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="लाइव ऑर्डर ट्रैकिंग"
+        subtitle="Speed Post Live Journey"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Postal Consignment Card */}
-        <Card style={styles.consignmentCard}>
+        <Card style={styles.consignmentCard} variant="elevated">
           <View style={styles.consignmentHeader}>
-            <Text style={{ fontSize: 26, marginRight: 8 }}>📮</Text>
+            <View style={styles.postalIconBox}>
+              <Text style={{ fontSize: 22 }}>📮</Text>
+            </View>
             <View style={{ flex: 1 }}>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                इंडिया पोस्ट स्पीड पोस्ट कंसाइनमेंट:
+              <Text variant="bodySmall" color={theme.colors.charcoal[500]} weight="medium">
+                इंडिया पोस्ट स्पीड पोस्ट कंसाइनमेंट
               </Text>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]} style={{ marginTop: 2 }}>
                 {barcode}
               </Text>
             </View>
-            <TouchableOpacity onPress={handleCopyBarcode} style={styles.copyBtn}>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
+            <TouchableOpacity onPress={handleCopyBarcode} activeOpacity={0.7} style={styles.copyBtn}>
+              <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
                 कॉपी 📋
               </Text>
             </TouchableOpacity>
           </View>
-          <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 6 }}>
-            ऑर्डर सं.: {orderNumber} • 100% ग्रामीण डाकघर कनेक्टिविटी
-          </Text>
+          <View style={styles.consignmentFooter}>
+            <Text variant="bodySmall" color={theme.colors.charcoal[600]}>
+              ऑर्डर सं.: <Text weight="bold" color={theme.colors.charcoal[800]}>{orderNumber}</Text> • 100% ग्रामीण डाकघर नेटवर्क
+            </Text>
+          </View>
         </Card>
 
         {/* Milestone Tracker Timeline */}
-        <Card style={styles.timelineCard}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.timelineTitle}>
-            यात्रा के चरण (Delivery Milestones):
+        <Card style={styles.timelineCard} variant="elevated">
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]} style={styles.timelineTitle}>
+            यात्रा के चरण (Delivery Milestones)
           </Text>
 
           {milestones.map((milestone, idx) => {
@@ -135,17 +129,14 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
                   <View
                     style={[
                       styles.dotCircle,
-                      {
-                        backgroundColor: milestone.isCompleted
-                          ? theme.colors.primary.emerald700
-                          : '#E0E0E0',
-                        borderColor: milestone.isCompleted
-                          ? theme.colors.primary.emerald700
-                          : '#BDBDBD',
-                      },
+                      milestone.isCompleted
+                        ? styles.dotCircleCompleted
+                        : styles.dotCirclePending,
                     ]}
                   >
-                    <Text style={styles.dotText}>{milestone.isCompleted ? '✓' : milestone.step}</Text>
+                    <Text style={[styles.dotText, milestone.isCompleted ? styles.dotTextCompleted : styles.dotTextPending]}>
+                      {milestone.isCompleted ? '✓' : milestone.step}
+                    </Text>
                   </View>
                   {!isLast && (
                     <View
@@ -153,8 +144,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
                         styles.verticalLine,
                         {
                           backgroundColor: milestone.isCompleted
-                            ? theme.colors.primary.emerald700
-                            : '#E0E0E0',
+                            ? '#1B5E38'
+                            : '#EFEAE3',
                         },
                       ]}
                     />
@@ -167,15 +158,15 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
                     <Text
                       variant="bodyLarge"
                       weight="bold"
-                      color={milestone.isCompleted ? theme.colors.primary.emerald700 : theme.colors.text.primary}
+                      color={milestone.isCompleted ? theme.colors.forest[700] : theme.colors.charcoal[900]}
                     >
                       {milestone.titleHi}
                     </Text>
-                    <Text variant="bodySmall" color={theme.colors.text.secondary}>
+                    <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
                       {milestone.timestamp}
                     </Text>
                   </View>
-                  <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.milestoneDesc}>
+                  <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={styles.milestoneDesc}>
                     {milestone.descriptionHi}
                   </Text>
                 </View>
@@ -185,14 +176,16 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </Card>
 
         {/* Nodal Escrow Protection Status */}
-        <View style={[styles.escrowCard, { backgroundColor: theme.colors.primary.emerald100 }]}>
-          <Text style={{ fontSize: 26, marginRight: 10 }}>🛡️</Text>
+        <View style={styles.escrowCard}>
+          <View style={styles.escrowIconBox}>
+            <Text style={{ fontSize: 22 }}>🛡️</Text>
+          </View>
           <View style={{ flex: 1 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald900}>
+            <Text variant="bodyMedium" weight="bold" color={theme.colors.forest[800]}>
               एस्क्रो सुरक्षा सक्रिय (Escrow Active)
             </Text>
-            <Text variant="bodySmall" color={theme.colors.primary.emerald900} style={{ marginTop: 2 }}>
-              डिलीवरी पूरी होने के 48 घंटे बाद ही कारीगर को जन-धन/बैंक खाते में भुगतान जारी होगा।
+            <Text variant="bodySmall" color={theme.colors.forest[700]} style={{ marginTop: 2, lineHeight: 18 }}>
+              डिलीवरी पूरी होने के 48 घंटे बाद ही कारीगर को जन-धन/बैंक खाते में पूरा भुगतान जारी होगा।
             </Text>
           </View>
         </View>
@@ -205,75 +198,98 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   consignmentCard: {
-    padding: 16,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
     marginBottom: 16,
   },
   consignmentHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  postalIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: '#FFF2EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
   copyBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 8,
+    backgroundColor: '#FFF2EB',
     borderWidth: 1,
-    borderColor: '#C85A32',
+    borderColor: '#FFE9DE',
+  },
+  consignmentFooter: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F0ECE6',
   },
   timelineCard: {
-    padding: 16,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEAE3',
     marginBottom: 16,
   },
   timelineTitle: {
-    marginBottom: 16,
+    marginBottom: 18,
   },
   timelineRow: {
     flexDirection: 'row',
-    minHeight: 70,
+    minHeight: 72,
   },
   indicatorCol: {
     alignItems: 'center',
     width: 32,
-    marginRight: 12,
+    marginRight: 14,
   },
   dotCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dotCircleCompleted: {
+    backgroundColor: '#1B5E38',
+  },
+  dotCirclePending: {
+    backgroundColor: '#F7F4F0',
+    borderWidth: 1.5,
+    borderColor: '#D8D1C7',
+  },
   dotText: {
-    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: 'bold',
   },
+  dotTextCompleted: {
+    color: '#FFFFFF',
+  },
+  dotTextPending: {
+    color: '#8A827B',
+  },
   verticalLine: {
-    width: 2.5,
+    width: 2,
     flex: 1,
     marginVertical: 4,
   },
   detailsCol: {
     flex: 1,
-    paddingBottom: 16,
+    paddingBottom: 18,
   },
   milestoneHeader: {
     flexDirection: 'row',
@@ -287,7 +303,20 @@ const styles = StyleSheet.create({
   escrowCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 14,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#E8F5EE',
+    borderWidth: 1,
+    borderColor: '#C3E6D0',
+  },
+  escrowIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
 });
+
