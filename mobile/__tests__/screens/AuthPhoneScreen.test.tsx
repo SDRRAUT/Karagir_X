@@ -15,7 +15,7 @@ describe('AuthPhoneScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders phone input and quick test login button', async () => {
+  it('renders test mode badge and direct login button without requiring OTP', async () => {
     const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -25,11 +25,11 @@ describe('AuthPhoneScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/अपना मोबाइल नंबर दर्ज करें/)).toBeTruthy();
+    expect(getByText(/🧪 टेस्टिंग मोड: OTP सत्यापन हटाया गया है/)).toBeTruthy();
     expect(getByTestId('quick-demo-btn')).toBeTruthy();
   });
 
-  it('performs 1-click instant login via test credentials', async () => {
+  it('performs 1-click instant login via test number and bypasses OTP verification', async () => {
     const { getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -43,11 +43,12 @@ describe('AuthPhoneScreen', () => {
       fireEvent.press(getByTestId('quick-demo-btn'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalled();
+    expect(mockNavigation.replace).toHaveBeenCalledWith('ProfileSetup', { role: 'ARTISAN' });
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().user?.phoneNumber).toBe('9876543210');
   });
 
-  it('allows entering digits via keypad and sending OTP', async () => {
+  it('allows entering digits via keypad and logging in directly without OTP verification', async () => {
     const { getByText } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -66,12 +67,10 @@ describe('AuthPhoneScreen', () => {
     }
 
     await act(async () => {
-      fireEvent.press(getByText('OTP कोड भेजें (Send OTP) →'));
+      fireEvent.press(getByText('लॉगिन करें (बिना OTP) →'));
     });
 
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('OtpVerification', expect.objectContaining({
-      phoneNumber: '9876543210',
-      role: 'BUYER',
-    }));
+    expect(mockNavigation.replace).toHaveBeenCalledWith('ProfileSetup', { role: 'BUYER' });
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 });

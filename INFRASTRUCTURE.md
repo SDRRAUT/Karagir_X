@@ -233,32 +233,4 @@ CORS_ORIGINS               http://localhost:3000          https://kalakarsetu.in
 
 ---
 
-# 7. Supabase Cloud Infrastructure & Storage Topology
-
-### 7.1 Cloud Project Specification
-- **Project Ref:** `epnfavpqweeybzoyoexq`
-- **Region:** `ap-southeast-2`
-- **Health Status:** Healthy / 100% Operational
-- **Connection Pooling:** Supavisor Transaction Pooler on port 6543 / Session Pooler on port 5432
-- **REST / PostgREST Interface:** Auto-generated secure API with zero-overhead RLS authorization
-
-### 7.2 Cloud Storage Architecture
-Four dedicated storage buckets are configured with granular MIME validation and RLS:
-
-| Bucket Name | Access Model | Max Size | Allowed MIME Types | Usage |
-|---|---|---|---|---|
-| `product-images` | Public Read / Auth Write | 10 MB | `image/jpeg`, `image/png`, `image/webp` | Product photos, studio enhanced photos, craft passport thumbnails |
-| `artisan-avatars` | Public Read / Auth Write | 5 MB | `image/jpeg`, `image/png`, `image/webp` | Master artisan profile photos and workshop imagery |
-| `voice-stories` | Public Read / Auth Write | 25 MB | `audio/mpeg`, `audio/mp4`, `audio/wav`, `audio/ogg`, `audio/m4a` | Vernacular audio stories recorded by artisans |
-| `craft-documents` | Private Read / Auth Write | 20 MB | `application/pdf`, `image/jpeg`, `image/png` | Artisan SHG certificates, GI-tag accreditation, bank proofs |
-
-### 7.3 Client Environment Configuration
-```ini
-# Client-Safe Mobile Application (.env / mobile/)
-EXPO_PUBLIC_SUPABASE_URL=https://epnfavpqweeybzoyoexq.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwbmZhdnBxd2VleWJ6b3lvZXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMTcwNzIsImV4cCI6MjA1Njc5MzA3Mn0.K5jRrqo_gK11W6ZfGkI5Qe_2hP4p03vR2aH3E4Wq1eM
-```
-
----
-
 *End of Production Infrastructure, CI/CD & DevOps Specification — Kalakar Setu Platform*

@@ -35,7 +35,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
   };
 
-  const handleSendOtp = async (phoneOverride?: string) => {
+  const handleLogin = async (phoneOverride?: string) => {
     const targetPhone = phoneOverride || phoneNumber;
     if (targetPhone.length !== 10 || !/^[6-9]\d{9}$/.test(targetPhone)) {
       setErrorMessage('कृपया सही 10 अंकों का मोबाइल नंबर डालें (Invalid Indian Phone Number)');
@@ -46,25 +46,15 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
 
     try {
-      const resp = await authService.sendOtp(targetPhone, locale, role);
-      setIsLoading(false);
-      navigation.navigate('OtpVerification', {
-        phoneNumber: targetPhone,
-        sessionId: resp.session_id,
+      // Testing Mode: OTP Verification bypassed per user directive for testing
+      const resp = await authService.verifyOtp(
+        `test_session_${Date.now()}`,
+        '123456',
+        targetPhone,
         role,
-      });
-    } catch {
-      setIsLoading(false);
-      setErrorMessage('नेटवर्क त्रुटि — कृपया पुनः प्रयास करें।');
-    }
-  };
+        locale
+      );
 
-  const handleQuickLogin = async () => {
-    setIsLoading(true);
-    setErrorMessage(null);
-    try {
-      // Direct real Supabase login using seeded test credentials
-      const resp = await authService.loginWithPassword('9876543210', '123456', role);
       await setSession(
         {
           accessToken: resp.access_token,
@@ -73,7 +63,9 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         },
         resp.user
       );
+
       setIsLoading(false);
+
       if (resp.is_new_user || !resp.user.isProfileComplete) {
         navigation.replace('ProfileSetup', { role });
       } else {
@@ -81,7 +73,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
       }
     } catch {
       setIsLoading(false);
-      setErrorMessage('प्रमाणीकरण त्रुटि — कृपया पुनः प्रयास करें।');
+      setErrorMessage('नेटवर्क त्रुटि — कृपया पुनः प्रयास करें। (Failed to authenticate)');
     }
   };
 
@@ -112,23 +104,33 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
 
       <View style={styles.content}>
+        {/* Testing Mode Badge */}
+        <View style={[styles.testBadge, { backgroundColor: theme.colors.primary.emerald100, borderColor: theme.colors.primary.emerald700 }]}>
+          <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
+            🧪 टेस्टिंग मोड: OTP सत्यापन हटाया गया है (Direct Test Login)
+          </Text>
+        </View>
+
         <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
           अपना मोबाइल नंबर दर्ज करें
         </Text>
         <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-          लॉगिन या नया खाता बनाने के लिए OTP भेजा जाएगा
+          नंबर दर्ज करते ही सीधा लॉगिन हो जाएगा (बिना OTP)
         </Text>
 
-        {/* Quick Demo Login Button */}
+        {/* Quick Demo Autofill Button */}
         <TouchableOpacity
           testID="quick-demo-btn"
           style={[styles.quickDemoBtn, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.surface.border }]}
-          onPress={handleQuickLogin}
+          onPress={() => {
+            setPhoneNumber('9876543210');
+            handleLogin('9876543210');
+          }}
           accessibilityRole="button"
           accessibilityLabel="Fill demo phone and login"
         >
           <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-            ⚡ टेस्ट खाता (9876543210) से त्वरित लॉगिन करें
+            ⚡ टेस्ट नंबर 9876543210 से 1-क्लिक लॉगिन करें
           </Text>
         </TouchableOpacity>
 
@@ -162,12 +164,12 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         )}
 
         <Button
-          label="OTP कोड भेजें (Send OTP) →"
+          label="लॉगिन करें (बिना OTP) →"
           variant="primary"
           size="decision"
           isLoading={isLoading}
           disabled={phoneNumber.length !== 10}
-          onPress={() => handleSendOtp()}
+          onPress={() => handleLogin()}
           style={styles.sendOtpBtn}
         />
       </View>
@@ -177,7 +179,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         <TactileKeypad
           onPressDigit={handleDigit}
           onPressBackspace={handleBackspace}
-          onPressConfirm={() => handleSendOtp()}
+          onPressConfirm={() => handleLogin()}
           disabled={isLoading}
         />
       </View>

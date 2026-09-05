@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserProfile, AuthTokens } from '@/api/types';
-import { supabase } from '@/api/supabaseClient';
-import { authService } from '@/api/authService';
 import { logger } from '@/utils/logger';
 
 const AUTH_STORAGE_KEY = '@kalakar_auth_session';
@@ -27,8 +25,6 @@ export interface AuthState {
   logout: () => Promise<void>;
 }
 
-let authSubscriptionSetup = false;
-
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   tokens: null,
@@ -41,60 +37,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     try {
-      // 1. Set up Supabase auth listener once
-      if (!authSubscriptionSetup) {
-        authSubscriptionSetup = true;
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          logger.info('AUTH_STORE', `Supabase auth event: ${event}`);
-          if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED')) {
-            const profile = await authService.getProfile(session.user.id);
-            set({
-              tokens: {
-                accessToken: session.access_token,
-                refreshToken: session.refresh_token,
-                expiresInSeconds: session.expires_in || 3600,
-              },
-              user: profile,
-              isAuthenticated: true,
-              activeProfileId: profile.id,
-              isLoading: false,
-            });
-          } else if (event === 'SIGNED_OUT') {
-            set({
-              tokens: null,
-              user: null,
-              isAuthenticated: false,
-              activeProfileId: null,
-              isLoading: false,
-            });
-          }
-        });
-      }
-
-      // 2. Check Supabase active session
-      const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
-      if (!sessionErr && sessionData.session) {
-        const session = sessionData.session;
-        const profile = await authService.getProfile(session.user.id);
-        const tokens: AuthTokens = {
-          accessToken: session.access_token,
-          refreshToken: session.refresh_token,
-          expiresInSeconds: session.expires_in || 3600,
-        };
-
-        set({
-          user: profile,
-          tokens,
-          isAuthenticated: true,
-          activeProfileId: profile.id,
-          profilesOnDevice: [profile],
-          isLoading: false,
-        });
-        logger.info('AUTH_STORE', `Supabase session active for user ${profile.id}`);
-        return;
-      }
-
-      // 3. Fallback to cached local session if offline
       const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
@@ -106,7 +48,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           profilesOnDevice: parsed.profilesOnDevice || (parsed.user ? [parsed.user] : []),
           isLoading: false,
         });
-        logger.info('AUTH_STORE', `Cached session restored for user ${parsed.user?.id}`);
+        logger.info('AUTH_STORE', `Session restored for user ${parsed.user?.id}`);
         return;
       }
     } catch (error) {
@@ -190,7 +132,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   handleSessionExpired: async (reason: string = 'Session expired. Please log in again.') => {
     try {
-      await authService.logout();
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
     } catch (error) {
       logger.error('AUTH_STORE', 'Failed to clear storage on expiry', error);
@@ -213,7 +154,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await authService.logout();
       await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
     } catch (error) {
       logger.error('AUTH_STORE', 'Failed to clear session storage', error);
