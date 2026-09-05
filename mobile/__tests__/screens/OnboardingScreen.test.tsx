@@ -36,4 +36,30 @@ describe('OnboardingScreen', () => {
     });
     expect(mockNavigation.replace).toHaveBeenCalledWith('AuthPhone', { role: 'ARTISAN' });
   });
+
+  it('allows user to navigate back using the Back button', async () => {
+    const { getByText, getByTestId, queryByTestId } = await render(
+      <ThemeProvider>
+        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
+      </ThemeProvider>
+    );
+
+    // Slide 1 has no back button
+    expect(queryByTestId('onboarding-prev-btn')).toBeNull();
+
+    // Advance to Slide 2
+    await act(async () => {
+      fireEvent.press(getByTestId('onboarding-next-btn'));
+    });
+    expect(getByText(/Speak Naturally/i)).toBeTruthy();
+
+    // Slide 2 has back button
+    expect(getByTestId('onboarding-prev-btn')).toBeTruthy();
+
+    // Click back button to return to Slide 1
+    await act(async () => {
+      fireEvent.press(getByTestId('onboarding-prev-btn'));
+    });
+    expect(getByText(/1 Photo = Instant/i)).toBeTruthy();
+  });
 });

@@ -52,7 +52,7 @@ const ONBOARDING_SLIDES: SlideData[] = [
       'Zero typing or tech skills needed! Just snap a picture of your craft. Our AI cleans the clutter into 4K studio lighting and launches your shop in seconds.',
     voiceHi:
       'सिर्फ एक फोटो खींचें! AI आपकी दुकान खुद बना देगा, वो भी 10 सेकंड में।',
-    buttonLabel: 'Continue',
+    buttonLabel: 'Next →',
     titleColor: '#1F1A1C',
     descColor: '#5C504C',
     indicatorActive: '#1F1A1C',
@@ -74,7 +74,7 @@ const ONBOARDING_SLIDES: SlideData[] = [
       'Never get cheated by middlemen! Speak in your own local language. Our AI calculates your true work hours, materials, and guarantees your highest profit.',
     voiceHi:
       'अपनी बोली में बोलें! AI आपकी मेहनत का सही और सबसे ज्यादा दाम तय करेगा।',
-    buttonLabel: 'Continue',
+    buttonLabel: 'Next →',
     titleColor: '#0E2E1D',
     descColor: '#3B5746',
     indicatorActive: '#0E2E1D',
@@ -96,7 +96,7 @@ const ONBOARDING_SLIDES: SlideData[] = [
       'India Post collects orders right from your workshop! Guaranteed payout sent safely to your bank account with zero risk, zero delay, and full protection.',
     voiceHi:
       'डाकघर घर से पार्सल उठाएगा, और 100% सुरक्षित पैसा सीधे आपके बैंक खाते में आएगा।',
-    buttonLabel: 'Get Started',
+    buttonLabel: 'Get Started 🚀',
     titleColor: '#2B1E0A',
     descColor: '#5E4B30',
     indicatorActive: '#2B1E0A',
@@ -126,9 +126,10 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const changeSlide = (nextIndex: number) => {
     if (nextIndex === currentSlide) return;
     voiceGuidance.stopSpeaking();
+    const isGoingBack = nextIndex < currentSlide;
     setCurrentSlide(nextIndex);
     fadeAnim.setValue(0.3);
-    slideTranslateY.setValue(8);
+    slideTranslateY.setValue(isGoingBack ? -8 : 8);
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -152,6 +153,13 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const handlePrev = () => {
+    voiceGuidance.stopSpeaking();
+    if (currentSlide > 0) {
+      changeSlide(currentSlide - 1);
+    }
+  };
+
   const handleSkip = () => {
     voiceGuidance.stopSpeaking();
     navigation.replace('AuthPhone', { role: 'ARTISAN' as UserRole });
@@ -163,9 +171,25 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
       {/* Top App Header Row */}
       <View style={styles.topHeader}>
-        <View style={styles.brandBadge}>
-          <Text variant="caption" weight="bold" color={slide.titleColor} style={styles.brandText}>
-            ✨ KaragirX
+        <View style={styles.headerLeft}>
+          {currentSlide > 0 && (
+            <TouchableOpacity
+              testID="onboarding-header-back-btn"
+              onPress={handlePrev}
+              style={styles.headerBackBtn}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Previous slide"
+            >
+              <Text style={[styles.headerBackIcon, { color: slide.titleColor }]}>
+                ‹
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Clean Brand Typography (No clumsy pill background box) */}
+          <Text style={[styles.brandWordmark, { color: slide.titleColor }]}>
+            Karagir<Text style={{ color: '#EA580C' }}>X</Text>
           </Text>
         </View>
 
@@ -298,25 +322,56 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
           </Animated.View>
         </View>
 
-        {/* Bottom Action Section (Full-width Rounded Pill) */}
+        {/* Bottom Action Navigation: Dedicated Back and Next Buttons */}
         <View style={styles.bottomSection}>
-          <TouchableOpacity
-            testID="onboarding-next-btn"
-            onPress={handleNext}
-            style={styles.actionBtn}
-            activeOpacity={0.88}
-            accessibilityRole="button"
-            accessibilityLabel={slide.buttonLabel}
-          >
-            <Text
-              variant="bodyLarge"
-              weight="bold"
-              color={slide.btnTextColor}
-              style={styles.actionBtnText}
+          <View style={styles.bottomNavRow}>
+            {currentSlide > 0 && (
+              <TouchableOpacity
+                testID="onboarding-prev-btn"
+                onPress={handlePrev}
+                style={[
+                  styles.backBtn,
+                  {
+                    borderColor: slide.indicatorInactive,
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                  },
+                ]}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Go to previous slide"
+              >
+                <Text
+                  variant="bodyLarge"
+                  weight="bold"
+                  color={slide.titleColor}
+                  style={styles.backBtnText}
+                >
+                  ← Back
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              testID="onboarding-next-btn"
+              onPress={handleNext}
+              style={[
+                styles.nextBtn,
+                currentSlide === 0 && styles.nextBtnFull,
+              ]}
+              activeOpacity={0.88}
+              accessibilityRole="button"
+              accessibilityLabel={slide.buttonLabel}
             >
-              {slide.buttonLabel}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                variant="bodyLarge"
+                weight="bold"
+                color={slide.btnTextColor}
+                style={styles.nextBtnText}
+              >
+                {slide.buttonLabel}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -340,17 +395,32 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     alignSelf: 'center',
   },
-  brandBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  brandText: {
-    fontSize: 12.5,
-    letterSpacing: 0.4,
+  headerBackBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.06)',
+  },
+  headerBackIcon: {
+    fontSize: 22,
+    lineHeight: 24,
+    fontWeight: '600',
+    marginTop: -2,
+    marginLeft: -2,
+  },
+  brandWordmark: {
+    fontSize: 19,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   skipButton: {
     paddingHorizontal: 14,
@@ -464,10 +534,33 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     alignItems: 'center',
   },
-  actionBtn: {
+  bottomNavRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
+    gap: 12,
+  },
+  backBtn: {
+    flex: 1,
     paddingVertical: 16,
-    borderRadius: 26,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    shadowColor: '#334155',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  backBtnText: {
+    fontSize: 15,
+    letterSpacing: 0.2,
+  },
+  nextBtn: {
+    flex: 2,
+    paddingVertical: 16,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
@@ -479,7 +572,11 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 4,
   },
-  actionBtnText: {
+  nextBtnFull: {
+    flex: 1,
+    width: '100%',
+  },
+  nextBtnText: {
     fontSize: 16,
     letterSpacing: 0.3,
   },
