@@ -1,210 +1,383 @@
-# KaragirX — UI/UX Master Screen Flow & Navigation Architecture
+# KaragirX — Master Screen Flow & Navigation Architecture (Boxes & Lines)
 
-> **Purpose**: Definitive end-to-end architectural map of all screens, user journeys, navigation state machines, and voice guidance touchpoints across the **KaragirX** mobile application.
+> **Purpose**: Visual box-and-line architectural map of all screens, user journeys, navigation state machines, and voice guidance touchpoints across the **KaragirX** mobile application.
 
 ---
 
-## 1. Master System Flowchart
+## 1. Master System Flowchart (Boxes & Lines)
 
-```mermaid
-flowchart TD
-    %% Global Entry
-    START([App Launched]) --> SPLASH[01. SplashScreen\n3-Second Animated Reveal]
-    
-    SPLASH -->|Timer Expired / Tap| AUTH[02. AuthPhoneScreen\nClean Mobile Login]
-    AUTH -.->|Change Language| LANG[03. LanguageSelectionScreen\nMulti-lingual Selection]
-    AUTH -.->|App Tour| ONBOARD[04. OnboardingScreen\n3-Slide Value Proposition]
-    ONBOARD --> ROLE_SEL[05. RoleSelectionScreen\nBuyer / Artisan / Sahyogi]
-    ROLE_SEL --> AUTH
-    LANG --> AUTH
-
-    %% OTP & Profile Gate
-    AUTH -->|Submit / 1-Tap Demo| OTP[06. OtpVerificationScreen\n6-Digit Bypass / SMS]
-    OTP -->|New User / Incomplete| PROF_SETUP[07. ProfileSetupScreen\nName, Craft, District, SHG]
-    OTP -->|Existing Verified User| MAIN_TABS
-    PROF_SETUP --> MAIN_TABS{08. MainTabs Navigator\nDynamic Role Engine}
-
-    %% Persona Branching
-    MAIN_TABS -->|Role: ARTISAN| ARTISAN_STUDIO[09. HomeScreen\nArtisan Studio Cockpit]
-    MAIN_TABS -->|Role: BUYER| BUYER_MARKET[10. MarketplaceHomeScreen\nDiscover Feed & 6 Killer Features]
-    MAIN_TABS -->|Role: FACILITATOR| SAHYOGI_DESK[11. SahyogiHomeScreen\nVillage Cluster Field Desk]
-    MAIN_TABS -->|Tab: Explore| EXPLORE[12. CategoriesScreen\nGI Heritage Categories]
-    MAIN_TABS -->|Tab: Bulk Deals| RFQ_LIST[13. OpportunitiesScreen\nB2B Cluster RFQs & Bulk Contracts]
-    MAIN_TABS -->|Tab: Cart| CART[14. CartScreen\nShopping Cart & Escrow Checkout]
-    MAIN_TABS -->|Tab: Account| PROFILE[15. ProfileScreen\nUnified Persona Switcher & Settings]
-
-    %% Artisan AI Creation Journey
-    ARTISAN_STUDIO -->|Create Product / 📸| CAM_PERM[16. CameraPermissionScreen]
-    CAM_PERM --> CAM_CAP[17. CameraCaptureScreen]
-    CAM_CAP --> PHOTO_REV[18. PhotoReviewScreen]
-    PHOTO_REV --> AI_ENHANCE[19. AiEnhancementScreen\nStudio Background Cleanup]
-    AI_ENHANCE --> MIC_PERM[20. MicPermissionScreen]
-    MIC_PERM --> VOICE_DESC[21. VoiceDescriptionScreen\nVoice-First Audio Recording]
-    VOICE_DESC --> VOICE_QA[22. VoiceFollowUpScreen\nAI Voice Interview]
-    VOICE_QA --> CAT_GEN[23. CatalogGenerationScreen\nTrilingual Catalog Synthesis]
-    CAT_GEN --> PRICE_REC[24. PricingRecommendationScreen\nFair Dynamic Cost Breakdown]
-    PRICE_REC --> PROD_PREV[25. ProductPreviewScreen\nDigital Provenance Passport]
-    PROD_PREV --> PUB_SUCCESS[26. PublishSuccessScreen\nLive on Direct Market]
-    PUB_SUCCESS --> ARTISAN_STUDIO
-
-    %% Buyer Commerce & Checkout Flow
-    BUYER_MARKET --> PROD_DETAIL[27. ProductDetailScreen\nGI Provenance + Speech Audio]
-    EXPLORE --> SEARCH[28. SearchScreen\nVisual & Query Search]
-    SEARCH --> PROD_DETAIL
-    PROD_DETAIL -->|Add to Bag / Buy Now| CART
-    PROD_DETAIL --> WISHLIST[29. WishlistScreen]
-    CART --> CHECKOUT[30. CheckoutScreen\nShipping & Delivery Address]
-    CHECKOUT --> PAYMENT[31. PaymentScreen\nUPI / Card / Escrow Safety]
-    PAYMENT --> ORDER_CONFIRM[32. OrderConfirmationScreen\nOrder Placed]
-    ORDER_CONFIRM --> ORDER_TRACK[33. OrderTrackingScreen\nIndia Post Live Tracking]
-
-    %% B2B Linkage Flow
-    RFQ_LIST --> OPP_DETAIL[34. OpportunityDetailScreen]
-    OPP_DETAIL --> QUOTE_NEG[35. QuoteNegotiationScreen]
-    QUOTE_NEG --> B2B_CONTRACT[36. B2BContractScreen]
-    BUYER_MARKET -->|Wholesale RFQ| CREATE_RFQ[37. CreateBulkRfqScreen]
+```
+                              ┌───────────────────────────────┐
+                              │       APP LAUNCHED            │
+                              └───────────────┬───────────────┘
+                                              │
+                                              ▼
+                              ┌───────────────────────────────┐
+                              │       01. SPLASH SCREEN       │
+                              │   [ KarigarX Logo Reveal ]    │
+                              │   (3-Second Auto Progress)    │
+                              └───────────────┬───────────────┘
+                                              │
+                                     (Timer / Tap to Skip)
+                                              │
+                                              ▼
+                              ┌───────────────────────────────┐
+                              │     02. AUTH PHONE SCREEN     │
+                              │  [ Buyer | Artisan | Sahyogi ]│
+                              │  [ MOBILE NUMBER: [ +91 ] [🔊]│
+                              │  [ ⚡ 1-Tap Demo Login ]      │
+                              │  [ Continue to Studio → ]     │
+                              └───────┬───────────────┬───────┘
+                                      │               │
+                     (Enter Mobile & Submit)    (Tap ⚡ 1-Tap Demo)
+                                      │               │
+                                      ▼               │
+                        ┌───────────────────────────┐ │
+                        │  06. OTP VERIFICATION     │ │
+                        │  [ 6-Digit OTP Box ] [ 🔊 ]│ │
+                        │  [ Verify & Continue → ]  │ │
+                        └─────────────┬─────────────┘ │
+                                      │               │
+                           (Verify Success)           │
+                                      │               │
+                                      ▼               │
+                        ┌───────────────────────────┐ │
+                        │   07. PROFILE SETUP       │ │
+                        │  1. Full Name        [ 🔊 ]│ │
+                        │  2. Craft Selection  [ 🔊 ]│ │
+                        │  3. Workshop Location[ 🔊 ]│ │
+                        │  4. SHG / Helper Code[ 🔊 ]│ │
+                        │  [ Complete Setup → ]     │ │
+                        └─────────────┬─────────────┘ │
+                                      │               │
+                             (Profile Complete)       │
+                                      │               │
+                                      ▼               ▼
+┌───────────────────────────────────────────────────────────────────────────────────────────┐
+│                              08. MAIN TABS DYNAMIC ROUTER                                 │
+│                     (Switches Home Cockpit based on User Persona)                         │
+└───────────────┬───────────────────────────┬───────────────────────────┬───────────────────┘
+                │                           │                           │
+         (Role = ARTISAN)             (Role = BUYER)             (Role = FACILITATOR)
+                │                           │                           │
+                ▼                           ▼                           ▼
+┌───────────────────────────────┐ ┌───────────────────────────┐ ┌───────────────────────────┐
+│   09. ARTISAN STUDIO COCKPIT  │ │  10. BUYER DISCOVER HOME  │ │  11. SAHYOGI FIELD DESK   │
+│ • Production Batches & Escrow │ │ • 6 Killer Features Hub   │ │ • 5,000-Unit Cluster Gauge│
+│ • Payout Ledger (₹)           │ │ • Verified Master Artisans│ │ • SOS Quota Reallocation  │
+│ • [ 📸 AI Smart Catalogue ]   │ │ • Diwali Heritage Deals   │ │ • QC Spec Audit Tool      │
+└───────────────┬───────────────┘ └─────────────┬─────────────┘ └───────────────────────────┘
+                │                               │
+                ▼                               ▼
+    [ AI 9-Step Studio Flow ]       [ Marketplace & Commerce ]
+         (See Section 3)                 (See Section 4)
 ```
 
 ---
 
-## 2. Phase-by-Phase Screen Transitions
+## 2. Phase 1: Onboarding, Language & Authentication (Boxes & Lines)
 
-### Phase 1: Launch, Onboarding & Authentication Flow
+```
+                      ┌───────────────────────────────────────────┐
+                      │            01. SPLASH SCREEN              │
+                      │       [ Clean KarigarX Artwork ]          │
+                      │        (Duration: 3.0 Seconds)            │
+                      └─────────────────────┬─────────────────────┘
+                                            │
+                                            ▼
+                      ┌───────────────────────────────────────────┐
+                      │         02. AUTH PHONE SCREEN             │
+                      │  • Segmented Role Selector:               │
+                      │    [ 🛍️ Buyer ] [ 🎨 Artisan ] [ 🤝 Helper ]│
+                      │  • Mobile Input: [ 🇮🇳 +91 ] [Phone] [ 🔊 ] │
+                      │  • Quick Demo:   [ ⚡ 1-Tap Demo ]        │
+                      │  • Button:       [ Continue to Studio → ] │
+                      └───┬───────────────────┬───────────────┬───┘
+                          │                   │               │
+                (Tap 🌐 Change Lang)     (Tap ℹ️ Tour)   (Enter Mobile)
+                          │                   │               │
+                          ▼                   ▼               ▼
+┌───────────────────────────────┐ ┌────────────────────────┐ ┌───────────────────────────────┐
+│ 03. LANGUAGE SELECTION SCREEN │ │ 04. ONBOARDING (TOUR)  │ │ 06. OTP VERIFICATION SCREEN  │
+│ • English (Default)           │ │ Slide 1: Photo AI [ 🔊 ]│ │ • 6-Digit OTP Boxes         │
+│ • Hindi (हिंदी)               │ │ Slide 2: Pricing  [ 🔊 ]│ │ • Voice Cue: [ 🔊 Audio ]   │
+│ • 6 Regional Languages        │ │ Slide 3: Escrow   [ 🔊 ]│ │ • Button: [ Verify OTP → ]   │
+└───────────────┬───────────────┘ └───────────┬────────────┘ └───────────────┬───────────────┘
+                │                             │                              │
+         (Select Language)             (Tap Get Started)              (Verify Success)
+                │                             │                              │
+                ▼                             ▼                              ▼
+          (Back to Auth)          ┌────────────────────────┐ ┌───────────────────────────────┐
+                                  │ 05. ROLE SELECTION     │ │ 07. PROFILE SETUP SCREEN      │
+                                  │ • Master Artisan Card  │ │ • 1. Full Name          [ 🔊 ]│
+                                  │ • Buyer / B2B Card     │ │ • 2. Craft Category     [ 🔊 ]│
+                                  │ • Cluster Sahyogi Card │ │ • 3. Workshop District  [ 🔊 ]│
+                                  └───────────┬────────────┘ │ • 4. SHG Code (Optional)[ 🔊 ]│
+                                              │              │ • Button: [ Save Profile → ]  │
+                                      (Select Persona)       └───────────────┬───────────────┘
+                                              │                              │
+                                              ▼                              ▼
+                                      (Back to AuthPhone)             (Go to Main Tabs)
+```
 
-| Step | Screen Name | Route ID | Triggers & Transitions | User Action | Audio Guidance (`VoiceCueButton`) |
+---
+
+## 3. Phase 2: Master Artisan AI Studio & Publishing Flow (Boxes & Lines)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  09. ARTISAN STUDIO COCKPIT                     │
+│   • Active Workshop Orders & ₹ Escrow Ledger                    │
+│   • CTA Action: [ 📸 AI Smart Catalogue (Photo + Voice) ]       │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  16. CAMERA PERMISSION SCREEN                   │
+│   • Explain Studio Craft Capture Camera Access                  │
+│   • Button: [ Allow Camera → ]                                  │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   17. CAMERA CAPTURE SCREEN                     │
+│   • Live Viewfinder with Multi-angle Framing Grid               │
+│   • Action: [ Snap Product Photo 📸 ]                           │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   18. PHOTO REVIEW SCREEN                       │
+│   • Preview Captured Image Quality                              │
+│   • Actions: [ ↺ Retake ]  OR  [ ✨ Enhance Photo → ]           │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 19. AI ENHANCEMENT SCREEN                       │
+│   • AI Studio Background Cleaner (Studio White Backdrop)        │
+│   • Natural Shadow Generator & Crisp Color Balancing            │
+│   • Button: [ Continue to Voice Saathi → ]                      │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   20. MIC PERMISSION SCREEN                     │
+│   • Explain Voice Saathi Conversational Microphone Usage        │
+│   • Button: [ Allow Microphone → ]                              │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 21. VOICE DESCRIPTION SCREEN                    │
+│   • One-Tap Audio Recording in Mother Tongue                    │
+│   • Artisan explains craft story, clay/loom type, hours worked  │
+│   • Action: [ ⏹️ Stop Recording & Synthesize ]                   │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  22. VOICE FOLLOW-UP SCREEN                     │
+│   • AI Voice Saathi asks 2 clarifying questions in Hindi:       │
+│     Q1: "कच्चे माल की लागत कितनी लगी?"                         │
+│     Q2: "इस शिल्प को बनाने में कितने दिन लगे?"                  │
+│   • Action: [ Complete Voice Interview → ]                      │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                23. CATALOG GENERATION SCREEN                    │
+│   • AI Synthesis: Trilingual Title (English, Hindi, Regional)   │
+│   • Automated Artisan Story & E-commerce Search Tags            │
+│   • Button: [ View Fair Pricing Breakdown → ]                   │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              24. PRICING RECOMMENDATION SCREEN                  │
+│   • Transparent Cost Formula: Raw Material + Labor + Packaging  │
+│   • Fair Market Price Recommendation (95% Direct to Artisan)    │
+│   • Button: [ Preview Live Listing → ]                          │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  25. PRODUCT PREVIEW SCREEN                     │
+│   • Full Buyer-Facing Product Card                              │
+│   • Digital Provenance Passport & Authentic GI Tag Seal         │
+│   • Button: [ 🚀 Publish to Direct Marketplace ]                │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 26. PUBLISH SUCCESS SCREEN                      │
+│   • Celebration Modal & Direct Product ID Code                  │
+│   • Button: [ Return to Artisan Cockpit ✓ ]                     │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+                     (Back to 09. Artisan Studio)
+```
+
+---
+
+## 4. Phase 3: Buyer Marketplace & Commerce Journey (Boxes & Lines)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  10. BUYER DISCOVER MARKETPLACE                 │
+│   • 6 Killer Features Interactive Showcase                      │
+│   • Verified Master Artisan Collections & Diwali Craft Deals    │
+│   • Tap Any Craft Card                                          │
+└────────────────┬───────────────────────────────┬────────────────┘
+                 │                               │
+           (Tap Category)                  (Tap Product)
+                 │                               │
+                 ▼                               ▼
+┌─────────────────────────────────┐ ┌─────────────────────────────┐
+│      12. CATEGORIES SCREEN      │ │ 27. PRODUCT DETAIL SCREEN   │
+│ • Handloom, Pottery, Terracotta │ │ • Multi-Angle Studio Photos │
+│ • Folk Painting, Metal, Wood    │ │ • GI Provenance Passport    │
+│ • Button: [ Select Category ]   │ │ • [ 🔊 Audio Story Player ] │
+└────────────────┬────────────────┘ │ • [ Add to Cart / Buy Now ] │
+                 │                  └──────────────┬──────────────┘
+                 ▼                                 │
+┌─────────────────────────────────┐                │
+│       28. SEARCH SCREEN         │                │
+│ • Query & Visual Heritage Filter│                │
+│ • Tap Result                    │                │
+└────────────────┬────────────────┘                │
+                 │                                 │
+                 └────────────────►────────────────┘
+                                  │ (Tap Add to Cart)
+                                  ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      14. CART SCREEN                            │
+│   • Cart Item List & Quantity Modifiers (+ / -)                 │
+│   • Delivery Timeline Estimate (India Post)                     │
+│   • 95% Direct Artisan Payout Transparency Badge                │
+│   • Button: [ Proceed to Checkout → ]                           │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    30. CHECKOUT SCREEN                          │
+│   • Delivery Shipping Address & Pincode Verification            │
+│   • Optional Corporate GSTIN Invoice Toggle                     │
+│   • Button: [ Proceed to Safe Escrow Payment → ]                │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     31. PAYMENT SCREEN                          │
+│   • UPI Intent (GPay, PhonePe, Paytm), Cards, NetBanking        │
+│   • 100% Escrow Protection: Funds held safe until delivery      │
+│   • Action: [ Pay ₹... Securely ]                               │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                32. ORDER CONFIRMATION SCREEN                    │
+│   • Order Placed Animation & Receipt ID                         │
+│   • Downloadable GI Provenance Certificate                      │
+│   • Button: [ Track Live India Post Delivery → ]                │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  33. ORDER TRACKING SCREEN                      │
+│   • 4 Milestone Stepper:                                        │
+│     [1] Packed ➔ [2] India Post Pickup ➔ [3] Transit ➔ [4] Done │
+│   • Button: [ Back to Marketplace ]                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 5. Phase 4: Cluster Sahyogi & B2B Bulk Deals (Boxes & Lines)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│             11. SAHYOGI VILLAGE CLUSTER FIELD DESK              │
+│   • 5,000-Unit Cluster Quota Progress Bar                       │
+│   • SOS Quota Reallocation: Transfer excess capacity to clusters│
+│   • Quality Control (QC) Spec Inspection Audit Checklist        │
+│   • 1-Tap Assisted Onboarding for non-smartphone artisans       │
+└─────────────────────────────────────────────────────────────────┘
+
+                               ▲
+                               │ (B2B Bulk Linkage Tab)
+                               │
+┌─────────────────────────────────────────────────────────────────┐
+│                  13. OPPORTUNITIES SCREEN (B2B)                 │
+│   • Active Corporate Wholesale RFQs & Bulk Gifting Orders       │
+│   • Tap Any B2B Tender                                          │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              34. OPPORTUNITY DETAIL SCREEN                      │
+│   • Cluster Volume Requirement (e.g. 2,000 Terracotta Diyas)    │
+│   • Delivery Deadlines, Target Price & Buyer Specifications     │
+│   • Button: [ Submit Cluster Quote → ]                          │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│               35. QUOTE NEGOTIATION SCREEN                      │
+│   • Counter-Offer Unit Rate & Milestone Payment Schedule        │
+│   • Action: [ Accept Terms & Generate Contract → ]              │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  36. B2B CONTRACT SCREEN                        │
+│   • Legally Binding Digital Escrow Purchase Contract            │
+│   • Advance Deposit Escrow Locked Confirmation                  │
+│   • Button: [ Confirm & Start Cluster Production ✓ ]            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. Complete Screen Inventory Index (37 Screens)
+
+| # | Screen Name | File Path | Primary Action | Next Screen | Audio (`VoiceCueButton`) |
 |:---:|:---|:---|:---|:---|:---:|
-| **01** | **[SplashScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/SplashScreen.tsx)** | `Splash` | Auto-navigates after **3.0 seconds** (or tap anywhere) $\rightarrow$ `AuthPhone` | Watch 3s logo reveal / Tap to skip | ❌ Ambient animation |
-| **02** | **[AuthPhoneScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/AuthPhoneScreen.tsx)** | `AuthPhone` | • Select Role Pill (Buyer / Artisan / Sahyogi)<br>• Tap `⚡ 1-Tap Demo` $\rightarrow$ `MainTabs`<br>• Enter 10-digit mobile + tap `Continue` $\rightarrow$ `OtpVerification`<br>• Tap `🌐 Change Language` $\rightarrow$ `LanguageSelection`<br>• Tap `ℹ️ App Tour` $\rightarrow$ `Onboarding` | Input mobile or tap 1-tap demo | 🔊 *"कृपया अपना 10 अंकों का मोबाइल नंबर यहाँ दर्ज करें।"* |
-| **03** | **[OnboardingScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OnboardingScreen.tsx)** | `Onboarding` | 3 Value Proposition Carousel Slides:<br>1. Photo Studio AI<br>2. Voice Saathi Fair Pricing<br>3. Direct Escrow Payouts<br>• Tap `Skip` or `Get Started` $\rightarrow$ `RoleSelection` | Swipe slides / Tap Next | 🔊 Dedicated Hindi audio explanation button on each slide |
-| **04** | **[LanguageSelectionScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/LanguageSelectionScreen.tsx)** | `LanguageSelection` | Choose from 8 Indian languages (English, Hindi, Bengali, Marathi, Tamil, Telugu, Gujarati, Odia) $\rightarrow$ Returns to `AuthPhone` | Tap language tile | 🔊 Voice sample in target language |
-| **05** | **[RoleSelectionScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/RoleSelectionScreen.tsx)** | `RoleSelection` | Choose account persona:<br>• **Artisan / Seller**<br>• **Buyer / Corporate**<br>• **Cluster Sahyogi / Helper**<br>$\rightarrow$ Navigates to `AuthPhone` with preselected persona | Tap persona card | 🔊 Role responsibility description |
-| **06** | **[OtpVerificationScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OtpVerificationScreen.tsx)** | `OtpVerification` | • Default testing code `123456` or SMS OTP<br>• Tap `Verify & Continue` $\rightarrow$<br>  - If profile incomplete: `ProfileSetup`<br>  - If verified user: `MainTabs` | Enter 6 digits or tap Verify | 🔊 *"आपके मोबाइल नंबर पर भेजा गया 6 अंकों का ओटीपी दर्ज करें।"* |
-| **07** | **[ProfileSetupScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx)** | `ProfileSetup` | • 1. Full Name (Dictate or Type)<br>• 2. Craft Specialization (6 Grid Tiles)<br>• 3. Workshop Location & District<br>• 4. SHG / Facilitator Code (Optional)<br>• Tap `Complete Setup` $\rightarrow$ `MainTabs` | Fill profile details | 🔊 Speaker icons next to each of the 4 inputs with field instructions |
-
----
-
-### Phase 2: Master Artisan & Seller Studio Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Artisan as 🎨 Master Artisan
-    participant Studio as 09. HomeScreen (Studio)
-    participant Cam as 16-19. AI Photo Studio
-    participant Voice as 20-22. Voice Saathi AI
-    participant Cat as 23-25. Catalog & Fair Pricing
-    participant Live as 26. Publish Success
-
-    Artisan->>Studio: Taps "📸 AI Smart Catalogue"
-    Studio->>Cam: Opens Camera (16. CameraPermission -> 17. Capture -> 18. Review)
-    Cam->>Cam: 19. AiEnhancementScreen (Auto cleans background to studio white)
-    Cam->>Voice: Seamless redirect to Voice Description (20. MicPermission -> 21. VoiceDescription)
-    Artisan->>Voice: Speaks craft details in mother tongue
-    Voice->>Voice: 22. VoiceFollowUpScreen (AI asks clarifying material & time questions)
-    Voice->>Cat: 23. CatalogGenerationScreen (Generates trilingual titles, tags & story)
-    Cat->>Cat: 24. PricingRecommendationScreen (Calculates material, labor & 95% fair share)
-    Cat->>Cat: 25. ProductPreviewScreen (Generates Digital Provenance Passport)
-    Artisan->>Cat: Confirms & Taps "Publish Listing"
-    Cat->>Live: 26. PublishSuccessScreen (Listing live on global marketplace)
-    Live-->>Studio: Returns to Artisan Studio Cockpit
-```
-
-| Step | Screen Name | Route ID | Screen Purpose & Primary Interaction | Next Screen |
-|:---:|:---|:---|:---|:---|
-| **09** | **[HomeScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/HomeScreen.tsx)** | `MainTabs` $\rightarrow$ `HomeTab` | Artisan Production Cockpit: daily orders, earnings ledger (₹), batch tracking, and AI camera launch button | Tap 📸 AI Smart Catalogue $\rightarrow$ `CameraPermission` |
-| **16** | **[CameraPermissionScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CameraPermissionScreen.tsx)** | `CameraPermission` | Explain camera usage for studio-quality craft capture | Tap Allow $\rightarrow$ `CameraCapture` |
-| **17** | **[CameraCaptureScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CameraCaptureScreen.tsx)** | `CameraCapture` | Multi-angle photo capture with guidance overlay grid | Snap Photo $\rightarrow$ `PhotoReview` |
-| **18** | **[PhotoReviewScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PhotoReviewScreen.tsx)** | `PhotoReview` | Preview captured angles, re-take or confirm | Tap Enhance $\rightarrow$ `AiEnhancement` |
-| **19** | **[AiEnhancementScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/AiEnhancementScreen.tsx)** | `AiEnhancement` | AI background removal, studio shadow, auto color correction | Tap Continue $\rightarrow$ `MicPermission` |
-| **20** | **[MicPermissionScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/MicPermissionScreen.tsx)** | `MicPermission` | Explain microphone usage for Voice Saathi conversational input | Tap Allow $\rightarrow$ `VoiceDescription` |
-| **21** | **[VoiceDescriptionScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/VoiceDescriptionScreen.tsx)** | `VoiceDescription` | One-tap audio recording: artisan explains heritage, clay/weave type, creation time | Tap Stop $\rightarrow$ `VoiceFollowUp` |
-| **22** | **[VoiceFollowUpScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/VoiceFollowUpScreen.tsx)** | `VoiceFollowUp` | AI Voice Saathi asks 2 conversational questions in Hindi: *"कच्चे माल में कितना खर्च आया?"* | Tap Finish $\rightarrow$ `CatalogGeneration` |
-| **23** | **[CatalogGenerationScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CatalogGenerationScreen.tsx)** | `CatalogGeneration` | Real-time synthesis: Trilingual title, craft story, and technical tags | Tap View Pricing $\rightarrow$ `PricingRecommendation` |
-| **24** | **[PricingRecommendationScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PricingRecommendationScreen.tsx)** | `PricingRecommendation` | Transparent breakdown: Material cost + Labor hours + Packaging = Fair Price (95% to artisan) | Tap Preview $\rightarrow$ `ProductPreview` |
-| **25** | **[ProductPreviewScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/ProductPreviewScreen.tsx)** | `ProductPreview` | Full buyer-facing mockup with Digital Provenance Passport & GI Seal | Tap Publish $\rightarrow$ `PublishSuccess` |
-| **26** | **[PublishSuccessScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PublishSuccessScreen.tsx)** | `PublishSuccess` | Celebration modal: product code, shareable link, return to Studio | Tap Done $\rightarrow$ `MainTabs` |
-
----
-
-### Phase 3: Buyer Marketplace & Commerce Flow
-
-```mermaid
-flowchart LR
-    MKT[10. MarketplaceHomeScreen\nHero & Killer Features] --> DETAIL[27. ProductDetailScreen\nGI Passport & Audio]
-    DETAIL -->|Add to Cart| CART[14. CartScreen\nPrice Breakdown & Tax]
-    CART --> CHECKOUT[30. CheckoutScreen\nIndia Post Address]
-    CHECKOUT --> PAYMENT[31. PaymentScreen\nEscrow Hold]
-    PAYMENT --> CONFIRM[32. OrderConfirmationScreen\nOrder Placed]
-    CONFIRM --> TRACK[33. OrderTrackingScreen\nPost Delivery Milestone]
-```
-
-| Step | Screen Name | Route ID | Screen Purpose & Primary Interaction | Next Screen |
-|:---:|:---|:---|:---|:---|
-| **10** | **[MarketplaceHomeScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/MarketplaceHomeScreen.tsx)** | `MainTabs` $\rightarrow$ `HomeTab` | Discover Feed: 6 Killer Features showcase, Diwali festive deals, verified master artisans, GI craft grid | Tap any card $\rightarrow$ `ProductDetail` |
-| **12** | **[CategoriesScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CategoriesScreen.tsx)** | `MainTabs` $\rightarrow$ `ExploreTab` | Browse by craft taxonomy: Handloom, Terracotta, Dhokra, Woodcraft, Folk Painting | Tap category $\rightarrow$ `Search` |
-| **27** | **[ProductDetailScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/ProductDetailScreen.tsx)** | `ProductDetail` | High-res carousel, artisan story, GI digital passport, **audio provenance speech playback**, Add to Bag | Tap `Add to Cart` $\rightarrow$ `Cart` |
-| **14** | **[CartScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CartScreen.tsx)** | `MainTabs` $\rightarrow$ `CartTab` | Cart items, quantity modifier, delivery estimate, 95% direct artisan payout badge | Tap `Checkout` $\rightarrow$ `Checkout` |
-| **30** | **[CheckoutScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CheckoutScreen.tsx)** | `Checkout` | Delivery address form, India Post pincode checker, GST invoice toggle | Tap `Proceed to Pay` $\rightarrow$ `Payment` |
-| **31** | **[PaymentScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/PaymentScreen.tsx)** | `Payment` | UPI Intent, Card, NetBanking with 100% Escrow Protection guarantee badge | Tap `Pay ₹...` $\rightarrow$ `OrderConfirmation` |
-| **32** | **[OrderConfirmationScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/OrderConfirmationScreen.tsx)** | `OrderConfirmation` | Order success animation, receipt, provenance certificate download | Tap `Track Order` $\rightarrow$ `OrderTracking` |
-| **33** | **[OrderTrackingScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/OrderTrackingScreen.tsx)** | `OrderTracking` | 4-stage tracking: Order Packed $\rightarrow$ India Post Picked Up $\rightarrow$ In Transit $\rightarrow$ Delivered | Back to `MainTabs` |
-
----
-
-### Phase 4: Cluster Sahyogi Field Operations Flow
-
-| Step | Screen Name | Route ID | Screen Purpose & Primary Interaction |
-|:---:|:---|:---|:---|
-| **11** | **[SahyogiHomeScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/facilitator/SahyogiHomeScreen.tsx)** | `MainTabs` $\rightarrow$ `HomeTab` | **Village Cluster Field Operations Desk**:<br>• 5,000-Unit Cluster Quota gauge and progress bar<br>• SOS Quota Reallocation between village clusters<br>• QC Spec Audit check for artisan batches<br>• 1-Tap Assisted Onboarding for non-smartphone artisans |
-
----
-
-### Phase 5: B2B Wholesale & Cluster Opportunities Flow
-
-| Step | Screen Name | Route ID | Screen Purpose & Primary Interaction | Next Screen |
-|:---:|:---|:---|:---|:---|
-| **13** | **[OpportunitiesScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/OpportunitiesScreen.tsx)** | `MainTabs` $\rightarrow$ `BulkDealsTab` | Active B2B bulk orders: Corporate gifting, hotel chain procurements, export tenders | Tap RFQ $\rightarrow$ `OpportunityDetail` |
-| **34** | **[OpportunityDetailScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/OpportunityDetailScreen.tsx)** | `OpportunityDetail` | Unit specifications, required cluster volume, target delivery deadline, buyer profile | Tap `Submit Quote` $\rightarrow$ `QuoteNegotiation` |
-| **35** | **[QuoteNegotiationScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/QuoteNegotiationScreen.tsx)** | `QuoteNegotiation` | Counter-offer unit price, production timeline, batch milestone payouts | Tap `Accept & Sign` $\rightarrow$ `B2BContract` |
-| **36** | **[B2BContractScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/B2BContractScreen.tsx)** | `B2BContract` | Legally binding digital contract with escrow advance payment guarantee | Download / Confirm $\rightarrow$ `Opportunities` |
-| **37** | **[CreateBulkRfqScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/CreateBulkRfqScreen.tsx)** | `CreateBulkRfq` | Buyer form to request custom bulk craft orders (500+ units) | Submit $\rightarrow$ `Opportunities` |
-
----
-
-### Phase 6: Global Account, Switcher & Settings
-
-| Step | Screen Name | Route ID | Screen Purpose & Primary Interaction |
-|:---:|:---|:---|:---|
-| **15** | **[ProfileScreen](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/ProfileScreen.tsx)** | `MainTabs` $\rightarrow$ `ProfileTab` | • **Live Persona Switcher**: Seamlessly switch between Buyer, Artisan, and Sahyogi profiles<br>• Direct Escrow Bank Account configuration<br>• Language Preference (English default with 8 regional languages)<br>• Privacy, Terms, and Support desk |
-
----
-
-## 3. UI/UX Voice Guidance & Accessibility Matrix
-
-Every input and detail-collection screen is equipped with a **`VoiceCueButton`** (`🔊`) that plays native Hindi audio guidance on click:
-
-| Screen | Input Field | Audio Text (Hindi) | Visual Indicator |
-|:---|:---|:---|:---:|
-| [`AuthPhoneScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/AuthPhoneScreen.tsx) | `MOBILE NUMBER` | *"कृपया अपना दस अंकों का मोबाइल नंबर यहाँ दर्ज करें।"* | `🔊` pulses orange during playback |
-| [`ProfileSetupScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx) | `1. Your Full Name` | *"यहाँ अपना पूरा नाम लिखें, जैसा आपके आधार कार्ड या बैंक खाते में दर्ज है।"* | `🔊` next to title |
-| [`ProfileSetupScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx) | `2. Craft Specialization` | *"आप जिस हस्तशिल्प या कला में काम करते हैं, जैसे हथकरघा, मिट्टी के बर्तन, या चित्रकला, उसे यहाँ चुनें।"* | `🔊` next to title |
-| [`ProfileSetupScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx) | `3. Workshop Location` | *"यह आपकी कार्यशाला या गाँव का स्थान है, जहाँ आपके शिल्प का निर्माण होता है।"* | `🔊` next to title |
-| [`ProfileSetupScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx) | `4. SHG / Facilitator Code` | *"यदि आप किसी स्वयं सहायता समूह या क्लस्टर सहयोगी से जुड़े हैं, तो उनका कोड यहाँ दर्ज करें।"* | `🔊` next to title |
-| [`OtpVerificationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OtpVerificationScreen.tsx) | `Enter 6-Digit OTP` | *"आपके मोबाइल नंबर पर भेजा गया 6 अंकों का ओटीपी कोड यहाँ दर्ज करें।"* | `🔊` beside OTP header |
-| [`OnboardingScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OnboardingScreen.tsx) | Carousel Slides 1, 2, 3 | Reads natural Hindi voice narration of feature slides | `[ 🔊 Listen in Hindi ]` |
-| [`ProductDetailScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/ProductDetailScreen.tsx) | Digital Provenance Passport | Speaks artisan heritage story & GI authenticity certification | `[ 🔊 Listen to Artisan Story ]` |
-
----
-
-## 4. Navigation Rules & Architectural Contracts
-
-1. **Default Language**:
-   - The application defaults to **English (`en_IN`)** across all labels, buttons, and navigation elements.
-   - Regional Hindi audio is provided on-demand via the `VoiceCueButton` (`🔊`).
-2. **Initial Route**:
-   - The app starts on **`SplashScreen`** (`initialRouteName="Splash"` in `RootNavigator.tsx`).
-   - The 3-second animated sequence reveals the brand artwork, then transitions to `AuthPhoneScreen`.
-3. **Session Rehydration**:
-   - If an authenticated session exists in `useAuthStore`, `SplashScreen` directly replaces navigation to `MainTabs`.
-4. **Persona Switcher**:
-   - Switching personas in `ProfileScreen` or `AuthPhoneScreen` updates `user.role` in `useAuthStore`, instantly re-rendering `DynamicHomeTabScreen` to the corresponding cockpit (`HomeScreen` for Artisan, `MarketplaceHomeScreen` for Buyer, `SahyogiHomeScreen` for Facilitator).
+| **01** | `SplashScreen` | [`SplashScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/SplashScreen.tsx) | 3s logo reveal / tap | `AuthPhone` | ❌ |
+| **02** | `AuthPhoneScreen` | [`AuthPhoneScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/AuthPhoneScreen.tsx) | Phone input / 1-Tap demo | `OtpVerification` / `MainTabs` | 🔊 Hindi mobile guidance |
+| **03** | `LanguageSelectionScreen` | [`LanguageSelectionScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/LanguageSelectionScreen.tsx) | Pick from 8 Indian languages | `AuthPhone` | 🔊 Language preview |
+| **04** | `OnboardingScreen` | [`OnboardingScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OnboardingScreen.tsx) | 3 feature value slides | `RoleSelection` | 🔊 Hindi slide narration |
+| **05** | `RoleSelectionScreen` | [`RoleSelectionScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/RoleSelectionScreen.tsx) | Pick Buyer / Artisan / Helper | `AuthPhone` | 🔊 Role description |
+| **06** | `OtpVerificationScreen` | [`OtpVerificationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/OtpVerificationScreen.tsx) | 6-digit OTP verification | `ProfileSetup` / `MainTabs` | 🔊 Hindi OTP guidance |
+| **07** | `ProfileSetupScreen` | [`ProfileSetupScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/auth/ProfileSetupScreen.tsx) | Name, craft, location, SHG | `MainTabs` | 🔊 4 Hindi field prompts |
+| **08** | `MainTabs` | [`AppNavigator.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/navigation/AppNavigator.tsx) | Bottom bar dynamic router | Dynamic Home Tab | ❌ |
+| **09** | `HomeScreen` | [`HomeScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/HomeScreen.tsx) | Artisan studio cockpit | `CameraPermission` | ❌ |
+| **10** | `MarketplaceHomeScreen`| [`MarketplaceHomeScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/MarketplaceHomeScreen.tsx) | Discover feed & killer features | `ProductDetail` | ❌ |
+| **11** | `SahyogiHomeScreen` | [`SahyogiHomeScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/facilitator/SahyogiHomeScreen.tsx) | Cluster quotas & field ops | SOS Reallocation | ❌ |
+| **12** | `CategoriesScreen` | [`CategoriesScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CategoriesScreen.tsx) | Browse craft categories | `Search` | ❌ |
+| **13** | `OpportunitiesScreen` | [`OpportunitiesScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/OpportunitiesScreen.tsx) | B2B bulk orders & tenders | `OpportunityDetail` | ❌ |
+| **14** | `CartScreen` | [`CartScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CartScreen.tsx) | Cart items & price total | `Checkout` | ❌ |
+| **15** | `ProfileScreen` | [`ProfileScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/ProfileScreen.tsx) | Persona switcher & settings | Switch role / Logout | ❌ |
+| **16** | `CameraPermissionScreen`| [`CameraPermissionScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CameraPermissionScreen.tsx) | Request camera access | `CameraCapture` | ❌ |
+| **17** | `CameraCaptureScreen` | [`CameraCaptureScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CameraCaptureScreen.tsx) | Snap craft photo | `PhotoReview` | ❌ |
+| **18** | `PhotoReviewScreen` | [`PhotoReviewScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PhotoReviewScreen.tsx) | Confirm or retake angle | `AiEnhancement` | ❌ |
+| **19** | `AiEnhancementScreen` | [`AiEnhancementScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/AiEnhancementScreen.tsx) | Background removal | `MicPermission` | ❌ |
+| **20** | `MicPermissionScreen` | [`MicPermissionScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/MicPermissionScreen.tsx) | Request microphone access | `VoiceDescription` | ❌ |
+| **21** | `VoiceDescriptionScreen`| [`VoiceDescriptionScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/VoiceDescriptionScreen.tsx) | Record voice story | `VoiceFollowUp` | ❌ |
+| **22** | `VoiceFollowUpScreen` | [`VoiceFollowUpScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/VoiceFollowUpScreen.tsx) | Voice Saathi Q&A | `CatalogGeneration` | 🔊 AI speaks Hindi |
+| **23** | `CatalogGenerationScreen`| [`CatalogGenerationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/CatalogGenerationScreen.tsx) | Synthesis of listing | `PricingRecommendation` | ❌ |
+| **24** | `PricingRecommendationScreen`| [`PricingRecommendationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PricingRecommendationScreen.tsx) | Cost breakdown formula | `ProductPreview` | ❌ |
+| **25** | `ProductPreviewScreen` | [`ProductPreviewScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/ProductPreviewScreen.tsx) | Buyer card preview | `PublishSuccess` | ❌ |
+| **26** | `PublishSuccessScreen` | [`PublishSuccessScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/product/PublishSuccessScreen.tsx) | Live listing celebration | `HomeScreen` | ❌ |
+| **27** | `ProductDetailScreen` | [`ProductDetailScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/ProductDetailScreen.tsx) | GI passport & audio story | `Cart` | 🔊 Artisan story player |
+| **28** | `SearchScreen` | [`SearchScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/SearchScreen.tsx) | Search heritage catalog | `ProductDetail` | ❌ |
+| **29** | `WishlistScreen` | [`WishlistScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/WishlistScreen.tsx) | Saved items | `ProductDetail` | ❌ |
+| **30** | `CheckoutScreen` | [`CheckoutScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/CheckoutScreen.tsx) | Address & delivery pincode | `Payment` | ❌ |
+| **31** | `PaymentScreen` | [`PaymentScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/PaymentScreen.tsx) | UPI / Escrow payment | `OrderConfirmation` | ❌ |
+| **32** | `OrderConfirmationScreen`| [`OrderConfirmationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/OrderConfirmationScreen.tsx) | Order placed confirmation | `OrderTracking` | ❌ |
+| **33** | `OrderTrackingScreen` | [`OrderTrackingScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/marketplace/OrderTrackingScreen.tsx) | India Post live tracker | `MainTabs` | ❌ |
+| **34** | `OpportunityDetailScreen`| [`OpportunityDetailScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/OpportunityDetailScreen.tsx) | Volume specs & deadline | `QuoteNegotiation` | ❌ |
+| **35** | `QuoteNegotiationScreen`| [`QuoteNegotiationScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/QuoteNegotiationScreen.tsx) | Counter-offer rate | `B2BContract` | ❌ |
+| **36** | `B2BContractScreen` | [`B2BContractScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/B2BContractScreen.tsx) | Sign escrow agreement | `Opportunities` | ❌ |
+| **37** | `CreateBulkRfqScreen` | [`CreateBulkRfqScreen.tsx`](file:///c:/Users/rauts/OneDrive/Desktop/karagir%20se/mobile/src/screens/linkage/CreateBulkRfqScreen.tsx) | Buyer custom RFQ | `Opportunities` | ❌ |
