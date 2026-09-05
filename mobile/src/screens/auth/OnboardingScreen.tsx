@@ -7,6 +7,7 @@ import {
   Image,
   Animated,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -87,7 +88,7 @@ const ONBOARDING_SLIDES: SlideData[] = [
   {
     id: 2,
     image: require('../../../assets/onboarding_escrow.jpg'),
-    bgColor: '#FFF3DB', // Warm Golden Ivory / Sunshine Cream (Light colour)
+    bgColor: '#FFF3DB', // Warm Golden Ivory / Sunshine Cream
     isDark: false,
     titleLine1: 'Doorstep Pickup,',
     titleLine2: '100% Safe Money',
@@ -109,9 +110,14 @@ const ONBOARDING_SLIDES: SlideData[] = [
 ];
 
 export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
+  const { width, height } = useWindowDimensions();
   const [currentSlide, setCurrentSlide] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideTranslateY = useRef(new Animated.Value(0)).current;
+
+  // Responsive artwork sizing adapted to screen height & width
+  const isCompact = height < 720;
+  const imageSize = Math.min(Math.max(width * 0.65, 210), isCompact ? 220 : 270);
 
   const changeSlide = (nextIndex: number) => {
     if (nextIndex === currentSlide) return;
@@ -150,170 +156,163 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const slide = ONBOARDING_SLIDES[currentSlide];
 
   return (
-    <SafeAreaView style={[styles.outerContainer, { backgroundColor: slide.bgColor }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
+      {/* Top App Header Row */}
+      <View style={styles.topHeader}>
+        <View style={styles.brandBadge}>
+          <Text variant="caption" weight="bold" color={slide.titleColor} style={styles.brandText}>
+            ✨ KaragirX
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleSkip}
+          accessibilityRole="button"
+          accessibilityLabel="Skip onboarding tour"
+          style={styles.skipButton}
+          activeOpacity={0.7}
+        >
+          <Text
+            variant="caption"
+            weight="bold"
+            color={slide.titleColor}
+            style={styles.skipText}
+          >
+            Skip
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Main Responsive Body */}
       <ScrollView
-        contentContainerStyle={styles.scrollWrapper}
+        contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {/* Sleek Smartphone Mockup Card */}
-        <View style={[styles.phoneFrame, { backgroundColor: slide.bgColor }]}>
-          {/* Top Status & Header Bar */}
-          <View style={styles.topBar}>
-            <Text
-              variant="caption"
-              weight="bold"
-              color={slide.titleColor}
-              style={styles.timeText}
-            >
-              9:41
-            </Text>
-
-            <TouchableOpacity
-              onPress={handleSkip}
-              accessibilityRole="button"
-              accessibilityLabel="Skip onboarding tour"
-              style={[
-                styles.skipPill,
-                {
-                  backgroundColor: slide.isDark
-                    ? 'rgba(255, 255, 255, 0.12)'
-                    : 'rgba(255, 255, 255, 0.75)',
-                  borderColor: slide.isDark
-                    ? 'rgba(255, 255, 255, 0.2)'
-                    : 'rgba(0, 0, 0, 0.06)',
-                },
-              ]}
-              activeOpacity={0.7}
-            >
-              <Text
-                variant="caption"
-                weight="bold"
-                color={slide.titleColor}
-                style={styles.skipText}
-              >
-                Skip
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Animated Main Slide Section */}
+        <View style={styles.mainWrapper}>
+          {/* Animated 3D Illustration Area */}
           <Animated.View
             style={[
-              styles.contentBody,
+              styles.artworkSection,
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideTranslateY }],
               },
             ]}
           >
-            {/* Top 3D Isometric Art Section */}
-            <View style={styles.illustrationWrapper}>
-              <View
-                style={[
-                  styles.imageShadowBox,
-                  {
-                    shadowColor: slide.isDark ? '#000000' : '#475569',
-                  },
-                ]}
-              >
-                <Image
-                  source={slide.image}
-                  style={styles.illustrationImage}
-                  resizeMode="cover"
-                />
-              </View>
-            </View>
-
-            {/* Bottom Content Area */}
-            <View style={styles.detailsArea}>
-              {/* Capsule + Dots Progress Indicator (Exact match to inspiration) */}
-              <View style={styles.indicatorRow}>
-                {ONBOARDING_SLIDES.map((item, idx) => {
-                  const isActive = idx === currentSlide;
-                  return (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => changeSlide(idx)}
-                      activeOpacity={0.7}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Go to slide ${idx + 1}`}
-                      style={styles.indicatorHit}
-                    >
-                      <View
-                        style={[
-                          isActive ? styles.capsuleIndicator : styles.dotIndicator,
-                          {
-                            backgroundColor: isActive
-                              ? slide.indicatorActive
-                              : slide.indicatorInactive,
-                          },
-                        ]}
-                      />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Bold 2-Line Headline */}
-              <Text
-                variant="headlineLarge"
-                weight="bold"
-                color={slide.titleColor}
-                style={styles.headline}
-              >
-                {slide.titleLine1}
-                {'\n'}
-                {slide.titleLine2}
-              </Text>
-
-              {/* Hindi Voice Guidance Button */}
-              <View style={styles.voiceWrapper}>
-                <VoiceCueButton
-                  textHi={slide.voiceHi}
-                  label="Listen in Hindi"
-                  size="small"
-                  testID={`voice-cue-slide-${currentSlide}`}
-                />
-              </View>
-
-              {/* Subtitle / Description Text */}
-              <Text
-                variant="bodyMedium"
-                color={slide.descColor}
-                style={styles.descriptionText}
-              >
-                {slide.description}
-              </Text>
+            <View
+              style={[
+                styles.imageShadowBox,
+                {
+                  width: imageSize,
+                  height: imageSize,
+                },
+              ]}
+            >
+              <Image
+                source={slide.image}
+                style={styles.illustrationImage}
+                resizeMode="cover"
+              />
             </View>
           </Animated.View>
 
-          {/* Bottom Action Button (Full-width Rounded Pill) */}
-          <View style={styles.bottomSection}>
-            <TouchableOpacity
-              testID="onboarding-next-btn"
-              onPress={handleNext}
+          {/* Details & Features Section (Clean Center-Aligned) */}
+          <Animated.View
+            style={[
+              styles.detailsSection,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideTranslateY }],
+              },
+            ]}
+          >
+            {/* Capsule + Dots Progress Indicator */}
+            <View style={styles.indicatorRow}>
+              {ONBOARDING_SLIDES.map((item, idx) => {
+                const isActive = idx === currentSlide;
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    onPress={() => changeSlide(idx)}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Go to slide ${idx + 1}`}
+                    style={styles.indicatorHit}
+                  >
+                    <View
+                      style={[
+                        isActive ? styles.capsuleIndicator : styles.dotIndicator,
+                        {
+                          backgroundColor: isActive
+                            ? slide.indicatorActive
+                            : slide.indicatorInactive,
+                        },
+                      ]}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Bold Headline */}
+            <Text
+              variant="headlineLarge"
+              weight="bold"
+              color={slide.titleColor}
               style={[
-                styles.actionBtn,
-                {
-                  backgroundColor: slide.btnBg,
-                  shadowColor: slide.isDark ? '#000000' : '#64748B',
-                },
+                styles.headline,
+                isCompact && styles.headlineCompact,
               ]}
-              activeOpacity={0.88}
-              accessibilityRole="button"
-              accessibilityLabel={slide.buttonLabel}
             >
-              <Text
-                variant="bodyLarge"
-                weight="bold"
-                color={slide.btnTextColor}
-                style={styles.actionBtnText}
-              >
-                {slide.buttonLabel}
-              </Text>
-            </TouchableOpacity>
-          </View>
+              {slide.titleLine1}
+              {'\n'}
+              {slide.titleLine2}
+            </Text>
+
+            {/* Hindi Voice Guidance Button */}
+            <View style={styles.voiceWrapper}>
+              <VoiceCueButton
+                textHi={slide.voiceHi}
+                label="Listen in Hindi"
+                size="small"
+                testID={`voice-cue-slide-${currentSlide}`}
+              />
+            </View>
+
+            {/* Killer Feature Description Text */}
+            <Text
+              variant="bodyMedium"
+              color={slide.descColor}
+              style={[
+                styles.descriptionText,
+                isCompact && styles.descriptionCompact,
+              ]}
+            >
+              {slide.description}
+            </Text>
+          </Animated.View>
+        </View>
+
+        {/* Bottom Action Section (Full-width Rounded Pill) */}
+        <View style={styles.bottomSection}>
+          <TouchableOpacity
+            testID="onboarding-next-btn"
+            onPress={handleNext}
+            style={styles.actionBtn}
+            activeOpacity={0.88}
+            accessibilityRole="button"
+            accessibilityLabel={slide.buttonLabel}
+          >
+            <Text
+              variant="bodyLarge"
+              weight="bold"
+              color={slide.btnTextColor}
+              style={styles.actionBtnText}
+            >
+              {slide.buttonLabel}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -321,96 +320,97 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  outerContainer: {
+  safeArea: {
     flex: 1,
     width: '100%',
     height: '100%',
   },
-  scrollWrapper: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  phoneFrame: {
-    width: '100%',
-    maxWidth: 390,
-    minHeight: Platform.OS === 'web' ? 620 : undefined,
-    borderRadius: 36,
-    paddingHorizontal: 24,
-    paddingTop: 18,
-    paddingBottom: 26,
-    justifyContent: 'space-between',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.12,
-    shadowRadius: 32,
-    elevation: 10,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    overflow: 'hidden',
-  },
-  topBar: {
+  topHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 2,
-    marginBottom: 4,
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'web' ? 14 : 8,
+    paddingBottom: 6,
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
   },
-  timeText: {
-    fontSize: 14,
-    letterSpacing: -0.2,
-  },
-  skipPill: {
+  brandBadge: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+  },
+  brandText: {
+    fontSize: 12.5,
+    letterSpacing: 0.4,
+  },
+  skipButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
   },
   skipText: {
-    fontSize: 11,
+    fontSize: 12,
     letterSpacing: 0.3,
   },
-  contentBody: {
-    width: '100%',
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'web' ? 24 : 16,
   },
-  illustrationWrapper: {
+  mainWrapper: {
+    width: '100%',
+    maxWidth: 440,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
+    paddingTop: 4,
+  },
+  artworkSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
     width: '100%',
   },
   imageShadowBox: {
-    width: 240,
-    height: 240,
-    borderRadius: 24,
+    borderRadius: 28,
     overflow: 'hidden',
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
     elevation: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   illustrationImage: {
     width: '100%',
     height: '100%',
   },
-  detailsArea: {
-    paddingHorizontal: 8,
-    paddingTop: 10,
+  detailsSection: {
+    width: '100%',
     alignItems: 'center',
+    paddingTop: 6,
   },
   indicatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 7,
     marginBottom: 12,
   },
   indicatorHit: {
     paddingVertical: 4,
+    paddingHorizontal: 2,
   },
   capsuleIndicator: {
     width: 30,
@@ -423,42 +423,58 @@ const styles = StyleSheet.create({
     borderRadius: 3.5,
   },
   headline: {
-    fontSize: 25,
-    lineHeight: 31,
-    letterSpacing: -0.4,
+    fontSize: 27,
+    lineHeight: 34,
+    letterSpacing: -0.5,
     textAlign: 'center',
     marginBottom: 8,
+    paddingHorizontal: 8,
+  },
+  headlineCompact: {
+    fontSize: 23,
+    lineHeight: 29,
+    marginBottom: 6,
   },
   voiceWrapper: {
-    marginBottom: 8,
+    marginBottom: 10,
     alignSelf: 'center',
   },
   descriptionText: {
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 22,
     letterSpacing: -0.1,
     textAlign: 'center',
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
+    maxWidth: 380,
+  },
+  descriptionCompact: {
+    fontSize: 12.5,
+    lineHeight: 19,
   },
   bottomSection: {
-    paddingTop: 14,
-    paddingHorizontal: 2,
+    width: '100%',
+    maxWidth: 440,
+    paddingTop: 16,
+    paddingBottom: 8,
+    alignItems: 'center',
   },
   actionBtn: {
     width: '100%',
-    paddingVertical: 15,
-    borderRadius: 24,
+    paddingVertical: 16,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.06)',
+    shadowColor: '#334155',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
-    shadowRadius: 12,
+    shadowRadius: 14,
     elevation: 4,
   },
   actionBtnText: {
     fontSize: 16,
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
 });
