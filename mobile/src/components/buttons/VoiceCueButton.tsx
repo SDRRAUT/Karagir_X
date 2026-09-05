@@ -5,6 +5,7 @@ import {
   View,
   Animated,
   Easing,
+  Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { voiceGuidance } from '@/utils/voiceGuidance';
@@ -38,13 +39,13 @@ export const VoiceCueButton: React.FC<VoiceCueButtonProps> = ({
             toValue: 1.25,
             duration: 400,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
             duration: 400,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
+            useNativeDriver: Platform.OS !== 'web',
           }),
         ])
       );

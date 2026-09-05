@@ -441,6 +441,8 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#FAF8F5',
   },
   scrollContainer: {

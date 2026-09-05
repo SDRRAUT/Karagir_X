@@ -25,7 +25,6 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const subtitleTranslateY = useRef(new Animated.Value(10)).current;
 
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const screenFadeOut = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const useNative = Platform.OS !== 'web';
@@ -74,21 +73,15 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     // 3. Smooth 3-second progress indicator
     Animated.timing(progressAnim, {
       toValue: 1,
-      duration: 2700,
+      duration: 3000,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       useNativeDriver: false,
     }).start();
 
-    // 4. Smooth fade out at 2.7s and transition into AuthPhone at 3.0s
+    // 4. Clean transition into Onboarding at 3.0s (React Navigation handles cross-fade)
     const exitTimer = setTimeout(() => {
-      Animated.timing(screenFadeOut, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: useNative,
-      }).start(() => {
-        navigation.replace('Onboarding');
-      });
-    }, 2700);
+      navigation.replace('Onboarding');
+    }, 3000);
 
     return () => clearTimeout(exitTimer);
   }, [
@@ -99,7 +92,6 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     subtitleOpacity,
     subtitleTranslateY,
     progressAnim,
-    screenFadeOut,
   ]);
 
   const handleSkip = () => {
@@ -118,7 +110,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         activeOpacity={1}
         onPress={handleSkip}
       >
-        <Animated.View style={[styles.mainWrapper, { opacity: screenFadeOut }]}>
+        <View style={styles.mainWrapper}>
           {/* Centered Luxury Artwork Container */}
           <View style={styles.centerBlock}>
             <Animated.View
@@ -170,7 +162,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
               Tap to continue
             </Text>
           </View>
-        </Animated.View>
+        </View>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -179,13 +171,19 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#FAF8F5',
   },
   touchContainer: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
   mainWrapper: {
     flex: 1,
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
