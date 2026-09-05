@@ -17,6 +17,7 @@ import { authService } from '@/api/authService';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserRole } from '@/api/types';
+import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AuthPhone'>;
 
@@ -227,9 +228,16 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 
           {/* Form Label & Quick Demo Link */}
           <View style={styles.fieldHeaderRow}>
-            <Text variant="caption" weight="bold" color="#334155" style={styles.fieldLabel}>
-              MOBILE NUMBER
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text variant="caption" weight="bold" color="#334155" style={styles.fieldLabel}>
+                MOBILE NUMBER
+              </Text>
+              <VoiceCueButton
+                textHi="कृपया अपना दस अंकों का मोबाइल नंबर यहाँ दर्ज करें।"
+                size="small"
+                testID="voice-cue-mobile"
+              />
+            </View>
             <TouchableOpacity
               testID="quick-demo-btn"
               onPress={() => {

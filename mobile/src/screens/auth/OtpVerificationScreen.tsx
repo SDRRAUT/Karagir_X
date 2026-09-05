@@ -11,6 +11,7 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAppStore } from '@/store/useAppStore';
+import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OtpVerification'>;
 
@@ -56,14 +57,13 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
       setIsLoading(false);
     } catch {
       setIsLoading(false);
-      setErrorMessage('SMS भेजने में त्रुटि — कृपया पुनः प्रयास करें।');
+      setErrorMessage('Error sending SMS — please try again.');
     }
   };
 
   const handleVerify = async () => {
-    const code = otpDigits.trim();
-    if (code.length !== 6) {
-      setErrorMessage('कृपया पूरा 6 अंकों का OTP दर्ज करें (Enter 6-digit code)');
+    if (otpDigits.length !== 6) {
+      setErrorMessage('Please enter all 6 digits of the OTP');
       return;
     }
 
@@ -73,7 +73,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
     try {
       const resp = await authService.verifyOtp(
         currentSessionId || `sess_${Date.now()}`,
-        code,
+        otpDigits,
         phoneNumber,
         role,
         locale
@@ -97,7 +97,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
       }
     } catch {
       setIsLoading(false);
-      setErrorMessage('गलत OTP कोड। कृपया पुनः प्रयास करें।');
+      setErrorMessage('Incorrect OTP code. Please try again.');
     }
   };
 
@@ -106,7 +106,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
       <AppHeader
         showBack
         showBrand
-        title="सत्यापन कोड"
+        title="Verification Code"
         subtitle={`+91 ${phoneNumber.slice(0, 5)} ${phoneNumber.slice(5)}`}
       />
 
@@ -114,15 +114,22 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
         {/* Test Mode Notification */}
         <View style={[styles.testBadge, { backgroundColor: theme.colors.ochre.light, borderColor: theme.colors.ochre.border }]}>
           <Text variant="caption" weight="bold" color={theme.colors.ochre.text}>
-            🧪 टेस्टिंग मोड: OTP कोड 123456 पहले से भरा है (बाईपास सक्रिय)
+            🧪 Test Mode: Default OTP is 123456 (Bypass active)
           </Text>
         </View>
 
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          सत्यापन कोड (Testing OTP)
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12 }}>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
+            Enter 6-Digit OTP
+          </Text>
+          <VoiceCueButton
+            textHi="आपके मोबाइल नंबर पर भेजा गया 6 अंकों का ओटीपी कोड यहाँ दर्ज करें।"
+            size="small"
+            testID="voice-cue-otp"
+          />
+        </View>
         <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-          टेस्टिंग के लिए 123456 स्वतः सेट है
+          Enter 123456 or the code sent via SMS
         </Text>
 
         {/* 6 Digit Boxes */}
@@ -164,13 +171,13 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
         <View style={styles.timerContainer}>
           {secondsRemaining > 0 ? (
             <Text variant="bodyMedium" color={theme.colors.text.secondary}>
-              ⏱️ नया कोड मंगाएं {secondsRemaining} सेकंड में
+              ⏱️ Request new code in {secondsRemaining}s
             </Text>
           ) : (
             <View style={styles.resendRow}>
               <TouchableOpacity onPress={handleResend} style={styles.resendBtn}>
                 <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
-                  🔄 दोबारा SMS भेजें (Resend SMS)
+                  🔄 Resend OTP via SMS
                 </Text>
               </TouchableOpacity>
             </View>
@@ -178,7 +185,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
         </View>
 
         <Button
-          label="सत्यापित करें और आगे बढ़ें (Bypass OTP) ✓"
+          label="Verify & Continue →"
           variant="primary"
           size="decision"
           isLoading={isLoading}

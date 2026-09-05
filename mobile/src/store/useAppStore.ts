@@ -22,7 +22,7 @@ export interface AppState {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  locale: 'hi_IN',
+  locale: 'en_IN',
   isOnline: true,
   voiceAutoPlay: true,
   quietHoursEnabled: true,
@@ -34,7 +34,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (stored) {
         const parsed = JSON.parse(stored);
         set({
-          locale: parsed.locale || 'hi_IN',
+          locale: parsed.locale || 'en_IN',
           voiceAutoPlay: parsed.voiceAutoPlay ?? true,
           quietHoursEnabled: parsed.quietHoursEnabled ?? true,
           isInitialized: true,

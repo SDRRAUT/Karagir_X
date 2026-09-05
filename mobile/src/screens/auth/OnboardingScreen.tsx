@@ -7,6 +7,8 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 
+import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
 interface Slide {
@@ -14,26 +16,30 @@ interface Slide {
   title: string;
   description: string;
   highlight: string;
+  voiceHi: string;
 }
 
 const SLIDES: Slide[] = [
   {
     emoji: '📸',
-    title: 'फोटो खींचें, AI बनाएगा दुकान',
-    description: 'सिर्फ एक साधारण फोटो लें। हमारा AI बैकग्राउंड साफ करके प्रोफेशनल ई-कॉमर्स कैटलॉग तैयार करता है।',
-    highlight: 'Clean Studio Photo & Trilingual Catalog',
+    title: 'Snap a Photo, AI Builds Your Store',
+    description: 'Simply take a clear photo of your craft. Our AI cleans the background and generates professional studio catalogs.',
+    highlight: 'Clean Studio Photo & Multi-language Catalog',
+    voiceHi: 'सिर्फ अपने उत्पाद की एक साधारण फोटो लें। हमारा AI बैकग्राउंड साफ करके प्रोफेशनल कैटलॉग तैयार करता है।',
   },
   {
     emoji: '🎙️',
-    title: 'अपनी बोली में बोलें, सही दाम पाएं',
-    description: 'अपनी मातृभाषा में प्रोडक्ट के बारे में बताएं। AI आपकी मेहनत और समय का उचित दाम तय करेगा।',
+    title: 'Speak Naturally, Get Fair Dynamic Pricing',
+    description: 'Describe your craft in your native voice. Our AI calculates fair materials, labor hours, and profitable pricing.',
     highlight: 'Fair Dynamic Pricing & Cost Breakdown',
+    voiceHi: 'अपनी मातृभाषा में बोलकर शिल्प के बारे में बताएं। AI आपकी मेहनत और समय का सही दाम तय करेगा।',
   },
   {
     emoji: '💰',
-    title: 'सीधा बैंक में पैसा, सुरक्षित डिलीवरी',
-    description: 'डाक विभाग आपके दरवाजे से पार्सल उठाएगा। डिलीवरी के बाद 48 घंटे में पैसा सीधे आपके खाते में।',
+    title: 'Doorstep Pickup, Direct Escrow Payout',
+    description: 'India Post picks up parcels from your workshop door. Receive direct payments safely in your bank within 48 hours.',
     highlight: 'India Post Pickup & Direct Escrow Safety',
+    voiceHi: 'डाक विभाग आपके दरवाजे से पार्सल उठाएगा। डिलीवरी के बाद पैसा सीधे आपके खाते में सुरक्षित आ जाएगा।',
   },
 ];
 
@@ -61,7 +67,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleSkip} accessibilityRole="button" accessibilityLabel="Skip onboarding">
           <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
-            छोड़ें (Skip)
+            Skip
           </Text>
         </TouchableOpacity>
       </View>
@@ -81,9 +87,20 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.emojiText}>{slide.emoji}</Text>
         </View>
 
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          {slide.title}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
+            {slide.title}
+          </Text>
+        </View>
+
+        <View style={{ marginVertical: 6 }}>
+          <VoiceCueButton
+            textHi={slide.voiceHi}
+            label="Listen in Hindi"
+            size="medium"
+            testID={`voice-cue-slide-${currentSlide}`}
+          />
+        </View>
 
         <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.description}>
           {slide.description}
@@ -122,7 +139,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <Button
-          label={currentSlide === SLIDES.length - 1 ? 'शुरू करें (Get Started) →' : 'आगे बढ़ें (Next) →'}
+          label={currentSlide === SLIDES.length - 1 ? 'Get Started →' : 'Next →'}
           variant="primary"
           size="decision"
           onPress={handleNext}

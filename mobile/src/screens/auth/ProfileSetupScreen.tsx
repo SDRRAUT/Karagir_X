@@ -11,6 +11,7 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAuthStore } from '@/store/useAuthStore';
+import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
 
@@ -154,9 +155,16 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* 1. Name Input with Voice Cue */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              1. Your Full Name
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+                1. Your Full Name
+              </Text>
+              <VoiceCueButton
+                textHi="यहाँ अपना पूरा नाम लिखें, जैसा आपके आधार कार्ड या बैंक खाते में दर्ज है।"
+                size="small"
+                testID="voice-cue-name"
+              />
+            </View>
             <TouchableOpacity
               onPress={handleVoiceDictateName}
               style={[styles.micBtn, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}
@@ -181,9 +189,16 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 2. Craft Selection */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            2. Primary Craft Specialization
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+              2. Primary Craft Specialization
+            </Text>
+            <VoiceCueButton
+              textHi="आप जिस हस्तशिल्प या कला में काम करते हैं, जैसे हथकरघा, मिट्टी के बर्तन, या चित्रकला, उसे यहाँ चुनें।"
+              size="small"
+              testID="voice-cue-craft"
+            />
+          </View>
 
           <View style={styles.craftGrid}>
             {CRAFTS.map((craft) => {
@@ -222,9 +237,16 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 3. Location Display */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            3. Workshop Location
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+              3. Workshop Location
+            </Text>
+            <VoiceCueButton
+              textHi="यह आपकी कार्यशाला या गाँव का स्थान है, जहाँ आपके शिल्प का निर्माण होता है।"
+              size="small"
+              testID="voice-cue-location"
+            />
+          </View>
           <Card style={styles.locationCard}>
             <View style={styles.locationRow}>
               <Text style={styles.locationPin}>📍</Text>
@@ -242,9 +264,16 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 4. Facilitator / SHG Code */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            4. SHG / Facilitator Code (Optional)
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+              4. SHG / Facilitator Code (Optional)
+            </Text>
+            <VoiceCueButton
+              textHi="यदि आप किसी स्वयं सहायता समूह या क्लस्टर सहयोगी से जुड़े हैं, तो उनका कोड यहाँ दर्ज करें।"
+              size="small"
+              testID="voice-cue-shg"
+            />
+          </View>
           <TextInput
             value={shgCode}
             onChangeText={setShgCode}
