@@ -16,6 +16,7 @@ import { Text } from '@/components/typography/Text';
 import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 import { voiceGuidance } from '@/utils/voiceGuidance';
 import { UserRole } from '@/api/types';
+import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -24,9 +25,11 @@ interface SlideData {
   image: any;
   bgColor: string;
   isDark: boolean;
-  titleLine1: string;
-  titleLine2: string;
+  title: string;
   description: string;
+  microLine?: string;
+  powerLine?: string;
+  badgeType: 'micro' | 'pricing' | 'buyer';
   voiceHi: string;
   buttonLabel: string;
   titleColor: string;
@@ -40,18 +43,30 @@ interface SlideData {
   voiceText: string;
 }
 
+const LANGUAGES: { code: SupportedLocale; label: string }[] = [
+  { code: 'hi_IN', label: 'हिंदी' },
+  { code: 'mr_IN', label: 'मराठी' },
+  { code: 'en_IN', label: 'English' },
+  { code: 'ta_IN', label: 'தமிழ்' },
+  { code: 'bn_IN', label: 'বাংলা' },
+  { code: 'gu_IN', label: 'ગુજરાતી' },
+  { code: 'te_IN', label: 'తెలుగు' },
+  { code: 'od_IN', label: 'ଓଡ଼ିଆ' },
+];
+
 const ONBOARDING_SLIDES: SlideData[] = [
   {
     id: 0,
     image: require('../../../assets/onboarding_camera.jpg'),
     bgColor: '#FCE7DF', // Warm Peach / Soft Terracotta
     isDark: false,
-    titleLine1: '1 Photo = Instant',
-    titleLine2: 'Online Store',
+    title: 'Aapka Hunar, Ab Digital',
     description:
-      'Zero typing or tech skills needed! Just snap a picture of your craft. Our AI cleans the clutter into 4K studio lighting and launches your shop in seconds.',
+      'Bas product ki photo kheecho aur apni bhasha mein batao. AI usse professional catalogue mein badal dega.',
+    microLine: '📸 Photo lo  •  🎙️ Bolo  •  ✨ Catalogue taiyaar',
+    badgeType: 'micro',
     voiceHi:
-      'सिर्फ एक फोटो खींचें! AI आपकी दुकान खुद बना देगा, वो भी 10 सेकंड में।',
+      'बस अपने उत्पाद की फोटो खींचें और बोलकर बताएं। ऐप तुरंत प्रोफेशनल कैटलॉग तैयार कर देगा।',
     buttonLabel: 'Next →',
     titleColor: '#1F1A1C',
     descColor: '#5C504C',
@@ -68,12 +83,13 @@ const ONBOARDING_SLIDES: SlideData[] = [
     image: require('../../../assets/onboarding_voice.jpg'),
     bgColor: '#E6F6ED', // Fresh Soft Mint / Sage Light
     isDark: false,
-    titleLine1: 'Speak Naturally,',
-    titleLine2: 'Get Fair Price',
+    title: 'Apne Hunar Ki Sahi Keemat Paaiye',
     description:
-      'Never get cheated by middlemen! Speak in your own local language. Our AI calculates your true work hours, materials, and guarantees your highest profit.',
+      'AI market demand, material cost aur aapki mehnat ko samajhkar fair price suggest karega — taaki aap apna product kam daam mein na bechein.',
+    powerLine: '“Sirf bikna nahi, sahi daam par bikna.”',
+    badgeType: 'pricing',
     voiceHi:
-      'अपनी बोली में बोलें! AI आपकी मेहनत का सही और सबसे ज्यादा दाम तय करेगा।',
+      'अपनी मेहनत और लागत का सही दाम पाएं, ताकि कोई बिचौलिया आपको कम दाम न दे सके।',
     buttonLabel: 'Next →',
     titleColor: '#0E2E1D',
     descColor: '#3B5746',
@@ -90,13 +106,14 @@ const ONBOARDING_SLIDES: SlideData[] = [
     image: require('../../../assets/onboarding_escrow.jpg'),
     bgColor: '#FFF3DB', // Warm Golden Ivory / Sunshine Cream
     isDark: false,
-    titleLine1: 'Doorstep Pickup,',
-    titleLine2: '100% Safe Money',
+    title: 'Ab Buyer Khud Aap Tak Pahunchega',
     description:
-      'India Post collects orders right from your workshop! Guaranteed payout sent safely to your bank account with zero risk, zero delay, and full protection.',
+      'AI aapke products ko un buyers se match karega jo waqai aapka samaan kharidna chahte hain — chahe customer ho, business ho ya bulk buyer.',
+    powerLine: '“Aap sirf product banaiye. Market tak pahunch hum sambhalenge.”',
+    badgeType: 'buyer',
     voiceHi:
-      'डाकघर घर से पार्सल उठाएगा, और 100% सुरक्षित पैसा सीधे आपके बैंक खाते में आएगा।',
-    buttonLabel: 'Get Started 🚀',
+      'आप सिर्फ अपना हुनर दिखाइए, बड़े बायर्स और कॉर्पोरेट ग्राहकों तक पहुंच हम संभालेंगे।',
+    buttonLabel: 'Shuru Karein 🚀',
     titleColor: '#2B1E0A',
     descColor: '#5E4B30',
     indicatorActive: '#2B1E0A',
@@ -111,16 +128,17 @@ const ONBOARDING_SLIDES: SlideData[] = [
 
 export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
+  const { locale, setLocale } = useAppStore();
   const [currentSlide, setCurrentSlide] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideTranslateY = useRef(new Animated.Value(0)).current;
 
   // Responsive artwork sizing adapted to screen height & width
-  const isCompact = height < 720;
+  const isCompact = height < 740;
   const isTall = height >= 840;
   const imageSize = Math.min(
-    Math.max(width * 0.68, 210),
-    isCompact ? 210 : isTall ? 290 : 250
+    Math.max(width * 0.65, 190),
+    isCompact ? 200 : isTall ? 270 : 230
   );
 
   const changeSlide = (nextIndex: number) => {
@@ -187,7 +205,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          {/* Clean Brand Typography (No clumsy pill background box) */}
+          {/* Clean Brand Typography (No awkward box badge) */}
           <Text style={[styles.brandWordmark, { color: slide.titleColor }]}>
             Karagir<Text style={{ color: '#EA580C' }}>X</Text>
           </Text>
@@ -211,7 +229,49 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Main Responsive Body */}
+      {/* Language Selector Strip (Top of Onboarding) */}
+      <View style={styles.langSelectorWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.langScrollContent}
+        >
+          {LANGUAGES.map((lang) => {
+            const isSelected = locale === lang.code;
+            return (
+              <TouchableOpacity
+                key={lang.code}
+                testID={`lang-chip-${lang.code}`}
+                onPress={() => setLocale(lang.code)}
+                style={[
+                  styles.langChip,
+                  isSelected && styles.langChipActive,
+                  {
+                    backgroundColor: isSelected
+                      ? '#FFFFFF'
+                      : 'rgba(255, 255, 255, 0.55)',
+                    borderColor: isSelected
+                      ? slide.indicatorActive
+                      : 'rgba(0, 0, 0, 0.06)',
+                  },
+                ]}
+                activeOpacity={0.8}
+              >
+                <Text
+                  variant="caption"
+                  weight={isSelected ? 'bold' : 'medium'}
+                  color={isSelected ? slide.titleColor : '#64748B'}
+                  style={styles.langChipText}
+                >
+                  {lang.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Main Responsive Body (Centered in Middle) */}
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}
@@ -293,10 +353,91 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                 isCompact && styles.headlineCompact,
               ]}
             >
-              {slide.titleLine1}
-              {'\n'}
-              {slide.titleLine2}
+              {slide.title}
             </Text>
+
+            {/* Micro-line / Power Line Badge */}
+            {slide.badgeType === 'micro' && (
+              <View
+                style={[
+                  styles.featureBadge,
+                  {
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                    borderColor: slide.indicatorInactive,
+                  },
+                ]}
+              >
+                <Text
+                  variant="caption"
+                  weight="bold"
+                  color={slide.titleColor}
+                  style={styles.badgeText}
+                >
+                  {slide.microLine}
+                </Text>
+              </View>
+            )}
+
+            {slide.badgeType === 'pricing' && (
+              <View
+                style={[
+                  styles.powerCard,
+                  {
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderColor: slide.indicatorInactive,
+                  },
+                ]}
+              >
+                <Text
+                  variant="caption"
+                  weight="bold"
+                  color={slide.titleColor}
+                  style={styles.powerQuoteText}
+                >
+                  {slide.powerLine}
+                </Text>
+                <View style={styles.metricRow}>
+                  <Text style={[styles.metricChip, { color: '#64748B' }]}>₹650 Cost</Text>
+                  <Text style={styles.metricArrow}>→</Text>
+                  <Text style={[styles.metricChip, { color: '#059669', fontWeight: '700' }]}>₹850 Fair Price</Text>
+                  <Text style={styles.metricArrow}>→</Text>
+                  <Text style={[styles.metricChip, { color: '#0284C7', fontWeight: '700' }]}>📈 Better Margin</Text>
+                </View>
+              </View>
+            )}
+
+            {slide.badgeType === 'buyer' && (
+              <View
+                style={[
+                  styles.powerCard,
+                  {
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderColor: slide.indicatorInactive,
+                  },
+                ]}
+              >
+                <Text
+                  variant="caption"
+                  weight="bold"
+                  color={slide.titleColor}
+                  style={styles.powerQuoteText}
+                >
+                  {slide.powerLine}
+                </Text>
+                <View style={styles.buyerFlowRow}>
+                  <Text style={styles.buyerFlowSource}>Your Product</Text>
+                  <Text style={styles.buyerFlowArrow}>→</Text>
+                  <Text style={styles.buyerFlowAi}>🤖 AI Match</Text>
+                  <Text style={styles.buyerFlowArrow}>→</Text>
+                </View>
+                <View style={styles.buyerRow}>
+                  <Text style={styles.buyerTag}>🏨 Hotel</Text>
+                  <Text style={styles.buyerTag}>🎁 Corporate</Text>
+                  <Text style={styles.buyerTag}>🛍️ Retail</Text>
+                  <Text style={styles.buyerTag}>🏛️ Govt. Buyer</Text>
+                </View>
+              </View>
+            )}
 
             {/* Hindi Voice Guidance Button */}
             <View style={styles.voiceWrapper}>
@@ -308,7 +449,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               />
             </View>
 
-            {/* Killer Feature Description Text */}
+            {/* Subtext Description (1 short empathetic sentence) */}
             <Text
               variant="bodyMedium"
               color={slide.descColor}
@@ -390,7 +531,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'web' ? 14 : 8,
-    paddingBottom: 6,
+    paddingBottom: 4,
     width: '100%',
     maxWidth: 480,
     alignSelf: 'center',
@@ -418,7 +559,7 @@ const styles = StyleSheet.create({
     marginLeft: -2,
   },
   brandWordmark: {
-    fontSize: 19,
+    fontSize: 20,
     fontWeight: '800',
     letterSpacing: -0.3,
   },
@@ -434,6 +575,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.3,
   },
+  langSelectorWrapper: {
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
+    paddingVertical: 4,
+  },
+  langScrollContent: {
+    paddingHorizontal: 20,
+    gap: 6,
+    alignItems: 'center',
+  },
+  langChip: {
+    paddingHorizontal: 11,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  langChipActive: {
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  langChipText: {
+    fontSize: 11.5,
+    letterSpacing: 0.2,
+  },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -447,12 +616,12 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 8,
   },
   artworkSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
     width: '100%',
   },
   imageShadowBox: {
@@ -474,14 +643,14 @@ const styles = StyleSheet.create({
   detailsSection: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: 8,
+    paddingTop: 6,
   },
   indicatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 7,
-    marginBottom: 14,
+    marginBottom: 12,
   },
   indicatorHit: {
     paddingVertical: 4,
@@ -498,39 +667,124 @@ const styles = StyleSheet.create({
     borderRadius: 3.5,
   },
   headline: {
-    fontSize: 27,
-    lineHeight: 34,
-    letterSpacing: -0.5,
+    fontSize: 25,
+    lineHeight: 32,
+    letterSpacing: -0.4,
     textAlign: 'center',
-    marginTop: 4,
-    marginBottom: 10,
-    paddingHorizontal: 8,
+    marginTop: 2,
+    marginBottom: 8,
+    paddingHorizontal: 6,
   },
   headlineCompact: {
-    fontSize: 23,
-    lineHeight: 29,
+    fontSize: 22,
+    lineHeight: 28,
     marginBottom: 6,
   },
+  featureBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 8,
+    alignSelf: 'center',
+  },
+  badgeText: {
+    fontSize: 12,
+    letterSpacing: 0.2,
+  },
+  powerCard: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 8,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 360,
+  },
+  powerQuoteText: {
+    fontSize: 12,
+    letterSpacing: 0.2,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  metricRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  metricChip: {
+    fontSize: 11,
+    letterSpacing: 0.1,
+  },
+  metricArrow: {
+    color: '#94A3B8',
+    fontSize: 10,
+  },
+  buyerFlowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 5,
+  },
+  buyerFlowSource: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  buyerFlowArrow: {
+    fontSize: 10,
+    color: '#94A3B8',
+  },
+  buyerFlowAi: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#D97706',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+  },
+  buyerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  buyerTag: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#334155',
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#E2E8F0',
+  },
   voiceWrapper: {
-    marginBottom: 12,
+    marginBottom: 10,
     alignSelf: 'center',
   },
   descriptionText: {
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 13.5,
+    lineHeight: 21,
     letterSpacing: -0.1,
     textAlign: 'center',
     paddingHorizontal: 8,
     maxWidth: 360,
   },
   descriptionCompact: {
-    fontSize: 12.5,
-    lineHeight: 19,
+    fontSize: 12,
+    lineHeight: 18,
   },
   bottomSection: {
     width: '100%',
     maxWidth: 440,
-    paddingTop: 16,
+    paddingTop: 14,
     paddingBottom: 8,
     alignItems: 'center',
   },
@@ -542,8 +796,8 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     flex: 1,
-    paddingVertical: 16,
-    borderRadius: 28,
+    paddingVertical: 15,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
@@ -559,8 +813,8 @@ const styles = StyleSheet.create({
   },
   nextBtn: {
     flex: 2,
-    paddingVertical: 16,
-    borderRadius: 28,
+    paddingVertical: 15,
+    borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',

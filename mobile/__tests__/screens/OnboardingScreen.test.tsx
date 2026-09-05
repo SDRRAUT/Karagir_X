@@ -16,19 +16,19 @@ describe('OnboardingScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/1 Photo = Instant/i)).toBeTruthy();
+    expect(getByText(/Aapka Hunar, Ab Digital/i)).toBeTruthy();
 
     // Tap continue to go to slide 2
     await act(async () => {
       fireEvent.press(getByTestId('onboarding-next-btn'));
     });
-    expect(getByText(/Speak Naturally/i)).toBeTruthy();
+    expect(getByText(/Apne Hunar Ki Sahi Keemat/i)).toBeTruthy();
 
     // Tap continue to go to slide 3
     await act(async () => {
       fireEvent.press(getByTestId('onboarding-next-btn'));
     });
-    expect(getByText(/Doorstep Pickup/i)).toBeTruthy();
+    expect(getByText(/Ab Buyer Khud Aap Tak/i)).toBeTruthy();
 
     // Tap Get Started to navigate to AuthPhone
     await act(async () => {
@@ -51,7 +51,7 @@ describe('OnboardingScreen', () => {
     await act(async () => {
       fireEvent.press(getByTestId('onboarding-next-btn'));
     });
-    expect(getByText(/Speak Naturally/i)).toBeTruthy();
+    expect(getByText(/Apne Hunar Ki Sahi Keemat/i)).toBeTruthy();
 
     // Slide 2 has back button
     expect(getByTestId('onboarding-prev-btn')).toBeTruthy();
@@ -60,6 +60,6 @@ describe('OnboardingScreen', () => {
     await act(async () => {
       fireEvent.press(getByTestId('onboarding-prev-btn'));
     });
-    expect(getByText(/1 Photo = Instant/i)).toBeTruthy();
+    expect(getByText(/Aapka Hunar, Ab Digital/i)).toBeTruthy();
   });
 });
