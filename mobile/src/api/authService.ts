@@ -28,7 +28,7 @@ export class AuthService {
    */
   private getEmailForPhone(phoneNumber: string): string {
     const digits = phoneNumber.replace(/\D/g, '');
-    return `artisan_${digits}@kalakarsetu.in`;
+    return `artisan.${digits}@gmail.com`;
   }
 
   /**
@@ -112,13 +112,12 @@ export class AuthService {
         const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
           email: deterministicEmail,
           password: standardPassword,
-          phone: formattedPhone,
           options: {
             data: {
               role,
               phone_number: formattedPhone,
               preferred_language: preferredLanguage,
-              full_name: '',
+              full_name: role === 'ARTISAN' ? 'कारीगर' : 'उपयोगकर्ता',
             },
           },
         });
@@ -163,22 +162,52 @@ export class AuthService {
       ? `Kalakar@${passwordOrPin}`
       : passwordOrPin;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    let { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error || !data.session) {
-      logger.error('AUTH_SERVICE', 'Sign in with password failed', error);
-      throw new Error(error?.message || 'Invalid credentials');
+    let session = data?.session ?? null;
+
+    if (!session) {
+      // Auto-provision user account if credentials not yet established
+      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role,
+            phone_number: isPhone ? this.formatPhoneE164(identifier) : '',
+            full_name: role === 'ARTISAN' ? 'कारीगर' : 'उपयोगकर्ता',
+            preferred_language: 'hi_IN',
+          },
+        },
+      });
+
+      if (signUpData?.session) {
+        session = signUpData.session;
+      } else if (!signUpErr) {
+        const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (!retryErr && retryData?.session) {
+          session = retryData.session;
+        }
+      }
+
+      if (!session) {
+        logger.error('AUTH_SERVICE', 'Sign in with password failed', error || signUpErr);
+        throw new Error(error?.message || signUpErr?.message || 'Invalid credentials');
+      }
     }
 
-    const userProfile = await this.getProfile(data.session.user.id, role);
+    const userProfile = await this.getProfile(session.user.id, role);
 
     return {
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_in_seconds: data.session.expires_in || 3600,
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_in_seconds: session.expires_in || 3600,
       is_new_user: !userProfile.isProfileComplete,
       user: userProfile,
     };
