@@ -61,7 +61,14 @@ export class AuthService {
         phoneNumber,
       });
       // Fallback session generation for resilience
-      const mockUserId = `artisan_${phoneNumber.replace(/\D/g, '')}`;
+      const prefix = role === 'BUYER' ? 'buyer' : role === 'FACILITATOR' ? 'sahyogi' : 'artisan';
+      const mockUserId = `${prefix}_${phoneNumber.replace(/\D/g, '')}`;
+      const defaultName =
+        role === 'BUYER'
+          ? 'Priya Sharma (Corporate Buyer)'
+          : role === 'FACILITATOR'
+          ? 'Pooja Verma (Cluster Sahyogi Lead)'
+          : 'Ramesh Kumbhar (Master Potter)';
       return {
         access_token: `jwt_access_${Date.now()}`,
         refresh_token: `jwt_refresh_${Date.now()}`,
@@ -70,7 +77,7 @@ export class AuthService {
         user: {
           id: mockUserId,
           phoneNumber,
-          fullName: '',
+          fullName: defaultName,
           role,
           preferredLanguage,
           isProfileComplete: false,

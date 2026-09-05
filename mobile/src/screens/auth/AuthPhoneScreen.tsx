@@ -43,9 +43,87 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
   };
 
+  interface RoleMeta {
+    title: string;
+    tagline: string;
+    desc: string;
+    badge: string;
+    phone: string;
+    name: string;
+    location: string;
+    idCode: string;
+    demoLabel: string;
+    submitLabel: string;
+    placeholder: string;
+    features: string[];
+  }
+
+  const ROLE_DATA: Record<UserRole, RoleMeta> = {
+    BUYER: {
+      title: 'Buyer & Corporate Portal',
+      tagline: 'Authentic GI Crafts & Bulk Gifting',
+      desc: 'Browse certified GI heritage crafts, Diwali festive deals, artisan provenance passports, and place corporate wholesale RFQs.',
+      badge: 'Retail & Corporate Wholesale',
+      phone: '9810012345',
+      name: 'Priya Sharma',
+      location: 'Delhi NCR • Verified Buyer',
+      idCode: 'BUY-DEL-9021',
+      demoLabel: '🛍️ 1-Tap Login as Buyer (98100 12345) →',
+      submitLabel: 'Sign In to Buyer Portal 🛍️',
+      placeholder: 'Buyer Mobile (e.g. 98100 12345)',
+      features: ['✨ Diwali Craft Utsav Deals', '🏷️ GI Provenance Passports', '🏢 Corporate Bulk RFQ'],
+    },
+    ARTISAN: {
+      title: 'Master Artisan & Seller Studio',
+      tagline: 'Craft Production Cockpit & AI Tools',
+      desc: 'Manage your workshop, create listings with 📸 AI Smart Catalogue (photo + voice), and get 95% fair price payouts.',
+      badge: 'Master Artisan • 0% Commission',
+      phone: '9876543210',
+      name: 'Ramesh Kumbhar',
+      location: 'Kolhapur, MH • Master Potter',
+      idCode: 'GI-MH-2024-402',
+      demoLabel: '🎨 1-Tap Login as Master Artisan (98765 43210) →',
+      submitLabel: 'Sign In to Artisan Studio 🎨',
+      placeholder: 'Artisan Mobile (e.g. 98765 43210)',
+      features: ['📸 AI Smart Catalogue', '🤖 Voice Saathi AI Interview', '💰 95% Direct Fair Share'],
+    },
+    FACILITATOR: {
+      title: 'Helper / Sahyogi Field Desk',
+      tagline: 'Village Cluster Operations Desk',
+      desc: 'Field desk for cluster facilitators: monitor 5,000-unit cluster quotas, perform SOS quota reallocation, and inspect QC specs.',
+      badge: 'Cluster Facilitator Lead',
+      phone: '9822399887',
+      name: 'Pooja Verma',
+      location: 'Pune Cluster, MH • Field Lead',
+      idCode: 'CLUST-PUN-08',
+      demoLabel: '🤝 1-Tap Login as Cluster Sahyogi (98223 99887) →',
+      submitLabel: 'Sign In to Sahyogi Field Desk 🤝',
+      placeholder: 'Sahyogi Mobile (e.g. 98223 99887)',
+      features: ['📦 5,000-Unit Cluster Quota', '🚨 SOS Quota Reallocation', '🔍 QC Spec Audit'],
+    },
+    ADMIN_STAFF: {
+      title: 'Platform Operations Desk',
+      tagline: 'Compliance & Escrow Oversight',
+      desc: 'Cluster verification, escrow settlement ledger, and GI compliance oversight.',
+      badge: 'Platform Admin',
+      phone: '9800011223',
+      name: 'Vikram Mehta',
+      location: 'National Hub • Operations Admin',
+      idCode: 'ADM-NAT-01',
+      demoLabel: '🛡️ 1-Tap Login as Admin (98000 11223) →',
+      submitLabel: 'Sign In to Operations Desk 🛡️',
+      placeholder: 'Admin Mobile (e.g. 98000 11223)',
+      features: ['Escrow Ledger', 'Artisan Verification', 'Dispute Resolution'],
+    },
+  };
+
+  const roleInfo = ROLE_DATA[role] || ROLE_DATA.ARTISAN;
+
   const handleLogin = async (phoneOverride?: string, roleOverride?: UserRole) => {
-    const targetPhone = phoneOverride || phoneNumber;
     const targetRole = roleOverride || role;
+    const targetMeta = ROLE_DATA[targetRole] || ROLE_DATA.ARTISAN;
+    const targetPhone = phoneOverride || phoneNumber || targetMeta.phone;
+
     if (targetPhone.length !== 10 || !/^[6-9]\d{9}$/.test(targetPhone)) {
       setErrorMessage('Please enter a valid 10-digit mobile number');
       return;
@@ -63,15 +141,10 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         'en_IN'
       );
 
-      // Assign default name based on role
-      if (targetRole === 'BUYER') {
-        resp.user.fullName = resp.user.fullName || 'Priya Sharma (Buyer)';
-      } else if (targetRole === 'FACILITATOR') {
-        resp.user.fullName = resp.user.fullName || 'Pooja Verma (Sahyogi Lead)';
-      } else {
-        resp.user.fullName = resp.user.fullName || 'Ramesh Kumbhar (Master Artisan)';
-      }
+      // Assign role-specific distinct credentials & profile
+      resp.user.fullName = targetMeta.name;
       resp.user.role = targetRole;
+      resp.user.phoneNumber = targetPhone;
 
       await setSession(
         {
@@ -94,35 +167,6 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
       setErrorMessage('Network error — please check your connection and try again.');
     }
   };
-
-  const ROLE_DATA: Record<UserRole, { title: string; desc: string; demoLabel: string; badge: string }> = {
-    BUYER: {
-      title: 'Buyer Portal',
-      desc: 'Browse authentic GI heritage crafts, Diwali festival deals, GI provenance stories, and place direct corporate bulk orders.',
-      demoLabel: '🛍️ 1-Tap Login as Buyer (9876543210) →',
-      badge: 'B2C & B2B Wholesale',
-    },
-    ARTISAN: {
-      title: 'Artisan / Seller Studio',
-      desc: 'Smart Studio dashboard, 📸 AI Smart Catalogue (photo+voice), 🤖 Voice Saathi interview, and 💰 Fair Price Advisor.',
-      demoLabel: '🎨 1-Tap Login as Seller (9876543210) →',
-      badge: 'Zero Commission Hub',
-    },
-    FACILITATOR: {
-      title: 'Helper / Sahyogi Field Desk',
-      desc: 'Field Desk for rural artisan onboarding, 5,000-unit cluster quota allocation, SOS quota reallocation, and QC spec audit.',
-      demoLabel: '🤝 1-Tap Login as Helper / Sahyogi (9876543210) →',
-      badge: 'Cluster & Logistics',
-    },
-    ADMIN_STAFF: {
-      title: 'Platform Operations Desk',
-      desc: 'Cluster verification, escrow settlement ledger, and GI compliance oversight.',
-      demoLabel: '🛡️ 1-Tap Login as Admin (9876543210) →',
-      badge: 'Supervision',
-    },
-  };
-
-  const roleInfo = ROLE_DATA[role] || ROLE_DATA.ARTISAN;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -169,19 +213,28 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               const isSelected = role === r;
               const label =
                 r === 'BUYER'
-                  ? '🛍️ Buyer'
+                  ? '🛍️ Buyer Login'
                   : r === 'ARTISAN'
-                  ? '🎨 Seller'
-                  : '🤝 Helper / Sahyogi';
+                  ? '🎨 Seller Login'
+                  : '🤝 Sahyogi Login';
               return (
                 <TouchableOpacity
                   key={r}
                   testID={`role-tab-${r}`}
                   style={[
                     styles.roleSegmentItem,
-                    isSelected && styles.roleSegmentItemActive,
+                    isSelected && (
+                      r === 'BUYER'
+                        ? styles.roleSegmentItemActiveBuyer
+                        : r === 'FACILITATOR'
+                        ? styles.roleSegmentItemActiveSahyogi
+                        : styles.roleSegmentItemActive
+                    ),
                   ]}
-                  onPress={() => setSelectedRole(r)}
+                  onPress={() => {
+                    setSelectedRole(r);
+                    setErrorMessage(null);
+                  }}
                   activeOpacity={0.85}
                 >
                   <Text
@@ -197,13 +250,25 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
 
           {/* Selected Role Overview Feature Banner */}
-          <View style={styles.roleFeatureCard}>
+          <View style={[
+            styles.roleFeatureCard,
+            role === 'BUYER' && styles.roleFeatureCardBuyer,
+            role === 'FACILITATOR' && styles.roleFeatureCardSahyogi,
+          ]}>
             <View style={styles.roleFeatureHeader}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
                 {roleInfo.title}
               </Text>
-              <View style={styles.roleFeatureBadge}>
-                <Text variant="caption" weight="bold" color="#EA580C">
+              <View style={[
+                styles.roleFeatureBadge,
+                role === 'BUYER' && { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' },
+                role === 'FACILITATOR' && { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' },
+              ]}>
+                <Text
+                  variant="caption"
+                  weight="bold"
+                  color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}
+                >
                   {roleInfo.badge}
                 </Text>
               </View>
@@ -211,56 +276,167 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text variant="caption" color="#64748B" style={{ marginTop: 2, lineHeight: 16 }}>
               {roleInfo.desc}
             </Text>
+            {/* Feature Pills */}
+            <View style={styles.roleFeatureChipsRow}>
+              {roleInfo.features.map((feat, i) => (
+                <View key={i} style={styles.roleFeatureChip}>
+                  <Text variant="caption" weight="medium" color="#334155">
+                    {feat}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </View>
 
           {/* 1-Tap Quick Demo Login for Current Role */}
           <TouchableOpacity
             testID="quick-demo-btn"
-            style={styles.quickDemoChip}
+            style={[
+              styles.quickDemoChip,
+              role === 'BUYER' && { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' },
+              role === 'FACILITATOR' && { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' },
+            ]}
             onPress={() => {
-              setPhoneNumber('9876543210');
-              handleLogin('9876543210', role);
+              setPhoneNumber(roleInfo.phone);
+              handleLogin(roleInfo.phone, role);
             }}
             activeOpacity={0.85}
           >
             <Text style={{ fontSize: 13, marginRight: 6 }}>⚡</Text>
-            <Text variant="caption" weight="bold" color="#EA580C">
+            <Text
+              variant="caption"
+              weight="bold"
+              color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}
+            >
               {roleInfo.demoLabel}
             </Text>
           </TouchableOpacity>
 
-          {/* 3 Quick Role Demo Shortcuts */}
-          <View style={styles.multiRoleDemoRow}>
-            {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
-              const roleTitle = r === 'BUYER' ? '🛍️ As Buyer' : r === 'ARTISAN' ? '🎨 As Seller' : '🤝 As Sahyogi';
-              return (
-                <TouchableOpacity
-                  key={`quick-${r}`}
-                  style={[styles.quickRoleBtn, role === r && styles.quickRoleBtnActive]}
-                  onPress={() => {
-                    setSelectedRole(r);
-                    setPhoneNumber('9876543210');
-                    handleLogin('9876543210', r);
-                  }}
-                >
-                  <Text
-                    variant="caption"
-                    weight="bold"
-                    color={role === r ? '#EA580C' : '#64748B'}
-                  >
-                    {roleTitle}
+          {/* 3 Distinct Verified Persona Accounts (Each with its Own Identity & Credentials) */}
+          <View style={styles.personaAccountsContainer}>
+            <Text variant="caption" weight="bold" color="#64748B" style={styles.personaAccountsHeader}>
+              OR CHOOSE A DEDICATED ACCOUNT TO LOG IN:
+            </Text>
+
+            {/* Buyer Dedicated Account */}
+            <TouchableOpacity
+              style={[
+                styles.accountOptionCard,
+                role === 'BUYER' && styles.accountOptionCardActiveBuyer,
+              ]}
+              onPress={() => {
+                setSelectedRole('BUYER');
+                setPhoneNumber(ROLE_DATA.BUYER.phone);
+                handleLogin(ROLE_DATA.BUYER.phone, 'BUYER');
+              }}
+              activeOpacity={0.85}
+            >
+              <View style={[styles.accountAvatarCircle, { backgroundColor: '#EEF2FF' }]}>
+                <Text style={{ fontSize: 20 }}>🛍️</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="bodySmall" weight="bold" color="#1E1B4B">
+                    {ROLE_DATA.BUYER.name}
                   </Text>
-                </TouchableOpacity>
-              );
-            })}
+                  <Text variant="caption" weight="bold" color="#4338CA" style={styles.cardRolePill}>
+                    BUYER PORTAL
+                  </Text>
+                </View>
+                <Text variant="caption" color="#64748B">
+                  {ROLE_DATA.BUYER.location}
+                </Text>
+                <Text variant="caption" weight="bold" color="#4338CA" style={{ marginTop: 2 }}>
+                  📱 +91 98100 12345 • Log In as Buyer →
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Seller / Artisan Dedicated Account */}
+            <TouchableOpacity
+              style={[
+                styles.accountOptionCard,
+                role === 'ARTISAN' && styles.accountOptionCardActiveSeller,
+              ]}
+              onPress={() => {
+                setSelectedRole('ARTISAN');
+                setPhoneNumber(ROLE_DATA.ARTISAN.phone);
+                handleLogin(ROLE_DATA.ARTISAN.phone, 'ARTISAN');
+              }}
+              activeOpacity={0.85}
+            >
+              <View style={[styles.accountAvatarCircle, { backgroundColor: '#FFF7ED' }]}>
+                <Text style={{ fontSize: 20 }}>🎨</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="bodySmall" weight="bold" color="#7C2D12">
+                    {ROLE_DATA.ARTISAN.name}
+                  </Text>
+                  <Text variant="caption" weight="bold" color="#EA580C" style={styles.cardRolePill}>
+                    ARTISAN STUDIO
+                  </Text>
+                </View>
+                <Text variant="caption" color="#64748B">
+                  {ROLE_DATA.ARTISAN.location}
+                </Text>
+                <Text variant="caption" weight="bold" color="#EA580C" style={{ marginTop: 2 }}>
+                  📱 +91 98765 43210 • Log In as Seller →
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Helper / Sahyogi Dedicated Account */}
+            <TouchableOpacity
+              style={[
+                styles.accountOptionCard,
+                role === 'FACILITATOR' && styles.accountOptionCardActiveSahyogi,
+              ]}
+              onPress={() => {
+                setSelectedRole('FACILITATOR');
+                setPhoneNumber(ROLE_DATA.FACILITATOR.phone);
+                handleLogin(ROLE_DATA.FACILITATOR.phone, 'FACILITATOR');
+              }}
+              activeOpacity={0.85}
+            >
+              <View style={[styles.accountAvatarCircle, { backgroundColor: '#F0FDF4' }]}>
+                <Text style={{ fontSize: 20 }}>🤝</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text variant="bodySmall" weight="bold" color="#14532D">
+                    {ROLE_DATA.FACILITATOR.name}
+                  </Text>
+                  <Text variant="caption" weight="bold" color="#16A34A" style={styles.cardRolePill}>
+                    SAHYOGI DESK
+                  </Text>
+                </View>
+                <Text variant="caption" color="#64748B">
+                  {ROLE_DATA.FACILITATOR.location}
+                </Text>
+                <Text variant="caption" weight="bold" color="#16A34A" style={{ marginTop: 2 }}>
+                  📱 +91 98223 99887 • Log In as Sahyogi →
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
-          {/* Modern Input Capsule */}
+          {/* Input Label & Capsule */}
+          <Text variant="caption" weight="bold" color="#64748B" style={{ alignSelf: 'flex-start', marginBottom: 6 }}>
+            OR ENTER ANY MOBILE NUMBER FOR {roleInfo.title.toUpperCase()}:
+          </Text>
+
           <View
             style={[
               styles.inputCapsule,
               errorMessage ? styles.inputCapsuleError : null,
-              phoneNumber.length === 10 ? styles.inputCapsuleValid : null,
+              phoneNumber.length === 10 && (
+                role === 'BUYER'
+                  ? styles.inputCapsuleValidBuyer
+                  : role === 'FACILITATOR'
+                  ? styles.inputCapsuleValidSahyogi
+                  : styles.inputCapsuleValid
+              ),
             ]}
           >
             <View style={styles.inputPrefix}>
@@ -278,7 +454,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                 setPhoneNumber(cleaned);
                 setErrorMessage(null);
               }}
-              placeholder="Mobile Number (10 digits)"
+              placeholder={roleInfo.placeholder}
               placeholderTextColor="#94A3B8"
               keyboardType="phone-pad"
               maxLength={10}
@@ -309,15 +485,15 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               style={styles.keypadToggleBtn}
             >
               {showKeypad ? (
-                <Text variant="caption" weight="semiBold" color="#EA580C">
+                <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
                   ⌨️ Hide Keypad
                 </Text>
               ) : (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text variant="caption" weight="semiBold" color="#EA580C">
+                  <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
                     🔢 Keypad •{' '}
                   </Text>
-                  <Text variant="caption" weight="semiBold" color="#EA580C">
+                  <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
                     🔢 कीपैड खोलें
                   </Text>
                 </View>
@@ -325,20 +501,22 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setPhoneNumber('9876543210');
+                setPhoneNumber(roleInfo.phone);
               }}
             >
               <Text variant="caption" weight="medium" color="#64748B">
-                Need Help?
+                Fill Demo ({roleInfo.phone})
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Primary Action Button (Festive Terracotta Pill) */}
+          {/* Primary Action Button */}
           <TouchableOpacity
             testID="login-submit-btn"
             style={[
               styles.gradientButton,
+              role === 'BUYER' && styles.gradientButtonBuyer,
+              role === 'FACILITATOR' && styles.gradientButtonSahyogi,
               (phoneNumber.length !== 10 || isLoading) && styles.gradientButtonDisabled,
             ]}
             onPress={() => handleLogin()}
@@ -346,7 +524,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             activeOpacity={0.88}
           >
             <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={styles.buttonLabel}>
-              {isLoading ? 'Signing In...' : 'Sign In with Phone →'}
+              {isLoading ? 'Signing In...' : `${roleInfo.submitLabel} →`}
             </Text>
           </TouchableOpacity>
 
@@ -566,6 +744,22 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
+  roleSegmentItemActiveBuyer: {
+    backgroundColor: '#4338CA',
+    shadowColor: '#4338CA',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  roleSegmentItemActiveSahyogi: {
+    backgroundColor: '#16A34A',
+    shadowColor: '#16A34A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
   roleFeatureCard: {
     width: '100%',
     backgroundColor: '#F8FAFC',
@@ -574,6 +768,14 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
     padding: 10,
     marginBottom: 10,
+  },
+  roleFeatureCardBuyer: {
+    backgroundColor: '#F5F3FF',
+    borderColor: '#C7D2FE',
+  },
+  roleFeatureCardSahyogi: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
   },
   roleFeatureHeader: {
     flexDirection: 'row',
@@ -589,6 +791,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFEDD5',
   },
+  roleFeatureChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+  roleFeatureChip: {
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
   quickDemoChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -599,28 +815,68 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 7,
     paddingHorizontal: 14,
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  multiRoleDemoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 6,
+  personaAccountsContainer: {
     width: '100%',
     marginBottom: 14,
   },
-  quickRoleBtn: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    paddingVertical: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+  personaAccountsHeader: {
+    letterSpacing: 0.6,
+    marginBottom: 8,
+    marginTop: 4,
+    fontSize: 10.5,
   },
-  quickRoleBtnActive: {
+  accountOptionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    padding: 10,
+    marginBottom: 8,
+  },
+  accountOptionCardActiveBuyer: {
+    borderColor: '#4338CA',
+    backgroundColor: '#EEF2FF',
+  },
+  accountOptionCardActiveSeller: {
     borderColor: '#EA580C',
     backgroundColor: '#FFF7ED',
+  },
+  accountOptionCardActiveSahyogi: {
+    borderColor: '#16A34A',
+    backgroundColor: '#F0FDF4',
+  },
+  accountAvatarCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.06)',
+  },
+  cardRolePill: {
+    fontSize: 9.5,
+    letterSpacing: 0.5,
+  },
+  inputCapsuleValidBuyer: {
+    borderColor: '#4338CA',
+    backgroundColor: '#F5F3FF',
+  },
+  inputCapsuleValidSahyogi: {
+    borderColor: '#16A34A',
+    backgroundColor: '#F0FDF4',
+  },
+  gradientButtonBuyer: {
+    backgroundColor: '#4338CA',
+    shadowColor: '#4338CA',
+  },
+  gradientButtonSahyogi: {
+    backgroundColor: '#16A34A',
+    shadowColor: '#16A34A',
   },
   inputCapsule: {
     flexDirection: 'row',
