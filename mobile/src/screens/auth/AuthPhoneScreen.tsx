@@ -46,7 +46,6 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
   interface RoleMeta {
     title: string;
     tagline: string;
-    desc: string;
     badge: string;
     phone: string;
     name: string;
@@ -55,65 +54,71 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     demoLabel: string;
     submitLabel: string;
     placeholder: string;
-    features: string[];
+    themeColor: string;
+    themeLightBg: string;
+    icon: string;
   }
 
   const ROLE_DATA: Record<UserRole, RoleMeta> = {
     BUYER: {
       title: 'Buyer & Corporate Portal',
       tagline: 'Authentic GI Crafts & Bulk Gifting',
-      desc: 'Browse certified GI heritage crafts, Diwali festive deals, artisan provenance passports, and place corporate wholesale RFQs.',
-      badge: 'Retail & Corporate Wholesale',
+      badge: 'Certified GI Heritage',
       phone: '9810012345',
       name: 'Priya Sharma',
       location: 'Delhi NCR • Verified Buyer',
       idCode: 'BUY-DEL-9021',
-      demoLabel: '🛍️ 1-Tap Login as Buyer (98100 12345) →',
-      submitLabel: 'Sign In to Buyer Portal 🛍️',
-      placeholder: 'Buyer Mobile (e.g. 98100 12345)',
-      features: ['✨ Diwali Craft Utsav Deals', '🏷️ GI Provenance Passports', '🏢 Corporate Bulk RFQ'],
+      demoLabel: '1-Tap Sign In as Priya Sharma (Buyer) →',
+      submitLabel: 'Sign In to Buyer Portal',
+      placeholder: 'Enter buyer mobile (e.g. 98100 12345)',
+      themeColor: '#4338CA',
+      themeLightBg: '#EEF2FF',
+      icon: '🛍️',
     },
     ARTISAN: {
       title: 'Master Artisan & Seller Studio',
-      tagline: 'Craft Production Cockpit & AI Tools',
-      desc: 'Manage your workshop, create listings with 📸 AI Smart Catalogue (photo + voice), and get 95% fair price payouts.',
-      badge: 'Master Artisan • 0% Commission',
+      tagline: 'Craft Production & AI Studio',
+      badge: '0% Platform Commission',
       phone: '9876543210',
       name: 'Ramesh Kumbhar',
       location: 'Kolhapur, MH • Master Potter',
       idCode: 'GI-MH-2024-402',
-      demoLabel: '🎨 1-Tap Login as Master Artisan (98765 43210) →',
-      submitLabel: 'Sign In to Artisan Studio 🎨',
-      placeholder: 'Artisan Mobile (e.g. 98765 43210)',
-      features: ['📸 AI Smart Catalogue', '🤖 Voice Saathi AI Interview', '💰 95% Direct Fair Share'],
+      demoLabel: '1-Tap Sign In as Master Artisan (Ramesh) →',
+      submitLabel: 'Sign In to Artisan Studio',
+      placeholder: 'Enter artisan mobile (e.g. 98765 43210)',
+      themeColor: '#EA580C',
+      themeLightBg: '#FFF7ED',
+      icon: '🎨',
     },
     FACILITATOR: {
-      title: 'Helper / Sahyogi Field Desk',
-      tagline: 'Village Cluster Operations Desk',
-      desc: 'Field desk for cluster facilitators: monitor 5,000-unit cluster quotas, perform SOS quota reallocation, and inspect QC specs.',
-      badge: 'Cluster Facilitator Lead',
+      title: 'Helper / Sahyogi Desk',
+      tagline: 'Village Cluster Operations',
+      badge: 'Field Ops & Cluster Lead',
       phone: '9822399887',
       name: 'Pooja Verma',
       location: 'Pune Cluster, MH • Field Lead',
       idCode: 'CLUST-PUN-08',
-      demoLabel: '🤝 1-Tap Login as Cluster Sahyogi (98223 99887) →',
-      submitLabel: 'Sign In to Sahyogi Field Desk 🤝',
-      placeholder: 'Sahyogi Mobile (e.g. 98223 99887)',
-      features: ['📦 5,000-Unit Cluster Quota', '🚨 SOS Quota Reallocation', '🔍 QC Spec Audit'],
+      demoLabel: '1-Tap Sign In as Pooja Verma (Sahyogi) →',
+      submitLabel: 'Sign In to Sahyogi Desk',
+      placeholder: 'Enter sahyogi mobile (e.g. 98223 99887)',
+      themeColor: '#16A34A',
+      themeLightBg: '#F0FDF4',
+      icon: '🤝',
     },
     ADMIN_STAFF: {
-      title: 'Platform Operations Desk',
+      title: 'Platform Operations',
       tagline: 'Compliance & Escrow Oversight',
-      desc: 'Cluster verification, escrow settlement ledger, and GI compliance oversight.',
       badge: 'Platform Admin',
       phone: '9800011223',
       name: 'Vikram Mehta',
-      location: 'National Hub • Operations Admin',
+      location: 'National Hub • Operations',
       idCode: 'ADM-NAT-01',
-      demoLabel: '🛡️ 1-Tap Login as Admin (98000 11223) →',
-      submitLabel: 'Sign In to Operations Desk 🛡️',
-      placeholder: 'Admin Mobile (e.g. 98000 11223)',
-      features: ['Escrow Ledger', 'Artisan Verification', 'Dispute Resolution'],
+      demoLabel: '1-Tap Sign In as Admin →',
+      submitLabel: 'Sign In to Operations Desk',
+      placeholder: 'Enter admin mobile',
+      themeColor: '#0F172A',
+      themeLightBg: '#F1F5F9',
+      icon: '🛡️',
     },
   };
 
@@ -175,61 +180,52 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Centered Modern Artisan Card */}
-        <View style={styles.cardContainer}>
-          {/* Top Emblem Card */}
-          <View style={styles.emblemShadowWrapper}>
-            <View style={styles.emblemCard}>
-              <Image
-                source={require('../../../assets/karigarx_logo.png')}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
+        <View style={styles.modernCard}>
+          {/* Top Brand Header */}
+          <View style={styles.brandSection}>
+            <View style={styles.logoBadgeContainer}>
+              <View style={styles.logoBadge}>
+                <Image
+                  source={require('../../../assets/karigarx_logo.png')}
+                  style={styles.logoImg}
+                  resizeMode="contain"
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Heading & Subtitle */}
-          <View style={styles.headerBlock}>
-            <Text variant="headlineLarge" weight="bold" color="#0F172A" style={styles.titleText}>
-              Kalakar Setu
+            <Text variant="headlineMedium" weight="bold" color="#0F172A" style={styles.brandTitle}>
+              KarigarX
             </Text>
-            <View style={styles.festivePill}>
-              <Text style={{ fontSize: 11, marginRight: 4 }}>✨</Text>
-              <Text variant="caption" weight="bold" color="#EA580C">
-                100% DIRECT FROM MASTER ARTISANS
+
+            <View style={styles.mottoPill}>
+              <Text variant="caption" weight="bold" color="#EA580C" style={styles.mottoText}>
+                ✨ CRAFT • CONNECT • GROW ✨
               </Text>
             </View>
-            <Text variant="bodyMedium" weight="medium" color="#EA580C" style={styles.taglineText}>
-              CRAFT • CONNECT • GROW
-            </Text>
-            <Text variant="bodySmall" color="#64748B" style={styles.subtitleText}>
-              Rural Artisans to Global Markets — Zero Commission Markup
+
+            <Text variant="bodySmall" color="#64748B" style={styles.brandSubtitle}>
+              Empowering India's Heritage Master Artisans
             </Text>
           </View>
 
-          {/* Role Segmented Pill Selector (English: Buyer, Seller, Helper/Sahyogi) */}
-          <View style={styles.roleSegmentContainer}>
+          {/* Role Segmented Pill Switcher */}
+          <View style={styles.roleTabsWrapper}>
             {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
               const isSelected = role === r;
-              const label =
-                r === 'BUYER'
-                  ? '🛍️ Buyer Login'
-                  : r === 'ARTISAN'
-                  ? '🎨 Seller Login'
-                  : '🤝 Sahyogi Login';
+              const meta = ROLE_DATA[r];
               return (
                 <TouchableOpacity
                   key={r}
                   testID={`role-tab-${r}`}
                   style={[
-                    styles.roleSegmentItem,
-                    isSelected && (
-                      r === 'BUYER'
-                        ? styles.roleSegmentItemActiveBuyer
-                        : r === 'FACILITATOR'
-                        ? styles.roleSegmentItemActiveSahyogi
-                        : styles.roleSegmentItemActive
-                    ),
+                    styles.roleTabItem,
+                    isSelected && {
+                      backgroundColor: meta.themeColor,
+                      shadowColor: meta.themeColor,
+                      shadowOpacity: 0.25,
+                      shadowRadius: 8,
+                      elevation: 3,
+                    },
                   ]}
                   onPress={() => {
                     setSelectedRole(r);
@@ -237,210 +233,140 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                   }}
                   activeOpacity={0.85}
                 >
+                  <Text style={styles.roleTabIcon}>{meta.icon}</Text>
                   <Text
                     variant="caption"
-                    weight={isSelected ? 'bold' : 'medium'}
-                    color={isSelected ? '#FFFFFF' : '#475569'}
+                    weight={isSelected ? 'bold' : 'semiBold'}
+                    color={isSelected ? '#FFFFFF' : '#64748B'}
+                    style={styles.roleTabLabel}
                   >
-                    {label}
+                    {r === 'BUYER' ? 'Buyer' : r === 'ARTISAN' ? 'Artisan' : 'Sahyogi'}
                   </Text>
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          {/* Selected Role Overview Feature Banner */}
-          <View style={[
-            styles.roleFeatureCard,
-            role === 'BUYER' && styles.roleFeatureCardBuyer,
-            role === 'FACILITATOR' && styles.roleFeatureCardSahyogi,
-          ]}>
-            <View style={styles.roleFeatureHeader}>
-              <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                {roleInfo.title}
-              </Text>
-              <View style={[
-                styles.roleFeatureBadge,
-                role === 'BUYER' && { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' },
-                role === 'FACILITATOR' && { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' },
-              ]}>
-                <Text
-                  variant="caption"
-                  weight="bold"
-                  color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}
-                >
-                  {roleInfo.badge}
-                </Text>
-              </View>
-            </View>
-            <Text variant="caption" color="#64748B" style={{ marginTop: 2, lineHeight: 16 }}>
-              {roleInfo.desc}
-            </Text>
-            {/* Feature Pills */}
-            <View style={styles.roleFeatureChipsRow}>
-              {roleInfo.features.map((feat, i) => (
-                <View key={i} style={styles.roleFeatureChip}>
-                  <Text variant="caption" weight="medium" color="#334155">
-                    {feat}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* 1-Tap Quick Demo Login for Current Role */}
-          <TouchableOpacity
-            testID="quick-demo-btn"
+          {/* Quick Demo Login Card (Compact, Aesthetic, 1-Tap) */}
+          <View
             style={[
-              styles.quickDemoChip,
-              role === 'BUYER' && { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' },
-              role === 'FACILITATOR' && { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' },
+              styles.quickDemoCard,
+              {
+                backgroundColor: roleInfo.themeLightBg,
+                borderColor: `${roleInfo.themeColor}30`,
+              },
             ]}
-            onPress={() => {
-              setPhoneNumber(roleInfo.phone);
-              handleLogin(roleInfo.phone, role);
-            }}
-            activeOpacity={0.85}
           >
-            <Text style={{ fontSize: 13, marginRight: 6 }}>⚡</Text>
-            <Text
-              variant="caption"
-              weight="bold"
-              color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}
-            >
-              {roleInfo.demoLabel}
-            </Text>
-          </TouchableOpacity>
+            <View style={styles.demoCardHeader}>
+              <View style={styles.demoAvatarCircle}>
+                <Text style={{ fontSize: 18 }}>{roleInfo.icon}</Text>
+              </View>
+              <View style={styles.demoInfoBlock}>
+                <View style={styles.demoRowAlign}>
+                  <Text variant="bodySmall" weight="bold" color="#0F172A">
+                    {roleInfo.name}
+                  </Text>
+                  <View
+                    style={[
+                      styles.demoBadge,
+                      { backgroundColor: `${roleInfo.themeColor}18` },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.demoBadgeText,
+                        { color: roleInfo.themeColor },
+                      ]}
+                    >
+                      {roleInfo.badge}
+                    </Text>
+                  </View>
+                </View>
+                <Text variant="caption" color="#64748B" numberOfLines={1}>
+                  {roleInfo.location}
+                </Text>
+              </View>
+            </View>
 
-          {/* 3 Distinct Verified Persona Accounts (Each with its Own Identity & Credentials) */}
-          <View style={styles.personaAccountsContainer}>
-            <Text variant="caption" weight="bold" color="#64748B" style={styles.personaAccountsHeader}>
-              OR CHOOSE A DEDICATED ACCOUNT TO LOG IN:
-            </Text>
-
-            {/* Buyer Dedicated Account */}
+            {/* 1-Tap Button */}
             <TouchableOpacity
+              testID="quick-demo-btn"
               style={[
-                styles.accountOptionCard,
-                role === 'BUYER' && styles.accountOptionCardActiveBuyer,
+                styles.quickDemoActionBtn,
+                { backgroundColor: roleInfo.themeColor },
               ]}
               onPress={() => {
-                setSelectedRole('BUYER');
-                setPhoneNumber(ROLE_DATA.BUYER.phone);
-                handleLogin(ROLE_DATA.BUYER.phone, 'BUYER');
+                setPhoneNumber(roleInfo.phone);
+                handleLogin(roleInfo.phone, role);
               }}
-              activeOpacity={0.85}
+              activeOpacity={0.88}
             >
-              <View style={[styles.accountAvatarCircle, { backgroundColor: '#EEF2FF' }]}>
-                <Text style={{ fontSize: 20 }}>🛍️</Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="bodySmall" weight="bold" color="#1E1B4B">
-                    {ROLE_DATA.BUYER.name}
-                  </Text>
-                  <Text variant="caption" weight="bold" color="#4338CA" style={styles.cardRolePill}>
-                    BUYER PORTAL
-                  </Text>
-                </View>
-                <Text variant="caption" color="#64748B">
-                  {ROLE_DATA.BUYER.location}
-                </Text>
-                <Text variant="caption" weight="bold" color="#4338CA" style={{ marginTop: 2 }}>
-                  📱 +91 98100 12345 • Log In as Buyer →
-                </Text>
-              </View>
+              <Text variant="bodySmall" weight="bold" color="#FFFFFF">
+                ⚡ {roleInfo.demoLabel}
+              </Text>
             </TouchableOpacity>
 
-            {/* Seller / Artisan Dedicated Account */}
-            <TouchableOpacity
-              style={[
-                styles.accountOptionCard,
-                role === 'ARTISAN' && styles.accountOptionCardActiveSeller,
-              ]}
-              onPress={() => {
-                setSelectedRole('ARTISAN');
-                setPhoneNumber(ROLE_DATA.ARTISAN.phone);
-                handleLogin(ROLE_DATA.ARTISAN.phone, 'ARTISAN');
-              }}
-              activeOpacity={0.85}
-            >
-              <View style={[styles.accountAvatarCircle, { backgroundColor: '#FFF7ED' }]}>
-                <Text style={{ fontSize: 20 }}>🎨</Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="bodySmall" weight="bold" color="#7C2D12">
-                    {ROLE_DATA.ARTISAN.name}
-                  </Text>
-                  <Text variant="caption" weight="bold" color="#EA580C" style={styles.cardRolePill}>
-                    ARTISAN STUDIO
-                  </Text>
-                </View>
-                <Text variant="caption" color="#64748B">
-                  {ROLE_DATA.ARTISAN.location}
-                </Text>
-                <Text variant="caption" weight="bold" color="#EA580C" style={{ marginTop: 2 }}>
-                  📱 +91 98765 43210 • Log In as Seller →
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            {/* Helper / Sahyogi Dedicated Account */}
-            <TouchableOpacity
-              style={[
-                styles.accountOptionCard,
-                role === 'FACILITATOR' && styles.accountOptionCardActiveSahyogi,
-              ]}
-              onPress={() => {
-                setSelectedRole('FACILITATOR');
-                setPhoneNumber(ROLE_DATA.FACILITATOR.phone);
-                handleLogin(ROLE_DATA.FACILITATOR.phone, 'FACILITATOR');
-              }}
-              activeOpacity={0.85}
-            >
-              <View style={[styles.accountAvatarCircle, { backgroundColor: '#F0FDF4' }]}>
-                <Text style={{ fontSize: 20 }}>🤝</Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text variant="bodySmall" weight="bold" color="#14532D">
-                    {ROLE_DATA.FACILITATOR.name}
-                  </Text>
-                  <Text variant="caption" weight="bold" color="#16A34A" style={styles.cardRolePill}>
-                    SAHYOGI DESK
-                  </Text>
-                </View>
-                <Text variant="caption" color="#64748B">
-                  {ROLE_DATA.FACILITATOR.location}
-                </Text>
-                <Text variant="caption" weight="bold" color="#16A34A" style={{ marginTop: 2 }}>
-                  📱 +91 98223 99887 • Log In as Sahyogi →
-                </Text>
-              </View>
-            </TouchableOpacity>
+            {/* Fast Demo Account Switcher Pills */}
+            <View style={styles.personaSwitchRow}>
+              <Text variant="caption" weight="medium" color="#64748B" style={{ fontSize: 11 }}>
+                Quick switch:
+              </Text>
+              {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
+                const isCurrent = role === r;
+                const pMeta = ROLE_DATA[r];
+                return (
+                  <TouchableOpacity
+                    key={`switch-${r}`}
+                    onPress={() => {
+                      setSelectedRole(r);
+                      setPhoneNumber(pMeta.phone);
+                      setErrorMessage(null);
+                    }}
+                    style={[
+                      styles.personaSwitchChip,
+                      isCurrent && {
+                        borderColor: pMeta.themeColor,
+                        backgroundColor: '#FFFFFF',
+                      },
+                    ]}
+                  >
+                    <Text style={{ fontSize: 11, marginRight: 3 }}>{pMeta.icon}</Text>
+                    <Text
+                      variant="caption"
+                      weight={isCurrent ? 'bold' : 'medium'}
+                      color={isCurrent ? pMeta.themeColor : '#64748B'}
+                      style={{ fontSize: 11 }}
+                    >
+                      {pMeta.name.split(' ')[0]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
 
-          {/* Input Label & Capsule */}
-          <Text variant="caption" weight="bold" color="#64748B" style={{ alignSelf: 'flex-start', marginBottom: 6 }}>
-            OR ENTER ANY MOBILE NUMBER FOR {roleInfo.title.toUpperCase()}:
-          </Text>
+          {/* Divider: Or Sign in with Mobile */}
+          <View style={styles.sectionDividerRow}>
+            <View style={styles.dividerLine} />
+            <Text variant="caption" weight="semiBold" color="#94A3B8" style={styles.dividerLabel}>
+              OR ENTER MOBILE NUMBER
+            </Text>
+            <View style={styles.dividerLine} />
+          </View>
 
+          {/* Modern Phone Input Capsule */}
           <View
             style={[
               styles.inputCapsule,
               errorMessage ? styles.inputCapsuleError : null,
-              phoneNumber.length === 10 && (
-                role === 'BUYER'
-                  ? styles.inputCapsuleValidBuyer
-                  : role === 'FACILITATOR'
-                  ? styles.inputCapsuleValidSahyogi
-                  : styles.inputCapsuleValid
-              ),
+              phoneNumber.length === 10 && {
+                borderColor: roleInfo.themeColor,
+                backgroundColor: '#FFFFFF',
+              },
             ]}
           >
-            <View style={styles.inputPrefix}>
-              <Text style={{ fontSize: 15, marginRight: 6 }}>📱</Text>
+            <View style={styles.countryCodeBadge}>
+              <Text style={{ fontSize: 16, marginRight: 5 }}>🇮🇳</Text>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
                 +91
               </Text>
@@ -464,44 +390,41 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               <TouchableOpacity
                 onPress={() => setPhoneNumber('')}
                 style={styles.clearBtn}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Text style={styles.clearBtnText}>✕</Text>
               </TouchableOpacity>
             )}
           </View>
 
-          {/* Error message */}
+          {/* Error Message */}
           {errorMessage && (
             <Text variant="caption" weight="semiBold" color="#EF4444" style={styles.errorText}>
               ⚠️ {errorMessage}
             </Text>
           )}
 
-          {/* Keypad / Help Helper Row */}
+          {/* Keypad & Helper Row */}
           <View style={styles.helperRow}>
             <TouchableOpacity
               onPress={() => setShowKeypad(!showKeypad)}
               style={styles.keypadToggleBtn}
             >
               {showKeypad ? (
-                <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
+                <Text variant="caption" weight="semiBold" color={roleInfo.themeColor}>
                   ⌨️ Hide Keypad
                 </Text>
               ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
-                    🔢 Keypad •{' '}
-                  </Text>
-                  <Text variant="caption" weight="semiBold" color={role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C'}>
-                    🔢 कीपैड खोलें
-                  </Text>
-                </View>
+                <Text variant="caption" weight="semiBold" color={roleInfo.themeColor}>
+                  🔢 कीपैड खोलें
+                </Text>
               )}
             </TouchableOpacity>
+
             <TouchableOpacity
               onPress={() => {
                 setPhoneNumber(roleInfo.phone);
+                setErrorMessage(null);
               }}
             >
               <Text variant="caption" weight="medium" color="#64748B">
@@ -514,108 +437,20 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
           <TouchableOpacity
             testID="login-submit-btn"
             style={[
-              styles.gradientButton,
-              role === 'BUYER' && styles.gradientButtonBuyer,
-              role === 'FACILITATOR' && styles.gradientButtonSahyogi,
-              (phoneNumber.length !== 10 || isLoading) && styles.gradientButtonDisabled,
+              styles.primaryBtn,
+              { backgroundColor: roleInfo.themeColor },
+              (phoneNumber.length !== 10 || isLoading) && styles.primaryBtnDisabled,
             ]}
             onPress={() => handleLogin()}
             disabled={phoneNumber.length !== 10 || isLoading}
             activeOpacity={0.88}
           >
-            <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={styles.buttonLabel}>
+            <Text variant="bodyLarge" weight="bold" color="#FFFFFF">
               {isLoading ? 'Signing In...' : `${roleInfo.submitLabel} →`}
             </Text>
           </TouchableOpacity>
 
-          {/* Divider: OR CONTINUE WITH */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text variant="caption" weight="bold" color="#94A3B8" style={styles.dividerText}>
-              OR CONTINUE WITH
-            </Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* 3D Neumorphic Circular Social Buttons */}
-          <View style={styles.socialButtonsRow}>
-            {/* Google */}
-            <TouchableOpacity
-              testID="social-login-google"
-              style={styles.socialCircleBtn}
-              activeOpacity={0.8}
-              accessibilityLabel="Sign in with Google"
-              onPress={() => {
-                setPhoneNumber('9876543210');
-                handleLogin('9876543210');
-              }}
-            >
-              <Image
-                source={require('../../../assets/google_logo.png')}
-                style={styles.socialLogoImg}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            {/* Apple */}
-            <TouchableOpacity
-              testID="social-login-apple"
-              style={styles.socialCircleBtn}
-              activeOpacity={0.8}
-              accessibilityLabel="Sign in with Apple"
-              onPress={() => {
-                setPhoneNumber('9876543210');
-                handleLogin('9876543210');
-              }}
-            >
-              <Image
-                source={require('../../../assets/apple_logo.png')}
-                style={styles.socialLogoImgApple}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-
-            {/* Facebook */}
-            <TouchableOpacity
-              testID="social-login-facebook"
-              style={styles.socialCircleBtn}
-              activeOpacity={0.8}
-              accessibilityLabel="Sign in with Facebook"
-              onPress={() => {
-                setPhoneNumber('9876543210');
-                handleLogin('9876543210');
-              }}
-            >
-              <Image
-                source={require('../../../assets/facebook_logo.png')}
-                style={styles.socialLogoImg}
-                resizeMode="contain"
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Footnote Links */}
-          <View style={styles.footerNavRow}>
-            <TouchableOpacity
-              testID="login-change-lang-btn"
-              onPress={() => navigation.navigate('LanguageSelection')}
-            >
-              <Text variant="caption" weight="bold" color="#EA580C">
-                🌐 Change Language
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.footerDot}>•</Text>
-            <TouchableOpacity
-              testID="login-intro-tour-btn"
-              onPress={() => navigation.navigate('Onboarding')}
-            >
-              <Text variant="caption" weight="bold" color="#EA580C">
-                ℹ️ App Tour
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Collapsible Tactile Keypad */}
+          {/* Collapsible Keypad */}
           {showKeypad && (
             <View style={styles.keypadEmbed}>
               <TactileKeypad
@@ -626,6 +461,79 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               />
             </View>
           )}
+
+          {/* Social Sign In */}
+          <View style={styles.socialSection}>
+            <View style={styles.socialDividerRow}>
+              <View style={styles.dividerLine} />
+              <Text variant="caption" weight="medium" color="#94A3B8" style={styles.socialDividerText}>
+                or continue with
+              </Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.socialIconsRow}>
+              <TouchableOpacity
+                testID="social-login-google"
+                style={styles.socialBtn}
+                activeOpacity={0.8}
+                onPress={() => handleLogin(roleInfo.phone)}
+              >
+                <Image
+                  source={require('../../../assets/google_logo.png')}
+                  style={styles.socialImg}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                testID="social-login-apple"
+                style={styles.socialBtn}
+                activeOpacity={0.8}
+                onPress={() => handleLogin(roleInfo.phone)}
+              >
+                <Image
+                  source={require('../../../assets/apple_logo.png')}
+                  style={styles.socialImgApple}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                testID="social-login-facebook"
+                style={styles.socialBtn}
+                activeOpacity={0.8}
+                onPress={() => handleLogin(roleInfo.phone)}
+              >
+                <Image
+                  source={require('../../../assets/facebook_logo.png')}
+                  style={styles.socialImg}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Bottom Clean Footer */}
+          <View style={styles.footerRow}>
+            <TouchableOpacity
+              testID="login-change-lang-btn"
+              onPress={() => navigation.navigate('LanguageSelection')}
+            >
+              <Text variant="caption" weight="semiBold" color="#64748B">
+                🌐 Change Language
+              </Text>
+            </TouchableOpacity>
+            <Text style={styles.footerDivider}>•</Text>
+            <TouchableOpacity
+              testID="login-intro-tour-btn"
+              onPress={() => navigation.navigate('Onboarding')}
+            >
+              <Text variant="caption" weight="semiBold" color="#64748B">
+                ℹ️ App Tour
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -635,45 +543,49 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFDF7',
+    backgroundColor: '#F8F6F0',
   },
   scrollContainer: {
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 24,
+    paddingVertical: 20,
     paddingHorizontal: 16,
   },
-  cardContainer: {
+  modernCard: {
     width: '100%',
-    maxWidth: 410,
+    maxWidth: 420,
     backgroundColor: '#FFFFFF',
     borderRadius: 28,
-    paddingHorizontal: 24,
-    paddingTop: 22,
-    paddingBottom: 22,
+    paddingHorizontal: 22,
+    paddingTop: 24,
+    paddingBottom: 20,
     alignItems: 'center',
-    // Soft elegant shadow matching mockup
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.08,
-    shadowRadius: 28,
+    // Soft elegant shadow
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.07,
+    shadowRadius: 32,
     elevation: 8,
     borderWidth: 1,
-    borderColor: '#ECE8DC',
+    borderColor: '#EDEAE2',
   },
-  emblemShadowWrapper: {
-    marginBottom: 12,
+  brandSection: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoBadgeContainer: {
+    marginBottom: 8,
     shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.16,
-    shadowRadius: 14,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  emblemCard: {
-    width: 92,
-    height: 92,
-    borderRadius: 22,
+  logoBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
@@ -682,348 +594,276 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 6,
   },
-  logoImage: {
+  logoImg: {
     width: '100%',
     height: '100%',
   },
-  headerBlock: {
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  titleText: {
+  brandTitle: {
     letterSpacing: 0.5,
-    marginBottom: 4,
-    fontSize: 26,
+    fontSize: 24,
     color: '#0F172A',
+    marginBottom: 4,
   },
-  festivePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  mottoPill: {
     backgroundColor: '#FFF7ED',
     borderColor: '#FFEDD5',
     borderWidth: 1,
     paddingVertical: 3,
     paddingHorizontal: 10,
-    borderRadius: 14,
-    marginBottom: 6,
+    borderRadius: 12,
+    marginBottom: 4,
   },
-  taglineText: {
-    letterSpacing: 1.5,
-    fontSize: 10.5,
-    marginBottom: 3,
-    color: '#EA580C',
-    fontWeight: '700',
+  mottoText: {
+    letterSpacing: 1.4,
+    fontSize: 9.5,
   },
-  subtitleText: {
-    letterSpacing: 0.1,
+  brandSubtitle: {
+    letterSpacing: 0.2,
     fontSize: 12,
     textAlign: 'center',
   },
-  roleSegmentContainer: {
+  roleTabsWrapper: {
     flexDirection: 'row',
     width: '100%',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 20,
-    padding: 3,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  roleSegmentItem: {
-    flex: 1,
-    paddingVertical: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 18,
-  },
-  roleSegmentItemActive: {
-    backgroundColor: '#EA580C',
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  roleSegmentItemActiveBuyer: {
-    backgroundColor: '#4338CA',
-    shadowColor: '#4338CA',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  roleSegmentItemActiveSahyogi: {
-    backgroundColor: '#16A34A',
-    shadowColor: '#16A34A',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  roleFeatureCard: {
-    width: '100%',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 10,
-    marginBottom: 10,
-  },
-  roleFeatureCardBuyer: {
-    backgroundColor: '#F5F3FF',
-    borderColor: '#C7D2FE',
-  },
-  roleFeatureCardSahyogi: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
-  },
-  roleFeatureHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  roleFeatureBadge: {
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-  },
-  roleFeatureChipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    marginTop: 8,
-  },
-  roleFeatureChip: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  quickDemoChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
+    backgroundColor: '#F1F5F9',
     borderRadius: 16,
-    paddingVertical: 7,
-    paddingHorizontal: 14,
-    marginBottom: 10,
-  },
-  personaAccountsContainer: {
-    width: '100%',
+    padding: 4,
     marginBottom: 14,
   },
-  personaAccountsHeader: {
-    letterSpacing: 0.6,
-    marginBottom: 8,
-    marginTop: 4,
-    fontSize: 10.5,
-  },
-  accountOptionCard: {
+  roleTabItem: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    padding: 10,
-    marginBottom: 8,
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 12,
+    gap: 4,
   },
-  accountOptionCardActiveBuyer: {
-    borderColor: '#4338CA',
-    backgroundColor: '#EEF2FF',
+  roleTabIcon: {
+    fontSize: 14,
   },
-  accountOptionCardActiveSeller: {
-    borderColor: '#EA580C',
-    backgroundColor: '#FFF7ED',
+  roleTabLabel: {
+    fontSize: 12,
   },
-  accountOptionCardActiveSahyogi: {
-    borderColor: '#16A34A',
-    backgroundColor: '#F0FDF4',
+  quickDemoCard: {
+    width: '100%',
+    borderRadius: 18,
+    borderWidth: 1.2,
+    padding: 12,
+    marginBottom: 14,
   },
-  accountAvatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  demoCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  demoAvatarCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.06)',
-  },
-  cardRolePill: {
-    fontSize: 9.5,
-    letterSpacing: 0.5,
-  },
-  inputCapsuleValidBuyer: {
-    borderColor: '#4338CA',
-    backgroundColor: '#F5F3FF',
-  },
-  inputCapsuleValidSahyogi: {
-    borderColor: '#16A34A',
-    backgroundColor: '#F0FDF4',
-  },
-  gradientButtonBuyer: {
-    backgroundColor: '#4338CA',
-    shadowColor: '#4338CA',
-  },
-  gradientButtonSahyogi: {
-    backgroundColor: '#16A34A',
-    shadowColor: '#16A34A',
-  },
-  inputCapsule: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    height: 54,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 27,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    paddingHorizontal: 16,
-    marginBottom: 6,
-  },
-  inputCapsuleValid: {
-    borderColor: '#EA580C',
-    backgroundColor: '#FFFDF7',
-  },
-  inputCapsuleError: {
-    borderColor: '#EF4444',
-  },
-  inputPrefix: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 10,
-    borderRightWidth: 1,
-    borderRightColor: '#E2E8F0',
     marginRight: 10,
   },
-  phoneTextInput: {
+  demoInfoBlock: {
     flex: 1,
-    fontSize: 16,
-    color: '#0F172A',
-    fontWeight: '600',
-    letterSpacing: 1,
-    paddingVertical: 0,
-    ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}),
   },
-  clearBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  clearBtnText: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: 'bold',
-  },
-  errorText: {
-    marginTop: 4,
-    marginBottom: 6,
-  },
-  helperRow: {
+  demoRowAlign: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 6,
-    marginBottom: 14,
-    marginTop: 4,
+    marginBottom: 2,
   },
-  keypadToggleBtn: {
+  demoBadge: {
+    paddingHorizontal: 8,
     paddingVertical: 2,
+    borderRadius: 8,
   },
-  gradientButton: {
+  demoBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  quickDemoActionBtn: {
     width: '100%',
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#EA580C',
+    paddingVertical: 10,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    elevation: 6,
-    marginBottom: 16,
-  },
-  gradientButtonDisabled: {
-    backgroundColor: '#FDBA74',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 8,
   },
-  buttonLabel: {
-    letterSpacing: 0.5,
+  personaSwitchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
-  dividerRow: {
+  personaSwitchChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  sectionDividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginBottom: 14,
+    marginBottom: 12,
   },
   dividerLine: {
     flex: 1,
     height: 1,
     backgroundColor: '#E2E8F0',
   },
-  dividerText: {
-    paddingHorizontal: 12,
-    fontSize: 11,
-    letterSpacing: 1,
-    color: '#94A3B8',
+  dividerLabel: {
+    paddingHorizontal: 10,
+    fontSize: 10,
+    letterSpacing: 0.8,
   },
-  socialButtonsRow: {
+  inputCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
-    marginBottom: 16,
-  },
-  socialCircleBtn: {
-    width: 48,
+    width: '100%',
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#F1F5F9',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 12,
+    marginBottom: 6,
   },
-  socialLogoImg: {
-    width: 22,
-    height: 22,
+  inputCapsuleError: {
+    borderColor: '#EF4444',
   },
-  socialLogoImgApple: {
-    width: 20,
-    height: 22,
-  },
-  footerNavRow: {
+  countryCodeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    paddingRight: 8,
+    borderRightWidth: 1,
+    borderRightColor: '#E2E8F0',
+    marginRight: 10,
   },
-  footerDot: {
-    color: '#94A3B8',
-    fontSize: 14,
+  phoneTextInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#0F172A',
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    paddingVertical: 0,
+    ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}),
+  },
+  clearBtn: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearBtnText: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: 'bold',
+  },
+  errorText: {
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+  helperRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 4,
+    marginBottom: 12,
+  },
+  keypadToggleBtn: {
+    paddingVertical: 2,
+  },
+  primaryBtn: {
+    width: '100%',
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 14,
+  },
+  primaryBtnDisabled: {
+    backgroundColor: '#CBD5E1',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   keypadEmbed: {
     width: '100%',
-    marginTop: 18,
-    paddingTop: 16,
+    marginBottom: 14,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F4F9',
+    borderTopColor: '#F1F5F9',
+  },
+  socialSection: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  socialDividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 10,
+  },
+  socialDividerText: {
+    paddingHorizontal: 8,
+    fontSize: 11,
+  },
+  socialIconsRow: {
+    flexDirection: 'row',
+    gap: 14,
+  },
+  socialBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  socialImg: {
+    width: 20,
+    height: 20,
+  },
+  socialImgApple: {
+    width: 18,
+    height: 20,
+  },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  footerDivider: {
+    color: '#CBD5E1',
+    fontSize: 12,
   },
 });
