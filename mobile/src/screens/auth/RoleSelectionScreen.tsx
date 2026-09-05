@@ -88,7 +88,7 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.eyebrowBadge}>
-            <Text variant="caption" weight="bold" color="#92400E">
+            <Text variant="caption" weight="bold" color="#4B44CC">
               ✨ कारीगर, खरीदार और स्वयं सहायता समूह के लिए
             </Text>
           </View>
@@ -100,7 +100,7 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
           </Text>
 
           {/* Bolie Saathi Voice Guide Banner */}
-          <View style={[styles.voiceGuideBanner, { backgroundColor: '#FFF9E6', borderColor: '#FDE68A' }]}>
+          <View style={[styles.voiceGuideBanner, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}>
             <View style={styles.voiceGuideLeft}>
               <View style={[styles.voiceGuideDot, { backgroundColor: theme.colors.brand.primary }]}>
                 <Text style={{ fontSize: 11, color: '#FFFFFF' }}>🔊</Text>
@@ -265,8 +265,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   eyebrowBadge: {
-    backgroundColor: '#FEF3C7',
-    borderColor: '#FDE68A',
+    backgroundColor: '#F0EEFF',
+    borderColor: '#D6D3FF',
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,

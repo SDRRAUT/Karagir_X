@@ -72,7 +72,7 @@ export const OrdersScreen: React.FC = () => {
                     Order #KS-84920 • 25 मिनट पहले
                   </Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+                <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
                     ⏰ 18 घन्टे बाकी
                   </Text>
@@ -104,16 +104,16 @@ export const OrdersScreen: React.FC = () => {
                 </View>
               </View>
 
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
+              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
                     आपको सीधे बैंक में मिलेंगे:
                   </Text>
-                  <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     0% कमीशन कटौती (100% कारीगर को)
                   </Text>
                 </View>
-                <Text variant="headlineMedium" weight="bold" color="#1B5E38">
+                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
                   ₹2,042
                 </Text>
               </View>
@@ -169,16 +169,16 @@ export const OrdersScreen: React.FC = () => {
                 </View>
               </View>
 
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
+              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
                     कारीगर कुल भुगतान:
                   </Text>
-                  <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     एस्क्रो में सुरक्षित
                   </Text>
                 </View>
-                <Text variant="headlineMedium" weight="bold" color="#1B5E38">
+                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
                   ₹850
                 </Text>
               </View>
@@ -258,23 +258,23 @@ export const OrdersScreen: React.FC = () => {
                     Order #KS-83901 • UTR981240129
                   </Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     ✅ डिलीवर्ड
                   </Text>
                 </View>
               </View>
 
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(27, 94, 56, 0.08)', marginTop: 8 }]}>
+              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)', marginTop: 8 }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
                     बैंक में क्रेडिट हो चुका है:
                   </Text>
-                  <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     State Bank of India •••• 4021
                   </Text>
                 </View>
-                <Text variant="headlineMedium" weight="bold" color="#1B5E38">
+                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
                   ₹2,090
                 </Text>
               </View>
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 12,
-    backgroundColor: '#F0EDED',
+    backgroundColor: '#E0DCFF',
   },
   payoutContainer: {
     flexDirection: 'row',

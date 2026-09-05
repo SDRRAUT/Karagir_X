@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 14,
     alignItems: 'center',
   },
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   categoryBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#E85D2A',
+    color: '#6C63FF',
   },
   itemTitle: {
     marginBottom: 2,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cartBtn: {
-    backgroundColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,

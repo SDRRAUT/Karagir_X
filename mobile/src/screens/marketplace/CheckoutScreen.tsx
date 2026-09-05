@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     borderWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -223,14 +223,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
   postalTagRow: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     borderWidth: 1,
   },
   cardHeaderRow: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   badgeStepText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#59413A',
+    color: '#6B6B8D',
   },
   fieldLabel: {
     marginBottom: 6,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     borderWidth: 1,
   },
   shippingRow: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   freeBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1B5E38',
+    color: '#6C63FF',
   },
   bottomBar: {
     position: 'absolute',
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

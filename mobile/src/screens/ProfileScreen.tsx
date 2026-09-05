@@ -114,7 +114,7 @@ export const ProfileScreen: React.FC = () => {
 
           {/* Trust Badges */}
           <View style={styles.trustBadgesRow}>
-            <View style={[styles.trustBadge, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+            <View style={[styles.trustBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>⭐</Text>
               <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
                 Kalakar Setu Verified
@@ -137,13 +137,13 @@ export const ProfileScreen: React.FC = () => {
                   Kalakar Artisan Club
                 </Text>
               </View>
-              <Text variant="labelSmall" color="#FFE8DF" style={{ marginTop: 2 }}>
+              <Text variant="labelSmall" color="#E0DCFF" style={{ marginTop: 2 }}>
                 0% commission orders • 24h fast payouts
               </Text>
             </View>
 
             <TouchableOpacity
-              style={[styles.clubJoinBtn, { backgroundColor: joinedClub ? '#1B5E38' : '#FFFFFF' }]}
+              style={[styles.clubJoinBtn, { backgroundColor: joinedClub ? '#6C63FF' : '#FFFFFF' }]}
               onPress={() => setJoinedClub(!joinedClub)}
               activeOpacity={0.85}
             >
@@ -167,7 +167,7 @@ export const ProfileScreen: React.FC = () => {
             activeOpacity={0.8}
           >
             <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(232, 93, 42, 0.15)' }]}>
+              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(108, 99, 255, 0.15)' }]}>
                 <Text style={{ fontSize: 18 }}>🚚</Text>
               </View>
               <View style={[styles.tilePill, { backgroundColor: theme.colors.terracotta.primary }]}>
@@ -216,7 +216,7 @@ export const ProfileScreen: React.FC = () => {
               <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(244, 185, 66, 0.2)' }]}>
                 <Text style={{ fontSize: 18 }}>🏛️</Text>
               </View>
-              <View style={[styles.tilePill, { backgroundColor: '#F4B942' }]}>
+              <View style={[styles.tilePill, { backgroundColor: '#FFBF42' }]}>
                 <Text variant="labelSmall" weight="bold" color="#3B2600">
                   Active
                 </Text>
@@ -235,7 +235,7 @@ export const ProfileScreen: React.FC = () => {
           {/* Voice Saathi */}
           <View style={styles.utilityTile}>
             <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(27, 94, 56, 0.15)' }]}>
+              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(108, 99, 255, 0.15)' }]}>
                 <Text style={{ fontSize: 18 }}>🎙️</Text>
               </View>
               <View style={[styles.tilePill, { backgroundColor: theme.colors.surface.card }]}>
@@ -273,7 +273,7 @@ export const ProfileScreen: React.FC = () => {
         <Card style={styles.financeCard}>
           {/* Item 1 */}
           <View style={styles.financeItem}>
-            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
               <Text style={{ fontSize: 20 }}>💳</Text>
             </View>
             <View style={{ flex: 1, paddingHorizontal: 12 }}>
@@ -327,7 +327,7 @@ export const ProfileScreen: React.FC = () => {
             onPress={() => navigation.navigate('Opportunities')}
             activeOpacity={0.8}
           >
-            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
+            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
               <Text style={{ fontSize: 20 }}>📦</Text>
             </View>
             <View style={{ flex: 1, paddingHorizontal: 12 }}>
@@ -335,7 +335,7 @@ export const ProfileScreen: React.FC = () => {
                 <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                   Bulk Order Cluster Advance
                 </Text>
-                <View style={[styles.inlineBadge, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+                <View style={[styles.inlineBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
                     Pre-Fund
                   </Text>
@@ -421,7 +421,7 @@ export const ProfileScreen: React.FC = () => {
                     styles.langChip,
                     {
                       borderColor: isSelected ? theme.colors.terracotta.primary : theme.colors.border.subtle,
-                      backgroundColor: isSelected ? 'rgba(232, 93, 42, 0.08)' : theme.colors.surface.card,
+                      backgroundColor: isSelected ? 'rgba(108, 99, 255, 0.08)' : theme.colors.surface.card,
                     },
                   ]}
                   onPress={() => setLocale(lang.code)}
@@ -486,7 +486,7 @@ export const ProfileScreen: React.FC = () => {
               await logout();
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'LanguageSelection' }],
+                routes: [{ name: 'AuthPhone', params: { role: 'ARTISAN' } }],
               });
             }}
           />
@@ -503,6 +503,9 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 48,
+    maxWidth: 600,
+    width: '100%',
+    alignSelf: 'center',
   },
   profileCard: {
     borderRadius: 16,
@@ -521,7 +524,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#EAE7E7',
+    backgroundColor: '#D6D3FF',
   },
   verifiedBadge: {
     position: 'absolute',
@@ -552,7 +555,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F0EDED',
+    backgroundColor: '#E0DCFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -677,7 +680,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 120,
-    backgroundColor: '#F0EDED',
+    backgroundColor: '#E0DCFF',
   },
   craftImg: {
     width: '100%',

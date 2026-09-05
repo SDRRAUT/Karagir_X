@@ -166,7 +166,7 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
             <Text variant="labelMedium" color={theme.colors.text.secondary}>
               30% कच्चा माल अग्रिम (तुरंत):
             </Text>
-            <Text variant="headlineSmall" weight="bold" color="#1B5E38">
+            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
               ₹{advanceAmount.toLocaleString('en-IN')}
             </Text>
           </View>
@@ -222,7 +222,7 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
               onPress={handleToggleVoiceNote}
               style={[
                 styles.micCircle,
-                { backgroundColor: isRecordingVoice ? '#BA1A1A' : theme.colors.terracotta.primary },
+                { backgroundColor: isRecordingVoice ? '#EF4444' : theme.colors.terracotta.primary },
               ]}
               activeOpacity={0.8}
               accessibilityRole="button"
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   stepperSymbol: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#141815',
+    color: '#1A1A2E',
   },
   stepperDisplay: {
     alignItems: 'center',

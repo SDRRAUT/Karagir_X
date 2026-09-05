@@ -43,7 +43,7 @@ export const Button: React.FC<ButtonProps> = ({
       ? 44
       : theme.touch.buttonHeightPrimary;
 
-  let backgroundColor: string = theme.colors.brand.primary; // Stitch Terracotta #E85D2A
+  let backgroundColor: string = theme.colors.brand.primary;
   let textColor: string = theme.colors.text.inverse;
   let borderColor: string = 'transparent';
 
@@ -59,12 +59,12 @@ export const Button: React.FC<ButtonProps> = ({
       borderColor = theme.colors.brand.primary;
       break;
     case 'secondary':
-      backgroundColor = theme.colors.surface.subtle; // #F6F1EA
+      backgroundColor = theme.colors.surface.subtle;
       textColor = theme.colors.charcoal[900];
-      borderColor = theme.colors.surface.border; // #EFEAE3
+      borderColor = theme.colors.surface.border;
       break;
     case 'forest':
-      backgroundColor = theme.colors.primary.emerald700; // #1B5E38
+      backgroundColor = theme.colors.brand.primary;
       textColor = theme.colors.text.inverse;
       break;
     case 'danger':
@@ -83,10 +83,10 @@ export const Button: React.FC<ButtonProps> = ({
     height,
     minHeight: size === 'sm' ? 44 : theme.touch.minTargetSize,
     backgroundColor,
-    borderRadius: theme.borderRadius.lg, // Stitch 12px
+    borderRadius: theme.borderRadius['2xl'], // Pill-shaped like reference
     borderWidth: isOutline || variant === 'secondary' ? 1.5 : 0,
     borderColor,
-    ...(!isOutline && !disabled ? (variant === 'primary' ? theme.shadows.level2 : theme.shadows.level1) : {}),
+    ...(!isOutline && !disabled ? (variant === 'primary' || variant === 'terracotta' || variant === 'forest' ? theme.shadows.level3 : theme.shadows.level1) : {}),
   };
 
   return (

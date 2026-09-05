@@ -80,7 +80,7 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
           <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
             सीधे ग्रामीण कारीगर क्लस्टर्स से थोक खरीद
           </Text>
-          <Text variant="labelSmall" color="#FFE8DF">
+          <Text variant="labelSmall" color="#E0DCFF">
             जीआई प्रमाणित शिल्प, डिजिटल शिल्प पासपोर्ट और जीएसटी चालान सहित।
           </Text>
         </Card>

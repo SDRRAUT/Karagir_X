@@ -129,7 +129,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             style={[
               styles.pulseRing,
               {
-                borderColor: isRecording ? '#E85D2A' : '#D4AF37',
+                borderColor: isRecording ? '#6C63FF' : '#DAA520',
                 transform: [{ scale: pulseAnim }],
               },
             ]}
@@ -143,7 +143,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             style={[
               styles.micButton,
               {
-                backgroundColor: isRecording ? '#59413A' : '#E85D2A',
+                backgroundColor: isRecording ? '#6B6B8D' : '#6C63FF',
               },
             ]}
             accessibilityRole="button"
@@ -156,7 +156,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           <Text
             variant="headlineLarge"
             weight="bold"
-            color={isRecording ? '#E85D2A' : theme.colors.charcoal[900]}
+            color={isRecording ? '#6C63FF' : theme.colors.charcoal[900]}
             style={styles.timerText}
           >
             {isRecording ? formatTimer(secondsRecorded) : 'माइक दबाकर बोलें'}
@@ -180,7 +180,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
                     styles.waveBar,
                     {
                       height: h,
-                      backgroundColor: i % 2 === 0 ? '#E85D2A' : '#006874',
+                      backgroundColor: i % 2 === 0 ? '#6C63FF' : '#4F9DFF',
                     },
                   ]}
                 />
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 20,
   },
   thumb: {
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   },
   voiceTagPill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   voiceTagText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#E85D2A',
+    color: '#6C63FF',
     letterSpacing: 0.5,
   },
   centerStage: {
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   resultCard: {
     marginTop: 20,
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   resultHeader: {
     flexDirection: 'row',
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#59413A',
+    color: '#6B6B8D',
     letterSpacing: 0.5,
   },
   transcriptText: {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   clusterBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1B5E38',
+    color: '#6C63FF',
   },
   entitiesContainer: {
     flexDirection: 'row',
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

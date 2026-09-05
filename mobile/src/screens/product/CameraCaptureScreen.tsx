@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   proceedBtn: {
-    backgroundColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,

@@ -240,9 +240,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
-    borderColor: '#F4B942',
+    borderColor: '#FFBF42',
     marginBottom: 16,
   },
   speakerBox: {
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   productRow: {
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#EFEAE3',
+    backgroundColor: '#E0DCFF',
     marginBottom: 14,
   },
   rangeHeaderRow: {
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   demandBadge: {
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   breakdownTitle: {
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 20,
     alignItems: 'center',
   },
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     backgroundColor: '#F7F4F0',
     alignItems: 'center',
     justifyContent: 'center',
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   stepBtnText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#141815',
+    color: '#1A1A2E',
   },
   priceDisplay: {
     paddingHorizontal: 28,
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

@@ -58,10 +58,10 @@ export const KhataScreen: React.FC = () => {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Lifetime Earnings Stat Hero Card (Stitch Forest Green Earnings Style) */}
-        <Card style={[styles.heroCard, { backgroundColor: '#123922', borderColor: '#27593C' }]}>
+        <Card style={[styles.heroCard, { backgroundColor: '#4B44CC', borderColor: '#27593C' }]}>
           <View style={styles.heroTopRow}>
             <View>
-              <Text variant="labelMedium" color="#A7F3D0">
+              <Text variant="labelMedium" color="#D6D3FF">
                 कुल जीवनकाल कमाई (Lifetime Payouts)
               </Text>
               <Text variant="displaySmall" weight="bold" color="#FFFFFF" style={{ marginTop: 4 }}>
@@ -75,7 +75,7 @@ export const KhataScreen: React.FC = () => {
 
           <View style={styles.heroSubRow}>
             <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#A7F3D0">
+              <Text variant="labelSmall" color="#D6D3FF">
                 सफल ऑर्डर्स
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
@@ -84,7 +84,7 @@ export const KhataScreen: React.FC = () => {
             </View>
             <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
             <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#A7F3D0">
+              <Text variant="labelSmall" color="#D6D3FF">
                 एस्क्रो में सुरक्षित
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
@@ -93,7 +93,7 @@ export const KhataScreen: React.FC = () => {
             </View>
             <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
             <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#A7F3D0">
+              <Text variant="labelSmall" color="#D6D3FF">
                 अगला भुगतान
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
@@ -117,8 +117,8 @@ export const KhataScreen: React.FC = () => {
                 खाता: •••• 4021 • ऑटो-क्रेडिट सक्रिय
               </Text>
             </View>
-            <View style={[styles.activePill, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
-              <Text variant="labelSmall" weight="bold" color="#1B5E38">
+            <View style={[styles.activePill, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+              <Text variant="labelSmall" weight="bold" color="#6C63FF">
                 UPI सक्रिय ✓
               </Text>
             </View>
@@ -162,16 +162,16 @@ export const KhataScreen: React.FC = () => {
             </Text>
           </View>
 
-          <View style={[styles.payoutHighlight, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
+          <View style={[styles.payoutHighlight, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
             <View>
-              <Text variant="labelMedium" weight="bold" color="#1B5E38">
+              <Text variant="labelMedium" weight="bold" color="#6C63FF">
                 कारीगर को सीधा भुगतान (95%):
               </Text>
-              <Text variant="labelSmall" color="#1B5E38">
+              <Text variant="labelSmall" color="#6C63FF">
                 प्लेटफ़ॉर्म व AI सुविधा शुल्क केवल 5% (₹108)
               </Text>
             </View>
-            <Text variant="headlineSmall" weight="bold" color="#1B5E38">
+            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
               ₹2,042
             </Text>
           </View>
@@ -198,7 +198,7 @@ export const KhataScreen: React.FC = () => {
                   <Text
                     variant="labelSmall"
                     weight="bold"
-                    color={tx.type === 'CREDIT' ? '#1B5E38' : theme.colors.terracotta.primary}
+                    color={tx.type === 'CREDIT' ? '#6C63FF' : theme.colors.terracotta.primary}
                     style={{ marginTop: 2 }}
                   >
                     {tx.status}
@@ -207,7 +207,7 @@ export const KhataScreen: React.FC = () => {
                 <Text
                   variant="labelLarge"
                   weight="bold"
-                  color={tx.type === 'CREDIT' ? '#1B5E38' : '#BA1A1A'}
+                  color={tx.type === 'CREDIT' ? '#6C63FF' : '#EF4444'}
                 >
                   {tx.amount}
                 </Text>

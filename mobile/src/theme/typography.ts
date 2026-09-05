@@ -1,13 +1,13 @@
 import { Platform } from 'react-native';
 
 const sansFont = Platform.select({
-  web: '"Plus Jakarta Sans", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  web: '"Inter", "Poppins", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   ios: 'System',
   default: 'sans-serif',
 });
 
 const bodyFont = Platform.select({
-  web: '"Manrope", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  web: '"Inter", "Poppins", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   ios: 'System',
   default: 'sans-serif',
 });

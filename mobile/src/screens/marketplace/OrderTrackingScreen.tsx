@@ -144,8 +144,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
                         styles.verticalLine,
                         {
                           backgroundColor: milestone.isCompleted
-                            ? '#1B5E38'
-                            : '#EFEAE3',
+                            ? '#6C63FF'
+                            : '#E0DCFF',
                         },
                       ]}
                     />
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   consignmentHeader: {
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 12,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     borderWidth: 1,
     borderColor: '#FFE9DE',
   },
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   timelineTitle: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dotCircleCompleted: {
-    backgroundColor: '#1B5E38',
+    backgroundColor: '#6C63FF',
   },
   dotCirclePending: {
     backgroundColor: '#F7F4F0',

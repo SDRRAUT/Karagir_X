@@ -47,7 +47,7 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
               <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
                 कॉर्पोरेट व संस्थागत थोक ऑर्डर्स
               </Text>
-              <Text variant="labelSmall" color="#FFE8DF">
+              <Text variant="labelSmall" color="#E0DCFF">
                 आपकी क्षमता अनुसार छोटा कोटा, 30% एडवांस सामग्री भुगतान और पक्की कमाई।
               </Text>
             </View>
@@ -83,8 +83,8 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
               <Card style={styles.opportunityCard}>
                 {/* Match Badge & Category */}
                 <View style={styles.topRow}>
-                  <View style={[styles.matchBadge, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
-                    <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  <View style={[styles.matchBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#6C63FF">
                       🎯 {item.matchConfidencePercentage}% शिल्प मिलान
                     </Text>
                   </View>
@@ -134,7 +134,7 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
                     <Text variant="labelSmall" color={theme.colors.text.secondary}>
                       कुल पक्की कमाई
                     </Text>
-                    <Text variant="labelMedium" weight="bold" color="#1B5E38">
+                    <Text variant="labelMedium" weight="bold" color="#6C63FF">
                       ₹{item.totalPotentialPayout.toLocaleString('en-IN')}
                     </Text>
                   </View>
@@ -143,7 +143,7 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
                 {/* Advance Material Guarantee Pill */}
                 <View style={styles.advanceRow}>
                   <Text style={{ fontSize: 15, marginRight: 6 }}>💰</Text>
-                  <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     ₹{item.upfrontMaterialAdvance.toLocaleString('en-IN')} कच्चा माल एडवांस तुरंत
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginLeft: 'auto' }}>

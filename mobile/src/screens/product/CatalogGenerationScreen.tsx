@@ -114,10 +114,10 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
                     styles.stepBadge,
                     {
                       backgroundColor: isDone
-                        ? '#1B5E38'
+                        ? '#6C63FF'
                         : isCurrent
-                        ? '#E85D2A'
-                        : '#EFEAE3',
+                        ? '#6C63FF'
+                        : '#E0DCFF',
                     },
                   ]}
                 >
@@ -129,7 +129,7 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
                   <Text
                     variant="bodyMedium"
                     weight={isDone || isCurrent ? 'bold' : 'medium'}
-                    color={isDone ? '#1B5E38' : isCurrent ? '#E85D2A' : theme.colors.charcoal[800]}
+                    color={isDone ? '#6C63FF' : isCurrent ? '#6C63FF' : theme.colors.charcoal[800]}
                   >
                     {step.labelHi}
                   </Text>
@@ -171,8 +171,8 @@ const styles = StyleSheet.create({
     height: 90,
     borderRadius: 45,
     borderWidth: 2,
-    borderColor: '#E85D2A',
-    backgroundColor: '#FFF2EB',
+    borderColor: '#6C63FF',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   stepRow: {
     flexDirection: 'row',
@@ -225,9 +225,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
-    borderColor: '#F4B942',
+    borderColor: '#FFBF42',
     width: '100%',
   },
   speakerBox: {

@@ -13,7 +13,7 @@ export type RootStackParamList = {
   LanguageSelection: undefined;
   Onboarding: undefined;
   RoleSelection: undefined;
-  AuthPhone: { role: UserRole };
+  AuthPhone: { role?: UserRole } | undefined;
   OtpVerification: {
     phoneNumber: string;
     sessionId: string;

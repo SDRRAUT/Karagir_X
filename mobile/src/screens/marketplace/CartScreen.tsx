@@ -70,7 +70,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Nodal Escrow Safety Guarantee Banner */}
-        <View style={[styles.escrowBanner, { backgroundColor: '#E8F5E9', borderColor: '#A7F3D0' }]}>
+        <View style={[styles.escrowBanner, { backgroundColor: '#EDEAFF', borderColor: '#D6D3FF' }]}>
           <Text style={{ fontSize: 22, marginRight: 10 }}>🛡️</Text>
           <View style={{ flex: 1 }}>
             <Text variant="caption" weight="bold" color={theme.colors.primary.emerald700}>
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 13,
-    color: '#BA1A1A',
+    color: '#EF4444',
   },
   priceSummaryCard: {
     padding: 16,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -21,7 +21,7 @@ export const HomeScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isOnline, locale } = useAppStore();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
@@ -30,6 +30,44 @@ export const HomeScreen: React.FC = () => {
       )}
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Top Demo Bar / Quick Navigation */}
+        <View style={styles.demoBarRow}>
+          <TouchableOpacity
+            style={[styles.demoSwitchBtn, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}
+            onPress={async () => {
+              await logout();
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'AuthPhone' }],
+              });
+            }}
+          >
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              🔑 लॉगिन पेज देखें (Go to Login Screen)
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* KarigarX Official Brand Header */}
+        <View style={styles.brandHeaderBar}>
+          <View style={styles.brandHeaderLeft}>
+            <Image
+              source={require('../../assets/karigarx_logo.png')}
+              style={styles.brandHeaderLogo}
+              resizeMode="contain"
+            />
+            <View>
+              <Text variant="headlineSmall" weight="bold" color="#0E243F">
+                KARIGARX
+              </Text>
+              <Text variant="caption" weight="semiBold" color="#5A52DD">
+                CRAFT • CONNECT • GROW
+              </Text>
+            </View>
+          </View>
+          <VerifiedArtisanBadge />
+        </View>
+
         {/* Top Greeting Header */}
         <View style={styles.header}>
           <View>
@@ -43,7 +81,6 @@ export const HomeScreen: React.FC = () => {
               मधुबनी क्लस्टर, बिहार • <Text variant="caption" color={theme.colors.brand.primary}>{locale}</Text>
             </Text>
           </View>
-          <VerifiedArtisanBadge />
         </View>
 
         {/* Hero Monthly Earnings Card */}
@@ -106,7 +143,7 @@ export const HomeScreen: React.FC = () => {
             accessibilityLabel="Bada Bazaar Opportunities"
           >
             <Card style={styles.smallActionCard}>
-              <View style={[styles.cardIconCircle, { backgroundColor: '#E8F5E9' }]}>
+              <View style={[styles.cardIconCircle, { backgroundColor: '#EDEAFF' }]}>
                 <Text style={styles.cardEmoji}>🤝</Text>
               </View>
               <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
@@ -120,7 +157,7 @@ export const HomeScreen: React.FC = () => {
         </View>
 
         {/* Stitch GI Tagged Heritage Card */}
-        <View style={[styles.heritageCard, { backgroundColor: '#1F2421', borderColor: '#2F3631' }]}>
+        <View style={[styles.heritageCard, { backgroundColor: '#252547', borderColor: '#2F3631' }]}>
           <View style={styles.heritageLeft}>
             <View style={styles.heritageIconCircle}>
               <Text style={styles.heritageIcon}>🏛️</Text>
@@ -169,6 +206,36 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingBottom: 96,
+    maxWidth: 600,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  brandHeaderBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 16,
+    marginBottom: 14,
+    shadowColor: '#5A52DD',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E8ECF4',
+  },
+  brandHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  brandHeaderLogo: {
+    width: 42,
+    height: 42,
+    borderRadius: 10,
+    marginRight: 10,
   },
   header: {
     flexDirection: 'row',
@@ -294,5 +361,17 @@ const styles = StyleSheet.create({
   },
   voiceHintIcon: {
     fontSize: 24,
+  },
+  demoBarRow: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
+    alignItems: 'flex-end',
+  },
+  demoSwitchBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
   },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ViewStyle, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
@@ -86,25 +86,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {displayEmblem ? (
           <View style={styles.brandRow}>
-            <View
-              style={[
-                styles.brandLogo,
-                {
-                  backgroundColor: theme.colors.brand.primary,
-                  borderRadius: theme.borderRadius.md,
-                },
-              ]}
-            >
-              <Text weight="bold" color={theme.colors.text.inverse} style={styles.brandLetter}>
-                क
-              </Text>
-            </View>
+            <Image
+              source={require('../../../assets/karigarx_logo.png')}
+              style={styles.brandLogoImage}
+              resizeMode="contain"
+            />
             <View style={styles.titleCol}>
               <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-                {title}
+                {title === 'Kalakar Setu' ? 'KARIGARX' : title}
               </Text>
               <Text variant="bodySmall" weight="medium" color={theme.colors.brand.primary}>
-                {subtitle || 'कलाकार सेतु'}
+                {subtitle || 'Craft • Connect • Grow'}
               </Text>
             </View>
           </View>
@@ -126,7 +118,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         <View style={styles.rightContainer}>{rightContent}</View>
       ) : onVoicePress ? (
         <TouchableOpacity
-          style={[styles.voiceBtn, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}
+          style={[styles.voiceBtn, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}
           onPress={onVoicePress}
           activeOpacity={0.8}
         >
@@ -176,6 +168,12 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  brandLogoImage: {
+    width: 38,
+    height: 38,
+    borderRadius: 8,
+    marginRight: 10,
   },
   brandLogo: {
     width: 32,

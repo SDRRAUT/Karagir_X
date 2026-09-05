@@ -166,7 +166,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           {/* Care Instructions */}
           {Boolean(careInstructions.hi) && (
             <View style={styles.careBox}>
-              <Text variant="bodySmall" weight="bold" color="#59413A">
+              <Text variant="bodySmall" weight="bold" color="#6B6B8D">
                 💡 देखभाल के निर्देश: {careInstructions.hi}
               </Text>
             </View>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     backgroundColor: '#FFFFFF',
   },
   mainImage: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     left: 12,
-    backgroundColor: 'rgba(232, 93, 42, 0.92)',
+    backgroundColor: 'rgba(108, 99, 255, 0.92)',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
@@ -260,19 +260,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   langBtnActive: {
-    backgroundColor: '#E85D2A',
-    borderColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
+    borderColor: '#6C63FF',
   },
   langBtnInactive: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   detailsCard: {
     padding: 18,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   titleText: {
     lineHeight: 28,
@@ -293,11 +293,11 @@ const styles = StyleSheet.create({
   verifiedBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#1B5E38',
+    color: '#6C63FF',
   },
   divider: {
     height: 1,
-    backgroundColor: '#EFEAE3',
+    backgroundColor: '#E0DCFF',
     marginVertical: 14,
   },
   sectionHeading: {
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   careBox: {
     padding: 12,
     borderRadius: 10,
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
     borderColor: '#FFE082',
     marginBottom: 14,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#E85D2A',
+    color: '#6C63FF',
   },
   bottomBar: {
     position: 'absolute',
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

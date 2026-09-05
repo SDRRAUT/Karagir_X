@@ -129,7 +129,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* Bolie Saathi Voice Companion Hint Banner */}
         <View style={[styles.voiceBanner, { backgroundColor: '#FFFFFF', borderColor: theme.colors.brand.container }]}>
           <View style={styles.voiceBannerLeft}>
-            <View style={[styles.voiceBannerIcon, { backgroundColor: '#ECFDF5' }]}>
+            <View style={[styles.voiceBannerIcon, { backgroundColor: '#F0EEFF' }]}>
               <Text style={{ fontSize: 16 }}>🎙️</Text>
             </View>
             <View>
@@ -143,9 +143,9 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
           </View>
           <TouchableOpacity
             onPress={handleVoiceDictateName}
-            style={[styles.voiceActionBtn, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}
+            style={[styles.voiceActionBtn, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}
           >
-            <Text variant="caption" weight="bold" color="#065F46">
+            <Text variant="caption" weight="bold" color="#4B44CC">
               🎙 बोलें
             </Text>
           </TouchableOpacity>
@@ -297,13 +297,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   roleTagPill: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#F0EEFF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
   },
   roleTagText: {
-    color: '#92400E',
+    color: '#4B44CC',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -359,6 +359,9 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 64,
+    maxWidth: 580,
+    width: '100%',
+    alignSelf: 'center',
   },
   avatarSection: {
     alignItems: 'center',

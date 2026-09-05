@@ -55,7 +55,7 @@ export const RootNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Splash"
+        initialRouteName="AuthPhone"
         screenOptions={{
           headerShown: false,
           animation: 'slide_from_right',

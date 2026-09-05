@@ -18,7 +18,7 @@ export const AppNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: theme.colors.brand.primary, // Stitch Terracotta #E85D2A
+        tabBarActiveTintColor: theme.colors.brand.primary, // Purple #6C63FF
         tabBarInactiveTintColor: theme.colors.text.secondary,
         tabBarStyle: {
           height: 70,

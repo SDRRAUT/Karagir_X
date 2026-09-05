@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     borderWidth: 2,
-    borderColor: '#E85D2A',
+    borderColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   passportHeader: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   passportBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#1B5E38',
+    color: '#6C63FF',
     letterSpacing: 0.5,
   },
   qrContainer: {

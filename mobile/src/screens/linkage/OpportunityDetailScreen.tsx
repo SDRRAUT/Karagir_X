@@ -58,7 +58,7 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
             </View>
             <View style={{ flex: 1, paddingLeft: 12 }}>
               <View style={styles.badgeRow}>
-                <View style={[styles.verifiedPill, { backgroundColor: 'rgba(232, 93, 42, 0.12)' }]}>
+                <View style={[styles.verifiedPill, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
                     सत्यापित कॉर्पोरेट खरीदार ✓
                   </Text>
@@ -97,11 +97,11 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
 
         {/* Audio Transcript Card */}
         {isPlayingAudio && (
-          <Card style={[styles.transcriptCard, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
-            <Text variant="labelSmall" weight="bold" color="#1B5E38" style={{ marginBottom: 4 }}>
+          <Card style={[styles.transcriptCard, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
+            <Text variant="labelSmall" weight="bold" color="#6C63FF" style={{ marginBottom: 4 }}>
               📢 बोली-साथी ऑडियो संदेश:
             </Text>
-            <Text variant="bodySmall" color="#1B5E38" style={{ lineHeight: 20 }}>
+            <Text variant="bodySmall" color="#6C63FF" style={{ lineHeight: 20 }}>
               "{opportunity.audioBriefTranscriptHi}"
             </Text>
           </Card>
@@ -146,19 +146,19 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
             <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               कुल पक्की कमाई:
             </Text>
-            <Text variant="headlineSmall" weight="bold" color="#1B5E38">
+            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
               ₹{opportunity.totalPotentialPayout.toLocaleString('en-IN')}
             </Text>
           </View>
 
           {/* Advance Working Capital Banner */}
-          <View style={[styles.advanceNotice, { backgroundColor: 'rgba(27, 94, 56, 0.08)' }]}>
+          <View style={[styles.advanceNotice, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
             <Text style={{ fontSize: 20, marginRight: 8 }}>💰</Text>
             <View style={{ flex: 1 }}>
-              <Text variant="labelSmall" weight="bold" color="#1B5E38">
+              <Text variant="labelSmall" weight="bold" color="#6C63FF">
                 30% अग्रिम भुगतान गारंटी (Working Capital):
               </Text>
-              <Text variant="labelSmall" color="#1B5E38">
+              <Text variant="labelSmall" color="#6C63FF">
                 स्वीकार करते ही ₹{opportunity.upfrontMaterialAdvance.toLocaleString('en-IN')} आपके बैंक खाते में जमा होंगे।
               </Text>
             </View>

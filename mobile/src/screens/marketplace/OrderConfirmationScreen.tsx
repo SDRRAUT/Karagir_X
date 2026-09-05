@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     backgroundColor: '#E8F5EE',
     borderWidth: 2,
-    borderColor: '#1B5E38',
+    borderColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 16,
   },
   orderHeaderRow: {
@@ -175,11 +175,11 @@ const styles = StyleSheet.create({
   escrowBadgeText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1B5E38',
+    color: '#6C63FF',
   },
   divider: {
     height: 1,
-    backgroundColor: '#EFEAE3',
+    backgroundColor: '#E0DCFF',
     marginVertical: 14,
   },
   infoRow: {

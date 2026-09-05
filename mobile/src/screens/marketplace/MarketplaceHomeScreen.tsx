@@ -142,7 +142,7 @@ export const MarketplaceHomeScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Hero Festive Banner (Craft Utsav) */}
         <View style={styles.bannerContainer}>
-          <View style={[styles.heroBanner, { backgroundColor: '#C84616', borderColor: '#E85D2A', ...theme.shadows.level2 }]}>
+          <View style={[styles.heroBanner, { backgroundColor: '#4B44CC', borderColor: '#6C63FF', ...theme.shadows.level2 }]}>
             <View style={styles.bannerContent}>
               <View style={[styles.bannerPill, { backgroundColor: '#FACC15' }]}>
                 <Text style={styles.bannerPillText}>GREAT INDIAN CRAFT UTSAV</Text>
@@ -150,7 +150,7 @@ export const MarketplaceHomeScreen: React.FC<Props> = ({ navigation }) => {
               <Text variant="headlineMedium" weight="bold" color="#FFFFFF" style={styles.bannerTitle}>
                 सीधा कारीगर से, शुद्ध हस्तशिल्प
               </Text>
-              <Text variant="caption" color="#FFDBD0" style={styles.bannerSubtitle}>
+              <Text variant="caption" color="#D6D3FF" style={styles.bannerSubtitle}>
                 100% Fair Price Guaranteed • No Middleman Cut
               </Text>
             </View>
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   bannerPillText: {
-    color: '#141815',
+    color: '#1A1A2E',
     fontSize: 9,
     fontWeight: 'bold',
   },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   fairTagText: {
-    color: '#975B00',
+    color: '#7C5D00',
     fontSize: 9,
     fontWeight: 'bold',
   },

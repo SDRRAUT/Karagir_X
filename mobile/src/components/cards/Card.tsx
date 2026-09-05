@@ -27,9 +27,9 @@ export const Card: React.FC<CardProps> = ({
 
   const cardStyle: ViewStyle = {
     backgroundColor: theme.colors.surface.card,
-    borderRadius: theme.touch.radii.card,
-    borderWidth: variant === 'flat' ? 0 : 1.5,
-    borderColor: variant === 'flat' ? 'transparent' : theme.colors.surface.border,
+    borderRadius: theme.borderRadius.xl, // 20px neumorphic rounded
+    borderWidth: variant === 'outlined' ? 1 : 0,
+    borderColor: variant === 'outlined' ? theme.colors.surface.border : 'transparent',
     padding: theme.spacing.md,
     ...shadowStyle,
   };

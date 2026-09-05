@@ -166,7 +166,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                   styles.progressBarFill,
                   {
                     width: `${currentStage.progressPercent}%`,
-                    backgroundColor: '#E85D2A',
+                    backgroundColor: '#6C63FF',
                   },
                 ]}
               />
@@ -297,8 +297,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     {
                       backgroundColor: preset.color,
                       borderColor: isSelected
-                        ? '#E85D2A'
-                        : '#EFEAE3',
+                        ? '#6C63FF'
+                        : '#E0DCFF',
                       borderWidth: isSelected ? 2.5 : 1,
                     },
                   ]}
@@ -306,7 +306,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                   <Text
                     variant="bodySmall"
                     weight="bold"
-                    color={isSelected ? '#E85D2A' : theme.colors.charcoal[800]}
+                    color={isSelected ? '#6C63FF' : theme.colors.charcoal[800]}
                   >
                     {preset.labelHi}
                   </Text>
@@ -345,8 +345,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     {
                       borderColor:
                         activePhoto.id === p.id
-                          ? '#E85D2A'
-                          : '#EFEAE3',
+                          ? '#6C63FF'
+                          : '#E0DCFF',
                       borderWidth: activePhoto.id === p.id ? 2.5 : 1,
                     },
                   ]}
@@ -390,9 +390,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
-    borderColor: '#F4B942',
+    borderColor: '#FFBF42',
     marginBottom: 16,
   },
   voiceIconBox: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   progressText: {
     marginTop: 8,
@@ -461,13 +461,13 @@ const styles = StyleSheet.create({
   toggleBtnInactive: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   toggleBtnActiveEnhanced: {
-    backgroundColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
   },
   toggleBtnActiveOriginal: {
-    backgroundColor: '#59413A',
+    backgroundColor: '#6B6B8D',
   },
   previewCard: {
     padding: 0,
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   previewImage: {
     width: '100%',
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -517,13 +517,13 @@ const styles = StyleSheet.create({
   recognitionResult: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#E85D2A',
+    color: '#6C63FF',
   },
   recognitionCheck: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#1B5E38',
+    backgroundColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginTop: 16,
     marginBottom: 16,
   },
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 32,
-    backgroundColor: '#EFEAE3',
+    backgroundColor: '#E0DCFF',
   },
   presetSection: {
     marginBottom: 16,
@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     right: 2,
-    backgroundColor: '#1B5E38',
+    backgroundColor: '#6C63FF',
     width: 16,
     height: 16,
     borderRadius: 8,
@@ -616,7 +616,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

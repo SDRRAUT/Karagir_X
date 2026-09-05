@@ -1,28 +1,43 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
-import { Button } from '@/components/buttons/Button';
 import { TactileKeypad } from '@/components/inputs/TactileKeypad';
-import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { UserRole } from '@/api/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AuthPhone'>;
 
 export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { role } = route.params;
+  const initialRole: UserRole = route?.params?.role || 'ARTISAN';
+  const [role, setRole] = useState<UserRole>(initialRole);
   const theme = useTheme();
   const { locale } = useAppStore();
   const { setSession } = useAuthStore();
 
+  React.useEffect(() => {
+    if (route?.params?.role) {
+      setRole(route.params.role);
+    }
+  }, [route?.params?.role]);
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showKeypad, setShowKeypad] = useState(false);
 
   const handleDigit = (digit: string) => {
     if (phoneNumber.length < 10) {
@@ -39,7 +54,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleLogin = async (phoneOverride?: string) => {
     const targetPhone = phoneOverride || phoneNumber;
     if (targetPhone.length !== 10 || !/^[6-9]\d{9}$/.test(targetPhone)) {
-      setErrorMessage('कृपया सही 10 अंकों का मोबाइल नंबर डालें (Invalid Indian Phone Number)');
+      setErrorMessage('कृपया सही 10 अंकों का मोबाइल नंबर डालें (Enter valid 10-digit number)');
       return;
     }
 
@@ -47,7 +62,6 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
 
     try {
-      // Direct Testing Auth mode
       const resp = await authService.verifyOtp(
         `test_session_${Date.now()}`,
         '123456',
@@ -78,165 +92,268 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
-  const roleLabel =
-    role === 'ARTISAN'
-      ? 'कारीगर खाता (Artisan)'
-      : role === 'BUYER'
-      ? 'खरीदार खाता (Buyer)'
-      : 'सहयोगी खाता (Facilitator)';
-
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
-      {/* Stitch Master Header */}
-      <AppHeader
-        showBack
-        showBrand
-        rightAction={
-          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
-            <Text variant="caption" weight="bold" color={theme.colors.charcoal[800]}>
-              मदद / Help
-            </Text>
-          </View>
-        }
-      />
-
-      {/* Multi-segment visual stepper matching Stitch screenshot */}
-      <View style={styles.stepperContainer}>
-        <View style={styles.stepperBars}>
-          <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.primary }]} />
-          <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.primary }]} />
-          <View style={[styles.stepperBar, { backgroundColor: theme.colors.sand[200] }]} />
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <View style={[styles.roleStagePill, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
-            <Text variant="caption" weight="bold" color="#065F46">
-              {roleLabel}
-            </Text>
-          </View>
-          <Text variant="caption" color={theme.colors.text.secondary}>
-            चरण 2/3
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.content}>
-        {/* Testing Mode Alert Banner */}
-        <View style={styles.testModeBadge}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.brand.primary}>
-            🧪 टेस्टिंग मोड: OTP सत्यापन हटाया गया है (Direct Test Login)
-          </Text>
-        </View>
-
-        {/* 1-Click Quick Fill Action Button */}
-        <TouchableOpacity
-          testID="quick-demo-btn"
-          style={[
-            styles.quickDemoBtn,
-            {
-              backgroundColor: '#FEF3C7',
-              borderColor: '#FDE68A',
-              ...theme.shadows.level1,
-            },
-          ]}
-          onPress={() => {
-            setPhoneNumber('9876543210');
-            handleLogin('9876543210');
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="Fill demo phone and login"
-        >
-          <Text variant="bodySmall" weight="bold" color="#92400E">
-            ⚡ टेस्ट नंबर 9876543210 से 1-क्लिक लॉगिन करें
-          </Text>
-        </TouchableOpacity>
-
-        {/* Bolie Saathi Voice Guide Bar */}
-        <View style={[styles.voiceBar, { backgroundColor: '#FFF9E6', borderColor: '#FDE68A' }]}>
-          <View style={styles.voiceBarLeft}>
-            <View style={[styles.voiceMicCircle, { backgroundColor: theme.colors.brand.primary }]}>
-              <Text style={{ fontSize: 12, color: '#FFFFFF' }}>🎙️</Text>
-            </View>
-            <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
-              बोलिए साथी: <Text variant="caption" color={theme.colors.text.secondary}>बोलकर नंबर भरें</Text>
-            </Text>
-          </View>
-          <View style={[styles.tapSpeakPill, { borderColor: theme.colors.brand.primary }]}>
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-              Tap to Speak
-            </Text>
-          </View>
-        </View>
-
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          अपना मोबाइल नंबर दर्ज करें
-        </Text>
-        <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-          नंबर दर्ज करते ही सीधा सुरक्षित लॉगिन हो जाएगा
-        </Text>
-
-        {/* Phone Input Display Card */}
-        <View
-          style={[
-            styles.phoneDisplayCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: errorMessage
-                ? theme.colors.status.danger
-                : phoneNumber.length === 10
-                ? theme.colors.brand.primary
-                : theme.colors.sand[200],
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.brand.primary} style={styles.countryCode}>
-            🇮🇳 +91
-          </Text>
-          <Text
-            variant="numeralExtraBold"
-            weight="bold"
-            color={phoneNumber ? theme.colors.charcoal[900] : theme.colors.text.muted}
-            style={styles.phoneDigits}
-          >
-            {phoneNumber ? `${phoneNumber.slice(0, 5)} ${phoneNumber.slice(5)}` : '__________'}
-          </Text>
-        </View>
-
-        {errorMessage && (
-          <Text variant="bodySmall" weight="bold" color={theme.colors.status.danger} style={styles.errorText}>
-            ⚠️ {errorMessage}
-          </Text>
-        )}
-
-        <Button
-          label="लॉगिन करें (बिना OTP) →"
-          variant="primary"
-          size="decision"
-          isLoading={isLoading}
-          disabled={phoneNumber.length !== 10}
-          onPress={() => handleLogin()}
-          style={styles.sendOtpBtn}
-        />
-      </View>
-
-      {/* Tactile Keypad Container */}
-      <View
-        style={[
-          styles.keypadContainer,
-          {
-            backgroundColor: theme.colors.surface.card,
-            borderTopColor: theme.colors.sand[200],
-            ...theme.shadows.level4,
-          },
-        ]}
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <TactileKeypad
-          onPressDigit={handleDigit}
-          onPressBackspace={handleBackspace}
-          onPressConfirm={() => handleLogin()}
-          disabled={isLoading}
-        />
-      </View>
+        {/* Centered Neumorphic Card */}
+        <View style={styles.cardContainer}>
+          {/* Top 3D Neumorphic Emblem Card */}
+          <View style={styles.emblemShadowWrapper}>
+            <View style={styles.emblemCard}>
+              <Image
+                source={require('../../../assets/karigarx_logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
+
+          {/* Heading & Subtitle */}
+          <View style={styles.headerBlock}>
+            <Text variant="headlineLarge" weight="bold" color="#0E243F" style={styles.titleText}>
+              KARIGARX
+            </Text>
+            <Text variant="bodyMedium" weight="medium" color="#5A52DD" style={styles.taglineText}>
+              CRAFT • CONNECT • GROW
+            </Text>
+            <Text variant="bodySmall" color="#64748B" style={styles.subtitleText}>
+              कलाकार सेतु — कारीगर से बाज़ार तक
+            </Text>
+          </View>
+
+          {/* Role Segmented Pill Selector */}
+          <View style={styles.roleSegmentContainer}>
+            {(['ARTISAN', 'BUYER', 'FACILITATOR'] as UserRole[]).map((r) => {
+              const isSelected = role === r;
+              const label =
+                r === 'ARTISAN' ? '🎨 कारीगर' : r === 'BUYER' ? '🛍️ खरीदार' : '🤝 सहयोगी';
+              return (
+                <TouchableOpacity
+                  key={r}
+                  testID={`role-tab-${r}`}
+                  style={[
+                    styles.roleSegmentItem,
+                    isSelected && styles.roleSegmentItemActive,
+                  ]}
+                  onPress={() => setRole(r)}
+                  activeOpacity={0.85}
+                >
+                  <Text
+                    variant="caption"
+                    weight={isSelected ? 'bold' : 'medium'}
+                    color={isSelected ? '#FFFFFF' : '#475569'}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Quick Demo 1-Click Banner */}
+          <TouchableOpacity
+            testID="quick-demo-btn"
+            style={styles.quickDemoChip}
+            onPress={() => {
+              setPhoneNumber('9876543210');
+              handleLogin('9876543210');
+            }}
+            activeOpacity={0.85}
+          >
+            <Text style={{ fontSize: 13, marginRight: 6 }}>⚡</Text>
+            <Text variant="caption" weight="bold" color="#4F46E5">
+              1-टैप डेमो लॉगिन (9876543210)
+            </Text>
+          </TouchableOpacity>
+
+          {/* Neumorphic Input Capsule */}
+          <View
+            style={[
+              styles.inputCapsule,
+              errorMessage ? styles.inputCapsuleError : null,
+              phoneNumber.length === 10 ? styles.inputCapsuleValid : null,
+            ]}
+          >
+            <View style={styles.inputPrefix}>
+              <Text style={{ fontSize: 15, marginRight: 6 }}>📱</Text>
+              <Text variant="bodyMedium" weight="bold" color="#0E243F">
+                +91
+              </Text>
+            </View>
+
+            <TextInput
+              style={styles.phoneTextInput}
+              value={phoneNumber}
+              onChangeText={(val) => {
+                const cleaned = val.replace(/\D/g, '').slice(0, 10);
+                setPhoneNumber(cleaned);
+                setErrorMessage(null);
+              }}
+              placeholder="मोबाइल नंबर (10 अंक)"
+              placeholderTextColor="#94A3B8"
+              keyboardType="phone-pad"
+              maxLength={10}
+            />
+
+            {phoneNumber.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setPhoneNumber('')}
+                style={styles.clearBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Text style={styles.clearBtnText}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Error message */}
+          {errorMessage && (
+            <Text variant="caption" weight="semiBold" color="#EF4444" style={styles.errorText}>
+              ⚠️ {errorMessage}
+            </Text>
+          )}
+
+          {/* Forgot PIN / Voice Saathi Helper Row */}
+          <View style={styles.helperRow}>
+            <TouchableOpacity
+              onPress={() => setShowKeypad(!showKeypad)}
+              style={styles.keypadToggleBtn}
+            >
+              <Text variant="caption" weight="semiBold" color="#6366F1">
+                {showKeypad ? '⌨️ कीपैड छुपाएं' : '🔢 कीपैड खोलें'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setPhoneNumber('9876543210');
+              }}
+            >
+              <Text variant="caption" weight="medium" color="#64748B">
+                मदद / Help?
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Primary Action Button (Gradient Style Pill) */}
+          <TouchableOpacity
+            testID="login-submit-btn"
+            style={[
+              styles.gradientButton,
+              (phoneNumber.length !== 10 || isLoading) && styles.gradientButtonDisabled,
+            ]}
+            onPress={() => handleLogin()}
+            disabled={phoneNumber.length !== 10 || isLoading}
+            activeOpacity={0.88}
+          >
+            <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={styles.buttonLabel}>
+              {isLoading ? 'लॉगिन हो रहा है...' : 'लॉगिन करें (Login) →'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Divider: OR CONTINUE WITH */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text variant="caption" weight="bold" color="#94A3B8" style={styles.dividerText}>
+              OR CONTINUE WITH
+            </Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* 3D Neumorphic Circular Social Buttons */}
+          <View style={styles.socialButtonsRow}>
+            {/* Google */}
+            <TouchableOpacity
+              testID="social-login-google"
+              style={styles.socialCircleBtn}
+              activeOpacity={0.8}
+              accessibilityLabel="Sign in with Google"
+              onPress={() => {
+                setPhoneNumber('9876543210');
+                handleLogin('9876543210');
+              }}
+            >
+              <Image
+                source={require('../../../assets/google_logo.png')}
+                style={styles.socialLogoImg}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            {/* Apple */}
+            <TouchableOpacity
+              testID="social-login-apple"
+              style={styles.socialCircleBtn}
+              activeOpacity={0.8}
+              accessibilityLabel="Sign in with Apple"
+              onPress={() => {
+                setPhoneNumber('9876543210');
+                handleLogin('9876543210');
+              }}
+            >
+              <Image
+                source={require('../../../assets/apple_logo.png')}
+                style={styles.socialLogoImgApple}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            {/* Facebook */}
+            <TouchableOpacity
+              testID="social-login-facebook"
+              style={styles.socialCircleBtn}
+              activeOpacity={0.8}
+              accessibilityLabel="Sign in with Facebook"
+              onPress={() => {
+                setPhoneNumber('9876543210');
+                handleLogin('9876543210');
+              }}
+            >
+              <Image
+                source={require('../../../assets/facebook_logo.png')}
+                style={styles.socialLogoImg}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Footnote Links */}
+          <View style={styles.footerNavRow}>
+            <TouchableOpacity
+              testID="login-change-lang-btn"
+              onPress={() => navigation.navigate('LanguageSelection')}
+            >
+              <Text variant="caption" weight="bold" color="#5A52DD">
+                🌐 भाषा बदलें
+              </Text>
+            </TouchableOpacity>
+            <Text style={styles.footerDot}>•</Text>
+            <TouchableOpacity
+              testID="login-intro-tour-btn"
+              onPress={() => navigation.navigate('Onboarding')}
+            >
+              <Text variant="caption" weight="bold" color="#5A52DD">
+                ℹ️ ऐप टूर (App Tour)
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Collapsible Tactile Keypad */}
+          {showKeypad && (
+            <View style={styles.keypadEmbed}>
+              <TactileKeypad
+                onPressDigit={handleDigit}
+                onPressBackspace={handleBackspace}
+                onPressConfirm={() => handleLogin()}
+                disabled={isLoading}
+              />
+            </View>
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -244,134 +361,259 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#EEF2F8',
   },
-  helpPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  stepperContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  stepperBars: {
-    flexDirection: 'row',
-    gap: 6,
-    flex: 1,
-    maxWidth: 150,
-  },
-  stepperBar: {
-    height: 6,
-    flex: 1,
-    borderRadius: 3,
-  },
-  roleStagePill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-  },
-  voiceBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginBottom: 12,
-  },
-  voiceBarLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  voiceMicCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+  scrollContainer: {
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 24,
+    paddingHorizontal: 16,
   },
-  tapSpeakPill: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 14,
-    borderWidth: 1,
+  cardContainer: {
+    width: '100%',
+    maxWidth: 410,
     backgroundColor: '#FFFFFF',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    borderRadius: 32,
+    paddingHorizontal: 24,
+    paddingTop: 22,
+    paddingBottom: 20,
     alignItems: 'center',
-  },
-  roleBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
+    // Soft neumorphic shadow
+    shadowColor: '#536582',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.12,
+    shadowRadius: 28,
+    elevation: 10,
     borderWidth: 1,
-    marginBottom: 10,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
   },
-  title: {
-    textAlign: 'center',
-    marginBottom: 4,
-    letterSpacing: -0.3,
-  },
-  subtitle: {
-    textAlign: 'center',
+  emblemShadowWrapper: {
     marginBottom: 12,
+    // Dual soft shadow for 3D emblem look
+    shadowColor: '#5A52DD',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.14,
+    shadowRadius: 16,
+    elevation: 6,
   },
-  testModeBadge: {
-    backgroundColor: '#EBF7EE',
-    borderColor: '#86C29B',
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginBottom: 10,
+  emblemCard: {
+    width: 96,
+    height: 96,
+    borderRadius: 24,
+    backgroundColor: '#FAF7F2',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#EFE9DE',
+    overflow: 'hidden',
+    padding: 6,
   },
-  quickDemoBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  headerBlock: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  titleText: {
+    letterSpacing: 1.5,
+    marginBottom: 2,
+    fontSize: 24,
+  },
+  taglineText: {
+    letterSpacing: 2,
+    fontSize: 10.5,
+    marginBottom: 3,
+  },
+  subtitleText: {
+    letterSpacing: 0.2,
+    fontSize: 12,
+  },
+  roleSegmentContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    backgroundColor: '#F1F4F9',
     borderRadius: 20,
+    padding: 3,
+    marginBottom: 10,
     borderWidth: 1,
-    marginBottom: 14,
+    borderColor: '#E2E8F0',
   },
-  phoneDisplayCard: {
+  roleSegmentItem: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+  },
+  roleSegmentItemActive: {
+    backgroundColor: '#5A52DD',
+    shadowColor: '#5A52DD',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  quickDemoChip: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    borderRadius: 14,
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+  },
+  inputCapsule: {
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
-    height: 68,
-    borderWidth: 2,
-    borderRadius: 16,
+    height: 56,
+    backgroundColor: '#F3F5FA',
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: '#E5EAF2',
     paddingHorizontal: 16,
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  countryCode: {
-    marginRight: 12,
+  inputCapsuleValid: {
+    borderColor: '#5A52DD',
+    backgroundColor: '#F8F9FE',
   },
-  phoneDigits: {
-    letterSpacing: 2,
+  inputCapsuleError: {
+    borderColor: '#EF4444',
+  },
+  inputPrefix: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10,
+    borderRightWidth: 1,
+    borderRightColor: '#E2E8F0',
+    marginRight: 10,
+  },
+  phoneTextInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#0E243F',
+    fontWeight: '600',
+    letterSpacing: 1,
+    paddingVertical: 0,
+    ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}),
+  },
+  clearBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearBtnText: {
+    fontSize: 12,
+    color: '#64748B',
+    fontWeight: 'bold',
   },
   errorText: {
-    textAlign: 'center',
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 6,
   },
-  sendOtpBtn: {
-    marginTop: 6,
+  helperRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 6,
+    marginBottom: 12,
+    marginTop: 4,
   },
-  keypadContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+  keypadToggleBtn: {
+    paddingVertical: 2,
+  },
+  gradientButton: {
+    width: '100%',
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#5A52DD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#5A52DD',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 6,
+    marginBottom: 14,
+  },
+  gradientButtonDisabled: {
+    backgroundColor: '#A5B4FC',
+    shadowOpacity: 0.1,
+  },
+  buttonLabel: {
+    letterSpacing: 0.5,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 12,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  dividerText: {
+    paddingHorizontal: 12,
+    fontSize: 11,
+    letterSpacing: 1,
+  },
+  socialButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 14,
+  },
+  socialCircleBtn: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#F0F3F8',
+    // 3D Neumorphic raised shadow
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  socialLogoImg: {
+    width: 24,
+    height: 24,
+  },
+  socialLogoImgApple: {
+    width: 22,
+    height: 24,
+  },
+  footerNavRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  footerDot: {
+    color: '#94A3B8',
+    fontSize: 14,
+  },
+  keypadEmbed: {
+    width: '100%',
+    marginTop: 18,
+    paddingTop: 16,
     borderTopWidth: 1,
+    borderTopColor: '#F1F4F9',
   },
 });

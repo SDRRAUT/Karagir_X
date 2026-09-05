@@ -119,11 +119,11 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
                 backgroundColor:
                   selectedPhoto.quality === 'GOOD'
                     ? '#E8F5EE'
-                    : '#FFF7E8',
+                    : '#FFF8E1',
                 borderColor:
                   selectedPhoto.quality === 'GOOD'
-                    ? '#1B5E38'
-                    : '#F4B942',
+                    ? '#6C63FF'
+                    : '#FFBF42',
               },
             ]}
           >
@@ -132,7 +132,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
               weight="bold"
               color={
                 selectedPhoto.quality === 'GOOD'
-                  ? '#1B5E38'
+                  ? '#6C63FF'
                   : '#9C6E00'
               }
             >
@@ -169,8 +169,8 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
                     styles.thumbWrapper,
                     {
                       borderColor: isSelected
-                        ? '#E85D2A'
-                        : '#EFEAE3',
+                        ? '#6C63FF'
+                        : '#E0DCFF',
                       borderWidth: isSelected ? 2.5 : 1.5,
                     },
                   ]}
@@ -197,7 +197,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
                 accessibilityLabel="Add another photo angle"
               >
                 <Text style={styles.addAngleIcon}>➕</Text>
-                <Text variant="bodySmall" weight="bold" color="#E85D2A" align="center">
+                <Text variant="bodySmall" weight="bold" color="#6C63FF" align="center">
                   और एंगल
                 </Text>
               </TouchableOpacity>
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   deleteBtn: {
     padding: 6,
     borderRadius: 8,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
   },
   trashEmoji: {
     fontSize: 18,
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   largeImage: {
     width: '100%',
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 12,
     left: 12,
-    backgroundColor: 'rgba(232, 93, 42, 0.9)',
+    backgroundColor: 'rgba(108, 99, 255, 0.9)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -319,8 +319,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#E85D2A',
-    backgroundColor: '#FFF2EB',
+    borderColor: '#6C63FF',
+    backgroundColor: '#F0EEFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

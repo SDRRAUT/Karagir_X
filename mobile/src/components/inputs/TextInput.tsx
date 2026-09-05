@@ -36,12 +36,13 @@ export const TextInput: React.FC<TextInputProps> = ({
         style={[
           styles.input,
           {
-            height: theme.touch.minTargetSize, // Minimum 56dp height
-            backgroundColor: theme.colors.surface.card,
-            borderColor: error ? theme.colors.status.danger : theme.colors.surface.border,
-            borderRadius: theme.touch.radii.card,
+            height: theme.touch.minTargetSize,
+            backgroundColor: theme.colors.sand[50], // Lavender neumorphic bg
+            borderColor: error ? theme.colors.status.danger : theme.colors.sand[200],
+            borderRadius: theme.borderRadius['2xl'], // Pill-shaped neumorphic
             color: theme.colors.text.primary,
             fontSize: theme.typography.sizes.bodyLarge,
+            ...theme.shadows.neumorphicInset,
           },
           style,
         ]}
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
+    borderWidth: 1,
+    paddingHorizontal: 20,
   },
   errorText: {
     marginTop: 4,

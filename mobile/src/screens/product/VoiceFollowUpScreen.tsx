@@ -134,7 +134,7 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
                 <Text
                   variant="bodyLarge"
                   weight={isSelected ? 'bold' : 'semiBold'}
-                  color={isSelected ? '#E85D2A' : theme.colors.charcoal[900]}
+                  color={isSelected ? '#6C63FF' : theme.colors.charcoal[900]}
                 >
                   {opt.labelHi}
                 </Text>
@@ -157,10 +157,10 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
               {
                 backgroundColor:
                   idx === questionIndex
-                    ? '#E85D2A'
+                    ? '#6C63FF'
                     : idx < questionIndex
-                    ? '#F4B942'
-                    : '#EFEAE3',
+                    ? '#FFBF42'
+                    : '#E0DCFF',
                 width: idx === questionIndex ? 24 : 8,
               },
             ]}
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   skipBtn: {
     padding: 6,
     borderRadius: 8,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
   },
   content: {
     padding: 16,
@@ -192,9 +192,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     borderWidth: 2,
-    borderColor: '#E85D2A',
+    borderColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   questionBubble: {
     flexDirection: 'row',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#FFF7E8',
+    backgroundColor: '#FFF8E1',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 30,
-    backgroundColor: '#E85D2A',
-    shadowColor: '#141815',
+    backgroundColor: '#6C63FF',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
@@ -260,11 +260,11 @@ const styles = StyleSheet.create({
   },
   optionChipNormal: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   optionChipSelected: {
     backgroundColor: '#FFF8F5',
-    borderColor: '#E85D2A',
+    borderColor: '#6C63FF',
   },
   dotsBar: {
     flexDirection: 'row',

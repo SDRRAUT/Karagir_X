@@ -144,7 +144,7 @@ export const LanguageSelectionScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.cardHeader}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     {/* Audio pronunciation button */}
-                    <View style={[styles.listenBtn, { backgroundColor: isSelected ? 'rgba(232, 93, 42, 0.15)' : theme.colors.sand[100] }]}>
+                    <View style={[styles.listenBtn, { backgroundColor: isSelected ? 'rgba(108, 99, 255, 0.15)' : theme.colors.sand[100] }]}>
                       <Text style={{ fontSize: 13 }}>🔊</Text>
                     </View>
                     <View>
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFE8DE',
   },
   newBadgeText: {
-    color: '#E85D2A',
+    color: '#6C63FF',
     fontSize: 9,
     fontWeight: '800',
   },

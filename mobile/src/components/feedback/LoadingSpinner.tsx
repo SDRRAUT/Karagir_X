@@ -45,7 +45,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
             borderRadius: size / 2,
             borderWidth: 4,
             borderColor: theme.colors.surface.subtle,
-            borderTopColor: theme.colors.terracotta.primary,
+            borderTopColor: theme.colors.brand.primary,
             transform: [{ rotate: spin }],
           },
         ]}

@@ -8,59 +8,75 @@ export const shadows = {
     shadowRadius: 0,
     elevation: 0,
   } as ViewStyle,
-  // Stitch subtle organic card shadow
+  // Subtle neumorphic raised card shadow
   level1: {
-    shadowColor: '#2C1E10',
+    shadowColor: '#6C63FF',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     elevation: 2,
   } as ViewStyle,
-  // Stitch standard app card elevation
+  // Standard neumorphic card elevation
   level2: {
-    shadowColor: '#2C1E10',
+    shadowColor: '#6C63FF',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
     elevation: 4,
   } as ViewStyle,
-  // Stitch floating action button (FAB) terracotta glow shadow
+  // FAB / primary button purple glow
   level3: {
-    shadowColor: '#E85D2A',
+    shadowColor: '#6C63FF',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
     elevation: 6,
   } as ViewStyle,
-  // Stitch deep bottom bar / sheet shadow
+  // Bottom bar / sheet shadow
   level4: {
-    shadowColor: '#2C1E10',
+    shadowColor: '#3A32B8',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
-    shadowRadius: 10,
+    shadowRadius: 12,
     elevation: 8,
   } as ViewStyle,
-  // Named Stitch helpers
+  // Named helpers
   card: {
-    shadowColor: '#2C1E10',
+    shadowColor: '#6C63FF',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
+    shadowOpacity: 0.07,
+    shadowRadius: 12,
     elevation: 3,
   } as ViewStyle,
   fab: {
-    shadowColor: '#E85D2A',
+    shadowColor: '#6C63FF',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
     elevation: 6,
   } as ViewStyle,
   deepCard: {
-    shadowColor: '#123922',
+    shadowColor: '#4B44CC',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
+    shadowOpacity: 0.2,
+    shadowRadius: 22,
     elevation: 6,
+  } as ViewStyle,
+  // Neumorphic raised effect (outer shadow)
+  neumorphicRaised: {
+    shadowColor: '#B8B3FF',
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
+  } as ViewStyle,
+  // Neumorphic inset simulation (for inputs — lighter shadow)
+  neumorphicInset: {
+    shadowColor: '#D0CAFF',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 1,
   } as ViewStyle,
 };
 

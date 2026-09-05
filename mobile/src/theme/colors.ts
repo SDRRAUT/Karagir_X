@@ -1,144 +1,144 @@
 export const colors = {
-  // Brand Terracotta (Stitch Master Primary)
+  // Brand Purple (Primary)
   brand: {
-    DEFAULT: '#E85D2A',
-    primary: '#E85D2A',
-    dark: '#C84616',
-    deep: '#A83300',
-    light: '#FFF2EB',
-    container: '#FFDBD0',
-    accent: '#F97316',
+    DEFAULT: '#6C63FF',
+    primary: '#6C63FF',
+    dark: '#4B44CC',
+    deep: '#3A32B8',
+    light: '#F0EEFF',
+    container: '#D6D3FF',
+    accent: '#7B6AFF',
   },
 
-  // Primary Cultural Palette (Mapped to Stitch Master Tokens)
+  // Primary Palette (Purple Spectrum)
   primary: {
-    DEFAULT: '#E85D2A',
-    terracotta: '#E85D2A',
-    terracottaDark: '#C84616',
-    terracottaLight: '#FFF2EB',
-    // Forest tones for heritage/earnings elements
-    emerald900: '#0D2718',
-    emerald800: '#123922',
-    emerald700: '#1B5E38', // Verified Forest Green
-    emerald500: '#256F43',
-    emerald100: '#E8F5E9',
-    emerald50: '#F0F9F0',
+    DEFAULT: '#6C63FF',
+    terracotta: '#6C63FF', // Backward compat alias
+    terracottaDark: '#4B44CC',
+    terracottaLight: '#F0EEFF',
+    // Deep violet tones for heritage/earnings elements
+    emerald900: '#1A1A2E',
+    emerald800: '#252547',
+    emerald700: '#6C63FF', // Brand primary
+    emerald500: '#8B83FF',
+    emerald100: '#EDEAFF',
+    emerald50: '#F5F3FF',
   },
 
-  // Forest Tones
+  // Forest Tones → Deep Purple Tones
   forest: {
-    DEFAULT: '#1B5E38',
-    primary: '#1B5E38',
-    dark: '#123922',
-    light: '#E8F5E9',
-    700: '#1B5E38',
-    800: '#123922',
-    900: '#0D2718',
+    DEFAULT: '#6C63FF',
+    primary: '#6C63FF',
+    dark: '#4B44CC',
+    light: '#F0EEFF',
+    700: '#6C63FF',
+    800: '#4B44CC',
+    900: '#3A32B8',
   },
 
-  // Terracotta Specific Palette
+  // Terracotta → Purple (backward compat)
   terracotta: {
-    dark: '#C84616',
-    primary: '#E85D2A', // Master Primary
-    light: '#FFF2EB',
-    accent: '#F97316',
-    600: '#C84616',
+    dark: '#4B44CC',
+    primary: '#6C63FF',
+    light: '#F0EEFF',
+    accent: '#7B6AFF',
+    600: '#5A52DD',
   },
 
-  heritageTeal: '#006874',
+  heritageTeal: '#4F9DFF',
 
-  // Peacock & Heritage Teal (Stitch Secondary)
+  // Teal → Sky Blue (secondary accent)
   teal: {
-    primary: '#006874',
-    secondary: '#1B9AAA',
-    container: '#82ECFE',
-    light: '#98F0FF',
-    dark: '#004F58',
+    primary: '#4F9DFF',
+    secondary: '#64B5F6',
+    container: '#D6EBFF',
+    light: '#E3F2FD',
+    dark: '#2979C9',
   },
   secondary: {
-    DEFAULT: '#006874',
-    teal: '#1B9AAA',
-    container: '#82ECFE',
-    fixed: '#98F0FF',
+    DEFAULT: '#4F9DFF',
+    teal: '#64B5F6',
+    container: '#D6EBFF',
+    fixed: '#E3F2FD',
   },
 
-  // Haldi & Marigold Ochre (Stitch Tertiary / GI Badges)
+  // Ochre → Amber/Gold (tertiary / badges)
   ochre: {
-    dark: '#795600',
-    primary: '#F4B942', // Haldi Marigold
-    gold: '#D4AF37',
-    light: '#FFF7E8',
-    border: '#F5DCB1',
-    text: '#975B00',
+    dark: '#B8860B',
+    primary: '#FFBF42',
+    gold: '#DAA520',
+    light: '#FFF8E1',
+    border: '#FFE082',
+    text: '#7C5D00',
   },
   tertiary: {
-    DEFAULT: '#F4B942',
-    container: '#FFDEA7',
-    dark: '#795600',
+    DEFAULT: '#FFBF42',
+    container: '#FFECB3',
+    dark: '#B8860B',
   },
 
-  // Indigo / Logistics / B2B Accent
+  // Indigo → Deep Purple (logistics / B2B accent)
   indigo: {
-    dark: '#0D1E3A',
-    primary: '#1B3B6F',
-    light: '#E3F2FD',
+    dark: '#1A1A2E',
+    primary: '#3A32B8',
+    light: '#EDEAFF',
   },
 
-  // Sand, Cream & Anti-Glare Surfaces (Stitch Surfaces)
+  // Sand → Lavender Surfaces
   sand: {
-    50: '#FCFAF8', // Canvas / Background
-    100: '#F7F3EF', // Secondary card / Subtle
-    200: '#EFEAE3', // Card border
-    300: '#E3DDD4', // Input border
+    50: '#F4F2FF',  // Background canvas
+    100: '#EDEAFF', // Secondary card
+    200: '#E0DCFF', // Card border
+    300: '#D0CAFF', // Input border
   },
   surface: {
-    background: '#FCFAF8', // Stitch Canvas
-    parchment: '#FCFAF8',
-    sand: '#FCFAF8',
-    cream: '#FCF9F6',
+    background: '#F4F2FF',
+    parchment: '#F4F2FF',
+    sand: '#F4F2FF',
+    cream: '#F0EEFF',
     card: '#FFFFFF',
-    subtle: '#F6F1EA',
-    container: '#F0EDED',
-    containerHigh: '#EAE7E7',
+    subtle: '#EBE8FF',
+    container: '#E0DCFF',
+    containerHigh: '#D6D3FF',
     containerLowest: '#FFFFFF',
-    border: '#EFEAE3',
-    borderLight: '#ECE4D8',
+    border: '#E0DCFF',
+    borderLight: '#EDEAFF',
   },
 
-  // Charcoal & Inks (Stitch Typography Text Colors)
+  // Charcoal → Deep Navy Text
   charcoal: {
-    900: '#141815', // Primary Text
-    800: '#1F2421',
-    700: '#2B2B2B',
-    600: '#59413A',
-    500: '#8D7168',
-    400: '#8D7168',
+    900: '#1A1A2E',
+    800: '#252547',
+    700: '#2D2D5E',
+    600: '#6B6B8D',
+    500: '#8888A8',
+    400: '#8888A8',
   },
   text: {
-    primary: '#141815', // Stitch 900 Charcoal
-    secondary: '#59413A', // Stitch Warm Brown Secondary
-    tertiary: '#8D7168', // Stitch Outline Muted
-    muted: '#8D7168', // Stitch Outline Muted
+    primary: '#1A1A2E',
+    secondary: '#6B6B8D',
+    tertiary: '#8888A8',
+    muted: '#A0A0BE',
     inverse: '#FFFFFF',
-    brand: '#E85D2A',
-    emerald: '#1B5E38',
+    brand: '#6C63FF',
+    emerald: '#6C63FF',
   },
 
   border: {
-    subtle: '#EFEAE3',
-    default: '#E1BFB5',
-    focus: '#E85D2A',
+    subtle: '#E0DCFF',
+    default: '#D0CAFF',
+    focus: '#6C63FF',
   },
 
   // Semantic Status Tokens
   status: {
-    success: '#1B5E38',
-    warning: '#D35400',
-    danger: '#BA1A1A',
-    offline: '#59413A',
-    verified: '#975B00',
-    verifiedBg: '#FFF7E8',
-    verifiedBorder: '#F5DCB1',
+    success: '#22C55E',
+    warning: '#F59E0B',
+    danger: '#EF4444',
+    offline: '#6B6B8D',
+    verified: '#6C63FF',
+    verifiedBg: '#F0EEFF',
+    verifiedBorder: '#D6D3FF',
   },
 } as const;
 

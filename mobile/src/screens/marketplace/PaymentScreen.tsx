@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   escrowBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#1B5E38',
+    backgroundColor: '#6C63FF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
     marginBottom: 20,
   },
   amountContentRow: {
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   verifiedBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#59413A',
+    color: '#6B6B8D',
   },
   sectionTitle: {
     marginBottom: 12,
@@ -275,11 +275,11 @@ const styles = StyleSheet.create({
   },
   methodCardNormal: {
     backgroundColor: '#FFFFFF',
-    borderColor: '#EFEAE3',
+    borderColor: '#E0DCFF',
   },
   methodCardSelected: {
     backgroundColor: '#FFF8F5',
-    borderColor: '#E85D2A',
+    borderColor: '#6C63FF',
   },
   methodRow: {
     flexDirection: 'row',
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   },
   popularBadge: {
     marginLeft: 8,
-    backgroundColor: '#FFF2EB',
+    backgroundColor: '#F0EEFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   popularBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#E85D2A',
+    color: '#6C63FF',
   },
   radioCircle: {
     width: 22,
@@ -319,13 +319,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   radioSelected: {
-    borderColor: '#E85D2A',
+    borderColor: '#6C63FF',
   },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#E85D2A',
+    backgroundColor: '#6C63FF',
   },
   bottomBar: {
     position: 'absolute',
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#141815',
+    shadowColor: '#1A1A2E',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

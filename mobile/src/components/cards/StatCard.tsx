@@ -25,7 +25,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: '#123922', // Stitch Forest Green Gradient base
+          backgroundColor: '#4B44CC', // Stitch Forest Green Gradient base
           borderColor: '#27593C',
           borderRadius: theme.borderRadius.xl,
           ...theme.shadows.deepCard,
@@ -33,7 +33,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       ]}
     >
       <View style={styles.topRow}>
-        <Text variant="bodyMedium" weight="semiBold" color="#D1FAE5">
+        <Text variant="bodyMedium" weight="semiBold" color="#EDEAFF">
           {title}
         </Text>
         {onPressAudio && (
@@ -54,7 +54,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         </Text>
         {trendText && (
           <View style={styles.trendPill}>
-            <Text variant="caption" weight="bold" color="#D1FAE5">
+            <Text variant="caption" weight="bold" color="#EDEAFF">
               {trendText}
             </Text>
           </View>
@@ -65,7 +65,7 @@ export const StatCard: React.FC<StatCardProps> = ({
         <View style={styles.bottomRow}>
           <View style={styles.liveIndicator}>
             <View style={styles.liveDot} />
-            <Text variant="caption" color="#A7F3D0">
+            <Text variant="caption" color="#D6D3FF">
               सक्रिय भुगतान खाता:
             </Text>
           </View>
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   trendPill: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    backgroundColor: '#256F43',
+    backgroundColor: '#8B83FF',
     borderRadius: 6,
   },
   bottomRow: {
@@ -136,6 +136,6 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#34D399',
+    backgroundColor: '#8B83FF',
   },
 });

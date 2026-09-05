@@ -46,7 +46,7 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Celebration Box */}
         <View style={styles.celebrationBox}>
-          <View style={[styles.checkCircle, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
+          <View style={[styles.checkCircle, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
             <Text style={{ fontSize: 36 }}>📜</Text>
           </View>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.title}>
@@ -68,8 +68,8 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
                 {buyerName}
               </Text>
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: 'rgba(27, 94, 56, 0.12)' }]}>
-              <Text variant="labelSmall" weight="bold" color="#1B5E38">
+            <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+              <Text variant="labelSmall" weight="bold" color="#6C63FF">
                 सक्रिय (ACTIVE) ✓
               </Text>
             </View>
@@ -98,7 +98,7 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
               <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 एडवांस भुगतान:
               </Text>
-              <Text variant="labelLarge" weight="bold" color="#1B5E38">
+              <Text variant="labelLarge" weight="bold" color="#6C63FF">
                 ₹{advanceAmount.toLocaleString('en-IN')}
               </Text>
             </View>
@@ -113,15 +113,15 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
 
           {/* Milestone 1 */}
           <View style={styles.stepRow}>
-            <View style={[styles.stepCircle, { backgroundColor: '#1B5E38' }]}>
+            <View style={[styles.stepCircle, { backgroundColor: '#6C63FF' }]}>
               <Text style={styles.stepCheck}>✓</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <View style={styles.stepHeader}>
-                <Text variant="labelMedium" weight="bold" color="#1B5E38">
+                <Text variant="labelMedium" weight="bold" color="#6C63FF">
                   चरण 1: 30% अग्रिम सामग्री भुगतान
                 </Text>
-                <Text variant="labelSmall" weight="bold" color="#1B5E38">
+                <Text variant="labelSmall" weight="bold" color="#6C63FF">
                   ₹{advanceAmount} जारी हुआ
                 </Text>
               </View>
@@ -131,7 +131,7 @@ export const B2BContractScreen: React.FC<Props> = ({ navigation, route }) => {
             </View>
           </View>
 
-          <View style={[styles.stepLine, { backgroundColor: '#1B5E38' }]} />
+          <View style={[styles.stepLine, { backgroundColor: '#6C63FF' }]} />
 
           {/* Milestone 2 */}
           <View style={styles.stepRow}>

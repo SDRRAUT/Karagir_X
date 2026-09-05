@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,58 +18,52 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (isSessionExpired) {
-        navigation.replace('LanguageSelection');
-      } else if (isAuthenticated && user) {
-        if (user.isProfileComplete === false) {
-          navigation.replace('ProfileSetup', { role: user.role });
-        } else {
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
-        }
-      } else {
-        navigation.replace('LanguageSelection');
-      }
+      navigation.replace('AuthPhone', { role: 'ARTISAN' });
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [navigation, isAuthenticated, user, isSessionExpired, isInitialized]);
+  }, [navigation]);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
-        {/* Cultural Brand Emblem */}
+        {/* Official KarigarX Logo Emblem */}
         <View
           style={[
             styles.emblemContainer,
             {
-              backgroundColor: theme.colors.brand.light, // #FFF2EB
-              borderColor: theme.colors.brand.primary,
+              backgroundColor: '#FAF7F2',
+              borderColor: '#E8ECF4',
               ...theme.shadows.level2,
             },
           ]}
         >
-          <Text style={styles.emblemEmoji}>🏺</Text>
+          <Image
+            source={require('../../../assets/karigarx_logo.png')}
+            style={styles.splashLogoImage}
+            resizeMode="contain"
+          />
         </View>
 
-        {/* Title & Tagline in Stitch Identity */}
+        {/* Title & Tagline */}
         <Text
           variant="displayLarge"
           weight="bold"
-          color={theme.colors.brand.primary}
+          color="#0E243F"
           style={styles.title}
         >
-          कलाकार सेतु
+          KARIGARX
         </Text>
         <Text
           variant="headlineMedium"
           weight="semiBold"
-          color={theme.colors.charcoal[900]}
+          color="#5A52DD"
           style={styles.tagline}
         >
-          कला से बाज़ार तक
+          CRAFT • CONNECT • GROW
         </Text>
         <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.subtext}>
-          Marginalized Artisans Direct Market Linkage
+          कलाकार सेतु — Marginalized Artisans Direct Market Linkage
         </Text>
 
         <View style={styles.spinnerContainer}>
@@ -91,16 +85,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emblemContainer: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    borderWidth: 2.5,
+    width: 120,
+    height: 120,
+    borderRadius: 32,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
+    padding: 12,
   },
-  emblemEmoji: {
-    fontSize: 50,
+  splashLogoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     textAlign: 'center',
