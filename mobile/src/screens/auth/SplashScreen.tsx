@@ -6,15 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useAppStore } from '@/store/useAppStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const { isAuthenticated, user, isSessionExpired } = useAuthStore();
-  const { isInitialized } = useAppStore();
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -101,6 +101,78 @@ export const CRAFT_CATEGORIES: CraftCategory[] = [
 
 export const MOCK_PRODUCTS: MarketplaceProduct[] = [
   {
+    id: 'prod_flash_1',
+    title: {
+      hi: 'हस्तनिर्मित टेराकोटा दीया (12 का सेट) — प्राकृतिक मिट्टी',
+      en: 'Terracotta Diya (Set of 12) — Pure Natural Clay',
+    },
+    description: {
+      hi: 'महाराष्ट्र के कोल्हापुर कारीगरों द्वारा चाक पर हाथ से गढ़े गए पारंपरिक मिट्टी के दीये।',
+      en: 'Wheel-thrown artisanal earthen lamps created by rural master potters of Kolhapur.',
+    },
+    price: 149,
+    categoryCode: 'POTTERY_TERRACOTTA',
+    categoryName: 'मिट्टी व टेराकोटा',
+    images: ['https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80'],
+    artisan: {
+      id: 'art_ramesh_kumbhar',
+      name: 'रमेश कुंभार (Ramesh Kumbhar)',
+      cluster: 'कोल्हापुर कुंभार समाज क्लस्टर',
+      state: 'Maharashtra',
+      craftYears: 30,
+      community: 'माती कला संघ',
+    },
+    passport: {
+      passportId: 'PASS-KLH-1049',
+      isVerified: true,
+      materialsUsed: ['नदी किनारे की चिकनी मिट्टी', 'प्राकृतिक गेरू रंग'],
+      technique: 'कुम्हार चाक हस्तशिल्प',
+      laborHours: 8,
+      provenanceVillage: 'Kolhapur, Maharashtra',
+      verificationBadge: 'Master Potter Certified',
+    },
+    stockType: 'READY_STOCK',
+    rating: 5.0,
+    reviewsCount: 64,
+    tags: ['Terracotta', 'DiwaliDiya', 'EcoFriendly', 'Pottery'],
+  },
+  {
+    id: 'prod_flash_2',
+    title: {
+      hi: 'हथकरघा चंदेरी रेशमी साड़ी — शुद्ध ज़री किनारी',
+      en: 'Handwoven Chanderi Silk Saree with Real Zari Border',
+    },
+    description: {
+      hi: 'मध्य प्रदेश की विश्वप्रसिद्ध जीआई टैग प्रमाणित चंदेरी हथकरघा साड़ी।',
+      en: 'GI Tag certified handloom Chanderi silk cotton saree with fine golden zari border.',
+    },
+    price: 799,
+    categoryCode: 'TEXTILE_HANDLOOM',
+    categoryName: 'हथकरघा व बुनाई',
+    images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80'],
+    artisan: {
+      id: 'art_chanderi_coop',
+      name: 'चंदेरी बुनकर सहकारी समिति (Chanderi Weavers)',
+      cluster: 'चंदेri बुनकर संघ, अशोक नगर',
+      state: 'Madhya Pradesh',
+      craftYears: 25,
+      community: 'चंदेरी मास्टर वीवर्स',
+    },
+    passport: {
+      passportId: 'PASS-CHN-8841',
+      isVerified: true,
+      materialsUsed: ['शुद्ध मलबरी सिल्क', 'ज़री धागा', 'मर्सराइज्ड कॉटन'],
+      technique: 'पारंपरिक थ्रो-शटल पिट लूम',
+      laborHours: 54,
+      provenanceVillage: 'Pranpur, Chanderi, MP',
+      verificationBadge: 'GI Tag Registered Handloom',
+    },
+    stockType: 'READY_STOCK',
+    rating: 4.9,
+    reviewsCount: 52,
+    tags: ['Chanderi', 'Handloom', 'GITag', 'SilkSaree'],
+  },
+  {
     id: 'prod_mhb_01',
     title: {
       hi: 'हाथ से बनी मधुबनी मत्स्य पेंटिंग — प्राकृतिक रंग',

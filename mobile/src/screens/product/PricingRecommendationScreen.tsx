@@ -53,8 +53,8 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="उचित दाम सलाहकार"
-        subtitle="उचित दाम सुझाव • Fair Price Advisor"
+        title="Fair Price Advisor"
+        subtitle="Explainable Value Ledger • उचित दाम सुझाव"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
@@ -66,9 +66,9 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
             <Text style={{ fontSize: 20 }}>💡</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.voiceTagText}>निष्पक्ष मूल्य निर्धारण • FAIR VALUE</Text>
+            <Text style={styles.voiceTagText}>EXPLAINABLE FAIR VALUE • निष्पक्ष मूल्य निर्धारण</Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[800]} style={styles.voiceText}>
-              "यह दाम आपकी मेहनत, समय और सामग्री के आधार पर AI द्वारा निष्पक्ष तय किया गया है।"
+              "Why this price? AI evaluates raw materials, skilled craft time, technique complexity, and market signals so you never sell below your worth."
             </Text>
           </View>
         </View>
@@ -87,9 +87,9 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
               </View>
             )}
             <View style={{ flex: 1 }}>
-              <Text style={styles.productLabel}>उत्पाद / PRODUCT</Text>
+              <Text style={styles.productLabel}>PRODUCT ITEM</Text>
               <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-                {craftCategoryName || 'हस्तनिर्मित शिल्प (Handcrafted Craft)'}
+                {craftCategoryName || 'Authentic Handcrafted Terracotta Craft'}
               </Text>
             </View>
           </View>
@@ -98,31 +98,37 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
 
           <View style={styles.rangeHeaderRow}>
             <View>
-              <Text style={styles.rangeLabel}>सुझाया गया मूल्य दायरा (SUGGESTED RANGE)</Text>
+              <Text style={styles.rangeLabel}>SUGGESTED PRICE RANGE</Text>
               <Text variant="headlineLarge" weight="bold" color={theme.colors.terracotta[600]} style={{ marginTop: 2 }}>
                 ₹{Math.round(suggestedPrice * 0.95)} - ₹{Math.round(suggestedPrice * 1.15)}
               </Text>
             </View>
             <View style={styles.demandBadge}>
-              <Text style={styles.demandBadgeText}>📈 उच्च मांग (High Demand)</Text>
+              <Text style={styles.demandBadgeText}>📈 High Demand</Text>
             </View>
           </View>
 
           <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={styles.insightText}>
-            "समान प्रामाणिक हस्तशिल्प बाज़ार में इस सीज़न अच्छे दाम पर बिक रहे हैं। आपकी बारीक कारीगरी अतिरिक्त मूल्य जोड़ती है।"
+            "Similar GI-certified pots from Maharashtra are selling for ₹2,100–₹2,400 this season. Your fine hand-thrown detailing adds verified extra value."
           </Text>
         </Card>
 
         {/* Cost Breakdown Card (Stitch Breakdown layout) */}
         <Card style={styles.breakdownCard} variant="elevated">
-          <Text style={styles.breakdownTitle}>लागत विवरण (COST BREAKDOWN)</Text>
+          <Text style={styles.breakdownTitle}>COST & VALUE BREAKDOWN (लागत विवरण)</Text>
 
+          {/* 1. Materials */}
           <View style={styles.breakdownItem}>
             <View style={styles.breakdownLeft}>
               <Text style={styles.breakdownIcon}>🧵</Text>
-              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
-                कच्चा माल (Materials)
-              </Text>
+              <View>
+                <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+                  Raw Materials • कच्चा माल
+                </Text>
+                <Text variant="caption" color={theme.colors.charcoal[500]}>
+                  Natural clay, mineral pigments, kiln firewood
+                </Text>
+              </View>
             </View>
             <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{materialCost.toLocaleString('en-IN')}
@@ -131,12 +137,18 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
 
           <View style={styles.itemDivider} />
 
+          {/* 2. Labour */}
           <View style={styles.breakdownItem}>
             <View style={styles.breakdownLeft}>
               <Text style={styles.breakdownIcon}>⏳</Text>
-              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
-                कारीगर श्रम (Labour Hours)
-              </Text>
+              <View>
+                <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+                  Skilled Artisan Labour
+                </Text>
+                <Text variant="caption" color={theme.colors.charcoal[500]}>
+                  Hand-shaping, carving, kiln firing
+                </Text>
+              </View>
             </View>
             <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{laborCost.toLocaleString('en-IN')}
@@ -145,12 +157,18 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
 
           <View style={styles.itemDivider} />
 
+          {/* 3. Packaging */}
           <View style={styles.breakdownItem}>
             <View style={styles.breakdownLeft}>
               <Text style={styles.breakdownIcon}>📦</Text>
-              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
-                सुरक्षित पैकेजिंग (Packaging)
-              </Text>
+              <View>
+                <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
+                  Eco-Friendly Packaging
+                </Text>
+                <Text variant="caption" color={theme.colors.charcoal[500]}>
+                  Straw cushioning & recycled corrugated box
+                </Text>
+              </View>
             </View>
             <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{packagingCost.toLocaleString('en-IN')}
@@ -159,14 +177,20 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
 
           <View style={styles.itemDivider} />
 
+          {/* 4. Take-Home */}
           <View style={styles.breakdownItem}>
             <View style={styles.breakdownLeft}>
               <Text style={styles.breakdownIcon}>🏦</Text>
-              <Text variant="bodyMedium" color={theme.colors.charcoal[800]}>
-                खाते में प्राप्त राशि (Artisan Take-home)
-              </Text>
+              <View>
+                <Text variant="bodyMedium" weight="bold" color={theme.colors.forest[700]}>
+                  Direct Artisan Take-Home
+                </Text>
+                <Text variant="caption" color={theme.colors.forest[800]}>
+                  Transferred directly via ONDC / UPI
+                </Text>
+              </View>
             </View>
-            <Text variant="bodyMedium" weight="bold" color={theme.colors.forest[700]}>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.forest[700]}>
               ₹{takeHome.toLocaleString('en-IN')}
             </Text>
           </View>
@@ -175,7 +199,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
         {/* Price Stepper Controls */}
         <Card style={styles.adjustmentCard} variant="elevated">
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[500]} style={styles.adjustTitle}>
-            अंतिम विक्रय मूल्य तय करें (SET FINAL PRICE):
+            SET FINAL SELLING PRICE (अंतिम विक्रय मूल्य):
           </Text>
 
           <View style={styles.stepperRow}>
@@ -207,7 +231,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
           {price < minFloor && (
             <View style={styles.warningBox}>
               <Text variant="bodySmall" weight="bold" color="#B71C1C">
-                ⚠️ चेतावनी: यह मूल्य न्यूनतम कानूनी लागत (₹{minFloor}) से कम है।
+                ⚠️ Fair Floor Alert: This price is below your calculated minimum legal floor (₹{minFloor}).
               </Text>
             </View>
           )}
@@ -217,7 +241,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
       {/* Sticky Bottom Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="दाम स्वीकृत करें व कैटलॉग समीक्षा करें (Confirm & Review) ✓"
+          label="Approve Price & Preview Catalog (दाम स्वीकृत करें व कैटलॉग समीक्षा करें) →"
           variant="primary"
           size="default"
           onPress={handleProceed}
@@ -297,7 +321,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E0DCFF',
+    backgroundColor: '#ECE8DC',
     marginBottom: 14,
   },
   rangeHeaderRow: {
@@ -313,17 +337,17 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   demandBadge: {
-    backgroundColor: '#FFF8E1',
+    backgroundColor: '#FFF8E7',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#FFE082',
+    borderColor: '#FFE4A0',
   },
   demandBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#9C6E00',
+    color: '#8F6204',
   },
   insightText: {
     marginTop: 6,
@@ -335,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#ECE8DC',
     marginBottom: 16,
   },
   breakdownTitle: {
@@ -361,7 +385,7 @@ const styles = StyleSheet.create({
   },
   itemDivider: {
     height: 1,
-    backgroundColor: '#F4EFEA',
+    backgroundColor: '#ECE8DC',
     marginVertical: 10,
   },
   adjustmentCard: {
@@ -369,7 +393,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#ECE8DC',
     marginBottom: 20,
     alignItems: 'center',
   },
@@ -387,15 +411,15 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: '#E0DCFF',
-    backgroundColor: '#F7F4F0',
+    borderColor: '#ECE8DC',
+    backgroundColor: '#F5F3EB',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepBtnText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: '#2b2b2b',
   },
   priceDisplay: {
     paddingHorizontal: 28,
@@ -418,7 +442,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    shadowColor: '#1A1A2E',
+    shadowColor: '#2b2b2b',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.05,
     shadowRadius: 12,

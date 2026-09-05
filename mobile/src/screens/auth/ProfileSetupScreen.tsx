@@ -34,7 +34,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user, updateProfile } = useAuthStore();
 
-  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [fullName, setFullName] = useState(user?.fullName || 'Ramesh Kumbhar');
   const [selectedCraft, setSelectedCraft] = useState<string>('PAINTING_FOLK');
   const [district] = useState('मधुबनी (Madhubani)');
   const [state] = useState('बिहार (Bihar)');
@@ -76,7 +76,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
       navigation.replace('MainTabs', { screen: 'HomeTab' });
     } catch {
       setIsLoading(false);
-      setErrorMessage('प्रोफाइल सेव करने में त्रुटि — कृपया पुनः प्रयास करें।');
+      setErrorMessage('Error saving profile — please try again.');
     }
   };
 
@@ -85,33 +85,33 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
       <AppHeader
         showBack
         showBrand
-        title="कारीगर प्रोफाइल"
+        title="Artisan Profile"
         subtitle="KALAKAR SETU"
         rightAction={
           <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
             <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-              मदद (Help)
+              Help
             </Text>
           </View>
         }
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Step Indicator & Tag matching Stitch Screenshot */}
+        {/* Step Indicator & Tag */}
         <View style={styles.stepMetaRow}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-              चरण 3/3
+              Step 3/3
             </Text>
             <Text variant="caption" color={theme.colors.text.muted}>•</Text>
             <View style={styles.roleTagPill}>
-              <Text style={styles.roleTagText}>कारीगर खाता (Artisan Account)</Text>
+              <Text style={styles.roleTagText}>Artisan Account</Text>
             </View>
           </View>
-          <Text variant="caption" color={theme.colors.text.muted}>अंतिम चरण</Text>
+          <Text variant="caption" color={theme.colors.text.muted}>Final Step</Text>
         </View>
 
-        {/* Stepper Progress Bar (100% Complete) */}
+        {/* Stepper Progress Bar */}
         <View style={styles.progressTrack}>
           <View style={[styles.progressBar, { backgroundColor: theme.colors.brand.primary }]} />
         </View>
@@ -119,14 +119,14 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* Screen Header */}
         <View style={{ marginTop: 12, marginBottom: 8 }}>
           <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
-            कारीगर प्रोफाइल तैयार करें
+            Set Up Your Artisan Profile
           </Text>
           <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-            Let's set up your artisan profile (Flow A3)
+            Empower your craft with AI cataloguing and direct market linkages
           </Text>
         </View>
 
-        {/* Bolie Saathi Voice Companion Hint Banner */}
+        {/* Voice Saathi Companion Hint Banner */}
         <View style={[styles.voiceBanner, { backgroundColor: '#FFFFFF', borderColor: theme.colors.brand.container }]}>
           <View style={styles.voiceBannerLeft}>
             <View style={[styles.voiceBannerIcon, { backgroundColor: '#F0EEFF' }]}>
@@ -134,10 +134,10 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             <View>
               <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
-                बोलिए साथी (Voice Assistant)
+                Voice Saathi • AI Assistant
               </Text>
               <Text variant="caption" color={theme.colors.text.secondary}>
-                बोलकर सभी जानकारी भरें
+                Speak to fill profile details automatically
               </Text>
             </View>
           </View>
@@ -146,7 +146,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
             style={[styles.voiceActionBtn, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}
           >
             <Text variant="caption" weight="bold" color="#4B44CC">
-              🎙 बोलें
+              🎙 Speak
             </Text>
           </TouchableOpacity>
         </View>
@@ -155,7 +155,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              1. आपका पूरा नाम (Full Name)
+              1. Your Full Name
             </Text>
             <TouchableOpacity
               onPress={handleVoiceDictateName}
@@ -164,7 +164,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
               accessibilityLabel="Voice dictate name"
             >
               <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-                🎙️ बोलकर लिखें
+                🎙️ Speak Name
               </Text>
             </TouchableOpacity>
           </View>
@@ -175,14 +175,14 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
               setFullName(text);
               setErrorMessage(null);
             }}
-            placeholder="उदा. सुनीता देवी / Sunita Devi"
+            placeholder="e.g. Ramesh Kumbhar / Sunita Devi"
           />
         </View>
 
-        {/* 2. Craft Discipline Selector */}
+        {/* 2. Craft Selection */}
         <View style={styles.section}>
           <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            2. आपका मुख्य शिल्प क्या है? (Craft Category)
+            2. Primary Craft Specialization
           </Text>
 
           <View style={styles.craftGrid}>
@@ -209,10 +209,10 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
                     align="center"
                     color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
                   >
-                    {craft.nameHi}
+                    {craft.nameEn}
                   </Text>
                   <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
-                    {craft.nameEn}
+                    {craft.nameHi}
                   </Text>
                 </TouchableOpacity>
               );
@@ -223,7 +223,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* 3. Location Display */}
         <View style={styles.section}>
           <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            3. आपका स्थान (Location)
+            3. Workshop Location
           </Text>
           <Card style={styles.locationCard}>
             <View style={styles.locationRow}>
@@ -233,7 +233,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
                   {district}, {state}
                 </Text>
                 <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                  ✓ जीआई-टैग क्लस्टर मैप से लिंक (GI Tagged)
+                  ✓ Linked to Authentic GI Tagged Cluster
                 </Text>
               </View>
             </View>
@@ -243,12 +243,12 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* 4. Facilitator / SHG Code */}
         <View style={styles.section}>
           <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            4. सहयोगी संस्था या SHG कोड (वैकल्पिक / Optional)
+            4. SHG / Facilitator Code (Optional)
           </Text>
           <TextInput
             value={shgCode}
             onChangeText={setShgCode}
-            placeholder="उदा. SHG-MITHILA-402 (यदि है तो)"
+            placeholder="e.g. SHG-KOLHAPUR-402 (if applicable)"
           />
         </View>
 
@@ -259,7 +259,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         )}
 
         <Button
-          label="प्रोफाइल सुरक्षित करें (Save Profile) →"
+          label="Save & Complete Profile →"
           variant="primary"
           size="decision"
           isLoading={isLoading}

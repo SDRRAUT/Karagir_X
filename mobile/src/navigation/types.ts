@@ -2,10 +2,13 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 import { UserRole } from '@/api/types';
 
 export type MainTabParamList = {
-  HomeTab: undefined;
-  OrdersTab: undefined;
-  KhataTab: undefined;
-  ProfileTab: undefined;
+  HomeTab: undefined; // Discover
+  ExploreTab: undefined; // Explore
+  BulkDealsTab: undefined; // Bulk Deals
+  CartTab: undefined; // Cart
+  ProfileTab: undefined; // Account
+  OrdersTab?: undefined;
+  KhataTab?: undefined;
 };
 
 export type RootStackParamList = {

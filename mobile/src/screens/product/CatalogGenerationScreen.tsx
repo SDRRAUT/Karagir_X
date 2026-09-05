@@ -97,8 +97,11 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
         <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
           AI कैटलॉग तैयार हो रहा है
         </Text>
+        <Text variant="bodyLarge" weight="semiBold" color="#EA580C" style={{ textAlign: 'center', marginBottom: 6 }}>
+          Synthesizing AI Smart Catalogue...
+        </Text>
         <Text variant="bodyMedium" color={theme.colors.charcoal[600]} style={styles.subtitle}>
-          आपकी कला को दुनिया के सामने पेश करने के लिए AI विवरण और डिजिटल पासपोर्ट तैयार कर रहा है...
+          Generating your complete multilingual product listing, craft storytelling, and Digital Craft Passport...
         </Text>
 
         {/* Step-by-Step Progress Card */}

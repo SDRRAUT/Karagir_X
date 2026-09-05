@@ -11,7 +11,6 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { TactileKeypad } from '@/components/inputs/TactileKeypad';
 import { authService } from '@/api/authService';
@@ -22,17 +21,10 @@ import { UserRole } from '@/api/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'AuthPhone'>;
 
 export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
-  const initialRole: UserRole = route?.params?.role || 'ARTISAN';
-  const [role, setRole] = useState<UserRole>(initialRole);
-  const theme = useTheme();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const role: UserRole = selectedRole || route?.params?.role || 'ARTISAN';
   const { locale } = useAppStore();
   const { setSession } = useAuthStore();
-
-  React.useEffect(() => {
-    if (route?.params?.role) {
-      setRole(route.params.role);
-    }
-  }, [route?.params?.role]);
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -99,9 +91,9 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Centered Neumorphic Card */}
+        {/* Centered Modern Artisan Card */}
         <View style={styles.cardContainer}>
-          {/* Top 3D Neumorphic Emblem Card */}
+          {/* Top Emblem Card */}
           <View style={styles.emblemShadowWrapper}>
             <View style={styles.emblemCard}>
               <Image
@@ -112,25 +104,31 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           </View>
 
-          {/* Heading & Subtitle */}
+          {/* Heading & Subtitle matching Mockup */}
           <View style={styles.headerBlock}>
-            <Text variant="headlineLarge" weight="bold" color="#0E243F" style={styles.titleText}>
-              KARIGARX
+            <Text variant="headlineLarge" weight="bold" color="#0F172A" style={styles.titleText}>
+              Kalakar Setu
             </Text>
-            <Text variant="bodyMedium" weight="medium" color="#5A52DD" style={styles.taglineText}>
+            <View style={styles.festivePill}>
+              <Text style={{ fontSize: 11, marginRight: 4 }}>✨</Text>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                100% DIRECT FROM MASTER ARTISANS
+              </Text>
+            </View>
+            <Text variant="bodyMedium" weight="medium" color="#EA580C" style={styles.taglineText}>
               CRAFT • CONNECT • GROW
             </Text>
             <Text variant="bodySmall" color="#64748B" style={styles.subtitleText}>
-              कलाकार सेतु — कारीगर से बाज़ार तक
+              Rural Artisans to Global Markets — Zero Commission Markup
             </Text>
           </View>
 
-          {/* Role Segmented Pill Selector */}
+          {/* Role Segmented Pill Selector (English) */}
           <View style={styles.roleSegmentContainer}>
             {(['ARTISAN', 'BUYER', 'FACILITATOR'] as UserRole[]).map((r) => {
               const isSelected = role === r;
               const label =
-                r === 'ARTISAN' ? '🎨 कारीगर' : r === 'BUYER' ? '🛍️ खरीदार' : '🤝 सहयोगी';
+                r === 'ARTISAN' ? '🎨 Artisan' : r === 'BUYER' ? '🛍️ Buyer' : '🤝 Facilitator';
               return (
                 <TouchableOpacity
                   key={r}
@@ -139,7 +137,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                     styles.roleSegmentItem,
                     isSelected && styles.roleSegmentItemActive,
                   ]}
-                  onPress={() => setRole(r)}
+                  onPress={() => setSelectedRole(r)}
                   activeOpacity={0.85}
                 >
                   <Text
@@ -165,12 +163,12 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             activeOpacity={0.85}
           >
             <Text style={{ fontSize: 13, marginRight: 6 }}>⚡</Text>
-            <Text variant="caption" weight="bold" color="#4F46E5">
-              1-टैप डेमो लॉगिन (9876543210)
+            <Text variant="caption" weight="bold" color="#EA580C">
+              1-Tap Demo Login (9876543210) →
             </Text>
           </TouchableOpacity>
 
-          {/* Neumorphic Input Capsule */}
+          {/* Modern Input Capsule */}
           <View
             style={[
               styles.inputCapsule,
@@ -180,7 +178,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
           >
             <View style={styles.inputPrefix}>
               <Text style={{ fontSize: 15, marginRight: 6 }}>📱</Text>
-              <Text variant="bodyMedium" weight="bold" color="#0E243F">
+              <Text variant="bodyMedium" weight="bold" color="#0F172A">
                 +91
               </Text>
             </View>
@@ -193,7 +191,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                 setPhoneNumber(cleaned);
                 setErrorMessage(null);
               }}
-              placeholder="मोबाइल नंबर (10 अंक)"
+              placeholder="Mobile Number (10 digits)"
               placeholderTextColor="#94A3B8"
               keyboardType="phone-pad"
               maxLength={10}
@@ -217,15 +215,26 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </Text>
           )}
 
-          {/* Forgot PIN / Voice Saathi Helper Row */}
+          {/* Keypad / Help Helper Row */}
           <View style={styles.helperRow}>
             <TouchableOpacity
               onPress={() => setShowKeypad(!showKeypad)}
               style={styles.keypadToggleBtn}
             >
-              <Text variant="caption" weight="semiBold" color="#6366F1">
-                {showKeypad ? '⌨️ कीपैड छुपाएं' : '🔢 कीपैड खोलें'}
-              </Text>
+              {showKeypad ? (
+                <Text variant="caption" weight="semiBold" color="#EA580C">
+                  ⌨️ Hide Keypad
+                </Text>
+              ) : (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text variant="caption" weight="semiBold" color="#EA580C">
+                    🔢 Keypad •{' '}
+                  </Text>
+                  <Text variant="caption" weight="semiBold" color="#EA580C">
+                    🔢 कीपैड खोलें
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -233,12 +242,12 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               }}
             >
               <Text variant="caption" weight="medium" color="#64748B">
-                मदद / Help?
+                Need Help?
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Primary Action Button (Gradient Style Pill) */}
+          {/* Primary Action Button (Festive Terracotta Pill) */}
           <TouchableOpacity
             testID="login-submit-btn"
             style={[
@@ -250,7 +259,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             activeOpacity={0.88}
           >
             <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={styles.buttonLabel}>
-              {isLoading ? 'लॉगिन हो रहा है...' : 'लॉगिन करें (Login) →'}
+              {isLoading ? 'Signing In...' : 'Sign In with Phone →'}
             </Text>
           </TouchableOpacity>
 
@@ -326,7 +335,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               testID="login-change-lang-btn"
               onPress={() => navigation.navigate('LanguageSelection')}
             >
-              <Text variant="caption" weight="bold" color="#5A52DD">
+              <Text variant="caption" weight="bold" color="#EA580C">
                 🌐 भाषा बदलें
               </Text>
             </TouchableOpacity>
@@ -335,7 +344,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               testID="login-intro-tour-btn"
               onPress={() => navigation.navigate('Onboarding')}
             >
-              <Text variant="caption" weight="bold" color="#5A52DD">
+              <Text variant="caption" weight="bold" color="#EA580C">
                 ℹ️ ऐप टूर (App Tour)
               </Text>
             </TouchableOpacity>
@@ -361,7 +370,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#EEF2F8',
+    backgroundColor: '#FFFDF7',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -374,38 +383,37 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 410,
     backgroundColor: '#FFFFFF',
-    borderRadius: 32,
+    borderRadius: 28,
     paddingHorizontal: 24,
     paddingTop: 22,
-    paddingBottom: 20,
+    paddingBottom: 22,
     alignItems: 'center',
-    // Soft neumorphic shadow
-    shadowColor: '#536582',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.12,
+    // Soft elegant shadow matching mockup
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
     shadowRadius: 28,
-    elevation: 10,
+    elevation: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
+    borderColor: '#ECE8DC',
   },
   emblemShadowWrapper: {
     marginBottom: 12,
-    // Dual soft shadow for 3D emblem look
-    shadowColor: '#5A52DD',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    elevation: 5,
   },
   emblemCard: {
-    width: 96,
-    height: 96,
-    borderRadius: 24,
-    backgroundColor: '#FAF7F2',
+    width: 92,
+    height: 92,
+    borderRadius: 22,
+    backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#EFE9DE',
+    borderColor: '#FFEDD5',
     overflow: 'hidden',
     padding: 6,
   },
@@ -415,29 +423,44 @@ const styles = StyleSheet.create({
   },
   headerBlock: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   titleText: {
-    letterSpacing: 1.5,
-    marginBottom: 2,
-    fontSize: 24,
+    letterSpacing: 0.5,
+    marginBottom: 4,
+    fontSize: 26,
+    color: '#0F172A',
+  },
+  festivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    borderColor: '#FFEDD5',
+    borderWidth: 1,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    marginBottom: 6,
   },
   taglineText: {
-    letterSpacing: 2,
+    letterSpacing: 1.5,
     fontSize: 10.5,
     marginBottom: 3,
+    color: '#EA580C',
+    fontWeight: '700',
   },
   subtitleText: {
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
     fontSize: 12,
+    textAlign: 'center',
   },
   roleSegmentContainer: {
     flexDirection: 'row',
     width: '100%',
-    backgroundColor: '#F1F4F9',
+    backgroundColor: '#F8FAFC',
     borderRadius: 20,
     padding: 3,
-    marginBottom: 10,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
@@ -449,10 +472,10 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   roleSegmentItemActive: {
-    backgroundColor: '#5A52DD',
-    shadowColor: '#5A52DD',
+    backgroundColor: '#EA580C',
+    shadowColor: '#EA580C',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -460,29 +483,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#C7D2FE',
-    borderRadius: 14,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-    marginBottom: 12,
+    borderColor: '#FFEDD5',
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginBottom: 14,
   },
   inputCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    height: 56,
-    backgroundColor: '#F3F5FA',
-    borderRadius: 28,
+    height: 54,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 27,
     borderWidth: 1.5,
-    borderColor: '#E5EAF2',
+    borderColor: '#E2E8F0',
     paddingHorizontal: 16,
     marginBottom: 6,
   },
   inputCapsuleValid: {
-    borderColor: '#5A52DD',
-    backgroundColor: '#F8F9FE',
+    borderColor: '#EA580C',
+    backgroundColor: '#FFFDF7',
   },
   inputCapsuleError: {
     borderColor: '#EF4444',
@@ -498,7 +521,7 @@ const styles = StyleSheet.create({
   phoneTextInput: {
     flex: 1,
     fontSize: 16,
-    color: '#0E243F',
+    color: '#0F172A',
     fontWeight: '600',
     letterSpacing: 1,
     paddingVertical: 0,
@@ -526,7 +549,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 6,
-    marginBottom: 12,
+    marginBottom: 14,
     marginTop: 4,
   },
   keypadToggleBtn: {
@@ -534,20 +557,20 @@ const styles = StyleSheet.create({
   },
   gradientButton: {
     width: '100%',
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#5A52DD',
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#EA580C',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#5A52DD',
+    shadowColor: '#EA580C',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 14,
     elevation: 6,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   gradientButtonDisabled: {
-    backgroundColor: '#A5B4FC',
+    backgroundColor: '#FDBA74',
     shadowOpacity: 0.1,
   },
   buttonLabel: {
@@ -557,7 +580,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   dividerLine: {
     flex: 1,
@@ -568,37 +591,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 11,
     letterSpacing: 1,
+    color: '#94A3B8',
   },
   socialButtonsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 16,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   socialCircleBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#F0F3F8',
-    // 3D Neumorphic raised shadow
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.16,
-    shadowRadius: 10,
-    elevation: 4,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   socialLogoImg: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
   },
   socialLogoImgApple: {
-    width: 22,
-    height: 24,
+    width: 20,
+    height: 22,
   },
   footerNavRow: {
     flexDirection: 'row',

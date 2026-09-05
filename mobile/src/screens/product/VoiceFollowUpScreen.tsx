@@ -51,48 +51,66 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const speakQuestion = (text: string) => {
+    try {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-IN';
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (_err) {
+      // Audio readback graceful fallback
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title={`AI सवाल-जवाब (${questionIndex + 1}/${FOLLOW_UP_QUESTIONS.length})`}
-        subtitle="Question & Details"
+        title={`Voice Saathi • AI सवाल-जवाब (${questionIndex + 1}/${FOLLOW_UP_QUESTIONS.length})`}
+        subtitle="कलाकार सहायक • Conversational Voice Saathi"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
         rightElement={
           <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
             <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
-              छोड़ें (Skip) →
+              Skip (छोड़ें) →
             </Text>
           </TouchableOpacity>
         }
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Kalakar Sahayak AI Avatar Card */}
+        {/* Voice Saathi AI Avatar Card */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarCircle}>
-            <Text style={styles.avatarEmoji}>🤖</Text>
+            <Text style={styles.avatarEmoji}>🗣️</Text>
           </View>
           <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-            कलाकार सहायक (Kalakar Sahayak)
+            Voice Saathi • AI Craft Interviewer
           </Text>
-          <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
-            सही बाज़ार भाव तय करने के लिए बस यह छोटा सवाल बताएं
+          <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2, textAlign: 'center' }}>
+            No tedious forms. Talk naturally or tap below to answer.
           </Text>
         </View>
 
         {/* Current Question Speech Bubble Card */}
         <Card style={styles.questionCard} variant="elevated">
           <View style={styles.questionBubble}>
-            <View style={styles.speakerBox}>
+            <TouchableOpacity
+              style={styles.speakerBox}
+              onPress={() => speakQuestion(currentQuestion.textEn)}
+              accessibilityLabel="Listen to question"
+            >
               <Text style={{ fontSize: 22 }}>🔊</Text>
-            </View>
+            </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
-                {currentQuestion.textHi}
+                {currentQuestion.textEn}
               </Text>
               <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 4 }}>
-                {currentQuestion.textEn}
+                {currentQuestion.textHi}
               </Text>
             </View>
           </View>
@@ -108,7 +126,7 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
           >
             <Text style={styles.speakMicIcon}>🎙️</Text>
             <Text variant="bodyLarge" weight="bold" color="#FFFFFF">
-              बोलकर जवाब दें
+              Tap to Speak Answer
             </Text>
           </TouchableOpacity>
         </View>
@@ -116,7 +134,7 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
         {/* Quick Suggestion Chips */}
         <View style={styles.quickOptionsSection}>
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.optionsLabel}>
-            या इनमें से एक चुनें (Quick Tap):
+            Or select a quick answer option:
           </Text>
           {currentQuestion.quickOptions.map((opt, idx) => {
             const isSelected = selectedOption === opt.value;
@@ -134,12 +152,12 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
                 <Text
                   variant="bodyLarge"
                   weight={isSelected ? 'bold' : 'semiBold'}
-                  color={isSelected ? '#6C63FF' : theme.colors.charcoal[900]}
+                  color={isSelected ? '#EA580C' : theme.colors.charcoal[900]}
                 >
-                  {opt.labelHi}
+                  {opt.labelEn}
                 </Text>
                 <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
-                  {opt.labelEn}
+                  {opt.labelHi}
                 </Text>
               </TouchableOpacity>
             );
@@ -157,10 +175,10 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
               {
                 backgroundColor:
                   idx === questionIndex
-                    ? '#6C63FF'
+                    ? '#EA580C'
                     : idx < questionIndex
-                    ? '#FFBF42'
-                    : '#E0DCFF',
+                    ? '#FDBA74'
+                    : '#E2E8F0',
                 width: idx === questionIndex ? 24 : 8,
               },
             ]}

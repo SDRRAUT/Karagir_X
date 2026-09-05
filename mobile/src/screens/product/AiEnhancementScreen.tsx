@@ -297,8 +297,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     {
                       backgroundColor: preset.color,
                       borderColor: isSelected
-                        ? '#6C63FF'
-                        : '#E0DCFF',
+                        ? '#e85d2a'
+                        : '#ECE8DC',
                       borderWidth: isSelected ? 2.5 : 1,
                     },
                   ]}
@@ -461,10 +461,10 @@ const styles = StyleSheet.create({
   toggleBtnInactive: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#ECE8DC',
   },
   toggleBtnActiveEnhanced: {
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#e85d2a',
   },
   toggleBtnActiveOriginal: {
     backgroundColor: '#6B6B8D',
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#ECE8DC',
   },
   previewImage: {
     width: '100%',
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#F0EEFF',
+    backgroundColor: '#FFF0EA',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -517,13 +517,13 @@ const styles = StyleSheet.create({
   recognitionResult: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#6C63FF',
+    color: '#e85d2a',
   },
   recognitionCheck: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#6C63FF',
+    backgroundColor: '#e85d2a',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#ECE8DC',
     marginTop: 16,
     marginBottom: 16,
   },
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 32,
-    backgroundColor: '#E0DCFF',
+    backgroundColor: '#ECE8DC',
   },
   presetSection: {
     marginBottom: 16,

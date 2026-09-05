@@ -42,8 +42,8 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="ऑर्डर विवरण (Production Brief)"
-        subtitle="Corporate RFQ Brief"
+        title="B2B Bulk Order & Smart Cluster"
+        subtitle="AI Cluster Matchmaking & Production Brief"
         showBack={true}
         onBackPress={() => navigation.goBack()}
         onVoicePress={() => {}}
@@ -58,9 +58,9 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
             </View>
             <View style={{ flex: 1, paddingLeft: 12 }}>
               <View style={styles.badgeRow}>
-                <View style={[styles.verifiedPill, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
-                    सत्यापित कॉर्पोरेट खरीदार ✓
+                <View style={[styles.verifiedPill, { backgroundColor: 'rgba(234, 88, 12, 0.12)' }]}>
+                  <Text variant="labelSmall" weight="bold" color="#EA580C">
+                    Verified Institutional Buyer ✓
                   </Text>
                 </View>
               </View>
@@ -68,123 +68,262 @@ export const OpportunityDetailScreen: React.FC<Props> = ({ route, navigation }) 
                 {opportunity.buyerName}
               </Text>
               <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                कुल थोक मांग: {opportunity.totalOrderQuantity} पीस • {opportunity.craftCategoryName}
+                Total Bulk Demand: 5,000 Pieces • {opportunity.craftCategoryName}
               </Text>
             </View>
           </View>
         </Card>
 
-        {/* Vernacular Audio Explanation Brief */}
-        <TouchableOpacity
-          onPress={handleToggleAudio}
-          style={[styles.audioCard, { borderColor: theme.colors.terracotta.primary }]}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-          accessibilityLabel="Play audio production brief"
-        >
-          <View style={[styles.audioIconCircle, { backgroundColor: theme.colors.terracotta.primary }]}>
-            <Text style={{ fontSize: 18, color: '#FFFFFF' }}>{isPlayingAudio ? '⏸️' : '🎧'}</Text>
+        {/* Feature 5: AI Bulk Order → Smart Artisan Cluster Aggregation */}
+        <Card style={styles.clusterEngineCard}>
+          <View style={styles.clusterHeaderRow}>
+            <View style={styles.clusterIconBox}>
+              <Text style={{ fontSize: 20 }}>🤝</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.aiPillBadge}>
+                <Text style={{ fontSize: 10, marginRight: 4 }}>⚡</Text>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  AI CLUSTER AGGREGATION ENGINE
+                </Text>
+              </View>
+              <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary} style={{ marginTop: 2 }}>
+                5,000 Units Demand → 5 Artisans Pooled
+              </Text>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                Solved via capacity matching + location proximity + reliability score
+              </Text>
+            </View>
           </View>
-          <View style={{ flex: 1, paddingLeft: 12 }}>
-            <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-              {isPlayingAudio ? 'ऑडियो बज रहा है (Playing)...' : 'ऑर्डर का विवरण बोलकर सुनें'}
-            </Text>
-            <Text variant="labelSmall" color={theme.colors.text.secondary}>
-              {isPlayingAudio ? 'रोकने के लिए टैप करें' : 'सुनिए इस ऑर्डर में आपको क्या और कब तक बनाना है'}
-            </Text>
-          </View>
-        </TouchableOpacity>
 
-        {/* Audio Transcript Card */}
-        {isPlayingAudio && (
-          <Card style={[styles.transcriptCard, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
-            <Text variant="labelSmall" weight="bold" color="#6C63FF" style={{ marginBottom: 4 }}>
-              📢 बोली-साथी ऑडियो संदेश:
+          {/* Aggregated Capacity Bar */}
+          <View style={styles.clusterProgressSection}>
+            <View style={styles.clusterProgressHeader}>
+              <Text variant="labelSmall" weight="bold" color={theme.colors.text.primary}>
+                Aggregated Capacity: 5,000 / 5,000 Pieces
+              </Text>
+              <Text variant="labelSmall" weight="bold" color="#16A34A">
+                100% Matched
+              </Text>
+            </View>
+            <View style={styles.clusterProgressBarTrack}>
+              <View style={[styles.clusterProgressBarFill, { width: '100%', backgroundColor: '#EA580C' }]} />
+            </View>
+          </View>
+
+          {/* Cluster Member Quotas */}
+          <View style={styles.artisanQuotaList}>
+            <Text variant="caption" weight="bold" color={theme.colors.text.secondary} style={styles.quotaListTitle}>
+              CLUSTER MEMBER WORKLOAD ALLOCATION:
             </Text>
-            <Text variant="bodySmall" color="#6C63FF" style={{ lineHeight: 20 }}>
-              "{opportunity.audioBriefTranscriptHi}"
+
+            <View style={styles.quotaItem}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🏺</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+                  Ramesh Kumbhar (You • Kolhapur)
+                </Text>
+                <Text variant="caption" color={theme.colors.text.secondary}>
+                  ⭐ 4.9 • 98% On-Time Delivery
+                </Text>
+              </View>
+              <View style={styles.quotaBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  600 Pcs (₹15,000)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.quotaItem}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🏺</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+                  Sunita Devi (Kolhapur Cluster Lead)
+                </Text>
+                <Text variant="caption" color={theme.colors.text.secondary}>
+                  ⭐ 4.8 • 96% Reliability
+                </Text>
+              </View>
+              <View style={styles.quotaBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  500 Pcs (₹12,500)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.quotaItem}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🏺</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+                  Ganesh Kumbhar (Panchganga Unit)
+                </Text>
+                <Text variant="caption" color={theme.colors.text.secondary}>
+                  ⭐ 4.9 • Master Wheel Craftsman
+                </Text>
+              </View>
+              <View style={styles.quotaBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  700 Pcs (₹17,500)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.quotaItem}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🏺</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+                  Savita Kumbhar (Kolhapur Guild)
+                </Text>
+                <Text variant="caption" color={theme.colors.text.secondary}>
+                  ⭐ 4.7 • Hand-carving Specialist
+                </Text>
+              </View>
+              <View style={styles.quotaBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  650 Pcs (₹16,250)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.quotaItem}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🏺</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.text.primary}>
+                  Tukaram Clay Potter SHG (5 Artisans)
+                </Text>
+                <Text variant="caption" color={theme.colors.text.secondary}>
+                  ⭐ 4.9 • Kiln & Firing Hub
+                </Text>
+              </View>
+              <View style={styles.quotaBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  2,550 Pcs (₹63,750)
+                </Text>
+              </View>
+            </View>
+          </View>
+        </Card>
+
+        {/* Feature 6: Digital Production Brief + Collective Tracking */}
+        <Card style={styles.specsCard}>
+          <View style={styles.specHeaderRow}>
+            <Text style={{ fontSize: 20, marginRight: 8 }}>📋</Text>
+            <View>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+                ऑर्डर विवरण (Production Brief)
+              </Text>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                Digital Production Brief • Common Specs across all 5 cluster artisans
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.briefGrid}>
+            <View style={styles.briefCol}>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                📐 EXACT DIMENSIONS
+              </Text>
+              <Text variant="bodySmall" color={theme.colors.text.primary}>
+                10 cm dia × 4 cm height (±2mm tolerance)
+              </Text>
+            </View>
+            <View style={styles.briefCol}>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                🏺 CLAY & PURITY
+              </Text>
+              <Text variant="bodySmall" color={theme.colors.text.primary}>
+                100% Natural Panchganga river terracotta
+              </Text>
+            </View>
+            <View style={styles.briefCol}>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                🔥 FIRING & FINISH
+              </Text>
+              <Text variant="bodySmall" color={theme.colors.text.primary}>
+                Sun-dried 3 days, kiln fired @ 850°C
+              </Text>
+            </View>
+            <View style={styles.briefCol}>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                📦 ECO-PACKAGING
+              </Text>
+              <Text variant="bodySmall" color={theme.colors.text.primary}>
+                Biodegradable straw wrap in 12-pack recycled cartons
+              </Text>
+            </View>
+          </View>
+
+          {/* Collective Progress Bar */}
+          <View style={styles.collectiveTrackerBox}>
+            <View style={styles.collectiveTrackerHeader}>
+              <Text variant="labelSmall" weight="bold" color={theme.colors.text.primary}>
+                Cluster Collective Production Progress
+              </Text>
+              <Text variant="labelSmall" weight="bold" color="#16A34A">
+                82% Completed (4,100 / 5,000 Pcs)
+              </Text>
+            </View>
+            <View style={styles.collectiveTrack}>
+              <View style={[styles.collectiveFill, { width: '82%', backgroundColor: '#16A34A' }]} />
+            </View>
+            <Text variant="caption" color={theme.colors.text.secondary} style={{ marginTop: 4 }}>
+              Buyer Single-View Live Status: All 5 artisans on schedule for Diwali dispatch
             </Text>
-          </Card>
-        )}
+          </View>
+        </Card>
 
         {/* Quota & Guaranteed Payout Card */}
         <Card style={styles.payoutCard}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 12 }}>
-            आपके हिस्से का कोटा व कमाई:
+            Your Quota & Guaranteed Payout:
           </Text>
 
           <View style={styles.specRow}>
             <Text variant="labelMedium" color={theme.colors.text.secondary}>
-              आवंटित कोटा (Your Sub-Quota):
+              Your Allocated Sub-Quota:
             </Text>
             <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-              {opportunity.artisanAllocatedQuota} पीस
+              600 Pieces
             </Text>
           </View>
 
           <View style={styles.specRow}>
             <Text variant="labelMedium" color={theme.colors.text.secondary}>
-              तय दर प्रति पीस:
+              Guaranteed Unit Rate:
             </Text>
             <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-              ₹{opportunity.unitRateArtisan} / पीस
+              ₹25 / Piece
             </Text>
           </View>
 
           <View style={styles.specRow}>
             <Text variant="labelMedium" color={theme.colors.text.secondary}>
-              निर्माण समय सीमा (Timeline):
+              Total Assured Payout:
             </Text>
-            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-              {opportunity.deadlineDate}
-            </Text>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
-
-          <View style={styles.specRow}>
-            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-              कुल पक्की कमाई:
-            </Text>
-            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
-              ₹{opportunity.totalPotentialPayout.toLocaleString('en-IN')}
+            <Text variant="headlineSmall" weight="bold" color="#EA580C">
+              ₹25,000
             </Text>
           </View>
 
           {/* Advance Working Capital Banner */}
-          <View style={[styles.advanceNotice, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
+          <View style={[styles.advanceNotice, { backgroundColor: '#FFF7ED', borderColor: '#FFEDD5', borderWidth: 1 }]}>
             <Text style={{ fontSize: 20, marginRight: 8 }}>💰</Text>
             <View style={{ flex: 1 }}>
-              <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                30% अग्रिम भुगतान गारंटी (Working Capital):
+              <Text variant="labelSmall" weight="bold" color="#EA580C">
+                30% Upfront Material Advance (30% अग्रिम भुगतान गारंटी):
               </Text>
-              <Text variant="labelSmall" color="#6C63FF">
-                स्वीकार करते ही ₹{opportunity.upfrontMaterialAdvance.toLocaleString('en-IN')} आपके बैंक खाते में जमा होंगे।
+              <Text variant="labelSmall" color="#9A3412">
+                ₹7,500 transferred immediately to your bank upon contract acceptance.
               </Text>
             </View>
           </View>
-        </Card>
-
-        {/* Technical Specifications */}
-        <Card style={styles.specsCard}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 10 }}>
-            उत्पाद की गुणवत्ता व आवश्यकताएं:
-          </Text>
-          {opportunity.technicalSpecs.map((spec, index) => (
-            <View key={index} style={styles.bulletRow}>
-              <Text style={[styles.bulletDot, { color: theme.colors.terracotta.primary }]}>•</Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ flex: 1, lineHeight: 20 }}>
-                {spec}
-              </Text>
-            </View>
-          ))}
         </Card>
       </ScrollView>
 
       {/* Bottom Sticky Action Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF' }]}>
         <Button
-          label="कोटेशन स्वीकार करें व 30% एडवांस लें 🚀"
+          label="Accept Quota & Sign Contract (कोटेशन स्वीकार करें व 30% एडवांस लें) 🚀"
           variant="primary"
           onPress={handleProceedToQuote}
         />
@@ -273,6 +412,128 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 14,
+  },
+  clusterEngineCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+  },
+  clusterHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  clusterIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FFEDD5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  aiPillBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginTop: 2,
+  },
+  clusterProgressSection: {
+    marginBottom: 14,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  clusterProgressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  clusterProgressBarTrack: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E2E8F0',
+    overflow: 'hidden',
+  },
+  clusterProgressBarFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+  artisanQuotaList: {
+    gap: 8,
+  },
+  quotaListTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  quotaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  quotaBadge: {
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+  },
+  specHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  briefGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 14,
+  },
+  briefCol: {
+    flexBasis: '48%',
+    flexGrow: 1,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  collectiveTrackerBox: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  collectiveTrackerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  collectiveTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#DCFCE7',
+    overflow: 'hidden',
+  },
+  collectiveFill: {
+    height: '100%',
+    borderRadius: 4,
   },
   bulletRow: {
     flexDirection: 'row',

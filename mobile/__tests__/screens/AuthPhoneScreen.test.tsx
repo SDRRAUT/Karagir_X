@@ -15,7 +15,7 @@ describe('AuthPhoneScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders test mode badge and direct login button without requiring OTP', async () => {
+  it('renders quick demo login button and role selector', async () => {
     const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -25,7 +25,7 @@ describe('AuthPhoneScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/🧪 टेस्टिंग मोड: OTP सत्यापन हटाया गया है/)).toBeTruthy();
+    expect(getByText(/CRAFT • CONNECT • GROW/)).toBeTruthy();
     expect(getByTestId('quick-demo-btn')).toBeTruthy();
   });
 
@@ -49,7 +49,7 @@ describe('AuthPhoneScreen', () => {
   });
 
   it('allows entering digits via keypad and logging in directly without OTP verification', async () => {
-    const { getByText } = await render(
+    const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
           navigation={mockNavigation}
@@ -57,6 +57,11 @@ describe('AuthPhoneScreen', () => {
         />
       </ThemeProvider>
     );
+
+    // Open keypad
+    await act(async () => {
+      fireEvent.press(getByText('🔢 कीपैड खोलें'));
+    });
 
     // Enter 9876543210 via keypad
     const digits = ['9', '8', '7', '6', '5', '4', '3', '2', '1', '0'];
@@ -67,7 +72,7 @@ describe('AuthPhoneScreen', () => {
     }
 
     await act(async () => {
-      fireEvent.press(getByText('लॉगिन करें (बिना OTP) →'));
+      fireEvent.press(getByTestId('login-submit-btn'));
     });
 
     expect(mockNavigation.replace).toHaveBeenCalledWith('ProfileSetup', { role: 'BUYER' });

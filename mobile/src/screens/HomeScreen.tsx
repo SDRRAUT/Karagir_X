@@ -1,200 +1,349 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
-import { useTheme } from '@/theme/ThemeProvider';
-import {
-  Text,
-  Button,
-  StatCard,
-  VerifiedArtisanBadge,
-  StatusBanner,
-  FloatingMicButton,
-  Card,
-} from '@/components';
+import { Text } from '@/components/typography/Text';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
+interface ProductTile {
+  id: string;
+  name: string;
+  price: string;
+  imageUrl: string;
+}
+
+const ARTISAN_PRODUCTS: ProductTile[] = [
+  {
+    id: 'prod_1',
+    name: 'Terracotta Diya',
+    price: '₹145 / piece',
+    imageUrl:
+      'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+  },
+  {
+    id: 'prod_2',
+    name: 'Handmade Pot',
+    price: '₹350 / piece',
+    imageUrl:
+      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+  },
+];
+
 export const HomeScreen: React.FC = () => {
-  const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isOnline, locale } = useAppStore();
-  const { user, logout } = useAuthStore();
+  const { isOnline } = useAppStore();
+  const { user } = useAuthStore();
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  const artisanName = user?.fullName || 'Ramesh';
+
+  const handleVoiceGreeting = () => {
+    setIsPlayingAudio(true);
+    Alert.alert(
+      '🗣️ Voice Saathi Greeting',
+      `"Namaste, ${artisanName}! Welcome back to your workshop. You have 1,114k rupees in earnings, 3 active orders, and 2 new bulk opportunities."`,
+      [{ text: 'OK', onPress: () => setIsPlayingAudio(false) }]
+    );
+  };
+
+  const handleSpeakText = (text: string) => {
+    Alert.alert('🔊 Voice Readback', text);
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      {/* Offline Banner */}
       {!isOnline && (
-        <StatusBanner message="इंटरनेट नहीं है — आपका काम फोन में सुरक्षित है। (Offline Mode)" />
+        <View style={styles.offlineBanner}>
+          <Text style={{ fontSize: 14, marginRight: 6 }}>☁️</Text>
+          <Text variant="caption" weight="bold" color="#FFFFFF">
+            No internet connection
+          </Text>
+        </View>
       )}
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Top Demo Bar / Quick Navigation */}
-        <View style={styles.demoBarRow}>
-          <TouchableOpacity
-            style={[styles.demoSwitchBtn, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}
-            onPress={async () => {
-              await logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'AuthPhone' }],
-              });
+      {/* Stitch Fixed Header Bar */}
+      <View style={styles.headerBar}>
+        <View style={styles.headerLeft}>
+          <Image
+            source={require('../../assets/karigarx_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b" style={styles.headerTitle}>
+            Home
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.profileAvatarButton}
+          onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
+          accessibilityLabel="Profile"
+        >
+          <Image
+            source={{
+              uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
             }}
-          >
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-              🔑 लॉगिन पेज देखें (Go to Login Screen)
+            style={styles.profileAvatarImg}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Welcome Greeting & Audio Button */}
+        <View style={styles.greetingSection}>
+          <View style={styles.greetingTextContainer}>
+            <Text variant="headlineMedium" weight="bold" color="#2b2b2b" style={styles.namasteTitle}>
+              Namaste, {artisanName}!
             </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* KarigarX Official Brand Header */}
-        <View style={styles.brandHeaderBar}>
-          <View style={styles.brandHeaderLeft}>
-            <Image
-              source={require('../../assets/karigarx_logo.png')}
-              style={styles.brandHeaderLogo}
-              resizeMode="contain"
-            />
-            <View>
-              <Text variant="headlineSmall" weight="bold" color="#0E243F">
-                KARIGARX
-              </Text>
-              <Text variant="caption" weight="semiBold" color="#5A52DD">
-                CRAFT • CONNECT • GROW
-              </Text>
-            </View>
-          </View>
-          <VerifiedArtisanBadge />
-        </View>
-
-        {/* Top Greeting Header */}
-        <View style={styles.header}>
-          <View>
-            <View style={styles.greetingRow}>
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                नमस्ते, {user?.fullName || 'सुनीता जी'}!
-              </Text>
-              <Text style={styles.namasteIcon}>🙏</Text>
-            </View>
-            <Text variant="caption" color={theme.colors.text.secondary} style={styles.clusterSubtext}>
-              मधुबनी क्लस्टर, बिहार • <Text variant="caption" color={theme.colors.brand.primary}>{locale}</Text>
+            <Text variant="bodySmall" color="#737373" style={styles.workshopSubtitle}>
+              Welcome back to your workshop.
             </Text>
           </View>
-        </View>
-
-        {/* Hero Monthly Earnings Card */}
-        <StatCard
-          title="इस महीने की कमाई (This Month)"
-          amountFormatted="₹8,400"
-          trendText="↑ 20% ज्यादा"
-          subtitle="State Bank of India (...4921)"
-          onPressAudio={() => {}}
-        />
-
-        {/* Quick Actions Header */}
-        <View style={styles.sectionHeaderRow}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-            त्वरित कार्य (Quick Actions)
-          </Text>
-          <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-            सभी देखें
-          </Text>
-        </View>
-
-        {/* Primary Action Button */}
-        <Button
-          label="📸 नया प्रोडक्ट जोड़ें (Add Product)"
-          variant="primary"
-          size="decision"
-          onPress={() => navigation.navigate('CameraCapture')}
-          style={styles.actionBtn}
-        />
-
-        {/* Secondary Action Button */}
-        <Button
-          label="🛍️ शिल्प बाज़ार देखें (Explore Marketplace)"
-          variant="secondary"
-          size="default"
-          onPress={() => navigation.navigate('MarketplaceHome')}
-          style={styles.secondaryBtn}
-        />
-
-        {/* Metrics Grid */}
-        <View style={styles.twoCol}>
-          <Card style={styles.smallActionCard}>
-            <View style={[styles.cardIconCircle, { backgroundColor: theme.colors.brand.light }]}>
-              <Text style={styles.cardEmoji}>📦</Text>
-            </View>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              1 नया ऑर्डर
-            </Text>
-            <View style={[styles.pendingPill, { backgroundColor: theme.colors.brand.light }]}>
-              <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-                जवाब देना बाकी
-              </Text>
-            </View>
-          </Card>
 
           <TouchableOpacity
-            style={{ flex: 1, marginLeft: 8 }}
-            onPress={() => navigation.navigate('Opportunities')}
-            accessibilityRole="button"
-            accessibilityLabel="Bada Bazaar Opportunities"
+            style={[styles.voiceGreetingBtn, isPlayingAudio && styles.voiceGreetingBtnActive]}
+            onPress={handleVoiceGreeting}
+            accessibilityLabel="Play welcome greeting"
           >
-            <Card style={styles.smallActionCard}>
-              <View style={[styles.cardIconCircle, { backgroundColor: '#EDEAFF' }]}>
-                <Text style={styles.cardEmoji}>🤝</Text>
-              </View>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                बड़ा बाज़ार
-              </Text>
-              <Text variant="caption" weight="bold" color={theme.colors.primary.emerald700} style={styles.rfqText}>
-                2 बल्क RFQ उपलब्ध →
-              </Text>
-            </Card>
+            <Text style={{ fontSize: 22 }}>🗣️</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Stitch GI Tagged Heritage Card */}
-        <View style={[styles.heritageCard, { backgroundColor: '#252547', borderColor: '#2F3631' }]}>
-          <View style={styles.heritageLeft}>
-            <View style={styles.heritageIconCircle}>
-              <Text style={styles.heritageIcon}>🏛️</Text>
-            </View>
-            <View>
-              <View style={styles.giTagBadge}>
-                <Text style={styles.giTagText}>GI TAGGED HERITAGE</Text>
-              </View>
-              <Text variant="bodySmall" color="#D6D3D1" style={styles.heritageName}>
-                मधुबनी चित्रकला क्लस्टर (Mithila Art)
-              </Text>
-            </View>
+        {/* 3 KPI Metric Tiles (Stitch Exact Layout) */}
+        <View style={styles.kpiGrid}>
+          {/* Earnings Tile */}
+          <View style={styles.kpiCard}>
+            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
+              EARNINGS
+            </Text>
+            <Text variant="headlineSmall" weight="bold" color="#e85d2a" style={styles.kpiValue}>
+              ₹1,114k
+            </Text>
           </View>
-          <Text style={styles.heritageCheck}>✓</Text>
+
+          {/* Orders Tile */}
+          <View style={styles.kpiCard}>
+            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
+              ORDERS
+            </Text>
+            <Text variant="headlineSmall" weight="bold" color="#1b9aaa" style={styles.kpiValue}>
+              3
+            </Text>
+          </View>
+
+          {/* Opps Tile */}
+          <View style={styles.kpiCard}>
+            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
+              OPPS
+            </Text>
+            <Text variant="headlineSmall" weight="bold" color="#f4b942" style={styles.kpiValue}>
+              2
+            </Text>
+          </View>
         </View>
 
-        {/* Stitch Bolie Saathi Voice Assistant Hint */}
-        <View style={[styles.voiceHintCard, { backgroundColor: theme.colors.ochre.light, borderColor: theme.colors.ochre.border }]}>
-          <View style={styles.voiceHintLeft}>
-            <Text style={styles.voiceHintIcon}>🎙️</Text>
-            <View>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
-                बोलिए साथी (Voice Assistant)
+        {/* Stitch "Create New Product" Hero Action Card */}
+        <TouchableOpacity
+          style={styles.createProductHeroCard}
+          onPress={() => navigation.navigate('CameraPermission')}
+          activeOpacity={0.92}
+        >
+          <View style={styles.heroButtonIconsRow}>
+            <View style={styles.heroIconCircle}>
+              <Text style={{ fontSize: 20 }}>📷</Text>
+            </View>
+            <View style={styles.heroIconCircle}>
+              <Text style={{ fontSize: 20 }}>🎙️</Text>
+            </View>
+          </View>
+          <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={styles.createProductTitle}>
+            Create New Product
+          </Text>
+          <Text variant="caption" color="rgba(255, 255, 255, 0.85)">
+            Tap to start with a photo or voice
+          </Text>
+        </TouchableOpacity>
+
+        {/* Triple Dot Divider Motif */}
+        <View style={styles.motifDivider}>
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+        </View>
+
+        {/* My Products Reel Section */}
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+            My Products
+          </Text>
+          <TouchableOpacity
+            style={styles.audioSpeakerBtn}
+            onPress={() =>
+              handleSpeakText(
+                'Your Products. Terracotta Diya selling at 45 rupees per piece, and Handmade Pot at 350 rupees per piece.'
+              )
+            }
+            accessibilityLabel="Read products section aloud"
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Horizontal Snap Scroll Reel */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.productsReel}
+        >
+          {ARTISAN_PRODUCTS.map((item) => (
+            <View key={item.id} style={styles.productTileCard}>
+              <Image source={{ uri: item.imageUrl }} style={styles.tileImg} resizeMode="cover" />
+              <View style={styles.tileInfo}>
+                <Text variant="caption" weight="bold" color="#2b2b2b" numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text variant="caption" weight="bold" color="#e85d2a">
+                  {item.price}
+                </Text>
+              </View>
+            </View>
+          ))}
+
+          <TouchableOpacity
+            style={styles.viewAllCard}
+            onPress={() => navigation.navigate('CameraPermission')}
+          >
+            <Text style={{ fontSize: 28, color: '#737373', marginBottom: 4 }}>⊕</Text>
+            <Text variant="caption" weight="bold" color="#737373">
+              View All
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* Triple Dot Divider Motif */}
+        <View style={styles.motifDivider}>
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+        </View>
+
+        {/* New Opportunities Section (Stitch Exact Card) */}
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+            New Opportunities
+          </Text>
+          <TouchableOpacity
+            style={styles.audioSpeakerBtn}
+            onPress={() =>
+              handleSpeakText(
+                'New Opportunities. Bulk order request from corporate gifting client for 500 hand-painted clay items. Estimated value 25 thousand rupees.'
+              )
+            }
+            accessibilityLabel="Read opportunities section aloud"
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.opportunityCard}>
+          <View style={styles.oppTopRow}>
+            <View style={{ flex: 1 }}>
+              <Text variant="headlineSmall" weight="bold" color="#0E535C">
+                Bulk Order Request
               </Text>
-              <Text variant="caption" color={theme.colors.text.secondary}>
-                माइक दबाकर बोलें: "मेरा ऑर्डर दिखाओ"
+              <Text variant="bodySmall" color="#147582" style={{ marginTop: 2 }}>
+                Corporate gifting client seeking 500 hand-painted clay items.
               </Text>
             </View>
           </View>
-          <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-            सुने →
-          </Text>
+
+          <View style={styles.oppTagsRow}>
+            <View style={styles.matchTag}>
+              <Text style={{ fontSize: 11, marginRight: 4, color: '#FFFFFF' }}>✓</Text>
+              <Text variant="caption" weight="bold" color="#FFFFFF">
+                Match: Pottery
+              </Text>
+            </View>
+            <View style={styles.estTag}>
+              <Text variant="caption" weight="bold" color="#0E535C">
+                Est: ₹25k
+              </Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.reviewDetailsBtn}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'BulkDealsTab' })}
+          >
+            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
+              Review Details
+            </Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Schemes & Support Section (Stitch Exact Card) */}
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+            Schemes & Support
+          </Text>
+          <TouchableOpacity
+            style={styles.audioSpeakerBtn}
+            onPress={() =>
+              handleSpeakText(
+                'Schemes and Support. Artisan Credit Card. Apply for low interest loans designed specifically for craftspeople.'
+              )
+            }
+            accessibilityLabel="Read schemes section aloud"
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.schemeCard}
+          onPress={() =>
+            Alert.alert(
+              '💳 Artisan Credit Card Scheme',
+              'Apply for Mudra / PM Vishwakarma low-interest loans (5% subsidised) designed specifically for verified traditional artisans.'
+            )
+          }
+          activeOpacity={0.88}
+        >
+          <View style={styles.schemeIconCircle}>
+            <Text style={{ fontSize: 22 }}>🏛️</Text>
+          </View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text variant="bodyMedium" weight="bold" color="#2b2b2b">
+              Artisan Credit Card
+            </Text>
+            <Text variant="bodySmall" color="#737373" numberOfLines={2} style={{ marginTop: 2 }}>
+              Apply for low-interest loans designed specifically for craftspeople.
+            </Text>
+          </View>
+          <Text style={{ fontSize: 18, color: '#A3A3A3' }}>›</Text>
+        </TouchableOpacity>
       </ScrollView>
 
-      {/* Floating Voice Assistant Button */}
-      <FloatingMicButton onPress={() => navigation.navigate('VoiceDescription')} />
+      {/* Floating Saffron Mic Button (Stitch Exact Floating Action Button) */}
+      <TouchableOpacity
+        style={styles.floatingMicBtn}
+        onPress={() => navigation.navigate('MicPermission')}
+        accessibilityLabel="Voice Assistant Mic"
+        activeOpacity={0.88}
+      >
+        <Text style={{ fontSize: 26 }}>🎙️</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -202,176 +351,288 @@ export const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#FFFDF7', // Stitch exact canvas
+  },
+  offlineBanner: {
+    backgroundColor: '#EF4444',
+    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerBar: {
+    height: 56,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 253, 247, 0.95)',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECE8DC',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoImage: {
+    width: 32,
+    height: 32,
+    marginRight: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  profileAvatarButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#e85d2a',
+  },
+  profileAvatarImg: {
+    width: '100%',
+    height: '100%',
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 96,
-    maxWidth: 600,
-    width: '100%',
-    alignSelf: 'center',
+    paddingBottom: 90, // Space for floating mic and bottom bar
   },
-  brandHeaderBar: {
+  greetingSection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 16,
-    marginBottom: 14,
-    shadowColor: '#5A52DD',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#E8ECF4',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
-  brandHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  greetingTextContainer: {
+    flex: 1,
   },
-  brandHeaderLogo: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    marginRight: 10,
+  namasteTitle: {
+    fontSize: 24,
+    letterSpacing: -0.3,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  greetingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  namasteIcon: {
-    fontSize: 20,
-  },
-  clusterSubtext: {
+  workshopSubtitle: {
     marginTop: 2,
   },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  voiceGreetingBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFD7C7',
     alignItems: 'center',
-    marginTop: 14,
+    justifyContent: 'center',
+    shadowColor: '#e85d2a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  voiceGreetingBtnActive: {
+    backgroundColor: '#e85d2a',
+  },
+  kpiGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 8,
+    marginTop: 6,
+  },
+  kpiCard: {
+    flex: 1,
+    backgroundColor: '#F5F3EB',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+  },
+  kpiLabel: {
+    fontSize: 10,
+    letterSpacing: 0.8,
+    marginBottom: 4,
+  },
+  kpiValue: {
+    fontSize: 18,
+  },
+  createProductHeroCard: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    backgroundColor: '#e85d2a', // Stitch Terracotta #e85d2a
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#e85d2a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  heroButtonIconsRow: {
+    flexDirection: 'row',
+    gap: 12,
     marginBottom: 10,
   },
-  actionBtn: {
-    marginVertical: 4,
-  },
-  secondaryBtn: {
-    marginTop: 6,
-    marginBottom: 14,
-  },
-  twoCol: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-  },
-  smallActionCard: {
-    alignItems: 'center',
-    padding: 14,
-  },
-  cardIconCircle: {
+  heroIconCircle: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
   },
-  cardEmoji: {
-    fontSize: 22,
+  createProductTitle: {
+    fontSize: 20,
+    marginBottom: 4,
   },
-  pendingPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    marginTop: 4,
-  },
-  rfqText: {
-    marginTop: 4,
-  },
-  heritageCard: {
+  motifDivider: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 14,
-    borderRadius: 16,
-    borderWidth: 1,
+    gap: 8,
+    paddingVertical: 16,
+    opacity: 0.25,
+  },
+  motifDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#2b2b2b',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
     marginBottom: 12,
   },
-  heritageLeft: {
+  audioSpeakerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F5F3EB',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productsReel: {
+    paddingHorizontal: 16,
+    gap: 12,
+    paddingBottom: 8,
+  },
+  productTileCard: {
+    width: 140,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  tileImg: {
+    width: '100%',
+    height: 100,
+  },
+  tileInfo: {
+    padding: 8,
+  },
+  viewAllCard: {
+    width: 140,
+    height: 146,
+    backgroundColor: '#F5F3EB',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  opportunityCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#C8EEF3', // Stitch secondary container
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#B0E2EA',
+    marginBottom: 8,
+  },
+  oppTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  oppTagsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  matchTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1b9aaa',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  estTag: {
+    backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  reviewDetailsBtn: {
+    backgroundColor: '#1b9aaa',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  schemeCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+    marginBottom: 16,
   },
-  heritageIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: '#3D2C1E',
+  schemeIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFE4A0',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heritageIcon: {
-    fontSize: 20,
-  },
-  giTagBadge: {
-    backgroundColor: '#422006',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-    borderWidth: 0.5,
-    borderColor: '#854D0E',
-  },
-  giTagText: {
-    color: '#FACC15',
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  heritageName: {
-    marginTop: 2,
-  },
-  heritageCheck: {
-    color: '#A8A29E',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  voiceHintCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  floatingMicBtn: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#e85d2a', // Stitch Saffron #e85d2a
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginTop: 4,
-  },
-  voiceHintLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  voiceHintIcon: {
-    fontSize: 24,
-  },
-  demoBarRow: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 4,
-    alignItems: 'flex-end',
-  },
-  demoSwitchBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
+    justifyContent: 'center',
+    shadowColor: '#e85d2a',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+    zIndex: 50,
   },
 });
