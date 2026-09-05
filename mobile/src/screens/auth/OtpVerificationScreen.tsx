@@ -19,8 +19,7 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
   const { locale } = useAppStore();
   const { setSession } = useAuthStore();
 
-  // Pre-filled with 123456 for effortless test bypass
-  const [otpDigits, setOtpDigits] = useState('123456');
+  const [otpDigits, setOtpDigits] = useState('');
   const [currentSessionId, setCurrentSessionId] = useState(sessionId);
   const [secondsRemaining, setSecondsRemaining] = useState(60);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +60,11 @@ export const OtpVerificationScreen: React.FC<Props> = ({ route, navigation }) =>
   };
 
   const handleVerify = async () => {
-    const code = otpDigits.length === 6 ? otpDigits : '123456';
+    const code = otpDigits.trim();
+    if (code.length !== 6) {
+      setErrorMessage('कृपया पूरा 6 अंकों का OTP दर्ज करें (Enter 6-digit code)');
+      return;
+    }
 
     setIsLoading(true);
     setErrorMessage(null);

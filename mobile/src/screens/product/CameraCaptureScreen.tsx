@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -100,9 +100,14 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('PhotoReview');
   };
 
-  // If permission is not granted, route back to primer
+  // If permission is not granted, route back to primer safely in an effect
+  useEffect(() => {
+    if (permission && !permission.granted) {
+      navigation.replace('CameraPermission');
+    }
+  }, [permission, navigation]);
+
   if (!permission?.granted) {
-    navigation.replace('CameraPermission');
     return null;
   }
 

@@ -8,7 +8,13 @@ export interface AppConfig {
   readonly enableVoiceAssistant: boolean;
   readonly enableAnalytics: boolean;
   readonly appVersion: string;
+  readonly supabaseUrl: string;
+  readonly supabaseAnonKey: string;
 }
+
+const DEFAULT_SUPABASE_URL = 'https://epnfavpqweeybzoyoexq.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwbmZhdnBxd2VleWJ6b3lvZXhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MTcxOTMsImV4cCI6MjEwMzk5MzE5M30.PIvlGuiavqRRnb1zTFIwdmizMh9AeSLxc5nW8YdhYHQ';
 
 const DEFAULT_CONFIG: Record<Environment, AppConfig> = {
   development: {
@@ -19,6 +25,8 @@ const DEFAULT_CONFIG: Record<Environment, AppConfig> = {
     enableVoiceAssistant: true,
     enableAnalytics: false,
     appVersion: '1.0.0-dev',
+    supabaseUrl: DEFAULT_SUPABASE_URL,
+    supabaseAnonKey: DEFAULT_SUPABASE_ANON_KEY,
   },
   staging: {
     environment: 'staging',
@@ -28,6 +36,8 @@ const DEFAULT_CONFIG: Record<Environment, AppConfig> = {
     enableVoiceAssistant: true,
     enableAnalytics: true,
     appVersion: '1.0.0-rc1',
+    supabaseUrl: DEFAULT_SUPABASE_URL,
+    supabaseAnonKey: DEFAULT_SUPABASE_ANON_KEY,
   },
   production: {
     environment: 'production',
@@ -37,6 +47,8 @@ const DEFAULT_CONFIG: Record<Environment, AppConfig> = {
     enableVoiceAssistant: true,
     enableAnalytics: true,
     appVersion: '1.0.0',
+    supabaseUrl: DEFAULT_SUPABASE_URL,
+    supabaseAnonKey: DEFAULT_SUPABASE_ANON_KEY,
   },
 };
 
@@ -59,6 +71,8 @@ export function getAppConfig(overrideEnv?: Environment): AppConfig {
     apiTimeoutMs: process.env.EXPO_PUBLIC_API_TIMEOUT_MS
       ? Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS)
       : baseConfig.apiTimeoutMs,
+    supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || baseConfig.supabaseUrl,
+    supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || baseConfig.supabaseAnonKey,
   };
 }
 

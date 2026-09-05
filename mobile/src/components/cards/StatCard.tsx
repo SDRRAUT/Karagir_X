@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 
 export interface StatCardProps {
   title: string;
@@ -25,32 +26,38 @@ export const StatCard: React.FC<StatCardProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: theme.colors.primary.emerald900,
-          borderRadius: theme.touch.radii.card,
-          padding: theme.spacing.md,
-          ...theme.shadows.level2,
+          backgroundColor: '#163D26', // Rich deep craft green with high contrast
+          borderRadius: theme.touch.radii.lg,
+          padding: theme.spacing.lg,
+          ...theme.shadows.medium,
         },
       ]}
     >
       <View style={styles.topRow}>
-        <Text variant="bodyLarge" weight="medium" color={theme.colors.primary.emerald100}>
-          {title}
-        </Text>
+        <View style={styles.titleWrapper}>
+          <Text variant="bodyLarge" weight="medium" color="rgba(255, 255, 255, 0.85)">
+            {title}
+          </Text>
+        </View>
+
         {onPressAudio && (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel="Listen to balance"
             onPress={onPressAudio}
-            style={styles.speakerButton}
+            style={[styles.speakerButton, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}
           >
-            <Text variant="headlineMedium" color={theme.colors.text.inverse}>
-              🔊
-            </Text>
+            <Icon name="speaker" size={18} color={theme.colors.text.inverse} />
           </TouchableOpacity>
         )}
       </View>
 
-      <Text variant="displayLarge" weight="bold" color={theme.colors.text.inverse} style={styles.amount}>
+      <Text
+        variant="display"
+        weight="bold"
+        color={theme.colors.text.inverse}
+        style={styles.amount}
+      >
         {amountFormatted}
       </Text>
 
@@ -59,16 +66,20 @@ export const StatCard: React.FC<StatCardProps> = ({
           <View
             style={[
               styles.trendPill,
-              { backgroundColor: theme.colors.primary.emerald700, borderRadius: theme.touch.radii.sm },
+              { backgroundColor: 'rgba(255, 255, 255, 0.2)', borderRadius: theme.touch.radii.full },
             ]}
           >
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.inverse}>
+            <Text variant="bodySmall" weight="semiBold" color={theme.colors.text.inverse}>
               {trendText}
             </Text>
           </View>
         )}
         {subtitle && (
-          <Text variant="bodySmall" color={theme.colors.primary.emerald100} style={styles.subtitle}>
+          <Text
+            variant="bodySmall"
+            color="rgba(255, 255, 255, 0.8)"
+            style={styles.subtitle}
+          >
             {subtitle}
           </Text>
         )}
@@ -87,11 +98,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  titleWrapper: {
+    flex: 1,
+  },
   speakerButton: {
-    padding: 4,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   amount: {
-    marginVertical: 10,
+    marginVertical: 12,
   },
   bottomRow: {
     flexDirection: 'row',
@@ -100,8 +118,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   trendPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   subtitle: {
     marginLeft: 8,

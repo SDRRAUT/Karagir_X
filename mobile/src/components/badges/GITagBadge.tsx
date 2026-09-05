@@ -2,12 +2,19 @@ import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 
 export interface GITagBadgeProps {
+  tagTitle?: string;
+  isCompact?: boolean;
   style?: ViewStyle;
 }
 
-export const GITagBadge: React.FC<GITagBadgeProps> = ({ style }) => {
+export const GITagBadge: React.FC<GITagBadgeProps> = ({
+  tagTitle = 'GI TAGGED HERITAGE',
+  isCompact = false,
+  style,
+}) => {
   const theme = useTheme();
 
   return (
@@ -15,17 +22,28 @@ export const GITagBadge: React.FC<GITagBadgeProps> = ({ style }) => {
       style={[
         styles.container,
         {
-          backgroundColor: theme.colors.ochre.dark,
-          borderRadius: theme.touch.radii.xs,
+          backgroundColor: theme.colors.brand.accentLight,
+          borderColor: 'rgba(212, 165, 54, 0.4)',
+          borderRadius: theme.touch.radii.full,
+          paddingHorizontal: isCompact ? 6 : 10,
+          paddingVertical: isCompact ? 2 : 4,
         },
         style,
       ]}
       accessibilityRole="text"
       accessibilityLabel="Geographical Indication Heritage Certified"
     >
-      <Text style={styles.icon}>🏛️</Text>
-      <Text variant="bodySmall" weight="bold" color={theme.colors.ochre.light}>
-        GI TAGGED HERITAGE
+      <View style={styles.iconWrap}>
+        <Icon name="shieldCheck" size={isCompact ? 12 : 14} color="#7A5B0B" />
+      </View>
+      <Text
+        variant="labelMedium"
+        weight="semiBold"
+        color="#7A5B0B"
+        numberOfLines={1}
+        style={{ fontSize: isCompact ? 10 : 11, lineHeight: isCompact ? 13 : 15 }}
+      >
+        {tagTitle}
       </Text>
     </View>
   );
@@ -35,12 +53,10 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    borderWidth: 1,
     alignSelf: 'flex-start',
   },
-  icon: {
+  iconWrap: {
     marginRight: 4,
-    fontSize: 10,
   },
 });

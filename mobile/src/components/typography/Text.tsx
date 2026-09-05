@@ -3,14 +3,18 @@ import { Text as RNText, TextProps as RNTextProps, StyleSheet, TextStyle } from 
 import { useTheme } from '@/theme/ThemeProvider';
 
 export type TextVariant =
-  | 'displayLarge'
-  | 'displayMedium'
+  | 'display'
   | 'headlineLarge'
   | 'headlineMedium'
   | 'headlineSmall'
   | 'bodyLarge'
   | 'bodyMedium'
   | 'bodySmall'
+  | 'labelLarge'
+  | 'labelMedium'
+  | 'numeral'
+  | 'displayLarge'
+  | 'displayMedium'
   | 'numeralExtraBold';
 
 export interface TextProps extends RNTextProps {
@@ -34,6 +38,7 @@ export const Text: React.FC<TextProps> = ({
   const variantStyle: TextStyle = {
     fontSize: theme.typography.sizes[variant],
     lineHeight: theme.typography.lineHeights[variant],
+    letterSpacing: theme.typography.letterSpacing[variant as keyof typeof theme.typography.letterSpacing] ?? 0,
     fontFamily: theme.typography.fonts[weight || 'regular'],
     fontWeight: weight ? theme.typography.weights[weight] : '400',
     color: color || theme.colors.text.primary,

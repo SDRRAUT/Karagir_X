@@ -2,13 +2,18 @@
   "java.import.exclusions": [
     "**/node_modules/**",
     "**/.expo/**",
-    "**/dist/**"
+    "**/dist/**",
+    "**/mobile/node_modules/**"
   ],
   "java.project.resourceFilters": [
     "node_modules",
     ".expo",
     "dist"
   ],
+  "java.import.gradle.enabled": false,
+  "java.autobuild.enabled": false,
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "gradle.nestedProjects": false,
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.expo/**": true,

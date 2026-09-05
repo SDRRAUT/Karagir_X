@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, StyleSheet, Animated, ViewStyle } from 'react-native';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { StyleSheet, Animated, ViewStyle, Pressable } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/theme/ThemeProvider';
-import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 
 export interface FloatingMicButtonProps {
   isRecording?: boolean;
@@ -17,21 +18,22 @@ export const FloatingMicButton: React.FC<FloatingMicButtonProps> = ({
   style,
 }) => {
   const theme = useTheme();
-  const [pulseAnim] = useState(() => new Animated.Value(1));
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    let animation: Animated.CompositeAnimation;
+    let animation: Animated.CompositeAnimation | null = null;
     if (isRecording) {
       animation = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.25,
-            duration: 500,
+            toValue: 1.18,
+            duration: 450,
             useNativeDriver: true,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1.0,
-            duration: 500,
+            duration: 450,
             useNativeDriver: true,
           }),
         ])
@@ -46,23 +48,49 @@ export const FloatingMicButton: React.FC<FloatingMicButtonProps> = ({
     };
   }, [isRecording, pulseAnim]);
 
+  const handlePress = useCallback(() => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+    onPress();
+  }, [onPress]);
+
+  const handlePressIn = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 0.94,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
   const buttonColor = isRecording
-    ? theme.colors.status.danger
-    : theme.colors.terracotta.primary;
+    ? theme.colors.status.error
+    : theme.colors.brand.primary;
+
+  const fabSize = theme.touch.floatingMicSize || 56;
 
   return (
     <Animated.View
       style={[
         styles.container,
         {
-          transform: [{ scale: pulseAnim }],
+          transform: [{ scale: Animated.multiply(pulseAnim, scaleAnim) }],
         },
         style,
       ]}
     >
-      <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={onPress}
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
         accessibilityState={{ selected: isRecording }}
@@ -70,17 +98,19 @@ export const FloatingMicButton: React.FC<FloatingMicButtonProps> = ({
           styles.button,
           {
             backgroundColor: buttonColor,
-            width: theme.touch.floatingMicSize,
-            height: theme.touch.floatingMicSize,
-            borderRadius: theme.touch.floatingMicSize / 2,
-            ...theme.shadows.level3,
+            width: fabSize,
+            height: fabSize,
+            borderRadius: fabSize / 2,
+            ...theme.shadows.medium,
           },
         ]}
       >
-        <Text variant="headlineMedium" color={theme.colors.text.inverse}>
-          🎤
-        </Text>
-      </TouchableOpacity>
+        <Icon
+          name="microphone"
+          size={28}
+          color={theme.colors.text.inverse}
+        />
+      </Pressable>
     </Animated.View>
   );
 };

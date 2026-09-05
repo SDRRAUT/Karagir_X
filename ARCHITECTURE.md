@@ -572,4 +572,51 @@ The notification service implements an automated fallback cascade:
 
 ---
 
+# 18. Supabase Production Backend Foundation & Mobile Data Access Layer
+
+### 18.1 Clean Architecture Data Flow
+The React Native mobile client adheres to a strict unidirectional data access architecture, preventing ad-hoc API queries from presentation layers:
+
+```
+┌────────────────────────────────────────────────────────┐
+│               PRESENTATION LAYER (UI)                  │
+│   (Screens, Modern Tactile Components, Modals)         │
+└───────────────────────────┬────────────────────────────┘
+                            │ Dispatches User Actions
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             STATE MANAGEMENT LAYER (Zustand)           │
+│   (useAuthStore, useCartStore, useOrderStore, etc.)    │
+└───────────────────────────┬────────────────────────────┘
+                            │ Calls Data Services
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             SERVICE / DATA ACCESS LAYER                │
+│   (authService, productService, marketplaceService)   │
+└───────────────────────────┬────────────────────────────┘
+                            │ Validates & Prepares Payloads
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             SUPABASE SDK LAYER (@supabase/js)          │
+│   (Session Persistence, PostgREST Client, Storage)     │
+└───────────────────────────┬────────────────────────────┘
+                            │ HTTPS / TLS 1.3
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             SUPABASE CLUSTER (Cloud ap-southeast-2)    │
+│   - PostgreSQL 15+ with pg_trgm & pgcrypto             │
+│   - Row Level Security (RLS) on all 19 Tables          │
+│   - Database Triggers (Automatic Profile Creation)     │
+│   - Encrypted Object Storage (4 S3-compatible buckets) │
+└────────────────────────────────────────────────────────┘
+```
+
+### 18.2 Core Architectural Invariants
+1. **Zero Client Secret Exposure:** The mobile application bundles strictly the public anonymous key (`EXPO_PUBLIC_SUPABASE_ANON_KEY`). Service-role keys are prohibited.
+2. **Database-Enforced Authorization:** Mobile UI conditional rendering is never considered security. RLS policies independently evaluate every transaction against `(select auth.uid())`.
+3. **Automated User Lifecycle:** When an artisan or buyer signs up through Supabase Auth, PostgreSQL trigger `on_auth_user_created` atomically seeds `public.profiles`.
+4. **Resilient Local Persistence:** Auth tokens and offline sync queues are persisted locally via AsyncStorage, enabling instant app restarts without visual authentication flicker.
+
+---
+
 *End of Production Architecture Specification — Kalakar Setu Platform*
