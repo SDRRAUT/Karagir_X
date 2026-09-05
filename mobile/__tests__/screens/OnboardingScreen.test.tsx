@@ -16,7 +16,7 @@ describe('OnboardingScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/Snap & Build/i)).toBeTruthy();
+    expect(getByText(/1 Photo = Instant/i)).toBeTruthy();
 
     // Tap continue to go to slide 2
     await act(async () => {
