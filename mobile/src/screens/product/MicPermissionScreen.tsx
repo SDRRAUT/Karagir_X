@@ -17,62 +17,45 @@ export const MicPermissionScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
         {/* Cultural Microphone Icon */}
-        <View
-          style={[
-            styles.iconCircle,
-            {
-              backgroundColor: theme.colors.primary.emerald100,
-              borderColor: theme.colors.primary.emerald700,
-            },
-          ]}
-        >
+        <View style={styles.iconCircle}>
           <Text style={styles.iconText}>🎙️</Text>
         </View>
 
         {/* Header Text */}
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
-          माइक की अनुमति दें
+        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
+          Microphone Permission
         </Text>
-        <Text variant="headlineMedium" color={theme.colors.primary.emerald700} style={styles.vernacularTitle}>
-          Allow Microphone Access
-        </Text>
-
-        <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.description}>
-          आपको कोई फॉर्म भरने की ज़रूरत नहीं है! बस अपनी भाषा में बोलें और AI आपकी पूरी दुकान खुद बना देगा।
+        <Text variant="headlineSmall" color={theme.colors.terracotta[600]} style={styles.vernacularTitle}>
+          Voice-First AI Listing Assistant
         </Text>
 
-        {/* Vernacular Audio Prompt Card */}
-        <View
-          style={[
-            styles.voiceCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
+        <Text variant="bodyLarge" color={theme.colors.charcoal[600]} style={styles.description}>
+          No need to type! Just speak naturally in your own language and AI will craft your entire listing for you.
+        </Text>
+
+        {/* Audio Prompt Card */}
+        <View style={styles.voiceCard}>
           <Text style={styles.voiceSpeaker}>🔊</Text>
-          <Text variant="bodyMedium" color={theme.colors.text.primary} style={styles.voiceText}>
-            "प्रोडक्ट के बारे में बोलकर बताने के लिए माइक की अनुमति दें।"
+          <Text variant="bodyMedium" color={theme.colors.charcoal[800]} style={styles.voiceText}>
+            "Please allow microphone access to describe your craft with voice."
           </Text>
         </View>
 
         {/* Actions */}
         <View style={styles.buttonContainer}>
           <Button
-            label="माइक की अनुमति दें (Allow Mic) 🎙️"
+            label="Allow Microphone 🎙️"
             variant="primary"
-            size="decision"
+            size="default"
             onPress={handleAllowMic}
             style={styles.primaryBtn}
           />
           <Button
-            label="मैं टाइप करूंगा (Keyboard Mode)"
-            variant="outline"
+            label="Type with Keyboard"
+            variant="secondary"
             size="default"
             onPress={() => navigation.replace('VoiceDescription')}
           />
@@ -93,16 +76,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2.5,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#F0EEFF',
+    borderWidth: 2,
+    borderColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   iconText: {
-    fontSize: 56,
+    fontSize: 50,
   },
   title: {
     textAlign: 'center',
@@ -110,7 +95,8 @@ const styles = StyleSheet.create({
   },
   vernacularTitle: {
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
+    fontWeight: '600',
   },
   description: {
     textAlign: 'center',
@@ -122,16 +108,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     borderRadius: 16,
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
+    borderColor: '#FFBF42',
     marginBottom: 32,
     width: '100%',
   },
   voiceSpeaker: {
-    fontSize: 28,
+    fontSize: 26,
     marginRight: 12,
   },
   voiceText: {
     flex: 1,
+    lineHeight: 20,
   },
   buttonContainer: {
     width: '100%',
@@ -140,3 +129,4 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 });
+

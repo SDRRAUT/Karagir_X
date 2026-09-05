@@ -6,6 +6,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { FOLLOW_UP_QUESTIONS, FollowUpQuestion, voiceService } from '@/api/voiceService';
 
@@ -50,61 +51,62 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const speakQuestion = (text: string) => {
+    try {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-IN';
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
+    } catch (_err) {
+      // Audio readback graceful fallback
+    }
+  };
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          AI सवाल-जवाब ({questionIndex + 1}/{FOLLOW_UP_QUESTIONS.length})
-        </Text>
-        <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-            छोड़ें (Skip) →
-          </Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title={`Voice Saathi • AI Interview (${questionIndex + 1}/${FOLLOW_UP_QUESTIONS.length})`}
+        subtitle="Conversational AI Assistant"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+        rightElement={
+          <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
+            <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
+              Skip →
+            </Text>
+          </TouchableOpacity>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Kalakar Sahayak AI Avatar Card */}
+        {/* Voice Saathi AI Avatar Card */}
         <View style={styles.avatarSection}>
-          <View
-            style={[
-              styles.avatarCircle,
-              {
-                backgroundColor: theme.colors.primary.emerald100,
-                borderColor: theme.colors.primary.emerald700,
-              },
-            ]}
-          >
-            <Text style={styles.avatarEmoji}>🤖</Text>
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarEmoji}>🗣️</Text>
           </View>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
-            कलाकार सहायक (Kalakar Sahayak)
+          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+            Voice Saathi • AI Craft Interviewer
           </Text>
-          <Text variant="bodySmall" color={theme.colors.text.secondary}>
-            सही बाज़ार भाव तय करने के लिए बस यह छोटा सवाल बताएं
+          <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2, textAlign: 'center' }}>
+            No tedious forms. Talk naturally or tap below to answer.
           </Text>
         </View>
 
         {/* Current Question Speech Bubble Card */}
-        <Card style={styles.questionCard}>
+        <Card style={styles.questionCard} variant="elevated">
           <View style={styles.questionBubble}>
-            <Text style={styles.speakerIcon}>🔊</Text>
+            <TouchableOpacity
+              style={styles.speakerBox}
+              onPress={() => speakQuestion(currentQuestion.textEn)}
+              accessibilityLabel="Listen to question"
+            >
+              <Text style={{ fontSize: 22 }}>🔊</Text>
+            </TouchableOpacity>
             <View style={{ flex: 1 }}>
-              <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-                {currentQuestion.textHi}
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 4 }}>
+              <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
                 {currentQuestion.textEn}
               </Text>
             </View>
@@ -116,25 +118,20 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
           <TouchableOpacity
             testID="speak-answer-btn"
             onPress={() => handleSelectOption(currentQuestion.quickOptions[0].value)}
-            style={[
-              styles.speakBtn,
-              {
-                backgroundColor: theme.colors.primary.emerald700,
-                ...theme.shadows.level3,
-              },
-            ]}
+            style={styles.speakBtn}
+            activeOpacity={0.85}
           >
             <Text style={styles.speakMicIcon}>🎙️</Text>
             <Text variant="bodyLarge" weight="bold" color="#FFFFFF">
-              बोलकर जवाब दें
+              Tap to Speak Answer
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Quick Suggestion Chips */}
         <View style={styles.quickOptionsSection}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.optionsLabel}>
-            या इनमें से एक चुनें (Quick Tap):
+          <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.optionsLabel}>
+            Or select a quick answer option:
           </Text>
           {currentQuestion.quickOptions.map((opt, idx) => {
             const isSelected = selectedOption === opt.value;
@@ -142,29 +139,22 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
               <TouchableOpacity
                 key={idx}
                 disabled={isSubmitting}
+                activeOpacity={0.8}
                 onPress={() => handleSelectOption(opt.value)}
                 style={[
                   styles.optionChip,
-                  {
-                    backgroundColor: isSelected
-                      ? theme.colors.primary.emerald100
-                      : theme.colors.surface.card,
-                    borderColor: isSelected
-                      ? theme.colors.primary.emerald700
-                      : theme.colors.surface.border,
-                    borderWidth: isSelected ? 2 : 1,
-                  },
+                  isSelected ? styles.optionChipSelected : styles.optionChipNormal,
                 ]}
               >
                 <Text
                   variant="bodyLarge"
-                  weight={isSelected ? 'bold' : 'medium'}
-                  color={isSelected ? theme.colors.primary.emerald700 : theme.colors.text.primary}
+                  weight={isSelected ? 'bold' : 'semiBold'}
+                  color={isSelected ? '#EA580C' : theme.colors.charcoal[900]}
                 >
-                  {opt.labelHi}
-                </Text>
-                <Text variant="bodySmall" color={theme.colors.text.secondary}>
                   {opt.labelEn}
+                </Text>
+                <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
+                  {opt.labelHi}
                 </Text>
               </TouchableOpacity>
             );
@@ -182,10 +172,10 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
               {
                 backgroundColor:
                   idx === questionIndex
-                    ? theme.colors.primary.emerald700
+                    ? '#EA580C'
                     : idx < questionIndex
-                    ? theme.colors.primary.emerald500
-                    : '#D9D9D9',
+                    ? '#FDBA74'
+                    : '#E2E8F0',
                 width: idx === questionIndex ? 24 : 8,
               },
             ]}
@@ -200,18 +190,10 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
   skipBtn: {
-    padding: 4,
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: '#F0EEFF',
   },
   content: {
     padding: 16,
@@ -222,27 +204,38 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#F0EEFF',
     borderWidth: 2,
+    borderColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   avatarEmoji: {
-    fontSize: 36,
+    fontSize: 32,
   },
   questionCard: {
-    marginVertical: 16,
-    padding: 16,
+    marginVertical: 14,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
   },
   questionBubble: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
-  speakerIcon: {
-    fontSize: 28,
+  speakerBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFF8E1',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
     marginTop: 2,
   },
@@ -256,9 +249,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 30,
+    backgroundColor: '#6C63FF',
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
   },
   speakMicIcon: {
-    fontSize: 24,
+    fontSize: 22,
     marginRight: 8,
   },
   quickOptionsSection: {
@@ -272,6 +271,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     marginBottom: 10,
+    borderWidth: 1.5,
+  },
+  optionChipNormal: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E0DCFF',
+  },
+  optionChipSelected: {
+    backgroundColor: '#FFF8F5',
+    borderColor: '#6C63FF',
   },
   dotsBar: {
     flexDirection: 'row',
@@ -285,3 +293,4 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
 });
+

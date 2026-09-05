@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useWishlistStore, WishlistItem } from '@/store/useWishlistStore';
 import { useCartStore } from '@/store/useCartStore';
 
@@ -32,75 +33,76 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const renderWishlistItem = ({ item }: { item: WishlistItem }) => (
-    <Card style={styles.itemCard}>
+    <Card style={styles.itemCard} variant="elevated">
       <Image source={{ uri: item.imageUri }} style={styles.itemImage} resizeMode="cover" />
       <View style={styles.itemDetails}>
-        <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-          {item.artisanState} • {item.craftCategoryName}
-        </Text>
-        <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} numberOfLines={2}>
+        <View style={styles.categoryBadge}>
+          <Text style={styles.categoryBadgeText}>
+            {item.artisanState} • {item.craftCategoryName}
+          </Text>
+        </View>
+
+        <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} numberOfLines={2} style={styles.itemTitle}>
           {item.title}
         </Text>
-        <Text variant="bodySmall" color={theme.colors.text.secondary}>
-          कारीगर: {item.artisanName}
-        </Text>
-        <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald700} style={{ marginVertical: 4 }}>
-          ₹{item.price.toLocaleString('en-IN')}
+
+        <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+          कारीगर: <Text weight="semiBold" color={theme.colors.charcoal[700]}>{item.artisanName}</Text>
         </Text>
 
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            onPress={() => handleMoveToCart(item)}
-            style={[styles.moveBtn, { backgroundColor: theme.colors.primary.emerald700 }]}
-          >
-            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              कार्ट में डालें 🛒
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.priceActionRow}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
+            ₹{item.price.toLocaleString('en-IN')}
+          </Text>
 
-          <TouchableOpacity onPress={() => removeItem(item.productId)} style={styles.removeBtn}>
-            <Text style={{ fontSize: 18 }}>🗑️</Text>
-          </TouchableOpacity>
+          <View style={styles.actionBtns}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => handleMoveToCart(item)}
+              style={styles.cartBtn}
+            >
+              <Text style={styles.cartBtnText}>कार्ट में डालें 🛒</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={() => removeItem(item.productId)}
+              style={styles.removeBtn}
+            >
+              <Text style={{ fontSize: 16 }}>🗑️</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Card>
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          मनपसंद शिल्प (Wishlist) ({items.length})
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="मनपसंद शिल्प"
+        subtitle={`Saved Heritage Crafts (${items.length})`}
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       {items.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={{ fontSize: 56, marginBottom: 12 }}>🤍</Text>
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
+          <View style={styles.emptyIconCircle}>
+            <Text style={{ fontSize: 40 }}>🤍</Text>
+          </View>
+          <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
             आपकी विशलिस्ट खाली है
           </Text>
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.emptySubtitle}>
-            अपने पसंदीदा हस्तशिल्प को सुरक्षित रखने के लिए दिल (❤️) आइकन पर टैप करें।
+          <Text variant="bodyMedium" color={theme.colors.charcoal[500]} style={styles.emptySubtitle}>
+            अपने पसंदीदा हस्तशिल्पों को सुरक्षित रखने के लिए दिल (❤️) आइकन पर टैप करें।
           </Text>
           <Button
             label="शिल्प खोजें (Explore Crafts)"
             variant="primary"
             size="default"
             onPress={() => navigation.navigate('MarketplaceHome')}
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 24, minWidth: 200 }}
           />
         </View>
       ) : (
@@ -109,6 +111,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           renderItem={renderWishlistItem}
           keyExtractor={(i) => i.productId}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>
@@ -119,25 +122,17 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   listContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   itemCard: {
     flexDirection: 'row',
-    padding: 12,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
     marginBottom: 14,
     alignItems: 'center',
   },
@@ -145,24 +140,53 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 12,
-    marginRight: 12,
+    marginRight: 14,
   },
   itemDetails: {
     flex: 1,
   },
-  actionRow: {
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F0EEFF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  categoryBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#6C63FF',
+  },
+  itemTitle: {
+    marginBottom: 2,
+  },
+  priceActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  actionBtns: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
   },
-  moveBtn: {
-    paddingHorizontal: 14,
+  cartBtn: {
+    backgroundColor: '#6C63FF',
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 14,
-    marginRight: 12,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  cartBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
   },
   removeBtn: {
     padding: 6,
+    borderRadius: 8,
+    backgroundColor: '#F7F4F0',
   },
   emptyContainer: {
     flex: 1,
@@ -170,9 +194,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 32,
   },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F0EEFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
   emptySubtitle: {
     textAlign: 'center',
     marginTop: 8,
     lineHeight: 22,
+    maxWidth: 280,
   },
 });
+

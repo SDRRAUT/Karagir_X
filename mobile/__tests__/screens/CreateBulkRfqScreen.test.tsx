@@ -16,12 +16,12 @@ describe('CreateBulkRfqScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/संस्थागत थोक खरीद/)).toBeTruthy();
-    expect(getByText(/मांग का विवरण/)).toBeTruthy();
+    expect(getByText(/Corporate Bulk RFQ/)).toBeTruthy();
+    expect(getByText(/Requirement Details/)).toBeTruthy();
 
     const companyInput = getByPlaceholderText(/Tata Consultancy Services/);
-    const contactInput = getByPlaceholderText(/नाम दर्ज करें/);
-    const phoneInput = getByPlaceholderText(/10 अंक/);
+    const contactInput = getByPlaceholderText(/Full Name/);
+    const phoneInput = getByPlaceholderText(/10-digit number/);
 
     await act(async () => {
       fireEvent.changeText(companyInput, 'Infosys B2B');
@@ -29,7 +29,7 @@ describe('CreateBulkRfqScreen', () => {
       fireEvent.changeText(phoneInput, '9876543210');
     });
 
-    const submitBtn = getByText(/AI क्लस्टर मैचिंग शुरू करें/);
+    const submitBtn = getByText(/Launch AI Cluster Matching/);
     await act(async () => {
       fireEvent.press(submitBtn);
     });

@@ -13,9 +13,9 @@ import { Text } from '@/components/typography/Text';
 
 export type ButtonVariant = 'filled' | 'tonal' | 'outlined' | 'ghost' | 'danger';
 // Legacy variants mapped to new ones
-type LegacyVariant = 'primary' | 'secondary' | 'terracotta' | 'outline';
+type LegacyVariant = 'primary' | 'secondary' | 'terracotta' | 'outline' | 'forest';
 
-export type ButtonSize = 'default' | 'decision';
+export type ButtonSize = 'default' | 'decision' | 'sm';
 
 export interface ButtonProps extends PressableProps {
   label: string;
@@ -31,24 +31,16 @@ const LEGACY_MAP: Record<string, ButtonVariant> = {
   terracotta: 'filled',
   secondary: 'tonal',
   outline: 'outlined',
+  forest: 'filled',
 };
 
 /**
  * Button — Primary interactive component.
- *
- * Variants:
- * - filled:   Brand primary bg, white text. Main CTA.
- * - tonal:    Brand primary light bg, brand primary text. Secondary actions.
- * - outlined: Transparent bg, border, dark text. Tertiary actions.
- * - ghost:    Transparent bg, brand primary text. Inline links, cancel.
- * - danger:   Error red bg, white text. Destructive only.
- *
- * Height: 48dp for all sizes. Touch target padding handles accessibility.
  */
 export const Button: React.FC<ButtonProps> = ({
   label,
   variant: rawVariant = 'filled',
-  size: _size = 'default', // size is now ignored — 48dp for all
+  size = 'default',
   isLoading = false,
   disabled = false,
   leftIcon,
@@ -60,7 +52,7 @@ export const Button: React.FC<ButtonProps> = ({
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Map legacy variants
-  const variant = LEGACY_MAP[rawVariant as string] || rawVariant as ButtonVariant;
+  const variant = LEGACY_MAP[rawVariant as string] || (rawVariant as ButtonVariant);
 
   const handlePressIn = useCallback(() => {
     Animated.timing(scaleAnim, {
@@ -114,16 +106,18 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Disabled overrides
   if (disabled) {
-    backgroundColor = variant === 'ghost' || variant === 'outlined'
-      ? 'transparent'
-      : theme.colors.surface.subtle;
+    backgroundColor =
+      variant === 'ghost' || variant === 'outlined'
+        ? 'transparent'
+        : theme.colors.surface.subtle;
     textColor = theme.colors.text.tertiary;
     borderColor = variant === 'outlined' ? theme.colors.border.default : 'transparent';
   }
 
+  const isSm = size === 'sm';
   const containerStyle: ViewStyle = {
-    height: theme.touch.buttonHeight,
-    minHeight: theme.touch.minTargetSize,
+    height: isSm ? 40 : theme.touch.buttonHeight,
+    minHeight: isSm ? 40 : theme.touch.minTargetSize,
     backgroundColor,
     borderRadius: theme.touch.radii.md,
     borderWidth,
@@ -148,7 +142,7 @@ export const Button: React.FC<ButtonProps> = ({
           <View style={styles.contentRow}>
             {leftIcon && <View style={styles.iconWrapper}>{leftIcon}</View>}
             <Text
-              variant="labelLarge"
+              variant={isSm ? 'bodySmall' : 'labelLarge'}
               weight="semiBold"
               color={textColor}
               style={styles.label}

@@ -31,11 +31,11 @@ describe('PublishSuccessScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('बधाई हो! आपका प्रोडक्ट लाइव है')).toBeTruthy();
-    expect(getByText(/डिजिटल शिल्प पासपोर्ट/)).toBeTruthy();
-    expect(getByText('सिल्क साड़ी')).toBeTruthy();
+    expect(getByText('Congratulations!')).toBeTruthy();
+    expect(getByText(/Digital Craft Passport/)).toBeTruthy();
+    expect(getByText('Handmade Silk Saree')).toBeTruthy();
 
-    const homeBtn = getByText(/होम डैशबोर्ड पर जाएं/);
+    const homeBtn = getByText(/Go to Home Dashboard/);
     await act(async () => {
       fireEvent.press(homeBtn);
     });

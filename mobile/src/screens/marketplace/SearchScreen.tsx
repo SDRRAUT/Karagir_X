@@ -31,11 +31,10 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleVoiceSearch = () => {
     setIsVoiceActive(true);
-    // Simulating instant vernacular speech recognition
     setTimeout(() => {
       setIsVoiceActive(false);
-      setSearchQuery('मधुबनी पेंटिंग');
-      addRecentSearch('मधुबनी पेंटिंग');
+      setSearchQuery('Madhubani Painting');
+      addRecentSearch('Madhubani Painting');
     }, 1200);
   };
 
@@ -44,47 +43,56 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
       style={styles.resultItemTouch}
       accessibilityRole="button"
-      accessibilityLabel={item.title.hi}
+      accessibilityLabel={item.title.en || item.title.hi}
     >
       <Card style={styles.resultCard}>
         <Image source={{ uri: item.images[0] }} style={styles.resultImage} />
         <View style={styles.resultDetails}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
+          <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
             {item.categoryName} • {item.artisan.state}
           </Text>
-          <Text variant="bodyMedium" weight="bold" color={theme.colors.text.primary} numberOfLines={2}>
-            {item.title.hi}
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} numberOfLines={2}>
+            {item.title.en || item.title.hi}
           </Text>
-          <Text variant="bodySmall" color={theme.colors.text.secondary}>
-            कारीगर: {item.artisan.name}
+          <Text variant="caption" color={theme.colors.text.secondary}>
+            Artisan: {item.artisan.name}
           </Text>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald700} style={{ marginTop: 4 }}>
-            ₹{item.price.toLocaleString('en-IN')}
-          </Text>
+          <View style={styles.priceRow}>
+            <Text variant="headlineSmall" weight="bold" color={theme.colors.brand.primary}>
+              ₹{item.price.toLocaleString('en-IN')}
+            </Text>
+            <View style={[styles.ratingPill, { backgroundColor: theme.colors.sand[100] }]}>
+              <Text variant="caption" weight="bold" color={theme.colors.charcoal[900]}>
+                ⭐ {item.rating}
+              </Text>
+            </View>
+          </View>
         </View>
       </Card>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       {/* Search Header Bar */}
-      <View style={styles.searchHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ←
-          </Text>
+      <View style={[styles.searchHeader, { backgroundColor: theme.colors.sand[50], borderBottomColor: theme.colors.sand[200] }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.backBtn, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}
+          accessibilityLabel="Back"
+        >
+          <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
 
-        <View style={[styles.inputBox, { borderColor: theme.colors.surface.border }]}>
-          <Text style={{ fontSize: 18, marginRight: 6 }}>🔍</Text>
+        <View style={[styles.inputBox, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200], ...theme.shadows.level1 }]}>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>🔍</Text>
           <TextInput
-            placeholder="शिल्प, साड़ी या कला खोजें..."
-            placeholderTextColor={theme.colors.text.secondary}
+            placeholder="Search crafts, sarees, or authentic art..."
+            placeholderTextColor={theme.colors.text.muted}
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearchSubmit}
-            style={[styles.input, { color: theme.colors.text.primary }]}
+            style={[styles.input, { color: theme.colors.charcoal[900] }]}
             autoFocus
           />
           {searchQuery.length > 0 ? (
@@ -93,7 +101,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity onPress={handleVoiceSearch}>
-              <Text style={{ fontSize: 20 }}>🎙️</Text>
+              <Text style={{ fontSize: 18 }}>🎙️</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -101,54 +109,57 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Voice Listening Banner */}
       {isVoiceActive && (
-        <View style={[styles.voiceActiveCard, { backgroundColor: theme.colors.primary.emerald100 }]}>
-          <Text style={{ fontSize: 24, marginRight: 8 }}>🔴</Text>
-          <Text variant="bodyMedium" weight="bold" color={theme.colors.primary.emerald900}>
-            सुन रहे हैं... अपनी भाषा में बोलें (Listening)
+        <View style={[styles.voiceActiveCard, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}>
+          <Text style={{ fontSize: 20, marginRight: 8 }}>🔴</Text>
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
+            Listening... Speak in any language
           </Text>
         </View>
       )}
 
-      {/* Recent Searches (Shown if query is empty) */}
-      {searchQuery.length === 0 ? (
-        <View style={styles.recentSection}>
-          <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.recentLabel}>
-            हाल की खोज (Recent Searches):
+      {/* Recent Searches Pills */}
+      {recentSearches.length > 0 && searchQuery.length === 0 && (
+        <View style={styles.recentContainer}>
+          <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]} style={styles.recentHeading}>
+            Recent Searches
           </Text>
-          <View style={styles.chipsRow}>
-            {recentSearches.map((term, index) => (
+          <View style={styles.recentPillsRow}>
+            {recentSearches.map((term, i) => (
               <TouchableOpacity
-                key={index}
+                key={i}
                 onPress={() => handleSelectRecent(term)}
-                style={[styles.chip, { backgroundColor: theme.colors.surface.card }]}
+                style={[styles.recentPill, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}
               >
-                <Text variant="bodySmall" color={theme.colors.text.primary}>
-                  {term}
+                <Text variant="caption" color={theme.colors.charcoal[900]}>
+                  🕒 {term}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
-      ) : (
-        /* Results List */
-        <FlatList
-          data={results}
-          renderItem={renderProductItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyBox}>
-              <Text style={{ fontSize: 44, marginBottom: 8 }}>🔍</Text>
-              <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                कोई परिणाम नहीं मिला
+      )}
+
+      {/* Search Results List */}
+      <FlatList
+        data={results}
+        keyExtractor={(item) => item.id}
+        renderItem={renderProductItem}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          searchQuery ? (
+            <View style={styles.emptyContainer}>
+              <Text style={{ fontSize: 48, marginBottom: 8 }}>🔍</Text>
+              <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
+                No results found
               </Text>
-              <Text variant="bodyMedium" color={theme.colors.text.secondary} style={{ textAlign: 'center', marginTop: 4 }}>
-                कृपया कोई अन्य शब्द खोजें जैसे 'साड़ी', 'पेंटिंग' या 'लकड़ी'।
+              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+                Try searching for another craft, saree, or artisan state
               </Text>
             </View>
-          }
-        />
-      )}
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 };
@@ -162,55 +173,63 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
+    borderBottomWidth: 1,
   },
   backBtn: {
-    padding: 6,
-    marginRight: 6,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  backIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: -2,
   },
   inputBox: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
+    height: 44,
+    borderRadius: 12,
     borderWidth: 1,
+    paddingHorizontal: 12,
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    padding: 0,
+    fontSize: 14,
   },
   voiceActiveCard: {
     flexDirection: 'row',
     alignItems: 'center',
+    margin: 16,
     padding: 12,
-    marginHorizontal: 16,
     borderRadius: 12,
-    marginBottom: 8,
+    borderWidth: 1,
   },
-  recentSection: {
+  recentContainer: {
     padding: 16,
   },
-  recentLabel: {
+  recentHeading: {
     marginBottom: 10,
   },
-  chipsRow: {
+  recentPillsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 8,
   },
-  chip: {
+  recentPill: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#D4AF37',
-    marginRight: 8,
-    marginBottom: 8,
   },
   listContent: {
     padding: 16,
+    paddingBottom: 40,
   },
   resultItemTouch: {
     marginBottom: 12,
@@ -218,20 +237,30 @@ const styles = StyleSheet.create({
   resultCard: {
     flexDirection: 'row',
     padding: 10,
-    alignItems: 'center',
   },
   resultImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 12,
+    width: 86,
+    height: 86,
+    borderRadius: 10,
     marginRight: 12,
   },
   resultDetails: {
     flex: 1,
-  },
-  emptyBox: {
-    alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 60,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  ratingPill: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingTop: 60,
   },
 });

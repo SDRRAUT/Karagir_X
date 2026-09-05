@@ -22,8 +22,8 @@ describe('CatalogGenerationScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('AI कैटलॉग तैयार हो रहा है')).toBeTruthy();
-    expect(getByText(/फोटो स्टूडियो फिनिश/)).toBeTruthy();
+    expect(getByText('Synthesizing AI Catalogue')).toBeTruthy();
+    expect(getByText(/Studio Photography Finish/)).toBeTruthy();
 
     await waitFor(() => {
       expect(mockNavigation.replace).toHaveBeenCalledWith('PricingRecommendation');

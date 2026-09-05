@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 import {
   useProductDraftStore,
@@ -17,10 +18,10 @@ import { visionService, StageInfo, ENHANCEMENT_STAGES } from '@/api/visionServic
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AiEnhancement'>;
 
-const PRESETS: { id: StudioBackgroundPreset; labelHi: string; labelEn: string; color: string }[] = [
-  { id: 'STUDIO_WHITE', labelHi: 'सफेद स्टूडियो', labelEn: 'Studio White', color: '#FFFFFF' },
-  { id: 'WARM_PARCHMENT', labelHi: 'हस्तशिल्प क्रीम', labelEn: 'Warm Parchment', color: '#F9F6F0' },
-  { id: 'STUDIO_GREY', labelHi: 'तटस्थ ग्रे', labelEn: 'Neutral Grey', color: '#EBEBEB' },
+const PRESETS: { id: StudioBackgroundPreset; label: string; color: string }[] = [
+  { id: 'STUDIO_WHITE', label: 'Studio White', color: '#FFFFFF' },
+  { id: 'WARM_PARCHMENT', label: 'Warm Parchment', color: '#F9F6F0' },
+  { id: 'STUDIO_GREY', label: 'Neutral Grey', color: '#EBEBEB' },
 ];
 
 export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
@@ -85,7 +86,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
       }
     }
     setIsBatchEnhancing(false);
-    Alert.alert('सभी फोटो तैयार हैं!', 'सभी एंगल्स AI से सफलतापूर्वक निखार दिए गए हैं।');
+    Alert.alert('All Photos Enhanced!', 'All angles have been enhanced with AI lighting and background clean-up.');
   };
 
   const handleAcceptAndContinue = () => {
@@ -94,10 +95,16 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
 
   if (!activePhoto) {
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+        <AppHeader
+          title="AI Studio Enhancement"
+          subtitle="Smart Craft Recognition"
+          onBackPress={() => navigation.goBack()}
+          showDevanagariLogo
+        />
         <View style={styles.centerBox}>
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            कोई फोटो नहीं मिली
+          <Text variant="headlineMedium" color={theme.colors.charcoal[900]}>
+            No Photos Found
           </Text>
         </View>
       </SafeAreaView>
@@ -118,51 +125,39 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          AI स्टूडियो निखार (AI Studio)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="AI Studio Enhancement"
+        subtitle="AI Recognition & Clean Finish"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Vernacular Audio Readback Banner */}
-        <View
-          style={[
-            styles.voiceCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
-          <Text style={styles.speakerIcon}>🔊</Text>
-          <Text variant="bodyMedium" color={theme.colors.text.primary} style={styles.voiceText}>
-            "देखिए! AI ने बैकग्राउंड साफ़ कर दिया है और असली रंगों को उभार दिया है।"
-          </Text>
+        {/* Audio Readback Banner */}
+        <View style={styles.voiceCard}>
+          <View style={styles.voiceIconBox}>
+            <Text style={{ fontSize: 20 }}>🎙️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.voiceTagText}>VOICE SAATHI • AI COMPANION</Text>
+            <Text variant="bodySmall" color={theme.colors.charcoal[800]} style={styles.voiceText}>
+              "Look! AI has cleaned background clutter, balanced exposure, and highlighted craft textures."
+            </Text>
+          </View>
+          <TouchableOpacity activeOpacity={0.7} style={styles.listenBtn}>
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Live Progress Stage Stepper if Processing */}
         {isProcessing && (
-          <Card style={styles.progressCard}>
+          <Card style={styles.progressCard} variant="elevated">
             <LoadingSpinner size={36} message="" />
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700} style={styles.progressText}>
-              {currentStage.labelHi}
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.terracotta[600]} style={styles.progressText}>
+              {currentStage.labelEn}
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
               {currentStage.labelEn} ({currentStage.progressPercent}%)
             </Text>
             <View style={styles.progressBarTrack}>
@@ -171,7 +166,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                   styles.progressBarFill,
                   {
                     width: `${currentStage.progressPercent}%`,
-                    backgroundColor: theme.colors.primary.emerald700,
+                    backgroundColor: '#6C63FF',
                   },
                 ]}
               />
@@ -186,18 +181,15 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
             onPress={() => setViewMode('ENHANCED')}
             style={[
               styles.toggleBtn,
-              viewMode === 'ENHANCED' && {
-                backgroundColor: theme.colors.primary.emerald700,
-                borderColor: theme.colors.primary.emerald700,
-              },
+              viewMode === 'ENHANCED' ? styles.toggleBtnActiveEnhanced : styles.toggleBtnInactive,
             ]}
           >
             <Text
               variant="bodySmall"
               weight="bold"
-              color={viewMode === 'ENHANCED' ? '#FFFFFF' : theme.colors.text.primary}
+              color={viewMode === 'ENHANCED' ? '#FFFFFF' : theme.colors.charcoal[700]}
             >
-              ✨ AI स्टूडियो फोटो (Enhanced)
+              ✨ Enhanced Studio Photo
             </Text>
           </TouchableOpacity>
 
@@ -206,18 +198,15 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
             onPress={() => setViewMode('ORIGINAL')}
             style={[
               styles.toggleBtn,
-              viewMode === 'ORIGINAL' && {
-                backgroundColor: theme.colors.terracotta.primary,
-                borderColor: theme.colors.terracotta.primary,
-              },
+              viewMode === 'ORIGINAL' ? styles.toggleBtnActiveOriginal : styles.toggleBtnInactive,
             ]}
           >
             <Text
               variant="bodySmall"
               weight="bold"
-              color={viewMode === 'ORIGINAL' ? '#FFFFFF' : theme.colors.text.primary}
+              color={viewMode === 'ORIGINAL' ? '#FFFFFF' : theme.colors.charcoal[700]}
             >
-              📷 मूल फोटो (Original)
+              📷 Original Photo
             </Text>
           </TouchableOpacity>
         </View>
@@ -242,67 +231,59 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
             resizeMode="cover"
           />
 
-          {/* Mode Pill Tag */}
-          <View
-            style={[
-              styles.modeTag,
-              {
-                backgroundColor:
-                  viewMode === 'ENHANCED'
-                    ? theme.colors.primary.emerald700
-                    : theme.colors.terracotta.primary,
-              },
-            ]}
-          >
-            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              {viewMode === 'ENHANCED' ? '✨ स्वच्छ स्टूडियो फिनिश' : '📷 मूल वर्कशॉप फोटो'}
-            </Text>
+          {/* AI Recognition Pill Overlay */}
+          <View style={styles.recognitionPill}>
+            <View style={styles.recognitionIcon}>
+              <Text style={{ fontSize: 16 }}>⚡</Text>
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.recognitionStatus}>
+                {viewMode === 'ENHANCED' ? '✨ Clean Studio Finish' : '📷 Original Workshop Photo'}
+              </Text>
+              <Text style={styles.recognitionResult} numberOfLines={1}>
+                Terracotta Craft Detected (GI #MH-24)
+              </Text>
+            </View>
+            <View style={styles.recognitionCheck}>
+              <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>✓</Text>
+            </View>
           </View>
         </Card>
 
         {/* AI Studio Quality Metrics Bar */}
-        <View
-          style={[
-            styles.metricsCard,
-            {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
-              ...theme.shadows.level1,
-            },
-          ]}
-        >
+        <Card style={styles.metricsCard} variant="elevated">
           <View style={styles.metricItem}>
-            <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="headlineMedium" weight="bold" color={theme.colors.forest[700]}>
               {Math.round(metrics.segmentationConfidence * 100)}%
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              🎯 AI शुद्धता
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+              🎯 AI Precision
             </Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text variant="headlineMedium" weight="bold" color={theme.colors.terracotta.primary}>
+            <Text variant="headlineMedium" weight="bold" color={theme.colors.terracotta[600]}>
               {Math.round(metrics.sharpnessScore * 100)}%
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              🌟 स्पष्टता
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+              🌟 Sharpness
             </Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text variant="headlineMedium" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="headlineMedium" weight="bold" color={theme.colors.forest[700]}>
               {Math.round(metrics.colorAccuracyScore * 100)}%
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              🎨 रंग सत्यता
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+              🎨 Color Fidelity
             </Text>
           </View>
-        </View>
+        </Card>
 
         {/* Studio Background Selector Presets */}
         <View style={styles.presetSection}>
-          <Text variant="bodyMedium" weight="bold" color={theme.colors.text.primary} style={styles.presetTitle}>
-            स्टूडियो बैकग्राउंड चुनें (Studio Background):
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.presetTitle}>
+            Studio Background Preset:
           </Text>
           <View style={styles.presetRow}>
             {PRESETS.map((preset) => {
@@ -316,8 +297,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     {
                       backgroundColor: preset.color,
                       borderColor: isSelected
-                        ? theme.colors.primary.emerald700
-                        : theme.colors.surface.border,
+                        ? '#e85d2a'
+                        : '#ECE8DC',
                       borderWidth: isSelected ? 2.5 : 1,
                     },
                   ]}
@@ -325,9 +306,9 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                   <Text
                     variant="bodySmall"
                     weight="bold"
-                    color={isSelected ? theme.colors.primary.emerald700 : theme.colors.text.primary}
+                    color={isSelected ? '#6C63FF' : theme.colors.charcoal[800]}
                   >
-                    {preset.labelHi}
+                    {preset.label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -335,12 +316,12 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Batch Enhance All Angles Button (If multiple photos exist) */}
+        {/* Batch Enhance All Angles Button */}
         {photos.length > 1 && (
           <View style={styles.batchContainer}>
             <Button
-              label={isBatchEnhancing ? 'सभी फोटो निखार रहे हैं...' : `सभी ${photos.length} फोटो AI से निखारें (Enhance All) ⚡`}
-              variant="outline"
+              label={isBatchEnhancing ? 'Enhancing Photos...' : `Enhance All ${photos.length} Photos ⚡`}
+              variant="secondary"
               size="default"
               isLoading={isBatchEnhancing}
               onPress={handleEnhanceAll}
@@ -351,8 +332,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
         {/* Multi-Photo Thumbnails */}
         {photos.length > 1 && (
           <View style={styles.multiRow}>
-            <Text variant="bodySmall" weight="bold" color={theme.colors.text.secondary} style={styles.multiLabel}>
-              अन्य एंगल चुनें:
+            <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.multiLabel}>
+              Select Angle:
             </Text>
             <View style={styles.photoThumbList}>
               {photos.map((p, idx) => (
@@ -364,8 +345,8 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     {
                       borderColor:
                         activePhoto.id === p.id
-                          ? theme.colors.primary.emerald700
-                          : theme.colors.surface.border,
+                          ? '#6C63FF'
+                          : '#E0DCFF',
                       borderWidth: activePhoto.id === p.id ? 2.5 : 1,
                     },
                   ]}
@@ -384,11 +365,11 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Sticky Bottom CTA */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="यह फोटो सही है (Accept & Continue) ✓"
+          label="Accept & Continue ✓"
           variant="primary"
-          size="decision"
+          size="default"
           onPress={handleAcceptAndContinue}
         />
       </View>
@@ -400,19 +381,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
@@ -422,20 +390,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 14,
     borderRadius: 16,
+    backgroundColor: '#FFF8E1',
     borderWidth: 1,
+    borderColor: '#FFBF42',
     marginBottom: 16,
   },
-  speakerIcon: {
-    fontSize: 28,
-    marginRight: 12,
+  voiceIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  voiceTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#9C6E00',
+    letterSpacing: 0.5,
+    marginBottom: 2,
   },
   voiceText: {
-    flex: 1,
+    lineHeight: 18,
+  },
+  listenBtn: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    marginLeft: 8,
   },
   progressCard: {
     alignItems: 'center',
     padding: 16,
     marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
   },
   progressText: {
     marginTop: 8,
@@ -444,7 +436,7 @@ const styles = StyleSheet.create({
   progressBarTrack: {
     width: '100%',
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#F0ECE6',
     borderRadius: 4,
     marginTop: 10,
     overflow: 'hidden',
@@ -463,32 +455,78 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     paddingVertical: 12,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  toggleBtnInactive: {
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+  },
+  toggleBtnActiveEnhanced: {
+    backgroundColor: '#e85d2a',
+  },
+  toggleBtnActiveOriginal: {
+    backgroundColor: '#6B6B8D',
   },
   previewCard: {
     padding: 0,
     overflow: 'hidden',
-    borderRadius: 20,
+    borderRadius: 16,
     minHeight: 320,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
   },
   previewImage: {
     width: '100%',
     height: 320,
   },
-  modeTag: {
+  recognitionPill: {
     position: 'absolute',
-    top: 14,
-    left: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
+    bottom: 12,
+    left: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    borderRadius: 12,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  recognitionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FFF0EA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  recognitionStatus: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#8A827B',
+  },
+  recognitionResult: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#e85d2a',
+  },
+  recognitionCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#e85d2a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   metricsCard: {
     flexDirection: 'row',
@@ -496,7 +534,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: 16,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
+    borderColor: '#ECE8DC',
     marginTop: 16,
     marginBottom: 16,
   },
@@ -506,7 +546,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1,
     height: 32,
-    backgroundColor: '#E0D7C9',
+    backgroundColor: '#ECE8DC',
   },
   presetSection: {
     marginBottom: 16,
@@ -545,6 +585,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginRight: 10,
     position: 'relative',
+    backgroundColor: '#FFFFFF',
   },
   thumbFill: {
     width: '100%',
@@ -554,7 +595,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 2,
     right: 2,
-    backgroundColor: '#1E5631',
+    backgroundColor: '#6C63FF',
     width: 16,
     height: 16,
     borderRadius: 8,
@@ -571,10 +612,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
   centerBox: {
     flex: 1,
@@ -582,3 +628,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+

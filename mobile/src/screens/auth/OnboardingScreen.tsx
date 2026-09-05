@@ -33,7 +33,7 @@ const SLIDES: Slide[] = [
     emoji: '💰',
     title: 'सीधा बैंक में पैसा, सुरक्षित डिलीवरी',
     description: 'डाक विभाग आपके दरवाजे से पार्सल उठाएगा। डिलीवरी के बाद 48 घंटे में पैसा सीधे आपके खाते में।',
-    highlight: 'India Post Pickup & RBI Escrow Safety',
+    highlight: 'India Post Pickup & Direct Escrow Safety',
   },
 ];
 
@@ -56,11 +56,11 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const slide = SLIDES[currentSlide];
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       {/* Top Skip Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleSkip} accessibilityRole="button" accessibilityLabel="Skip onboarding">
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.secondary}>
+          <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
             छोड़ें (Skip)
           </Text>
         </TouchableOpacity>
@@ -72,15 +72,16 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
           style={[
             styles.emojiCircle,
             {
-              backgroundColor: theme.colors.primary.emerald100,
-              borderColor: theme.colors.primary.emerald700,
+              backgroundColor: theme.colors.brand.light,
+              borderColor: theme.colors.brand.primary,
+              ...theme.shadows.level2,
             },
           ]}
         >
           <Text style={styles.emojiText}>{slide.emoji}</Text>
         </View>
 
-        <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
+        <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
           {slide.title}
         </Text>
 
@@ -92,42 +93,37 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
           style={[
             styles.highlightBadge,
             {
-              backgroundColor: theme.colors.surface.card,
-              borderColor: theme.colors.surface.border,
+              backgroundColor: theme.colors.ochre.light,
+              borderColor: theme.colors.ochre.border,
             },
           ]}
         >
-          <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-            ✓ {slide.highlight}
+          <Text variant="bodySmall" weight="bold" color={theme.colors.ochre.text}>
+            ✨ {slide.highlight}
           </Text>
         </View>
       </View>
 
-      {/* Bottom Controls */}
-      <View style={styles.bottomControls}>
-        {/* Pagination Dots */}
-        <View style={styles.paginationRow}>
-          {SLIDES.map((_, idx) => (
+      {/* Footer with Dots & Next Button */}
+      <View style={styles.footer}>
+        <View style={styles.dotsRow}>
+          {SLIDES.map((_, index) => (
             <View
-              key={`dot-${idx}`}
+              key={index}
               style={[
                 styles.dot,
                 {
-                  backgroundColor:
-                    idx === currentSlide
-                      ? theme.colors.primary.emerald700
-                      : theme.colors.surface.border,
-                  width: idx === currentSlide ? 24 : 8,
+                  backgroundColor: index === currentSlide ? theme.colors.brand.primary : theme.colors.sand[300],
+                  width: index === currentSlide ? 24 : 8,
                 },
               ]}
             />
           ))}
         </View>
 
-        {/* Action Button */}
         <Button
           label={currentSlide === SLIDES.length - 1 ? 'शुरू करें (Get Started) →' : 'आगे बढ़ें (Next) →'}
-          variant="terracotta"
+          variant="primary"
           size="decision"
           onPress={handleNext}
         />
@@ -143,7 +139,8 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   centerContent: {
     flex: 1,
@@ -152,36 +149,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emojiCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   emojiText: {
-    fontSize: 56,
+    fontSize: 52,
   },
   title: {
     textAlign: 'center',
     marginBottom: 12,
+    letterSpacing: -0.3,
   },
   description: {
     textAlign: 'center',
-    marginBottom: 20,
+    lineHeight: 24,
+    marginBottom: 16,
   },
   highlightBadge: {
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
   },
-  bottomControls: {
-    padding: 20,
-    paddingBottom: 28,
+  footer: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
   },
-  paginationRow: {
+  dotsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -193,4 +192,3 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
 });
-

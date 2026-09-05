@@ -2,10 +2,10 @@ import React from 'react';
 import { View, ViewProps, ViewStyle, Pressable, PressableProps } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 
-export type CardVariant = 'surface' | 'elevated';
+export type CardVariant = 'surface' | 'elevated' | 'flat' | 'outlined';
 
 export interface CardProps extends ViewProps {
-  /** 'surface' = subtle border, no shadow. 'elevated' = no border, subtle shadow. */
+  /** 'surface' / 'flat' = subtle border, no shadow. 'elevated' = no border, subtle shadow. */
   variant?: CardVariant;
   /** @deprecated Use variant instead. Kept for backward compatibility. */
   elevationLevel?: 0 | 1 | 2 | 3;
@@ -13,16 +13,11 @@ export interface CardProps extends ViewProps {
 
 export interface PressableCardProps extends PressableProps {
   variant?: CardVariant;
+  elevationLevel?: 0 | 1 | 2 | 3;
 }
 
 /**
  * Card — Base container component.
- *
- * Two variants:
- * - surface: 1px subtle border, no shadow. For static content display.
- * - elevated: No border, subtle shadow. For interactive/tappable cards.
- *
- * Key rule: Border OR shadow, never both simultaneously.
  */
 export const Card: React.FC<CardProps> = ({
   variant = 'surface',
@@ -33,24 +28,21 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const theme = useTheme();
 
-  // Legacy backward compat: if elevationLevel is passed, map to variant behavior
-  const effectiveVariant = elevationLevel !== undefined
-    ? (elevationLevel >= 2 ? 'elevated' : 'surface')
-    : variant;
+  const isElevated =
+    variant === 'elevated' || (elevationLevel !== undefined && elevationLevel >= 2);
 
   const cardStyle: ViewStyle = {
     backgroundColor: theme.colors.surface.card,
     borderRadius: theme.touch.radii.md,
     padding: theme.spacing.cardPadding,
-    ...(effectiveVariant === 'surface'
+    ...(isElevated
       ? {
-          borderWidth: 1,
-          borderColor: theme.colors.border.subtle,
-        }
-      : {
           ...theme.shadows.low,
         }
-    ),
+      : {
+          borderWidth: 1,
+          borderColor: theme.colors.border.subtle,
+        }),
   };
 
   return (
@@ -62,29 +54,31 @@ export const Card: React.FC<CardProps> = ({
 
 /**
  * PressableCard — Tappable variant of Card.
- * Includes press feedback (subtle scale + opacity).
  */
 export const PressableCard: React.FC<PressableCardProps> = ({
   variant = 'elevated',
+  elevationLevel,
   style,
   children,
   ...props
 }) => {
   const theme = useTheme();
 
+  const isElevated =
+    variant === 'elevated' || (elevationLevel !== undefined && elevationLevel >= 2);
+
   const cardStyle: ViewStyle = {
     backgroundColor: theme.colors.surface.card,
     borderRadius: theme.touch.radii.md,
     padding: theme.spacing.cardPadding,
-    ...(variant === 'surface'
+    ...(isElevated
       ? {
-          borderWidth: 1,
-          borderColor: theme.colors.border.subtle,
-        }
-      : {
           ...theme.shadows.low,
         }
-    ),
+      : {
+          borderWidth: 1,
+          borderColor: theme.colors.border.subtle,
+        }),
   };
 
   return (

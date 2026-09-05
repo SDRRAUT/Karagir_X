@@ -17,11 +17,11 @@ describe('CameraPermissionScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('कैमरा की अनुमति दें')).toBeTruthy();
-    expect(getByText('Allow Camera Access')).toBeTruthy();
+    expect(getByText('Camera Permission')).toBeTruthy();
+    expect(getByText('AI Smart Product Photography')).toBeTruthy();
 
     await act(async () => {
-      fireEvent.press(getByText('अनुमति दें (Allow Camera) 📷'));
+      fireEvent.press(getByText('Allow Camera 📷'));
     });
 
     expect(mockNavigation.replace).toHaveBeenCalledWith('CameraCapture');

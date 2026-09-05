@@ -8,6 +8,7 @@ import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { TextInput } from '@/components/inputs/TextInput';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -23,7 +24,7 @@ interface CraftCategory {
 const CRAFTS: CraftCategory[] = [
   { code: 'TEXTILE_HANDLOOM', nameHi: 'हथकरघा एवं बुनाई', nameEn: 'Handloom & Weaving', icon: '🧵' },
   { code: 'POTTERY_TERRACOTTA', nameHi: 'मिट्टी एवं टेराकोटा', nameEn: 'Clay & Terracotta', icon: '🏺' },
-  { code: 'PAINTING_FOLK', nameHi: 'पारंपरिक चित्रकला', nameEn: 'Folk Art (Madhubani/Warli)', icon: '🎨' },
+  { code: 'PAINTING_FOLK', nameHi: 'पारंपरिक चित्रकला', nameEn: 'Folk Art (Madhubani)', icon: '🎨' },
   { code: 'WOODCRAFT', nameHi: 'काष्ठ शिल्प', nameEn: 'Woodcraft & Carving', icon: '🪵' },
   { code: 'METALLURGY_DHOKRA', nameHi: 'धातु शिल्प', nameEn: 'Metalcraft & Dhokra', icon: '💍' },
   { code: 'BAMBOO_CANE', nameHi: 'बांस एवं जूट', nameEn: 'Bamboo & Jute', icon: '🧺' },
@@ -33,24 +34,23 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { user, updateProfile } = useAuthStore();
 
-  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [fullName, setFullName] = useState(user?.fullName || 'Ramesh Kumbhar');
   const [selectedCraft, setSelectedCraft] = useState<string>('PAINTING_FOLK');
-  const [district] = useState('मधुबनी (Madhubani)');
-  const [state] = useState('बिहार (Bihar)');
+  const [district] = useState('Madhubani');
+  const [state] = useState('Bihar');
   const [shgCode, setShgCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleVoiceDictateName = () => {
-    // Cultural convenience: fills sample artisan voice transcription if empty
     if (!fullName) {
-      setFullName('सुनीता देवी (Sunita Devi)');
+      setFullName('Sunita Devi');
     }
   };
 
   const handleSubmit = async () => {
     if (!fullName.trim()) {
-      setErrorMessage('कृपया अपना पूरा नाम दर्ज करें (Please enter your name)');
+      setErrorMessage('Please enter your full name');
       return;
     }
 
@@ -76,37 +76,95 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
       navigation.replace('MainTabs', { screen: 'HomeTab' });
     } catch {
       setIsLoading(false);
-      setErrorMessage('प्रोफाइल सेव करने में त्रुटि — कृपया पुनः प्रयास करें।');
+      setErrorMessage('Error saving profile — please try again.');
     }
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        showBack
+        showBrand
+        title="Artisan Profile"
+        subtitle="KALAKAR SETU"
+        rightAction={
+          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              Help
+            </Text>
+          </View>
+        }
+      />
+
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
-            कारीगर प्रोफाइल तैयार करें
+        {/* Step Indicator & Tag */}
+        <View style={styles.stepMetaRow}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              Step 3/3
+            </Text>
+            <Text variant="caption" color={theme.colors.text.muted}>•</Text>
+            <View style={styles.roleTagPill}>
+              <Text style={styles.roleTagText}>Artisan Account</Text>
+            </View>
+          </View>
+          <Text variant="caption" color={theme.colors.text.muted}>Final Step</Text>
+        </View>
+
+        {/* Stepper Progress Bar */}
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressBar, { backgroundColor: theme.colors.brand.primary }]} />
+        </View>
+
+        {/* Screen Header */}
+        <View style={{ marginTop: 12, marginBottom: 8 }}>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
+            Set Up Your Artisan Profile
           </Text>
-          <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-            Let's set up your artisan profile (Flow A3)
+          <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+            Empower your craft with AI cataloguing and direct market linkages
           </Text>
+        </View>
+
+        {/* Voice Saathi Companion Hint Banner */}
+        <View style={[styles.voiceBanner, { backgroundColor: '#FFFFFF', borderColor: theme.colors.brand.container }]}>
+          <View style={styles.voiceBannerLeft}>
+            <View style={[styles.voiceBannerIcon, { backgroundColor: '#F0EEFF' }]}>
+              <Text style={{ fontSize: 16 }}>🎙️</Text>
+            </View>
+            <View>
+              <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
+                Voice Saathi • AI Assistant
+              </Text>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                Speak to fill profile details automatically
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={handleVoiceDictateName}
+            style={[styles.voiceActionBtn, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}
+          >
+            <Text variant="caption" weight="bold" color="#4B44CC">
+              🎙 Speak
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* 1. Name Input with Voice Cue */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-              1. आपका पूरा नाम (Full Name)
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+              1. Your Full Name
             </Text>
             <TouchableOpacity
               onPress={handleVoiceDictateName}
-              style={[styles.micBtn, { backgroundColor: theme.colors.primary.emerald100 }]}
+              style={[styles.micBtn, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}
               accessibilityRole="button"
               accessibilityLabel="Voice dictate name"
             >
-              <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                🎙️ बोलकर लिखें
+              <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+                🎙️ Speak Name
               </Text>
             </TouchableOpacity>
           </View>
@@ -117,14 +175,14 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
               setFullName(text);
               setErrorMessage(null);
             }}
-            placeholder="उदा. सुनीता देवी / Sunita Devi"
+            placeholder="e.g. Ramesh Kumbhar / Sunita Devi"
           />
         </View>
 
-        {/* 2. Craft Discipline Selector */}
+        {/* 2. Craft Selection */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={styles.sectionLabel}>
-            2. आपका मुख्य शिल्प क्या है? (Craft Category)
+          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
+            2. Primary Craft Specialization
           </Text>
 
           <View style={styles.craftGrid}>
@@ -133,27 +191,28 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
               return (
                 <TouchableOpacity
                   key={craft.code}
-                  activeOpacity={0.7}
+                  activeOpacity={0.8}
                   onPress={() => setSelectedCraft(craft.code)}
                   style={[
                     styles.craftTile,
                     {
-                      backgroundColor: isSelected
-                        ? theme.colors.primary.emerald100
-                        : theme.colors.surface.card,
-                      borderColor: isSelected
-                        ? theme.colors.primary.emerald700
-                        : theme.colors.surface.border,
+                      backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
+                      borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
                       ...theme.shadows.level1,
                     },
                   ]}
                 >
                   <Text style={styles.craftIcon}>{craft.icon}</Text>
-                  <Text variant="bodySmall" weight="bold" align="center" color={theme.colors.text.primary}>
-                    {craft.nameHi}
-                  </Text>
-                  <Text variant="bodySmall" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
+                  <Text
+                    variant="bodySmall"
+                    weight="bold"
+                    align="center"
+                    color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
+                  >
                     {craft.nameEn}
+                  </Text>
+                  <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
+                    {craft.nameHi}
                   </Text>
                 </TouchableOpacity>
               );
@@ -163,33 +222,33 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 3. Location Display */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={styles.sectionLabel}>
-            3. आपका स्थान (Location)
+          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
+            3. Workshop Location
           </Text>
           <Card style={styles.locationCard}>
             <View style={styles.locationRow}>
               <Text style={styles.locationPin}>📍</Text>
               <View>
-                <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+                <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
                   {district}, {state}
                 </Text>
-                <Text variant="bodySmall" color={theme.colors.primary.emerald700}>
-                  ✓ जीआई-टैग क्लस्टर मैप से लिंक
+                <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
+                  ✓ Linked to Authentic GI Tagged Cluster
                 </Text>
               </View>
             </View>
           </Card>
         </View>
 
-        {/* 4. Facilitator / SHG Code (Optional) */}
+        {/* 4. Facilitator / SHG Code */}
         <View style={styles.section}>
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary} style={styles.sectionLabel}>
-            4. सहयोगी संस्था या SHG कोड (वैकल्पिक / Optional)
+          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
+            4. SHG / Facilitator Code (Optional)
           </Text>
           <TextInput
             value={shgCode}
             onChangeText={setShgCode}
-            placeholder="उदा. SHG-MITHILA-402 (यदि है तो)"
+            placeholder="e.g. SHG-KOLHAPUR-402 (if applicable)"
           />
         </View>
 
@@ -200,13 +259,21 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         )}
 
         <Button
-          label="प्रोफाइल सुरक्षित करें (Save Profile) →"
-          variant="terracotta"
+          label="Save & Complete Profile →"
+          variant="primary"
           size="decision"
           isLoading={isLoading}
           onPress={handleSubmit}
           style={styles.submitBtn}
         />
+
+        {/* 100% ONDC Supported Trust Badge from Stitch Screen */}
+        <View style={styles.ondcBadge}>
+          <Text style={{ fontSize: 13 }}>🛡️</Text>
+          <Text variant="caption" color={theme.colors.text.secondary}>
+            100% ONDC Protocol Enabled • Certified GI Authenticity Guarantee
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -216,20 +283,117 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  helpPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  stepMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    marginBottom: 4,
+  },
+  roleTagPill: {
+    backgroundColor: '#F0EEFF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  roleTagText: {
+    color: '#4B44CC',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  progressTrack: {
+    width: '100%',
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E5E7EB',
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 3,
+  },
+  voiceBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  voiceBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  voiceBannerIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceActionBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  ondcBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 16,
+    marginBottom: 10,
+  },
   content: {
     padding: 16,
     paddingBottom: 64,
+    maxWidth: 580,
+    width: '100%',
+    alignSelf: 'center',
   },
-  header: {
+  avatarSection: {
     alignItems: 'center',
     marginVertical: 12,
   },
-  title: {
-    textAlign: 'center',
-    marginBottom: 4,
+  avatarCircle: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
-  subtitle: {
-    textAlign: 'center',
+  avatarIcon: {
+    fontSize: 42,
+  },
+  cameraBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraIcon: {
+    fontSize: 14,
+  },
+  avatarLabel: {
+    marginTop: 6,
   },
   section: {
     marginVertical: 10,
@@ -246,7 +410,8 @@ const styles = StyleSheet.create({
   micBtn: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 999,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   craftGrid: {
     flexDirection: 'row',
@@ -257,29 +422,28 @@ const styles = StyleSheet.create({
     width: '48%',
     padding: 12,
     borderWidth: 2,
-    borderRadius: 12,
+    borderRadius: 14,
     marginBottom: 10,
     alignItems: 'center',
-    minHeight: 104,
+    minHeight: 100,
     justifyContent: 'center',
   },
   craftIcon: {
-    fontSize: 28,
+    fontSize: 26,
     marginBottom: 4,
   },
   craftEn: {
-    fontSize: 10,
     marginTop: 2,
   },
   locationCard: {
-    padding: 12,
+    padding: 14,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   locationPin: {
-    fontSize: 28,
+    fontSize: 26,
     marginRight: 12,
   },
   errorText: {
@@ -290,4 +454,3 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
 });
-

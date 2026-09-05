@@ -6,6 +6,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { marketLinkageService } from '@/api/marketLinkageService';
 import { useMarketLinkageStore, MarketOpportunity } from '@/store/useMarketLinkageStore';
 
@@ -24,48 +25,45 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
   }, [setOpportunities]);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          बड़ा बाज़ार (B2B Opportunities)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
+      <AppHeader
+        title="बड़ा बाज़ार (B2B Opportunities)"
+        subtitle="AI Cluster Matchmaking"
+        showBack={true}
+        onBackPress={() => navigation.goBack()}
+        onVoicePress={() => {}}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Value Proposition Hero Banner */}
-        <Card style={[styles.heroCard, { backgroundColor: theme.colors.primary.emerald800 }]}>
+        <Card style={[styles.heroCard, { backgroundColor: theme.colors.terracotta.primary }]}>
           <View style={styles.heroRow}>
             <View style={{ flex: 1, paddingRight: 10 }}>
-              <Text variant="bodySmall" weight="bold" color="#D4AF37">
-                AI क्लस्टर मैचमेकिंग इंजन
-              </Text>
+              <View style={styles.heroBadge}>
+                <Text variant="labelSmall" weight="bold" color="#FFFFFF">
+                  ✨ AI क्लस्टर मैचमेकिंग इंजन
+                </Text>
+              </View>
               <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
                 कॉर्पोरेट व संस्थागत थोक ऑर्डर्स
               </Text>
-              <Text variant="bodySmall" color="#E0D7C9">
+              <Text variant="labelSmall" color="#E0DCFF">
                 आपकी क्षमता अनुसार छोटा कोटा, 30% एडवांस सामग्री भुगतान और पक्की कमाई।
               </Text>
             </View>
-            <Text style={{ fontSize: 40 }}>🤝</Text>
+            <Text style={{ fontSize: 36 }}>🤝</Text>
           </View>
         </Card>
 
         {/* Opportunity List Section */}
-        <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.sectionHeading}>
-          आपके लिए उपलब्ध अवसर ({opportunities.length})
-        </Text>
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+            आपके लिए उपलब्ध अवसर ({opportunities.length})
+          </Text>
+          <Text variant="labelSmall" color={theme.colors.text.secondary}>
+            शिल्प व क्षमता अनुसार ऑटो-मैच
+          </Text>
+        </View>
 
         {isLoading ? (
           <View style={styles.loadingBox}>
@@ -78,28 +76,29 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
             <TouchableOpacity
               key={item.id}
               onPress={() => navigation.navigate('OpportunityDetail', { opportunityId: item.id })}
+              activeOpacity={0.88}
               accessibilityRole="button"
               accessibilityLabel={item.rfqTitle.hi}
             >
               <Card style={styles.opportunityCard}>
-                {/* Match Badge & Buyer */}
+                {/* Match Badge & Category */}
                 <View style={styles.topRow}>
-                  <View style={[styles.matchBadge, { backgroundColor: theme.colors.primary.emerald100 }]}>
-                    <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald900}>
+                  <View style={[styles.matchBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#6C63FF">
                       🎯 {item.matchConfidencePercentage}% शिल्प मिलान
                     </Text>
                   </View>
-                  <Text variant="bodySmall" color={theme.colors.terracotta.primary} weight="bold">
+                  <Text variant="labelSmall" color={theme.colors.terracotta.primary} weight="bold">
                     {item.craftCategoryName}
                   </Text>
                 </View>
 
                 {/* Buyer Name & Title */}
-                <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 6 }}>
+                <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 6 }}>
                   🏢 {item.buyerName}
                 </Text>
                 <Text
-                  variant="headlineSmall"
+                  variant="labelLarge"
                   weight="bold"
                   color={theme.colors.text.primary}
                   style={styles.rfqTitle}
@@ -108,34 +107,34 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
                 </Text>
 
                 {/* Quota & Earnings Matrix */}
-                <View style={[styles.matrixCard, { backgroundColor: theme.colors.surface.parchment }]}>
+                <View style={[styles.matrixCard, { backgroundColor: theme.colors.surface.card }]}>
                   <View style={styles.matrixCol}>
-                    <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                      आपका कोटा (Quota):
+                    <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                      आपका कोटा
                     </Text>
-                    <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+                    <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                       {item.artisanAllocatedQuota} पीस
                     </Text>
                   </View>
 
-                  <View style={styles.matrixDivider} />
+                  <View style={[styles.matrixDivider, { backgroundColor: theme.colors.border.subtle }]} />
 
                   <View style={styles.matrixCol}>
-                    <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                      दर प्रति पीस:
+                    <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                      दर प्रति पीस
                     </Text>
-                    <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+                    <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                       ₹{item.unitRateArtisan}
                     </Text>
                   </View>
 
-                  <View style={styles.matrixDivider} />
+                  <View style={[styles.matrixDivider, { backgroundColor: theme.colors.border.subtle }]} />
 
                   <View style={styles.matrixCol}>
-                    <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                      कुल पक्की कमाई:
+                    <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                      कुल पक्की कमाई
                     </Text>
-                    <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
+                    <Text variant="labelMedium" weight="bold" color="#6C63FF">
                       ₹{item.totalPotentialPayout.toLocaleString('en-IN')}
                     </Text>
                   </View>
@@ -143,11 +142,11 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
 
                 {/* Advance Material Guarantee Pill */}
                 <View style={styles.advanceRow}>
-                  <Text style={{ fontSize: 16, marginRight: 6 }}>💰</Text>
-                  <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
+                  <Text style={{ fontSize: 15, marginRight: 6 }}>💰</Text>
+                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     ₹{item.upfrontMaterialAdvance.toLocaleString('en-IN')} कच्चा माल एडवांस तुरंत
                   </Text>
-                  <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginLeft: 'auto' }}>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginLeft: 'auto' }}>
                     ⏳ {item.daysToDeliver} दिन
                   </Text>
                 </View>
@@ -160,13 +159,14 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
         <TouchableOpacity
           onPress={() => navigation.navigate('CreateBulkRfq')}
           style={[styles.buyerPromptCard, { borderColor: theme.colors.terracotta.primary }]}
+          activeOpacity={0.8}
         >
-          <Text style={{ fontSize: 24, marginRight: 10 }}>🏢</Text>
+          <Text style={{ fontSize: 24, marginRight: 12 }}>🏢</Text>
           <View style={{ flex: 1 }}>
-            <Text variant="bodyMedium" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
               क्या आप कॉर्पोरेट खरीदार हैं?
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
+            <Text variant="labelSmall" color={theme.colors.text.secondary}>
               कारीगर क्लस्टर्स को सीधे बल्क RFQ भेजें →
             </Text>
           </View>
@@ -180,19 +180,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 40,
@@ -202,11 +189,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
   },
+  heroBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginBottom: 4,
+  },
   heroRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  sectionHeading: {
+  sectionHeader: {
     marginBottom: 12,
   },
   opportunityCard: {
@@ -222,7 +217,7 @@ const styles = StyleSheet.create({
   matchBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   rfqTitle: {
     marginTop: 4,
@@ -231,7 +226,7 @@ const styles = StyleSheet.create({
   },
   matrixCard: {
     flexDirection: 'row',
-    padding: 10,
+    padding: 12,
     borderRadius: 12,
     marginBottom: 10,
   },
@@ -241,23 +236,23 @@ const styles = StyleSheet.create({
   },
   matrixDivider: {
     width: 1,
-    backgroundColor: '#E0D7C9',
   },
   advanceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#E0D7C9',
+    borderTopColor: 'rgba(0,0,0,0.06)',
   },
   buyerPromptCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
-    marginTop: 10,
+    backgroundColor: '#FFFFFF',
+    marginTop: 8,
   },
   loadingBox: {
     padding: 30,

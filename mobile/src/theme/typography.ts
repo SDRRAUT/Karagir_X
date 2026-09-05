@@ -1,12 +1,3 @@
-/**
- * Kalakar Setu — Typography Tokens
- *
- * Typeface: Inter (loaded via expo-font). Falls back to system sans-serif.
- * Indic scripts (Devanagari, Bengali, Tamil, etc.) use Noto Sans via system fallback.
- *
- * Line heights: 1.4x multiplier for Latin, 1.5x for Indic script protection.
- */
-
 import { Platform } from 'react-native';
 
 export const FONT_FAMILY = {
@@ -14,38 +5,46 @@ export const FONT_FAMILY = {
   medium: 'Inter_500Medium',
   semiBold: 'Inter_600SemiBold',
   bold: 'Inter_700Bold',
+  display: 'Inter_700Bold',
+  body: 'Inter_400Regular',
 } as const;
 
-// System fallbacks used until fonts are loaded
 export const SYSTEM_FONTS = {
-  regular: Platform.select({ ios: 'System', android: 'sans-serif' }) as string,
-  medium: Platform.select({ ios: 'System', android: 'sans-serif-medium' }) as string,
-  semiBold: Platform.select({ ios: 'System', android: 'sans-serif-medium' }) as string,
-  bold: Platform.select({ ios: 'System', android: 'sans-serif' }) as string,
+  regular: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
+  medium: Platform.select({ ios: 'System', android: 'sans-serif-medium', default: 'sans-serif' }) as string,
+  semiBold: Platform.select({ ios: 'System', android: 'sans-serif-medium', default: 'sans-serif' }) as string,
+  bold: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
+  display: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
+  body: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
 };
 
 export const typography = {
-  fonts: SYSTEM_FONTS, // Will be swapped to FONT_FAMILY once fonts load
+  fonts: SYSTEM_FONTS,
 
   sizes: {
     display: 32,
+    displayLarge: 32,
+    displayMedium: 28,
+    displaySmall: 24,
     headlineLarge: 24,
     headlineMedium: 20,
-    headlineSmall: 17,
+    headlineSmall: 18,
     bodyLarge: 16,
     bodyMedium: 14,
     bodySmall: 12,
     labelLarge: 14,
     labelMedium: 12,
+    labelSmall: 10,
+    caption: 12,
     numeral: 28,
-    // Legacy aliases — map old names to new values
-    displayLarge: 32,
-    displayMedium: 28,
-    numeralExtraBold: 28,
+    numeralExtraBold: 36,
   },
 
   lineHeights: {
     display: 40,
+    displayLarge: 40,
+    displayMedium: 36,
+    displaySmall: 32,
     headlineLarge: 32,
     headlineMedium: 28,
     headlineSmall: 24,
@@ -54,11 +53,10 @@ export const typography = {
     bodySmall: 16,
     labelLarge: 20,
     labelMedium: 16,
+    labelSmall: 14,
+    caption: 16,
     numeral: 36,
-    // Legacy aliases
-    displayLarge: 40,
-    displayMedium: 36,
-    numeralExtraBold: 36,
+    numeralExtraBold: 44,
   },
 
   letterSpacing: {
@@ -79,6 +77,7 @@ export const typography = {
     medium: '500' as const,
     semiBold: '600' as const,
     bold: '700' as const,
+    extraBold: '800' as const,
   },
 } as const;
 

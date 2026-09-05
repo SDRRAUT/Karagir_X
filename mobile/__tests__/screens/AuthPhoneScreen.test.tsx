@@ -15,7 +15,7 @@ describe('AuthPhoneScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders phone input and quick test login button', async () => {
+  it('renders quick demo login button and role selector', async () => {
     const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -25,11 +25,11 @@ describe('AuthPhoneScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/अपना मोबाइल नंबर दर्ज करें/)).toBeTruthy();
+    expect(getByText(/CRAFT • CONNECT • GROW/)).toBeTruthy();
     expect(getByTestId('quick-demo-btn')).toBeTruthy();
   });
 
-  it('performs 1-click instant login via test credentials', async () => {
+  it('performs 1-click instant login via test number and bypasses OTP verification', async () => {
     const { getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
@@ -45,10 +45,11 @@ describe('AuthPhoneScreen', () => {
 
     expect(mockNavigation.replace).toHaveBeenCalled();
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().user?.phoneNumber).toBe('9876543210');
   });
 
-  it('allows entering digits via keypad and sending OTP', async () => {
-    const { getByText } = await render(
+  it('allows entering digits via keypad and logging in directly without OTP verification', async () => {
+    const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <AuthPhoneScreen
           navigation={mockNavigation}
@@ -56,6 +57,11 @@ describe('AuthPhoneScreen', () => {
         />
       </ThemeProvider>
     );
+
+    // Open keypad
+    await act(async () => {
+      fireEvent.press(getByText('🔢 कीपैड खोलें'));
+    });
 
     // Enter 9876543210 via keypad
     const digits = ['9', '8', '7', '6', '5', '4', '3', '2', '1', '0'];
@@ -66,12 +72,10 @@ describe('AuthPhoneScreen', () => {
     }
 
     await act(async () => {
-      fireEvent.press(getByText('OTP कोड भेजें (Send OTP) →'));
+      fireEvent.press(getByTestId('login-submit-btn'));
     });
 
-    expect(mockNavigation.navigate).toHaveBeenCalledWith('OtpVerification', expect.objectContaining({
-      phoneNumber: '9876543210',
-      role: 'BUYER',
-    }));
+    expect(mockNavigation.replace).toHaveBeenCalled();
+    expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 });

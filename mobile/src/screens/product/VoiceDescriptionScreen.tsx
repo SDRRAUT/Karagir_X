@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { voiceService, VoiceTranscriptionResult } from '@/api/voiceService';
@@ -28,7 +29,6 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
   const primaryPhoto =
     photos.find((p) => p.id === primaryPhotoId) || photos[0];
 
-  // Pulsing animation during recording
   useEffect(() => {
     if (isRecording) {
       Animated.loop(
@@ -88,28 +88,17 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          बोलकर बताएं (Voice Story)
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <AppHeader
+        title="Voice Story"
+        subtitle="Voice Saathi • 12+ Indian Languages"
+        onBackPress={() => navigation.goBack()}
+        showDevanagariLogo
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Product Photo & Context Banner */}
-        <Card style={styles.productBanner}>
+        <Card style={styles.productBanner} variant="elevated">
           {primaryPhoto ? (
             <Image
               source={{ uri: primaryPhoto.enhancedUri || primaryPhoto.uri }}
@@ -121,11 +110,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           )}
           <View style={styles.bannerInfo}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
-              अपनी कला के बारे में बताएं
+            <View style={styles.voiceTagPill}>
+              <Text style={styles.voiceTagText}>VOICE SAATHI • AI ASSISTANT</Text>
+            </View>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
+              Tell us about your handcrafted creation
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              (जैसे: यह क्या है, कैसे बनाई, क्या सामग्री लगी)
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
+              What is it, how did you make it, what materials were used?
             </Text>
           </View>
         </Card>
@@ -137,9 +129,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             style={[
               styles.pulseRing,
               {
-                borderColor: isRecording
-                  ? theme.colors.terracotta.primary
-                  : theme.colors.primary.emerald700,
+                borderColor: isRecording ? '#6C63FF' : '#DAA520',
                 transform: [{ scale: pulseAnim }],
               },
             ]}
@@ -149,17 +139,15 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           <TouchableOpacity
             testID="record-voice-btn"
             onPress={isRecording ? handleStopRecording : handleStartRecording}
+            activeOpacity={0.85}
             style={[
               styles.micButton,
               {
-                backgroundColor: isRecording
-                  ? theme.colors.terracotta.primary
-                  : theme.colors.primary.emerald700,
-                ...theme.shadows.level3,
+                backgroundColor: isRecording ? '#6B6B8D' : '#6C63FF',
               },
             ]}
             accessibilityRole="button"
-            accessibilityLabel={isRecording ? 'रिकॉर्डिंग रोकें' : 'रिकॉर्डिंग शुरू करें'}
+            accessibilityLabel={isRecording ? 'Stop Recording' : 'Start Recording'}
           >
             <Text style={styles.micIcon}>{isRecording ? '⏹️' : '🎙️'}</Text>
           </TouchableOpacity>
@@ -168,69 +156,103 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           <Text
             variant="headlineLarge"
             weight="bold"
-            color={isRecording ? theme.colors.terracotta.primary : theme.colors.text.primary}
+            color={isRecording ? '#6C63FF' : theme.colors.charcoal[900]}
             style={styles.timerText}
           >
-            {isRecording ? formatTimer(secondsRecorded) : 'माइक दबाकर बोलें'}
+            {isRecording ? formatTimer(secondsRecorded) : 'Tap Mic to Speak'}
           </Text>
 
-          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.guidancePill}>
-            {isRecording
-              ? '🔴 आवाज़ रिकॉर्ड हो रही है... जब पूरा हो जाए तो बटन दबाएं'
-              : '🎤 1-2 मिनट खुलकर अपनी भाषा में बोलें'}
-          </Text>
+          <View style={styles.guidancePill}>
+            <Text variant="bodySmall" color={theme.colors.charcoal[600]}>
+              {isRecording
+                ? '🔴 Recording audio... Tap when finished'
+                : '🎤 Speak naturally in your native language for 1-2 minutes'}
+            </Text>
+          </View>
+
+          {/* Sound Wave Visualization when recording */}
+          {isRecording && (
+            <View style={styles.waveRow}>
+              {[8, 18, 28, 14, 24, 32, 20, 12, 26, 16, 30, 22, 10, 20].map((h, i) => (
+                <View
+                  key={i}
+                  style={[
+                    styles.waveBar,
+                    {
+                      height: h,
+                      backgroundColor: i % 2 === 0 ? '#6C63FF' : '#4F9DFF',
+                    },
+                  ]}
+                />
+              ))}
+            </View>
+          )}
         </View>
 
         {/* Processing State */}
         {isProcessing && (
-          <Card style={styles.processingCard}>
+          <Card style={styles.processingCard} variant="elevated">
             <LoadingSpinner size={32} message="" />
             <Text
               variant="bodyLarge"
               weight="bold"
-              color={theme.colors.primary.emerald700}
+              color={theme.colors.terracotta[600]}
               style={{ marginTop: 8 }}
             >
-              AI आपकी आवाज़ समझ रहा है...
+              Bhashini AI Speech Engine is listening...
             </Text>
-            <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              Bhashini Speech Engine: ट्रांसक्रिप्शन व जानकारी निकाली जा रही है
+            <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
+              Bhashini Speech Engine: Transcribing voice & extracting craft attributes
             </Text>
           </Card>
         )}
 
         {/* Successful Transcript Card */}
         {transcriptionResult && !isProcessing && (
-          <Card style={styles.resultCard}>
+          <Card style={styles.resultCard} variant="elevated">
             <View style={styles.resultHeader}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.primary.emerald700}>
-                ✅ आपकी आवाज़ का सारांश:
+              <View style={styles.badgeRow}>
+                <Text style={styles.badgeText}>LIVE SPEECH TRANSCRIPTION</Text>
+              </View>
+              <Text variant="bodySmall" color={theme.colors.heritageTeal[700]} weight="bold">
+                Natural Vernacular Speech
               </Text>
             </View>
-            <Text variant="bodyMedium" color={theme.colors.text.primary} style={styles.transcriptText}>
+
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary} style={{ marginTop: 6, marginBottom: 2 }}>
+              Voice Summary:
+            </Text>
+
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.transcriptText}>
               "{transcriptionResult.transcript}"
             </Text>
 
+            <View style={styles.clusterBadge}>
+              <Text style={styles.clusterBadgeText}>
+                ✓ AI Match: GI Certified Cluster Attributes Attached
+              </Text>
+            </View>
+
             {/* Extracted Entities Tag Chips */}
             <View style={styles.entitiesContainer}>
-              {transcriptionResult.extractedEntities.material && (
+              {Boolean(transcriptionResult.extractedEntities.material) && (
                 <View style={styles.entityChip}>
-                  <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                    🧵 सामग्री: {transcriptionResult.extractedEntities.material}
+                  <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[800]}>
+                    🧵 Material: {transcriptionResult.extractedEntities.material}
                   </Text>
                 </View>
               )}
-              {transcriptionResult.extractedEntities.technique && (
+              {Boolean(transcriptionResult.extractedEntities.technique) && (
                 <View style={styles.entityChip}>
-                  <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta.primary}>
-                    🖌️ शैली: {transcriptionResult.extractedEntities.technique}
+                  <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
+                    🖌️ Technique: {transcriptionResult.extractedEntities.technique}
                   </Text>
                 </View>
               )}
-              {transcriptionResult.extractedEntities.motif && (
+              {Boolean(transcriptionResult.extractedEntities.motif) && (
                 <View style={styles.entityChip}>
-                  <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                    🪡 पैटर्न: {transcriptionResult.extractedEntities.motif}
+                  <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[800]}>
+                    🪡 Motif: {transcriptionResult.extractedEntities.motif}
                   </Text>
                 </View>
               )}
@@ -240,12 +262,16 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Bottom Sticky Bar */}
-      {transcriptionResult && !isProcessing && (
-        <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      {!isProcessing && (
+        <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
           <Button
-            label="अगला: सवाल-जवाब (Continue to AI Q&A) →"
+            label={
+              transcriptionResult
+                ? "Next: Voice Saathi Interview →"
+                : "🎙️ Next: Start Voice Saathi Interview →"
+            }
             variant="primary"
-            size="decision"
+            size="default"
             onPress={() => navigation.navigate('VoiceFollowUp')}
           />
         </View>
@@ -258,47 +284,52 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
-    paddingBottom: 110,
+    paddingBottom: 120,
   },
   productBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    marginBottom: 24,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
+    marginBottom: 20,
   },
   thumb: {
-    width: 64,
-    height: 64,
+    width: 68,
+    height: 68,
     borderRadius: 12,
     marginRight: 14,
   },
   placeholderThumb: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#F3EFE9',
     alignItems: 'center',
     justifyContent: 'center',
   },
   bannerInfo: {
     flex: 1,
   },
+  voiceTagPill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F0EEFF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  voiceTagText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#6C63FF',
+    letterSpacing: 0.5,
+  },
   centerStage: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 32,
+    paddingVertical: 28,
     position: 'relative',
   },
   pulseRing: {
@@ -306,7 +337,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    borderWidth: 3,
+    borderWidth: 2.5,
   },
   micButton: {
     width: 96,
@@ -314,9 +345,14 @@ const styles = StyleSheet.create({
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
   },
   micIcon: {
-    fontSize: 44,
+    fontSize: 42,
   },
   timerText: {
     marginTop: 20,
@@ -324,34 +360,83 @@ const styles = StyleSheet.create({
   },
   guidancePill: {
     marginTop: 8,
-    textAlign: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#F3EFE9',
+  },
+  waveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 36,
+    marginTop: 18,
+    gap: 4,
+  },
+  waveBar: {
+    width: 4,
+    borderRadius: 2,
   },
   processingCard: {
     alignItems: 'center',
-    padding: 16,
+    padding: 18,
     marginTop: 16,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
   },
   resultCard: {
     marginTop: 20,
-    padding: 16,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E0DCFF',
   },
   resultHeader: {
-    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  badgeRow: {
+    backgroundColor: '#F3EFE9',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#6B6B8D',
+    letterSpacing: 0.5,
   },
   transcriptText: {
-    lineHeight: 22,
-    fontStyle: 'italic',
+    lineHeight: 24,
     marginBottom: 12,
+  },
+  clusterBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E8F5EE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  clusterBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#6C63FF',
   },
   entitiesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   entityChip: {
-    backgroundColor: '#F3EFE6',
+    backgroundColor: '#F3EFE9',
     borderRadius: 8,
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     marginRight: 8,
     marginBottom: 6,
   },
@@ -360,9 +445,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });
+

@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { StatusBanner } from '@/components/feedback/StatusBanner';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -48,7 +49,7 @@ export const LanguageSelectionScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       {isSessionExpired && (
         <StatusBanner
           type="warning"
@@ -56,26 +57,75 @@ export const LanguageSelectionScreen: React.FC<Props> = ({ navigation }) => {
         />
       )}
 
+      {/* Top Navigation Bar with Help */}
+      <AppHeader
+        showBack={false}
+        showBrand={true}
+        rightAction={
+          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
+            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              मदद (Help)
+            </Text>
+          </View>
+        }
+      />
+
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {/* Welcome & Instruction Header */}
         <View style={styles.header}>
-          <Text style={styles.voiceIcon}>🔊</Text>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary} style={styles.title}>
+          <View style={[styles.voiceBubble, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.container }]}>
+            <Text style={styles.voiceIcon}>🔊</Text>
+          </View>
+          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
             अपनी भाषा चुनें
           </Text>
-          <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
+          <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.subtitle}>
             Please select your preferred language
           </Text>
+          <Text variant="caption" color={theme.colors.text.muted} style={{ marginTop: 2 }}>
+            कारीगर और खरीदार दोनों के लिए आसान अनुभव
+          </Text>
+
+          {/* Voice Helper Tooltip Badge */}
+          <View style={styles.helperBadge}>
+            <Text style={{ fontSize: 13 }}>🔊</Text>
+            <Text variant="caption" weight="bold" color={theme.colors.primary.emerald700}>
+              भाषा सुनने के लिए स्पीकर दबाएं (Tap icon to listen)
+            </Text>
+          </View>
         </View>
 
-        {/* Language Grid */}
+        {/* Bolie Saathi Voice Assistant Trigger Card */}
+        <View style={[styles.voiceAssistantCard, { backgroundColor: '#FFF9EE', borderColor: '#ECD9C5' }]}>
+          <View style={styles.voiceAssistantLeft}>
+            <View style={[styles.voiceMicCircle, { backgroundColor: theme.colors.brand.primary }]}>
+              <Text style={{ fontSize: 14, color: '#FFFFFF' }}>🎙️</Text>
+            </View>
+            <View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
+                  बोलिए साथी • बोलकर चुनें
+                </Text>
+                <View style={styles.newBadge}>
+                  <Text style={styles.newBadgeText}>NEW</Text>
+                </View>
+              </View>
+              <Text variant="caption" color={theme.colors.text.secondary}>
+                बोलकर कहें: "हिन्दी", "বাংলা", "English"
+              </Text>
+            </View>
+          </View>
+          <Text style={{ fontSize: 14, color: theme.colors.text.muted }}>›</Text>
+        </View>
+
+        {/* Language Cards List matching Stitch layout */}
         <View style={styles.grid}>
           {LANGUAGES.map((lang) => {
             const isSelected = selected === lang.code;
             return (
               <TouchableOpacity
                 key={lang.code}
-                activeOpacity={0.7}
+                activeOpacity={0.8}
                 onPress={() => handleSelectLanguage(lang.code)}
                 testID={`lang-card-${lang.code}`}
                 accessibilityRole="radio"
@@ -84,30 +134,49 @@ export const LanguageSelectionScreen: React.FC<Props> = ({ navigation }) => {
                 style={[
                   styles.card,
                   {
-                    backgroundColor: isSelected
-                      ? theme.colors.primary.emerald100
-                      : theme.colors.surface.card,
-                    borderColor: isSelected
-                      ? theme.colors.primary.emerald700
-                      : theme.colors.surface.border,
-                    borderRadius: theme.touch.radii.card,
+                    backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
+                    borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
+                    borderRadius: theme.borderRadius.xl,
                     ...theme.shadows.level1,
                   },
                 ]}
               >
                 <View style={styles.cardHeader}>
-                  <Text variant="headlineLarge" weight="bold" color={theme.colors.text.primary}>
-                    {lang.nativeLabel}
-                  </Text>
-                  {isSelected && (
-                    <Text variant="headlineMedium" color={theme.colors.primary.emerald700}>
-                      ✓
-                    </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    {/* Audio pronunciation button */}
+                    <View style={[styles.listenBtn, { backgroundColor: isSelected ? 'rgba(108, 99, 255, 0.15)' : theme.colors.sand[100] }]}>
+                      <Text style={{ fontSize: 13 }}>🔊</Text>
+                    </View>
+                    <View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text
+                          variant="headlineMedium"
+                          weight="bold"
+                          color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
+                        >
+                          {lang.nativeLabel}
+                        </Text>
+                        <View style={[styles.langBadge, { backgroundColor: isSelected ? theme.colors.brand.container : theme.colors.sand[100] }]}>
+                          <Text variant="caption" weight="bold" color={isSelected ? theme.colors.brand.dark : theme.colors.text.secondary}>
+                            {lang.englishLabel}
+                          </Text>
+                        </View>
+                      </View>
+                      <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                        {lang.sampleGreeting} • स्वागत है
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Selection Radio / Checkmark */}
+                  {isSelected ? (
+                    <View style={[styles.checkPill, { backgroundColor: theme.colors.brand.primary }]}>
+                      <Text style={styles.checkIcon}>✓</Text>
+                    </View>
+                  ) : (
+                    <View style={[styles.radioInactive, { borderColor: theme.colors.sand[300] }]} />
                   )}
                 </View>
-                <Text variant="bodyMedium" color={theme.colors.text.secondary}>
-                  {lang.englishLabel} • {lang.sampleGreeting}
-                </Text>
               </TouchableOpacity>
             );
           })}
@@ -115,7 +184,16 @@ export const LanguageSelectionScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Sticky Bottom CTA */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            backgroundColor: theme.colors.surface.card,
+            borderTopColor: theme.colors.sand[200],
+            ...theme.shadows.level4,
+          },
+        ]}
+      >
         <Button
           label="आगे बढ़ें (Continue) →"
           variant="primary"
@@ -137,27 +215,36 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 14,
+  },
+  voiceBubble: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   voiceIcon: {
-    fontSize: 40,
-    marginBottom: 8,
+    fontSize: 24,
   },
   title: {
     textAlign: 'center',
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   subtitle: {
     textAlign: 'center',
   },
   grid: {
-    marginTop: 12,
+    marginTop: 10,
   },
   card: {
     padding: 16,
     borderWidth: 2,
     marginBottom: 12,
-    minHeight: 80,
+    minHeight: 76,
     justifyContent: 'center',
   },
   cardHeader: {
@@ -166,15 +253,94 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
+  helpPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  helperBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: '#EBF6EE',
+    borderColor: '#D0EADB',
+    borderWidth: 1,
+    marginTop: 10,
+  },
+  voiceAssistantCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  voiceAssistantLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  voiceMicCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  newBadge: {
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+    backgroundColor: '#FFE8DE',
+  },
+  newBadgeText: {
+    color: '#6C63FF',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  listenBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  langBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  radioInactive: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1.5,
+  },
+  checkPill: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkIcon: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     padding: 16,
-    paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    paddingBottom: 22,
+    borderTopWidth: 1,
   },
 });
-

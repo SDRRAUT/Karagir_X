@@ -24,3 +24,4 @@ export * from './feedback/EmptyState';
 export * from './feedback/StatusBanner';
 export * from './feedback/SuccessScreen';
 export * from './feedback/ErrorBoundary';
+export * from './navigation/AppHeader';

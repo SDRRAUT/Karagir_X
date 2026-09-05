@@ -1,68 +1,69 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useAppStore } from '@/store/useAppStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const { isAuthenticated, user, isSessionExpired } = useAuthStore();
-  const { isInitialized } = useAppStore();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (isSessionExpired) {
-        navigation.replace('LanguageSelection');
-      } else if (isAuthenticated && user) {
-        if (user.isProfileComplete === false) {
-          navigation.replace('ProfileSetup', { role: user.role });
-        } else {
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
-        }
-      } else {
-        navigation.replace('LanguageSelection');
-      }
+      navigation.replace('AuthPhone', { role: 'ARTISAN' });
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [navigation, isAuthenticated, user, isSessionExpired, isInitialized]);
+  }, [navigation]);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
-        {/* Emblem */}
+        {/* Official KarigarX Logo Emblem */}
         <View
           style={[
             styles.emblemContainer,
             {
-              backgroundColor: theme.colors.primary.emerald100,
-              borderColor: theme.colors.primary.emerald700,
+              backgroundColor: '#FAF7F2',
+              borderColor: '#E8ECF4',
+              ...theme.shadows.level2,
             },
           ]}
         >
-          <Text style={styles.emblemEmoji}>🏺</Text>
+          <Image
+            source={require('../../../assets/karigarx_logo.png')}
+            style={styles.splashLogoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Title & Tagline */}
-        <Text variant="displayLarge" weight="bold" color={theme.colors.primary.emerald700} style={styles.title}>
-          कलाकार सेतु
+        <Text
+          variant="displayLarge"
+          weight="bold"
+          color="#0E243F"
+          style={styles.title}
+        >
+          KARIGARX
         </Text>
-        <Text variant="headlineMedium" color={theme.colors.terracotta.primary} style={styles.tagline}>
-          कला से बाज़ार तक
+        <Text
+          variant="headlineMedium"
+          weight="semiBold"
+          color="#5A52DD"
+          style={styles.tagline}
+        >
+          CRAFT • CONNECT • GROW
         </Text>
         <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.subtext}>
-          Marginalized Artisans Market Linkage
+          कलाकार सेतु — Marginalized Artisans Direct Market Linkage
         </Text>
 
         <View style={styles.spinnerContainer}>
-          <LoadingSpinner size={36} message="" />
+          <LoadingSpinner size={36} />
         </View>
       </View>
     </SafeAreaView>
@@ -80,20 +81,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   emblemContainer: {
-    width: 108,
-    height: 108,
-    borderRadius: 54,
-    borderWidth: 2,
+    width: 120,
+    height: 120,
+    borderRadius: 32,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    overflow: 'hidden',
+    padding: 12,
   },
-  emblemEmoji: {
-    fontSize: 54,
+  splashLogoImage: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     textAlign: 'center',
     marginBottom: 6,
+    letterSpacing: -0.5,
   },
   tagline: {
     textAlign: 'center',
@@ -101,11 +106,10 @@ const styles = StyleSheet.create({
   },
   subtext: {
     textAlign: 'center',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   spinnerContainer: {
     position: 'absolute',
     bottom: 48,
   },
 });
-

@@ -17,11 +17,11 @@ describe('MicPermissionScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('माइक की अनुमति दें')).toBeTruthy();
-    expect(getByText('Allow Microphone Access')).toBeTruthy();
+    expect(getByText('Microphone Permission')).toBeTruthy();
+    expect(getByText('Voice-First AI Listing Assistant')).toBeTruthy();
 
     await act(async () => {
-      fireEvent.press(getByText('माइक की अनुमति दें (Allow Mic) 🎙️'));
+      fireEvent.press(getByText('Allow Microphone 🎙️'));
     });
 
     expect(mockNavigation.replace).toHaveBeenCalledWith('VoiceDescription');

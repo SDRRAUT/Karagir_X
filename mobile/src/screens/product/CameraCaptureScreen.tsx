@@ -25,15 +25,15 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
   const currentAngle = angleOrder[photos.length] || 'FRONT';
 
   const angleLabels: Record<PhotoAngle, { hi: string; en: string }> = {
-    FRONT: { hi: 'सामने की फोटो (Front View)', en: 'Main front angle' },
-    TEXTURE: { hi: 'नजदीक से कारीगरी (Texture & Details)', en: 'Close-up craftsmanship' },
-    SIDE_BACK: { hi: 'पीछे या साइड की फोटो (Back / Side)', en: 'Back or profile' },
-    SCALE: { hi: 'हाथ में रखकर नाप (In-Hand Scale)', en: 'In-hand scale' },
+    FRONT: { hi: 'Front View', en: 'Front View' },
+    TEXTURE: { hi: 'Detail & Craftsmanship', en: 'Detail & Craftsmanship' },
+    SIDE_BACK: { hi: 'Back or Profile', en: 'Back or Profile' },
+    SCALE: { hi: 'In-Hand Scale', en: 'In-Hand Scale' },
   };
 
   const handleShutter = async () => {
     if (photos.length >= 4) {
-      Alert.alert('अधिकतम सीमा', 'आप एक प्रोडक्ट के लिए अधिकतम 4 फोटो ले सकते हैं।');
+      Alert.alert('Maximum Limit', 'You can take up to 4 photos per product.');
       return;
     }
 
@@ -72,7 +72,7 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleImportGallery = async () => {
     if (photos.length >= 4) {
-      Alert.alert('अधिकतम सीमा', 'आप एक प्रोडक्ट के लिए अधिकतम 4 फोटो जोड़ सकते हैं।');
+      Alert.alert('Maximum Limit', 'You can upload up to 4 photos per product.');
       return;
     }
 
@@ -92,7 +92,7 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
         });
       }
     } catch (_err) {
-      Alert.alert('गैलरी त्रुटि', 'गैलरी से फोटो लोड करने में समस्या हुई।');
+      Alert.alert('Gallery Error', 'Failed to load photo from gallery.');
     }
   };
 
@@ -136,7 +136,7 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
           {/* Current Angle Guide Badge */}
           <View style={styles.anglePill}>
             <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              📸 {angleLabels[currentAngle].hi}
+              📸 {angleLabels[currentAngle].en}
             </Text>
           </View>
 
@@ -177,10 +177,10 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.guidancePill}>
             <Text variant="bodyMedium" weight="bold" color="#FFFFFF" align="center">
               {guidanceStatus === 'GOOD'
-                ? '✅ बिल्कुल सही! फोटो खींचें (Ready)'
+                ? '✅ Ready! Tap Shutter'
                 : guidanceStatus === 'UNSTEADY'
-                ? '⚠️ फ़ोन स्थिर रखें (Hold Steady)'
-                : '☀️ थोड़ी रोशनी में ले जाएं (Need Light)'}
+                ? '⚠️ Hold Steady'
+                : '☀️ Move to brighter light'}
             </Text>
           </View>
         </View>
@@ -197,7 +197,7 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
           >
             <Text style={styles.galleryIcon}>🖼️</Text>
             <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              गैलरी
+              Gallery
             </Text>
           </TouchableOpacity>
 
@@ -225,13 +225,13 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
               accessibilityLabel="Proceed to photo review"
             >
               <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-                समीक्षा ({photos.length}/4) →
+                Review ({photos.length}/4) →
               </Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.counterPlaceholder}>
               <Text variant="bodySmall" color="#CCCCCC">
-                0/4 फोटो
+                0/4 Photos
               </Text>
             </View>
           )}
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: '#1E5631',
+    backgroundColor: '#6C63FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -367,8 +367,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   proceedBtn: {
-    backgroundColor: '#1E5631',
-    paddingHorizontal: 14,
+    backgroundColor: '#6C63FF',
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1.5,

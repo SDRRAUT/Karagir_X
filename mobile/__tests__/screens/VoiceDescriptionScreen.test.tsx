@@ -26,7 +26,7 @@ describe('VoiceDescriptionScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('बोलकर बताएं (Voice Story)')).toBeTruthy();
+    expect(getByText('Voice Story')).toBeTruthy();
 
     const recordBtn = getByTestId('record-voice-btn');
 
@@ -41,11 +41,11 @@ describe('VoiceDescriptionScreen', () => {
     });
 
     await waitFor(() => {
-      expect(getByText(/आपकी आवाज़ का सारांश/)).toBeTruthy();
+      expect(getByText(/Voice Summary:/)).toBeTruthy();
     });
 
     // Click continue
-    const continueBtn = getByText(/अगला: सवाल-जवाब/);
+    const continueBtn = getByText(/Next: Voice Saathi Interview/);
     await act(async () => {
       fireEvent.press(continueBtn);
     });

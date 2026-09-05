@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
+import { AppHeader } from '@/components/navigation/AppHeader';
 import { useMarketLinkageStore } from '@/store/useMarketLinkageStore';
 import { marketLinkageService } from '@/api/marketLinkageService';
 
@@ -32,12 +33,12 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
   const handleToggleVoiceNote = () => {
     if (isRecordingVoice) {
       setIsRecordingVoice(false);
-      setRecordedVoiceNote('वॉयस संदेश संलग्न: "नमस्ते, हम 15 तारीख तक 50 बैग तैयार कर देंगे।"');
+      setRecordedVoiceNote('वॉयस संदेश संलग्न: "नमस्ते, हम 15 तारीख तक 50 पीस तैयार कर देंगे।"');
     } else {
       setIsRecordingVoice(true);
       setTimeout(() => {
         setIsRecordingVoice(false);
-        setRecordedVoiceNote('वॉयस संदेश संलग्न: "नमस्ते, हम 15 तारीख तक 50 बैग तैयार कर देंगे।"');
+        setRecordedVoiceNote('वॉयस संदेश संलग्न: "नमस्ते, हम 15 तारीख तक 50 पीस तैयार कर देंगे।"');
       }, 1500);
     }
   };
@@ -65,28 +66,18 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.parchment }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          style={styles.backBtn}
-        >
-          <Text variant="headlineMedium" color={theme.colors.text.primary}>
-            ← वापस
-          </Text>
-        </TouchableOpacity>
-        <Text variant="headlineMedium" weight="bold" color={theme.colors.text.primary}>
-          कोटा व कोटेशन तय करें
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
+      <AppHeader
+        title="कोटा व कोटेशन तय करें"
+        subtitle="Fair Quota & Delivery Terms"
+        showBack={true}
+        onBackPress={() => navigation.goBack()}
+        onVoicePress={() => {}}
+      />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Title Notice */}
-        <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subHeading}>
+        <Text variant="bodySmall" color={theme.colors.text.secondary} style={styles.subHeading}>
           अपनी सुविधा और घर की क्षमता अनुसार कोटा चुनें। कोई ज़बरदस्ती नहीं है।
         </Text>
 
@@ -98,52 +89,58 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
 
           {/* Quick Preset Buttons */}
           <View style={styles.presetsRow}>
-            {[25, 50, 75, 100].map((num) => (
-              <TouchableOpacity
-                key={num}
-                onPress={() => setQuota(num)}
-                style={[
-                  styles.presetBtn,
-                  quota === num && {
-                    backgroundColor: theme.colors.primary.emerald700,
-                    borderColor: theme.colors.primary.emerald700,
-                  },
-                ]}
-              >
-                <Text
-                  variant="bodyMedium"
-                  weight="bold"
-                  color={quota === num ? '#FFFFFF' : theme.colors.text.primary}
+            {[25, 50, 75, 100].map((num) => {
+              const isSelected = quota === num;
+              return (
+                <TouchableOpacity
+                  key={num}
+                  onPress={() => setQuota(num)}
+                  style={[
+                    styles.presetBtn,
+                    {
+                      backgroundColor: isSelected ? theme.colors.terracotta.primary : theme.colors.surface.card,
+                      borderColor: isSelected ? theme.colors.terracotta.primary : theme.colors.border.subtle,
+                    },
+                  ]}
+                  activeOpacity={0.8}
                 >
-                  {num} पीस
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    variant="labelMedium"
+                    weight={isSelected ? 'bold' : 'normal'}
+                    color={isSelected ? '#FFFFFF' : theme.colors.text.primary}
+                  >
+                    {num} पीस
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* Custom Stepper */}
-          <View style={styles.stepperBox}>
+          <View style={[styles.stepperBox, { backgroundColor: theme.colors.surface.sand }]}>
             <TouchableOpacity
               onPress={() => setQuota(Math.max(10, quota - 5))}
-              style={styles.stepperBtn}
+              style={[styles.stepperBtn, { backgroundColor: '#FFFFFF' }]}
               testID="quota-decrease-btn"
+              activeOpacity={0.7}
             >
-              <Text style={styles.stepperSymbol}>-</Text>
+              <Text style={styles.stepperSymbol}>−</Text>
             </TouchableOpacity>
 
             <View style={styles.stepperDisplay}>
-              <Text variant="headlineLarge" weight="bold" color={theme.colors.primary.emerald700}>
+              <Text variant="headlineLarge" weight="bold" color={theme.colors.terracotta.primary}>
                 {quota}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary}>
                 पीस (Units)
               </Text>
             </View>
 
             <TouchableOpacity
               onPress={() => setQuota(quota + 5)}
-              style={styles.stepperBtn}
+              style={[styles.stepperBtn, { backgroundColor: '#FFFFFF' }]}
               testID="quota-increase-btn"
+              activeOpacity={0.7}
             >
               <Text style={styles.stepperSymbol}>+</Text>
             </TouchableOpacity>
@@ -151,34 +148,34 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
         </Card>
 
         {/* Dynamic Recalculated Payout Card */}
-        <Card style={[styles.summaryCard, { borderColor: theme.colors.primary.emerald700, borderWidth: 1.5 }]}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 10 }}>
-            पुनरीक्षित कमाई सारांश (Recalculated Payout):
+        <Card style={styles.summaryCard}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 12 }}>
+            पुनरीक्षित कमाई सारांश (Recalculated):
           </Text>
 
           <View style={styles.calcRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
               कुल उत्पाद मूल्य ({quota} × ₹{unitRate}):
             </Text>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               ₹{totalValue.toLocaleString('en-IN')}
             </Text>
           </View>
 
           <View style={styles.calcRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
-              30% कच्चा माल अग्रिम (तुरंत बैंक में):
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
+              30% कच्चा माल अग्रिम (तुरंत):
             </Text>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.primary.emerald700}>
+            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
               ₹{advanceAmount.toLocaleString('en-IN')}
             </Text>
           </View>
 
           <View style={styles.calcRow}>
-            <Text variant="bodyMedium" color={theme.colors.text.secondary}>
+            <Text variant="labelMedium" color={theme.colors.text.secondary}>
               तय समय सीमा:
             </Text>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.text.primary}>
+            <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
               {deliveryDays} दिन
             </Text>
           </View>
@@ -186,31 +183,35 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
 
         {/* Timeline Selector */}
         <Card style={styles.timelineCard}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
+          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 10 }}>
             काम पूरा करने के लिए समय (Days):
           </Text>
           <View style={styles.presetsRow}>
-            {[15, 21, 30].map((days) => (
-              <TouchableOpacity
-                key={days}
-                onPress={() => setDeliveryDays(days)}
-                style={[
-                  styles.presetBtn,
-                  deliveryDays === days && {
-                    backgroundColor: theme.colors.primary.emerald700,
-                    borderColor: theme.colors.primary.emerald700,
-                  },
-                ]}
-              >
-                <Text
-                  variant="bodyMedium"
-                  weight="bold"
-                  color={deliveryDays === days ? '#FFFFFF' : theme.colors.text.primary}
+            {[15, 21, 30].map((days) => {
+              const isSelected = deliveryDays === days;
+              return (
+                <TouchableOpacity
+                  key={days}
+                  onPress={() => setDeliveryDays(days)}
+                  style={[
+                    styles.presetBtn,
+                    {
+                      backgroundColor: isSelected ? theme.colors.terracotta.primary : theme.colors.surface.card,
+                      borderColor: isSelected ? theme.colors.terracotta.primary : theme.colors.border.subtle,
+                    },
+                  ]}
+                  activeOpacity={0.8}
                 >
-                  {days} दिन
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    variant="labelMedium"
+                    weight={isSelected ? 'bold' : 'normal'}
+                    color={isSelected ? '#FFFFFF' : theme.colors.text.primary}
+                  >
+                    {days} दिन
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </Card>
 
@@ -221,19 +222,20 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
               onPress={handleToggleVoiceNote}
               style={[
                 styles.micCircle,
-                { backgroundColor: isRecordingVoice ? '#D32F2F' : theme.colors.primary.emerald700 },
+                { backgroundColor: isRecordingVoice ? '#EF4444' : theme.colors.terracotta.primary },
               ]}
+              activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel="Record voice enquiry"
             >
-              <Text style={{ fontSize: 24, color: '#FFFFFF' }}>{isRecordingVoice ? '⏹️' : '🎙️'}</Text>
+              <Text style={{ fontSize: 22, color: '#FFFFFF' }}>{isRecordingVoice ? '⏹️' : '🎙️'}</Text>
             </TouchableOpacity>
 
             <View style={{ flex: 1, marginLeft: 12 }}>
-              <Text variant="bodyMedium" weight="bold" color={theme.colors.text.primary}>
+              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                 {isRecordingVoice ? 'बोल रहे हैं (Recording)...' : 'वॉयस नोट / विशेष अनुरोध जोड़ें'}
               </Text>
-              <Text variant="bodySmall" color={theme.colors.text.secondary}>
+              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
                 {recordedVoiceNote || 'क्लस्टर लीड को कुछ पूछना या बताना हो तो बोलें'}
               </Text>
             </View>
@@ -242,11 +244,10 @@ export const QuoteNegotiationScreen: React.FC<Props> = ({ navigation, route }) =
       </ScrollView>
 
       {/* Bottom Sticky Submit Button */}
-      <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, ...theme.shadows.level4 }]}>
+      <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF' }]}>
         <Button
           label={isSubmitting ? 'अनुबंध बन रहा है...' : 'कोटेशन जमा करें व अनुबंध बनाएं 🔒'}
           variant="primary"
-          size="decision"
           isLoading={isSubmitting}
           onPress={handleSubmitQuote}
         />
@@ -259,77 +260,62 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerSpacer: {
-    width: 32,
-  },
   content: {
     padding: 16,
     paddingBottom: 110,
   },
   subHeading: {
-    marginBottom: 16,
-    lineHeight: 22,
+    marginBottom: 14,
   },
   quotaCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
   presetsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
     marginBottom: 14,
   },
   presetBtn: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
+    borderWidth: 1.5,
     alignItems: 'center',
-    marginHorizontal: 4,
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
   },
   stepperBox: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0D7C9',
+    justifyContent: 'space-between',
+    padding: 10,
     borderRadius: 14,
-    padding: 8,
-    backgroundColor: '#FAF7F2',
   },
   stepperBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
     elevation: 2,
   },
   stepperSymbol: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1E5631',
+    color: '#1A1A2E',
   },
   stepperDisplay: {
     alignItems: 'center',
   },
   summaryCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
-    backgroundColor: '#F9FBF9',
   },
   calcRow: {
     flexDirection: 'row',
@@ -338,10 +324,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   timelineCard: {
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
   voiceCard: {
+    borderRadius: 16,
     padding: 14,
     marginBottom: 14,
   },
@@ -350,9 +338,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   micCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -363,7 +351,12 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     paddingBottom: 24,
-    borderTopWidth: 1.5,
-    borderTopColor: '#E0D7C9',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 6,
   },
 });

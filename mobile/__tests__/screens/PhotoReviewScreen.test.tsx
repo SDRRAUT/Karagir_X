@@ -31,11 +31,11 @@ describe('PhotoReviewScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('फोटो समीक्षा (2/4)')).toBeTruthy();
-    expect(getByText('✅ क्वालिटी अच्छी है (Clear & Sharp)')).toBeTruthy();
+    expect(getByText('Photo Review (2/4)')).toBeTruthy();
+    expect(getByText('✅ Clear & Sharp')).toBeTruthy();
 
     await act(async () => {
-      fireEvent.press(getByText('AI से फोटो सुंदर बनाएं (Enhance with AI) ✨'));
+      fireEvent.press(getByText('Enhance with AI ✨'));
     });
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('AiEnhancement');
