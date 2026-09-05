@@ -64,27 +64,44 @@ export const ProfileScreen: React.FC = () => {
     },
   ];
 
+  const role = user?.role || 'ARTISAN';
+  const isBuyer = role === 'BUYER';
+  const isFacilitator = role === 'FACILITATOR';
+  const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isFacilitator ? 'Pooja Verma' : 'Ramesh Kumbhar');
+  const roleThemeColor = isBuyer ? '#4338CA' : isFacilitator ? '#16A34A' : theme.colors.terracotta.primary;
+  const roleLightBg = isBuyer ? '#EEF2FF' : isFacilitator ? '#F0FDF4' : 'rgba(108, 99, 255, 0.12)';
+  const roleLocation = user?.district && user?.state ? `${user.district}, ${user.state}` : (isBuyer ? 'Delhi NCR, New Delhi' : isFacilitator ? 'Kolhapur Cluster, Maharashtra' : 'Kolhapur, Maharashtra');
+  const roleTagline = isBuyer
+    ? 'Verified Buyer & Collector • Patron Member'
+    : isFacilitator
+    ? 'Cluster Field Lead • SHG Desk Head'
+    : 'Terracotta & Pottery Craftsman • Level 3';
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="Kalakar Setu"
-        subtitle="Artisan Account & Hub"
+        title={isBuyer ? "Buyer Hub" : isFacilitator ? "Sahyogi Desk" : "Kalakar Setu"}
+        subtitle={isBuyer ? "Buyer Account & Orders" : isFacilitator ? "Cluster Lead Hub" : "Artisan Account & Hub"}
         showDevanagariLogo={true}
         onVoicePress={() => {}}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Master Artisan Profile Card */}
+        {/* Master Profile Card */}
         <Card style={styles.profileCard}>
           <View style={styles.profileHeaderRow}>
             <View style={styles.avatarContainer}>
               <Image
                 source={{
-                  uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+                  uri: isBuyer
+                    ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
+                    : isFacilitator
+                    ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
+                    : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
                 }}
                 style={styles.avatar}
               />
-              <View style={[styles.verifiedBadge, { backgroundColor: theme.colors.terracotta.primary }]}>
+              <View style={[styles.verifiedBadge, { backgroundColor: roleThemeColor }]}>
                 <Text style={styles.verifiedIcon}>✓</Text>
               </View>
             </View>
@@ -92,53 +109,57 @@ export const ProfileScreen: React.FC = () => {
             <View style={styles.profileInfo}>
               <View style={styles.nameRow}>
                 <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                  {user?.fullName || 'Ramesh Kumbhar'}
+                  {roleName}
                 </Text>
                 <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
                   <Text style={{ fontSize: 14 }}>✏️</Text>
                 </TouchableOpacity>
               </View>
               <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                {user?.district && user?.state ? `${user.district}, ${user.state}` : 'Kolhapur, Maharashtra'}
+                {roleLocation}
               </Text>
               <Text
                 variant="labelSmall"
                 weight="bold"
-                color={theme.colors.terracotta.primary}
+                color={roleThemeColor}
                 style={{ marginTop: 2 }}
               >
-                Terracotta & Pottery Craftsman • Level 3
+                {roleTagline}
               </Text>
             </View>
           </View>
 
           {/* Trust Badges */}
           <View style={styles.trustBadgesRow}>
-            <View style={[styles.trustBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+            <View style={[styles.trustBadge, { backgroundColor: roleLightBg }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>⭐</Text>
-              <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
-                Kalakar Setu Verified
+              <Text variant="labelSmall" weight="bold" color={roleThemeColor}>
+                {isBuyer ? 'Verified Buyer' : isFacilitator ? 'Cluster Lead' : 'Kalakar Setu Verified'}
               </Text>
             </View>
             <View style={[styles.trustBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>📍</Text>
               <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                GI Region Artisan
+                {isBuyer ? 'GI Certified Patron' : isFacilitator ? '25+ Artisans Covered' : 'GI Region Artisan'}
               </Text>
             </View>
           </View>
 
-          {/* Artisan Club Banner */}
-          <View style={[styles.clubBanner, { backgroundColor: theme.colors.terracotta.primary }]}>
+          {/* Club / Hub Banner */}
+          <View style={[styles.clubBanner, { backgroundColor: roleThemeColor }]}>
             <View style={{ flex: 1, paddingRight: 8 }}>
               <View style={styles.clubTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 4 }}>✨</Text>
                 <Text variant="labelMedium" weight="bold" color="#FFFFFF">
-                  Kalakar Artisan Club
+                  {isBuyer ? 'KaragirX Buyer Club' : isFacilitator ? 'Sahyogi Field Lead Desk' : 'Kalakar Artisan Club'}
                 </Text>
               </View>
               <Text variant="labelSmall" color="#E0DCFF" style={{ marginTop: 2 }}>
-                0% commission orders • 24h fast payouts
+                {isBuyer
+                  ? 'Curated artisan drops • express courier dispatch'
+                  : isFacilitator
+                  ? 'Bulk RFQ facilitation • QC audit desk'
+                  : '0% commission orders • 24h fast payouts'}
               </Text>
             </View>
 
@@ -150,7 +171,7 @@ export const ProfileScreen: React.FC = () => {
               <Text
                 variant="labelSmall"
                 weight="bold"
-                color={joinedClub ? '#FFFFFF' : theme.colors.terracotta.primary}
+                color={joinedClub ? '#FFFFFF' : roleThemeColor}
               >
                 {joinedClub ? 'Joined ✓' : 'Join >'}
               </Text>

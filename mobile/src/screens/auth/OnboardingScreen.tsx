@@ -24,14 +24,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
 interface SlideData {
   id: number;
-  image: any;
+  image?: any;
   bgColor: string;
   isDark: boolean;
   title: string;
   description: string;
   microLine?: string;
   powerLine?: string;
-  badgeType: 'micro' | 'pricing' | 'buyer';
+  badgeType: 'micro' | 'pricing' | 'buyer' | 'role';
   voiceHi: string;
   buttonLabel: string;
   titleColor: string;
@@ -44,6 +44,86 @@ interface SlideData {
   voiceBorder: string;
   voiceText: string;
 }
+
+export interface OnboardingRoleOption {
+  role: UserRole;
+  titleEn: string;
+  titleHi: string;
+  titleMr: string;
+  subtitleEn: string;
+  subtitleHi: string;
+  subtitleMr: string;
+  tagEn: string;
+  tagHi: string;
+  tagMr: string;
+  icon: string;
+  themeColor: string;
+  lightBg: string;
+  borderColor: string;
+  ctaEn: string;
+  ctaHi: string;
+  ctaMr: string;
+}
+
+export const ONBOARDING_ROLES: OnboardingRoleOption[] = [
+  {
+    role: 'ARTISAN',
+    titleEn: 'Artisan / Maker',
+    titleHi: 'कारीगर / दस्तकार',
+    titleMr: 'कारागीर / हस्तकलाकार',
+    subtitleEn: 'Sell handmade crafts with AI catalog, fair pricing & 0% commission',
+    subtitleHi: 'फोटो खींचकर AI कैटलॉग बनाएं, सही दाम और सीधे ग्राहक पाएं',
+    subtitleMr: 'फोटो काढून AI कॅटलॉग बनवा, योग्य भाव आणि थेट ग्राहक मिळवा',
+    tagEn: '✨ 0% Commission',
+    tagHi: '✨ ०% कमीशन',
+    tagMr: '✨ ०% कमिशन',
+    icon: '🎨',
+    themeColor: '#EA580C',
+    lightBg: '#FFF7ED',
+    borderColor: '#FED7AA',
+    ctaEn: 'Artisan Safar Shuru Karein 🎨',
+    ctaHi: 'कारीगर के रूप में जुड़ें 🎨',
+    ctaMr: 'कारागीर म्हणून सुरू करा 🎨',
+  },
+  {
+    role: 'BUYER',
+    titleEn: 'Buyer / Collector',
+    titleHi: 'खरीदार / ग्राहक',
+    titleMr: 'खरेदीदार / ग्राहक',
+    subtitleEn: 'Discover verified GI-tagged crafts, retail & bulk direct from makers',
+    subtitleHi: 'असली प्रमाणित जीआई हस्तशिल्प सीधे कारीगरों से खरीदें',
+    subtitleMr: 'प्रमाणित जीआय हस्तकला थेट कारागिरांकडून खरेदी करा',
+    tagEn: '🛍️ Retail & Bulk',
+    tagHi: '🛍️ रीटेल व थोक',
+    tagMr: '🛍️ किरकोळ व घाऊक',
+    icon: '🛍️',
+    themeColor: '#4338CA',
+    lightBg: '#EEF2FF',
+    borderColor: '#C7D2FE',
+    ctaEn: 'Buyer Portal Me Jaayein 🛍️',
+    ctaHi: 'खरीदार के रूप में जुड़ें 🛍️',
+    ctaMr: 'खरेदीदार म्हणून सुरू करा 🛍️',
+  },
+  {
+    role: 'FACILITATOR',
+    titleEn: 'Sahyogi / SHG Lead',
+    titleHi: 'सहयोगी / क्लस्टर मित्र',
+    titleMr: 'सहयोगी / बचत गट प्रमुख',
+    subtitleEn: 'Support artisan clusters, bulk orders, QC audits & digital onboarding',
+    subtitleHi: 'कारीगर समूहों, बचत गट, पैकेजिंग और बड़े ऑर्डर में सहायता करें',
+    subtitleMr: 'बचत गट, पॅकेजिंग आणि मोठ्या ऑर्डर्समध्ये कारागिरांना मदत करा',
+    tagEn: '🤝 Cluster Support',
+    tagHi: '🤝 क्लस्टर साथी',
+    tagMr: '🤝 बचत गट साथी',
+    icon: '🤝',
+    themeColor: '#16A34A',
+    lightBg: '#F0FDF4',
+    borderColor: '#BBF7D0',
+    ctaEn: 'Sahyogi Desk Shuru Karein 🤝',
+    ctaHi: 'सहयोगी के रूप में जुड़ें 🤝',
+    ctaMr: 'सहयोगी म्हणून सुरू करा 🤝',
+  },
+];
 
 const LANGUAGES: { code: SupportedLocale; label: string; subLabel: string }[] = [
   { code: 'hi_IN', label: 'हिंदी', subLabel: 'Hindi' },
@@ -115,7 +195,7 @@ const ONBOARDING_SLIDES: SlideData[] = [
     badgeType: 'buyer',
     voiceHi:
       'आप सिर्फ अपना हुनर दिखाइए, बड़े बायर्स और कॉर्पोरेट ग्राहकों तक पहुंच हम संभालेंगे।',
-    buttonLabel: 'Shuru Karein 🚀',
+    buttonLabel: 'Next →',
     titleColor: '#2B1E0A',
     descColor: '#5E4B30',
     indicatorActive: '#2B1E0A',
@@ -125,6 +205,28 @@ const ONBOARDING_SLIDES: SlideData[] = [
     voiceBg: 'rgba(255, 255, 255, 0.85)',
     voiceBorder: '#ECD2A4',
     voiceText: '#6D4408',
+  },
+  {
+    id: 3,
+    image: require('../../../assets/logo.png'),
+    bgColor: '#FAF8F5', // Warm Clean Artisan Eggshell
+    isDark: false,
+    title: 'Apna Role Chunein',
+    description:
+      'Aapke chune hue role ke anusaar aapka profile aur specialized features set kiye jayenge.',
+    badgeType: 'role',
+    voiceHi:
+      'आप खरीदार, कारीगर या सहयोगी में से अपनी भूमिका चुनें ताकि आपको सही सुविधाएं मिल सकें।',
+    buttonLabel: 'Next →',
+    titleColor: '#1A1817',
+    descColor: '#544E49',
+    indicatorActive: '#EA580C',
+    indicatorInactive: '#E5DFD7',
+    btnBg: '#FFFFFF',
+    btnTextColor: '#1A1817',
+    voiceBg: 'rgba(255, 255, 255, 0.85)',
+    voiceBorder: '#E5DFD7',
+    voiceText: '#C2410C',
   },
 ];
 
@@ -170,7 +272,13 @@ const LOCALIZED_CONTENT: Record<
       productChip: 'आपका उत्पाद',
       matchChip: '🤖 AI मैच',
       buyerTags: ['🏨 होटल', '🎁 कॉर्पोरेट', '🛍️ रीटेल', '🏛️ सरकारी खरीदार'],
-      buttonLabel: 'शुरू करें 🚀',
+      buttonLabel: 'आगे बढ़ें →',
+    },
+    {
+      title: 'आप किस रूप में जुड़ना चाहते हैं?',
+      description:
+        'अपनी भूमिका चुनें — हर किसी के लिए अलग डैशबोर्ड, प्रोफाइल और सुविधाएं हैं।',
+      buttonLabel: 'आगे बढ़ें →',
     },
   ],
   mr_IN: [
@@ -199,7 +307,13 @@ const LOCALIZED_CONTENT: Record<
       productChip: 'तुमचे उत्पादन',
       matchChip: '🤖 AI मॅच',
       buyerTags: ['🏨 हॉटेल्स', '🎁 कॉर्पोरेट', '🛍️ रिटेल', '🏛️ सरकारी खरेदीदार'],
-      buttonLabel: 'सुरुवात करा 🚀',
+      buttonLabel: 'पुढे →',
+    },
+    {
+      title: 'तुम्ही कोणत्या भूमिकेत सामील होऊ इच्छिता?',
+      description:
+        'आपली भूमिका निवडा — प्रत्येकासाठी स्वतंत्र प्रोफाइल, डॅशबोर्ड आणि विशेष सुविधा आहेत.',
+      buttonLabel: 'पुढे →',
     },
   ],
 };
@@ -208,6 +322,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
   const { locale, setLocale } = useAppStore();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('ARTISAN');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideTranslateY = useRef(new Animated.Value(0)).current;
@@ -246,7 +361,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     if (currentSlide < ONBOARDING_SLIDES.length - 1) {
       changeSlide(currentSlide + 1);
     } else {
-      navigation.replace('AuthPhone', { role: 'ARTISAN' as UserRole });
+      navigation.replace('AuthPhone', { role: selectedRole });
     }
   };
 
@@ -274,6 +389,16 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const buyerTags = localized?.buyerTags || ['🏨 Hotel', '🎁 Corporate', '🛍️ Retail', '🏛️ Govt. Buyer'];
 
   const isIndicLocale = locale === 'hi_IN' || locale === 'mr_IN';
+
+  const activeRoleOpt = ONBOARDING_ROLES.find((r) => r.role === selectedRole) || ONBOARDING_ROLES[0];
+  const dynamicRoleButtonLabel =
+    locale === 'hi_IN'
+      ? activeRoleOpt.ctaHi
+      : locale === 'mr_IN'
+      ? activeRoleOpt.ctaMr
+      : activeRoleOpt.ctaEn;
+
+  const finalButtonLabel = currentSlide === 3 ? dynamicRoleButtonLabel : buttonLabel;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
@@ -411,32 +536,61 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
         bounces={false}
       >
         <View style={styles.mainWrapper}>
-          {/* Animated 3D Illustration Area */}
-          <Animated.View
-            style={[
-              styles.artworkSection,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideTranslateY }],
-              },
-            ]}
-          >
-            <View
+          {/* Animated Illustration or Role Header */}
+          {slide.badgeType === 'role' ? (
+            <Animated.View
               style={[
-                styles.imageShadowBox,
+                styles.roleHeaderSection,
                 {
-                  width: imageSize,
-                  height: imageSize,
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideTranslateY }],
                 },
               ]}
             >
-              <Image
-                source={slide.image}
-                style={styles.illustrationImage}
-                resizeMode="cover"
-              />
-            </View>
-          </Animated.View>
+              <View style={styles.roleHeaderBadge}>
+                <Image
+                  source={require('../../../assets/logo.png')}
+                  style={styles.roleHeaderLogo}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.roleSubBadgePill}>
+                <Text style={styles.roleSubBadgeText}>
+                  {locale === 'hi_IN'
+                    ? '✨ अपनी पहचान चुनें'
+                    : locale === 'mr_IN'
+                    ? '✨ आपली ओळख निवडा'
+                    : '✨ CHOOSE YOUR JOURNEY ✨'}
+                </Text>
+              </View>
+            </Animated.View>
+          ) : (
+            <Animated.View
+              style={[
+                styles.artworkSection,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideTranslateY }],
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.imageShadowBox,
+                  {
+                    width: imageSize,
+                    height: imageSize,
+                  },
+                ]}
+              >
+                <Image
+                  source={slide.image}
+                  style={styles.illustrationImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </Animated.View>
+          )}
 
           {/* Details & Features Section (Clean Center-Aligned) */}
           <Animated.View
@@ -574,6 +728,124 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
 
+            {/* Slide 3: Buyer | Artisan | Sahyogi Role Selection Cards */}
+            {slide.badgeType === 'role' && (
+              <View style={styles.roleCardsContainer}>
+                {ONBOARDING_ROLES.map((roleOpt) => {
+                  const isSelected = selectedRole === roleOpt.role;
+                  const roleTitle =
+                    locale === 'hi_IN'
+                      ? roleOpt.titleHi
+                      : locale === 'mr_IN'
+                      ? roleOpt.titleMr
+                      : roleOpt.titleEn;
+                  const roleSubtitle =
+                    locale === 'hi_IN'
+                      ? roleOpt.subtitleHi
+                      : locale === 'mr_IN'
+                      ? roleOpt.subtitleMr
+                      : roleOpt.subtitleEn;
+                  const roleTag =
+                    locale === 'hi_IN'
+                      ? roleOpt.tagHi
+                      : locale === 'mr_IN'
+                      ? roleOpt.tagMr
+                      : roleOpt.tagEn;
+
+                  return (
+                    <TouchableOpacity
+                      key={roleOpt.role}
+                      testID={`role-card-${roleOpt.role}`}
+                      onPress={() => setSelectedRole(roleOpt.role)}
+                      activeOpacity={0.82}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${roleTitle}, ${isSelected ? 'Selected' : 'Not selected'}`}
+                      style={[
+                        styles.roleCard,
+                        isSelected && {
+                          borderColor: roleOpt.themeColor,
+                          backgroundColor: roleOpt.lightBg,
+                          borderWidth: 2,
+                          shadowColor: roleOpt.themeColor,
+                          shadowOpacity: 0.16,
+                          shadowRadius: 10,
+                          elevation: 4,
+                        },
+                      ]}
+                    >
+                      {/* Icon Circle */}
+                      <View
+                        style={[
+                          styles.roleIconCircle,
+                          {
+                            backgroundColor: isSelected ? roleOpt.themeColor : '#F1F5F9',
+                          },
+                        ]}
+                      >
+                        <Text style={styles.roleIconEmoji}>{roleOpt.icon}</Text>
+                      </View>
+
+                      {/* Text Column */}
+                      <View style={styles.roleTextCol}>
+                        <View style={styles.roleTitleRow}>
+                          <Text
+                            variant="bodyLarge"
+                            weight="bold"
+                            color={isSelected ? roleOpt.themeColor : '#1E293B'}
+                            style={[styles.roleCardTitle, isIndicLocale && styles.roleTitleIndic]}
+                          >
+                            {roleTitle}
+                          </Text>
+                          <View
+                            style={[
+                              styles.roleTagPill,
+                              {
+                                backgroundColor: isSelected
+                                  ? 'rgba(255, 255, 255, 0.95)'
+                                  : '#F8FAFC',
+                                borderColor: isSelected ? roleOpt.borderColor : '#E2E8F0',
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.roleTagText,
+                                { color: isSelected ? roleOpt.themeColor : '#64748B' },
+                                isIndicLocale && styles.roleTagIndic,
+                              ]}
+                            >
+                              {roleTag}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text
+                          variant="caption"
+                          color={isSelected ? '#334155' : '#64748B'}
+                          style={[styles.roleCardSub, isIndicLocale && styles.roleSubIndic]}
+                          numberOfLines={2}
+                        >
+                          {roleSubtitle}
+                        </Text>
+                      </View>
+
+                      {/* Radio Circle */}
+                      <View
+                        style={[
+                          styles.roleRadioCircle,
+                          isSelected && {
+                            backgroundColor: roleOpt.themeColor,
+                            borderColor: roleOpt.themeColor,
+                          },
+                        ]}
+                      >
+                        {isSelected && <Text style={styles.roleCheckmark}>✓</Text>}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
             {/* Hindi Voice Guidance Button */}
             <View style={styles.voiceWrapper}>
               <VoiceCueButton
@@ -634,18 +906,27 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               style={[
                 styles.nextBtn,
                 currentSlide === 0 && styles.nextBtnFull,
+                currentSlide === 3 && {
+                  backgroundColor: activeRoleOpt.themeColor,
+                  borderColor: activeRoleOpt.themeColor,
+                  shadowColor: activeRoleOpt.themeColor,
+                  shadowOpacity: 0.32,
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowRadius: 14,
+                  elevation: 6,
+                },
               ]}
               activeOpacity={0.88}
               accessibilityRole="button"
-              accessibilityLabel={buttonLabel}
+              accessibilityLabel={finalButtonLabel}
             >
               <Text
                 variant="bodyLarge"
                 weight="bold"
-                color={slide.btnTextColor}
+                color={currentSlide === 3 ? '#FFFFFF' : slide.btnTextColor}
                 style={[styles.nextBtnText, isIndicLocale && styles.btnTextIndic]}
               >
-                {buttonLabel}
+                {finalButtonLabel}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1073,5 +1354,134 @@ const styles = StyleSheet.create({
   btnTextIndic: {
     fontFamily: INDIC_DISPLAY_FONT,
     fontSize: 17,
+  },
+  roleHeaderSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 4,
+    paddingBottom: 2,
+  },
+  roleHeaderBadge: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4,
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    marginBottom: 6,
+  },
+  roleHeaderLogo: {
+    width: 42,
+    height: 42,
+  },
+  roleSubBadgePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 3,
+    borderRadius: 12,
+    backgroundColor: 'rgba(234, 88, 12, 0.08)',
+    borderWidth: 0.5,
+    borderColor: 'rgba(234, 88, 12, 0.25)',
+  },
+  roleSubBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+    color: '#EA580C',
+  },
+  roleCardsContainer: {
+    width: '100%',
+    maxWidth: 380,
+    gap: 9,
+    marginBottom: 10,
+    marginTop: 2,
+  },
+  roleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    shadowColor: '#334155',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  roleIconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleIconEmoji: {
+    fontSize: 20,
+  },
+  roleTextCol: {
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 6,
+  },
+  roleTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  roleCardTitle: {
+    fontSize: 14.5,
+    letterSpacing: -0.2,
+  },
+  roleTitleIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  roleTagPill: {
+    paddingHorizontal: 7,
+    paddingVertical: 1.5,
+    borderRadius: 8,
+    borderWidth: 0.5,
+  },
+  roleTagText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  roleTagIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 11,
+  },
+  roleCardSub: {
+    fontSize: 11,
+    lineHeight: 15,
+  },
+  roleSubIndic: {
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  roleRadioCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  roleCheckmark: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
 });

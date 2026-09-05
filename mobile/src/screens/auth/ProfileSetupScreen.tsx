@@ -11,6 +11,7 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { authService } from '@/api/authService';
 import { useAuthStore } from '@/store/useAuthStore';
+import { UserRole } from '@/api/types';
 import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
@@ -31,21 +32,176 @@ const CRAFTS: CraftCategory[] = [
   { code: 'BAMBOO_CANE', nameHi: 'बांस एवं जूट', nameEn: 'Bamboo & Jute', icon: '🧺' },
 ];
 
-export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
+interface OptionItem {
+  code: string;
+  nameEn: string;
+  nameHi: string;
+  icon: string;
+  desc?: string;
+}
+
+const BUYER_TYPES: OptionItem[] = [
+  { code: 'COLLECTOR', nameEn: 'Individual Collector', nameHi: 'व्यक्तिगत खरीदार', icon: '🛍️', desc: 'Handcrafted authentic home & lifestyle' },
+  { code: 'CORPORATE', nameEn: 'Corporate Gifting', nameHi: 'कॉर्पोरेट उपहार', icon: '🎁', desc: 'Custom festive hampers & client gifts' },
+  { code: 'RETAIL', nameEn: 'Boutique / Store', nameHi: 'बुटीक व स्टोर', icon: '🏬', desc: 'Curated artisanal inventory for sale' },
+  { code: 'INSTITUTIONAL', nameEn: 'Institutional / Export', nameHi: 'संस्थागत व निर्यात', icon: '🏛️', desc: 'Govt. & high-volume bulk orders' },
+];
+
+const SAHYOGI_TYPES: OptionItem[] = [
+  { code: 'SHG', nameEn: 'Self-Help Group (SHG)', nameHi: 'महिला बचत गट', icon: '🤝', desc: 'Village micro-enterprise & women makers' },
+  { code: 'NGO', nameEn: 'Craft Foundation / NGO', nameHi: 'हस्तशिल्प न्यास व एनजीओ', icon: '🏛️', desc: 'Cluster empowerment & social welfare' },
+  { code: 'COOP', nameEn: 'Producer Cooperative', nameHi: 'उत्पादक सहकारी समिति', icon: '💼', desc: 'Artisan-owned collective enterprise' },
+  { code: 'FIELD_LEAD', nameEn: 'Cluster Lead / Facilitator', nameHi: 'क्लस्टर लीड / मित्र', icon: '⚡', desc: 'Packaging, logistics & QC hub' },
+];
+
+interface ProfileRoleMeta {
+  tag: string;
+  headerTitle: string;
+  headerSub: string;
+  title: string;
+  subtitle: string;
+  voiceBanner: string;
+  section1Name: string;
+  section1Voice: string;
+  section2Title: string;
+  section2Voice: string;
+  section3Title: string;
+  section3Voice: string;
+  locationBadge: string;
+  section4Title: string;
+  section4Voice: string;
+  secondaryPlaceholder: string;
+  btnLabel: string;
+  trustBadge: string;
+  themeColor: string;
+  lightBg: string;
+}
+
+const ROLE_METAS: Record<UserRole, ProfileRoleMeta> = {
+  ARTISAN: {
+    tag: 'Artisan Account',
+    headerTitle: 'Artisan Profile',
+    headerSub: 'KALAKAR SETU',
+    title: 'Set Up Your Artisan Profile',
+    subtitle: 'Empower your craft with AI cataloguing and direct market linkages',
+    voiceBanner: 'Speak to fill profile details automatically',
+    section1Name: '1. Your Full Name',
+    section1Voice: 'यहाँ अपना पूरा नाम लिखें, जैसा आपके आधार कार्ड या बैंक खाते में दर्ज है।',
+    section2Title: '2. Primary Craft Specialization',
+    section2Voice: 'आप जिस हस्तशिल्प या कला में काम करते हैं, उसे यहाँ चुनें।',
+    section3Title: '3. Workshop Location',
+    section3Voice: 'यह आपकी कार्यशाला या गाँव का स्थान है, जहाँ शिल्प का निर्माण होता है।',
+    locationBadge: '✓ Linked to Authentic GI Tagged Cluster',
+    section4Title: '4. SHG / Facilitator Code (Optional)',
+    section4Voice: 'यदि आप किसी स्वयं सहायता समूह से जुड़े हैं, तो उनका कोड यहाँ दर्ज करें।',
+    secondaryPlaceholder: 'e.g. SHG-KOLHAPUR-402 (if applicable)',
+    btnLabel: 'Save & Complete Profile →',
+    trustBadge: '100% ONDC Protocol Enabled • Certified GI Authenticity Guarantee',
+    themeColor: '#EA580C',
+    lightBg: '#FFF7ED',
+  },
+  BUYER: {
+    tag: 'Buyer Account',
+    headerTitle: 'Buyer Profile',
+    headerSub: 'CUSTOMER SETU',
+    title: 'Set Up Your Buyer Account',
+    subtitle: 'Curate your preferences for certified handmade GI crafts & bulk orders',
+    voiceBanner: 'Speak to set preferences & delivery city',
+    section1Name: '1. Contact / Buyer Name',
+    section1Voice: 'यहाँ अपना नाम या कंपनी का नाम दर्ज करें।',
+    section2Title: '2. Buyer & Procurement Category',
+    section2Voice: 'आप किस प्रकार की हस्तकला खरीद में रुचि रखते हैं, यहाँ चुनें।',
+    section3Title: '3. Primary Delivery Location',
+    section3Voice: 'यहाँ अपना मुख्य डिलीवरी शहर या केंद्र दर्ज करें।',
+    locationBadge: '✓ Express Heritage Delivery & India Post Network',
+    section4Title: '4. Business GSTIN / Org Name (Optional)',
+    section4Voice: 'यदि आप व्यवसाय के नाम पर बिलिंग चाहते हैं तो विवरण दर्ज करें।',
+    secondaryPlaceholder: 'e.g. 07AAAAA0000A1Z5 or Company Name',
+    btnLabel: 'Save & Enter Marketplace →',
+    trustBadge: '100% Verified Artisans • Direct From Maker Guarantee • Secure UPI',
+    themeColor: '#4338CA',
+    lightBg: '#EEF2FF',
+  },
+  FACILITATOR: {
+    tag: 'Sahyogi Account',
+    headerTitle: 'Sahyogi Profile',
+    headerSub: 'CLUSTER SAHYOGI',
+    title: 'Set Up Your Sahyogi Desk',
+    subtitle: 'Register your cluster, SHG group, and local artisan support hub',
+    voiceBanner: 'Speak to register your SHG and cluster details',
+    section1Name: '1. Field Lead / Sahyogi Name',
+    section1Voice: 'यहाँ अपना नाम या स्वयं सहायता समूह प्रमुख का नाम दर्ज करें।',
+    section2Title: '2. Organization / Cluster Type',
+    section2Voice: 'अपने समूह या संस्था का प्रकार चुनें।',
+    section3Title: '3. Operating Cluster Hub',
+    section3Voice: 'यह आपका कार्यक्षेत्र और कारीगर क्लस्टर केंद्र है।',
+    locationBadge: '✓ 25+ Master Artisans Covered • Active Cluster Desk',
+    section4Title: '4. SHG / Facilitator Referral Code (Optional)',
+    section4Voice: 'यदि आपके पास सरकारी या संस्थागत कोड है तो दर्ज करें।',
+    secondaryPlaceholder: 'e.g. SAHYOGI-PUNE-8802 (if applicable)',
+    btnLabel: 'Save & Enter Sahyogi Desk →',
+    trustBadge: 'Cluster Supported • Packaging, QC & Digital Empowerment Desk',
+    themeColor: '#16A34A',
+    lightBg: '#F0FDF4',
+  },
+  ADMIN_STAFF: {
+    tag: 'Admin Account',
+    headerTitle: 'Operations Desk',
+    headerSub: 'KARAGIRX OPERATIONS',
+    title: 'Set Up Operations Desk',
+    subtitle: 'Internal administrative and quality audit operations',
+    voiceBanner: 'Speak to configure desk options',
+    section1Name: '1. Staff Name',
+    section1Voice: 'अपना नाम दर्ज करें।',
+    section2Title: '2. Desk Assignment',
+    section2Voice: 'अपना विभाग चुनें।',
+    section3Title: '3. Operating Hub',
+    section3Voice: 'अपना हब चुनें।',
+    locationBadge: '✓ Central Verified Operations Desk',
+    section4Title: '4. Staff ID',
+    section4Voice: 'अपना पहचान कोड दर्ज करें।',
+    secondaryPlaceholder: 'e.g. OPS-HQ-01',
+    btnLabel: 'Save & Enter Operations →',
+    trustBadge: 'KaragirX Internal Operations Desk',
+    themeColor: '#0F172A',
+    lightBg: '#F1F5F9',
+  },
+};
+
+export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
   const { user, updateProfile } = useAuthStore();
+  const role: UserRole = route?.params?.role || user?.role || 'ARTISAN';
 
-  const [fullName, setFullName] = useState(user?.fullName || 'Ramesh Kumbhar');
+  const defaultName =
+    user?.fullName ||
+    (role === 'BUYER'
+      ? 'Priya Sharma'
+      : role === 'FACILITATOR'
+      ? 'Pooja Verma'
+      : 'Ramesh Kumbhar');
+
+  const defaultDistrict =
+    role === 'BUYER' ? 'Delhi NCR' : role === 'FACILITATOR' ? 'Kolhapur Cluster' : 'Madhubani';
+  const defaultState =
+    role === 'BUYER' ? 'New Delhi' : role === 'FACILITATOR' ? 'Maharashtra' : 'Bihar';
+
+  const [fullName, setFullName] = useState(defaultName);
   const [selectedCraft, setSelectedCraft] = useState<string>('PAINTING_FOLK');
-  const [district] = useState('Madhubani');
-  const [state] = useState('Bihar');
-  const [shgCode, setShgCode] = useState('');
+  const [selectedType, setSelectedType] = useState<string>(
+    role === 'BUYER' ? 'COLLECTOR' : 'SHG'
+  );
+  const [district] = useState(defaultDistrict);
+  const [state] = useState(defaultState);
+  const [secondaryCode, setSecondaryCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const roleMeta = ROLE_METAS[role] || ROLE_METAS.ARTISAN;
+
   const handleVoiceDictateName = () => {
     if (!fullName) {
-      setFullName('Sunita Devi');
+      setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'FACILITATOR' ? 'Pooja Verma' : 'Sunita Devi');
     }
   };
 
@@ -61,15 +217,18 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
     try {
       const updatedUser = await authService.setupProfile(user?.id || 'temp_id', {
         full_name: fullName.trim(),
-        craft_category_code: selectedCraft,
+        craft_category_code: role === 'ARTISAN' ? selectedCraft : selectedType,
         district,
         state,
-        shg_or_facilitator_code: shgCode.trim() || undefined,
+        shg_or_facilitator_code: secondaryCode.trim() || undefined,
       });
 
       await updateProfile({
         ...updatedUser,
         fullName: fullName.trim(),
+        role,
+        district,
+        state,
         isProfileComplete: true,
       });
 
@@ -86,11 +245,11 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
       <AppHeader
         showBack
         showBrand
-        title="Artisan Profile"
-        subtitle="KALAKAR SETU"
+        title={roleMeta.headerTitle}
+        subtitle={roleMeta.headerSub}
         rightAction={
           <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
               Help
             </Text>
           </View>
@@ -101,12 +260,12 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         {/* Step Indicator & Tag */}
         <View style={styles.stepMetaRow}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
               Step 3/3
             </Text>
             <Text variant="caption" color={theme.colors.text.muted}>•</Text>
-            <View style={styles.roleTagPill}>
-              <Text style={styles.roleTagText}>Artisan Account</Text>
+            <View style={[styles.roleTagPill, { backgroundColor: roleMeta.lightBg }]}>
+              <Text style={[styles.roleTagText, { color: roleMeta.themeColor }]}>{roleMeta.tag}</Text>
             </View>
           </View>
           <Text variant="caption" color={theme.colors.text.muted}>Final Step</Text>
@@ -114,23 +273,23 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Stepper Progress Bar */}
         <View style={styles.progressTrack}>
-          <View style={[styles.progressBar, { backgroundColor: theme.colors.brand.primary }]} />
+          <View style={[styles.progressBar, { backgroundColor: roleMeta.themeColor }]} />
         </View>
 
         {/* Screen Header */}
         <View style={{ marginTop: 12, marginBottom: 8 }}>
           <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
-            Set Up Your Artisan Profile
+            {roleMeta.title}
           </Text>
           <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-            Empower your craft with AI cataloguing and direct market linkages
+            {roleMeta.subtitle}
           </Text>
         </View>
 
         {/* Voice Saathi Companion Hint Banner */}
         <View style={[styles.voiceBanner, { backgroundColor: '#FFFFFF', borderColor: theme.colors.brand.container }]}>
           <View style={styles.voiceBannerLeft}>
-            <View style={[styles.voiceBannerIcon, { backgroundColor: '#F0EEFF' }]}>
+            <View style={[styles.voiceBannerIcon, { backgroundColor: roleMeta.lightBg }]}>
               <Text style={{ fontSize: 16 }}>🎙️</Text>
             </View>
             <View>
@@ -138,15 +297,15 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
                 Voice Saathi • AI Assistant
               </Text>
               <Text variant="caption" color={theme.colors.text.secondary}>
-                Speak to fill profile details automatically
+                {roleMeta.voiceBanner}
               </Text>
             </View>
           </View>
           <TouchableOpacity
             onPress={handleVoiceDictateName}
-            style={[styles.voiceActionBtn, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}
+            style={[styles.voiceActionBtn, { backgroundColor: roleMeta.lightBg, borderColor: roleMeta.themeColor }]}
           >
-            <Text variant="caption" weight="bold" color="#4B44CC">
+            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
               🎙 Speak
             </Text>
           </TouchableOpacity>
@@ -157,21 +316,21 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.sectionHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                1. Your Full Name
+                {roleMeta.section1Name}
               </Text>
               <VoiceCueButton
-                textHi="यहाँ अपना पूरा नाम लिखें, जैसा आपके आधार कार्ड या बैंक खाते में दर्ज है।"
+                textHi={roleMeta.section1Voice}
                 size="small"
                 testID="voice-cue-name"
               />
             </View>
             <TouchableOpacity
               onPress={handleVoiceDictateName}
-              style={[styles.micBtn, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}
+              style={[styles.micBtn, { backgroundColor: roleMeta.lightBg, borderColor: roleMeta.themeColor }]}
               accessibilityRole="button"
               accessibilityLabel="Voice dictate name"
             >
-              <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
+              <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
                 🎙️ Speak Name
               </Text>
             </TouchableOpacity>
@@ -183,66 +342,108 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
               setFullName(text);
               setErrorMessage(null);
             }}
-            placeholder="e.g. Ramesh Kumbhar / Sunita Devi"
+            placeholder={
+              role === 'BUYER'
+                ? 'e.g. Priya Sharma / FabCraft India'
+                : role === 'FACILITATOR'
+                ? 'e.g. Pooja Verma / Mahila Vikas SHG'
+                : 'e.g. Ramesh Kumbhar / Sunita Devi'
+            }
           />
         </View>
 
-        {/* 2. Craft Selection */}
+        {/* 2. Category / Specialization Selection */}
         <View style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              2. Primary Craft Specialization
+              {roleMeta.section2Title}
             </Text>
             <VoiceCueButton
-              textHi="आप जिस हस्तशिल्प या कला में काम करते हैं, जैसे हथकरघा, मिट्टी के बर्तन, या चित्रकला, उसे यहाँ चुनें।"
+              textHi={roleMeta.section2Voice}
               size="small"
               testID="voice-cue-craft"
             />
           </View>
 
-          <View style={styles.craftGrid}>
-            {CRAFTS.map((craft) => {
-              const isSelected = selectedCraft === craft.code;
-              return (
-                <TouchableOpacity
-                  key={craft.code}
-                  activeOpacity={0.8}
-                  onPress={() => setSelectedCraft(craft.code)}
-                  style={[
-                    styles.craftTile,
-                    {
-                      backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
-                      borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
-                      ...theme.shadows.level1,
-                    },
-                  ]}
-                >
-                  <Text style={styles.craftIcon}>{craft.icon}</Text>
-                  <Text
-                    variant="bodySmall"
-                    weight="bold"
-                    align="center"
-                    color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
+          {role === 'ARTISAN' ? (
+            <View style={styles.craftGrid}>
+              {CRAFTS.map((craft) => {
+                const isSelected = selectedCraft === craft.code;
+                return (
+                  <TouchableOpacity
+                    key={craft.code}
+                    activeOpacity={0.8}
+                    onPress={() => setSelectedCraft(craft.code)}
+                    style={[
+                      styles.craftTile,
+                      {
+                        backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
+                        borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
+                        ...theme.shadows.level1,
+                      },
+                    ]}
                   >
-                    {craft.nameEn}
-                  </Text>
-                  <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
-                    {craft.nameHi}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    <Text style={styles.craftIcon}>{craft.icon}</Text>
+                    <Text
+                      variant="bodySmall"
+                      weight="bold"
+                      align="center"
+                      color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
+                    >
+                      {craft.nameEn}
+                    </Text>
+                    <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
+                      {craft.nameHi}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ) : (
+            <View style={styles.craftGrid}>
+              {(role === 'BUYER' ? BUYER_TYPES : SAHYOGI_TYPES).map((opt) => {
+                const isSelected = selectedType === opt.code;
+                return (
+                  <TouchableOpacity
+                    key={opt.code}
+                    activeOpacity={0.8}
+                    onPress={() => setSelectedType(opt.code)}
+                    style={[
+                      styles.craftTile,
+                      {
+                        backgroundColor: isSelected ? roleMeta.lightBg : theme.colors.surface.card,
+                        borderColor: isSelected ? roleMeta.themeColor : theme.colors.sand[200],
+                        ...theme.shadows.level1,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.craftIcon}>{opt.icon}</Text>
+                    <Text
+                      variant="bodySmall"
+                      weight="bold"
+                      align="center"
+                      color={isSelected ? roleMeta.themeColor : theme.colors.charcoal[900]}
+                    >
+                      {opt.nameEn}
+                    </Text>
+                    <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
+                      {opt.nameHi}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         {/* 3. Location Display */}
         <View style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              3. Workshop Location
+              {roleMeta.section3Title}
             </Text>
             <VoiceCueButton
-              textHi="यह आपकी कार्यशाला या गाँव का स्थान है, जहाँ आपके शिल्प का निर्माण होता है।"
+              textHi={roleMeta.section3Voice}
               size="small"
               testID="voice-cue-location"
             />
@@ -255,29 +456,29 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
                   {district}, {state}
                 </Text>
                 <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                  ✓ Linked to Authentic GI Tagged Cluster
+                  {roleMeta.locationBadge}
                 </Text>
               </View>
             </View>
           </Card>
         </View>
 
-        {/* 4. Facilitator / SHG Code */}
+        {/* 4. Secondary Code / Registration */}
         <View style={styles.section}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              4. SHG / Facilitator Code (Optional)
+              {roleMeta.section4Title}
             </Text>
             <VoiceCueButton
-              textHi="यदि आप किसी स्वयं सहायता समूह या क्लस्टर सहयोगी से जुड़े हैं, तो उनका कोड यहाँ दर्ज करें।"
+              textHi={roleMeta.section4Voice}
               size="small"
               testID="voice-cue-shg"
             />
           </View>
           <TextInput
-            value={shgCode}
-            onChangeText={setShgCode}
-            placeholder="e.g. SHG-KOLHAPUR-402 (if applicable)"
+            value={secondaryCode}
+            onChangeText={setSecondaryCode}
+            placeholder={roleMeta.secondaryPlaceholder}
           />
         </View>
 
@@ -288,19 +489,19 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         )}
 
         <Button
-          label="Save & Complete Profile →"
+          label={roleMeta.btnLabel}
           variant="primary"
           size="decision"
           isLoading={isLoading}
           onPress={handleSubmit}
-          style={styles.submitBtn}
+          style={[styles.submitBtn, { backgroundColor: roleMeta.themeColor }]}
         />
 
-        {/* 100% ONDC Supported Trust Badge from Stitch Screen */}
+        {/* Trust Badge */}
         <View style={styles.ondcBadge}>
           <Text style={{ fontSize: 13 }}>🛡️</Text>
           <Text variant="caption" color={theme.colors.text.secondary}>
-            100% ONDC Protocol Enabled • Certified GI Authenticity Guarantee
+            {roleMeta.trustBadge}
           </Text>
         </View>
       </ScrollView>
