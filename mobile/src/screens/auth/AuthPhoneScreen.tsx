@@ -45,13 +45,9 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 
   interface RoleMeta {
     title: string;
-    tagline: string;
-    badge: string;
     phone: string;
     name: string;
     location: string;
-    idCode: string;
-    demoLabel: string;
     submitLabel: string;
     placeholder: string;
     themeColor: string;
@@ -61,60 +57,44 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const ROLE_DATA: Record<UserRole, RoleMeta> = {
     BUYER: {
-      title: 'Buyer & Corporate Portal',
-      tagline: 'Authentic GI Crafts & Bulk Gifting',
-      badge: 'Certified GI Heritage',
+      title: 'Buyer Portal',
       phone: '9810012345',
       name: 'Priya Sharma',
       location: 'Delhi NCR • Verified Buyer',
-      idCode: 'BUY-DEL-9021',
-      demoLabel: '1-Tap Sign In as Priya Sharma (Buyer) →',
-      submitLabel: 'Sign In to Buyer Portal',
-      placeholder: 'Enter buyer mobile (e.g. 98100 12345)',
+      submitLabel: 'Continue to Buyer Portal',
+      placeholder: 'Enter 10-digit mobile number',
       themeColor: '#4338CA',
       themeLightBg: '#EEF2FF',
       icon: '🛍️',
     },
     ARTISAN: {
-      title: 'Master Artisan & Seller Studio',
-      tagline: 'Craft Production & AI Studio',
-      badge: '0% Platform Commission',
+      title: 'Artisan Studio',
       phone: '9876543210',
       name: 'Ramesh Kumbhar',
       location: 'Kolhapur, MH • Master Potter',
-      idCode: 'GI-MH-2024-402',
-      demoLabel: '1-Tap Sign In as Master Artisan (Ramesh) →',
-      submitLabel: 'Sign In to Artisan Studio',
-      placeholder: 'Enter artisan mobile (e.g. 98765 43210)',
+      submitLabel: 'Continue to Artisan Studio',
+      placeholder: 'Enter 10-digit mobile number',
       themeColor: '#EA580C',
       themeLightBg: '#FFF7ED',
       icon: '🎨',
     },
     FACILITATOR: {
-      title: 'Helper / Sahyogi Desk',
-      tagline: 'Village Cluster Operations',
-      badge: 'Field Ops & Cluster Lead',
+      title: 'Sahyogi Desk',
       phone: '9822399887',
       name: 'Pooja Verma',
       location: 'Pune Cluster, MH • Field Lead',
-      idCode: 'CLUST-PUN-08',
-      demoLabel: '1-Tap Sign In as Pooja Verma (Sahyogi) →',
-      submitLabel: 'Sign In to Sahyogi Desk',
-      placeholder: 'Enter sahyogi mobile (e.g. 98223 99887)',
+      submitLabel: 'Continue to Sahyogi Desk',
+      placeholder: 'Enter 10-digit mobile number',
       themeColor: '#16A34A',
       themeLightBg: '#F0FDF4',
       icon: '🤝',
     },
     ADMIN_STAFF: {
-      title: 'Platform Operations',
-      tagline: 'Compliance & Escrow Oversight',
-      badge: 'Platform Admin',
+      title: 'Operations Desk',
       phone: '9800011223',
       name: 'Vikram Mehta',
       location: 'National Hub • Operations',
-      idCode: 'ADM-NAT-01',
-      demoLabel: '1-Tap Sign In as Admin →',
-      submitLabel: 'Sign In to Operations Desk',
+      submitLabel: 'Continue to Operations Desk',
       placeholder: 'Enter admin mobile',
       themeColor: '#0F172A',
       themeLightBg: '#F1F5F9',
@@ -146,7 +126,6 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         'en_IN'
       );
 
-      // Assign role-specific distinct credentials & profile
       resp.user.fullName = targetMeta.name;
       resp.user.role = targetRole;
       resp.user.phoneNumber = targetPhone;
@@ -180,20 +159,18 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.modernCard}>
-          {/* Top Brand Header */}
-          <View style={styles.brandSection}>
-            <View style={styles.logoBadgeContainer}>
-              <View style={styles.logoBadge}>
-                <Image
-                  source={require('../../../assets/karigarx_logo.png')}
-                  style={styles.logoImg}
-                  resizeMode="contain"
-                />
-              </View>
+        <View style={styles.authCard}>
+          {/* Brand Header */}
+          <View style={styles.headerSection}>
+            <View style={styles.logoBadge}>
+              <Image
+                source={require('../../../assets/karigarx_logo.png')}
+                style={styles.logoImg}
+                resizeMode="contain"
+              />
             </View>
 
-            <Text variant="headlineMedium" weight="bold" color="#0F172A" style={styles.brandTitle}>
+            <Text variant="headlineMedium" weight="bold" color="#0F172A" style={styles.titleText}>
               KarigarX
             </Text>
 
@@ -203,13 +180,13 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               </Text>
             </View>
 
-            <Text variant="bodySmall" color="#64748B" style={styles.brandSubtitle}>
-              Empowering India's Heritage Master Artisans
+            <Text variant="bodySmall" color="#64748B" style={styles.subtitleText}>
+              Direct from India's Master Artisans
             </Text>
           </View>
 
-          {/* Role Segmented Pill Switcher */}
-          <View style={styles.roleTabsWrapper}>
+          {/* Role Segmented Tabs (Buyer | Artisan | Sahyogi) */}
+          <View style={styles.roleTabsContainer}>
             {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
               const isSelected = role === r;
               const meta = ROLE_DATA[r];
@@ -218,12 +195,13 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                   key={r}
                   testID={`role-tab-${r}`}
                   style={[
-                    styles.roleTabItem,
+                    styles.roleTabButton,
                     isSelected && {
                       backgroundColor: meta.themeColor,
                       shadowColor: meta.themeColor,
+                      shadowOffset: { width: 0, height: 2 },
                       shadowOpacity: 0.25,
-                      shadowRadius: 8,
+                      shadowRadius: 6,
                       elevation: 3,
                     },
                   ]}
@@ -247,114 +225,27 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             })}
           </View>
 
-          {/* Quick Demo Login Card (Compact, Aesthetic, 1-Tap) */}
-          <View
-            style={[
-              styles.quickDemoCard,
-              {
-                backgroundColor: roleInfo.themeLightBg,
-                borderColor: `${roleInfo.themeColor}30`,
-              },
-            ]}
-          >
-            <View style={styles.demoCardHeader}>
-              <View style={styles.demoAvatarCircle}>
-                <Text style={{ fontSize: 18 }}>{roleInfo.icon}</Text>
-              </View>
-              <View style={styles.demoInfoBlock}>
-                <View style={styles.demoRowAlign}>
-                  <Text variant="bodySmall" weight="bold" color="#0F172A">
-                    {roleInfo.name}
-                  </Text>
-                  <View
-                    style={[
-                      styles.demoBadge,
-                      { backgroundColor: `${roleInfo.themeColor}18` },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.demoBadgeText,
-                        { color: roleInfo.themeColor },
-                      ]}
-                    >
-                      {roleInfo.badge}
-                    </Text>
-                  </View>
-                </View>
-                <Text variant="caption" color="#64748B" numberOfLines={1}>
-                  {roleInfo.location}
-                </Text>
-              </View>
-            </View>
-
-            {/* 1-Tap Button */}
+          {/* Form Label & Quick Demo Link */}
+          <View style={styles.fieldHeaderRow}>
+            <Text variant="caption" weight="bold" color="#334155" style={styles.fieldLabel}>
+              MOBILE NUMBER
+            </Text>
             <TouchableOpacity
               testID="quick-demo-btn"
-              style={[
-                styles.quickDemoActionBtn,
-                { backgroundColor: roleInfo.themeColor },
-              ]}
               onPress={() => {
                 setPhoneNumber(roleInfo.phone);
                 handleLogin(roleInfo.phone, role);
               }}
-              activeOpacity={0.88}
+              activeOpacity={0.7}
+              style={styles.demoLinkBtn}
             >
-              <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-                ⚡ {roleInfo.demoLabel}
+              <Text variant="caption" weight="bold" color={roleInfo.themeColor}>
+                ⚡ 1-Tap Demo
               </Text>
             </TouchableOpacity>
-
-            {/* Fast Demo Account Switcher Pills */}
-            <View style={styles.personaSwitchRow}>
-              <Text variant="caption" weight="medium" color="#64748B" style={{ fontSize: 11 }}>
-                Quick switch:
-              </Text>
-              {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
-                const isCurrent = role === r;
-                const pMeta = ROLE_DATA[r];
-                return (
-                  <TouchableOpacity
-                    key={`switch-${r}`}
-                    onPress={() => {
-                      setSelectedRole(r);
-                      setPhoneNumber(pMeta.phone);
-                      setErrorMessage(null);
-                    }}
-                    style={[
-                      styles.personaSwitchChip,
-                      isCurrent && {
-                        borderColor: pMeta.themeColor,
-                        backgroundColor: '#FFFFFF',
-                      },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 11, marginRight: 3 }}>{pMeta.icon}</Text>
-                    <Text
-                      variant="caption"
-                      weight={isCurrent ? 'bold' : 'medium'}
-                      color={isCurrent ? pMeta.themeColor : '#64748B'}
-                      style={{ fontSize: 11 }}
-                    >
-                      {pMeta.name.split(' ')[0]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
           </View>
 
-          {/* Divider: Or Sign in with Mobile */}
-          <View style={styles.sectionDividerRow}>
-            <View style={styles.dividerLine} />
-            <Text variant="caption" weight="semiBold" color="#94A3B8" style={styles.dividerLabel}>
-              OR ENTER MOBILE NUMBER
-            </Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Modern Phone Input Capsule */}
+          {/* Clean Phone Input Capsule */}
           <View
             style={[
               styles.inputCapsule,
@@ -366,7 +257,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             ]}
           >
             <View style={styles.countryCodeBadge}>
-              <Text style={{ fontSize: 16, marginRight: 5 }}>🇮🇳</Text>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🇮🇳</Text>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
                 +91
               </Text>
@@ -404,7 +295,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </Text>
           )}
 
-          {/* Keypad & Helper Row */}
+          {/* Keypad & Fill Demo Helpers */}
           <View style={styles.helperRow}>
             <TouchableOpacity
               onPress={() => setShowKeypad(!showKeypad)}
@@ -428,7 +319,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               }}
             >
               <Text variant="caption" weight="medium" color="#64748B">
-                Fill Demo ({roleInfo.phone})
+                Auto-fill ({roleInfo.phone})
               </Text>
             </TouchableOpacity>
           </View>
@@ -437,15 +328,15 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
           <TouchableOpacity
             testID="login-submit-btn"
             style={[
-              styles.primaryBtn,
+              styles.submitBtn,
               { backgroundColor: roleInfo.themeColor },
-              (phoneNumber.length !== 10 || isLoading) && styles.primaryBtnDisabled,
+              (phoneNumber.length !== 10 || isLoading) && styles.submitBtnDisabled,
             ]}
             onPress={() => handleLogin()}
             disabled={phoneNumber.length !== 10 || isLoading}
             activeOpacity={0.88}
           >
-            <Text variant="bodyLarge" weight="bold" color="#FFFFFF">
+            <Text variant="bodyMedium" weight="bold" color="#FFFFFF" style={styles.submitBtnText}>
               {isLoading ? 'Signing In...' : `${roleInfo.submitLabel} →`}
             </Text>
           </TouchableOpacity>
@@ -462,59 +353,58 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           )}
 
-          {/* Social Sign In */}
-          <View style={styles.socialSection}>
-            <View style={styles.socialDividerRow}>
-              <View style={styles.dividerLine} />
-              <Text variant="caption" weight="medium" color="#94A3B8" style={styles.socialDividerText}>
-                or continue with
-              </Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <View style={styles.socialIconsRow}>
-              <TouchableOpacity
-                testID="social-login-google"
-                style={styles.socialBtn}
-                activeOpacity={0.8}
-                onPress={() => handleLogin(roleInfo.phone)}
-              >
-                <Image
-                  source={require('../../../assets/google_logo.png')}
-                  style={styles.socialImg}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                testID="social-login-apple"
-                style={styles.socialBtn}
-                activeOpacity={0.8}
-                onPress={() => handleLogin(roleInfo.phone)}
-              >
-                <Image
-                  source={require('../../../assets/apple_logo.png')}
-                  style={styles.socialImgApple}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                testID="social-login-facebook"
-                style={styles.socialBtn}
-                activeOpacity={0.8}
-                onPress={() => handleLogin(roleInfo.phone)}
-              >
-                <Image
-                  source={require('../../../assets/facebook_logo.png')}
-                  style={styles.socialImg}
-                  resizeMode="contain"
-                />
-              </TouchableOpacity>
-            </View>
+          {/* Divider */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text variant="caption" weight="medium" color="#94A3B8" style={styles.dividerText}>
+              or continue with
+            </Text>
+            <View style={styles.dividerLine} />
           </View>
 
-          {/* Bottom Clean Footer */}
+          {/* Social Icons Row */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity
+              testID="social-login-google"
+              style={styles.socialCircle}
+              activeOpacity={0.8}
+              onPress={() => handleLogin(roleInfo.phone)}
+            >
+              <Image
+                source={require('../../../assets/google_logo.png')}
+                style={styles.socialIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="social-login-apple"
+              style={styles.socialCircle}
+              activeOpacity={0.8}
+              onPress={() => handleLogin(roleInfo.phone)}
+            >
+              <Image
+                source={require('../../../assets/apple_logo.png')}
+                style={styles.socialIconApple}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="social-login-facebook"
+              style={styles.socialCircle}
+              activeOpacity={0.8}
+              onPress={() => handleLogin(roleInfo.phone)}
+            >
+              <Image
+                source={require('../../../assets/facebook_logo.png')}
+                style={styles.socialIcon}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Footer Navigation Links */}
           <View style={styles.footerRow}>
             <TouchableOpacity
               testID="login-change-lang-btn"
@@ -524,7 +414,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                 🌐 Change Language
               </Text>
             </TouchableOpacity>
-            <Text style={styles.footerDivider}>•</Text>
+            <Text style={styles.footerDot}>•</Text>
             <TouchableOpacity
               testID="login-intro-tour-btn"
               onPress={() => navigation.navigate('Onboarding')}
@@ -543,64 +433,60 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8F6F0',
+    backgroundColor: '#FAF8F5',
   },
   scrollContainer: {
     flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 20,
+    paddingVertical: 24,
     paddingHorizontal: 16,
   },
-  modernCard: {
+  authCard: {
     width: '100%',
-    maxWidth: 420,
+    maxWidth: 400,
     backgroundColor: '#FFFFFF',
-    borderRadius: 28,
-    paddingHorizontal: 22,
-    paddingTop: 24,
-    paddingBottom: 20,
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 24,
     alignItems: 'center',
-    // Soft elegant shadow
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.07,
-    shadowRadius: 32,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.06,
+    shadowRadius: 24,
+    elevation: 6,
     borderWidth: 1,
-    borderColor: '#EDEAE2',
+    borderColor: '#ECE8E1',
   },
-  brandSection: {
+  headerSection: {
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  logoBadgeContainer: {
-    marginBottom: 8,
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 4,
+    marginBottom: 20,
   },
   logoBadge: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
+    width: 60,
+    height: 60,
+    borderRadius: 16,
     backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: '#FFEDD5',
-    overflow: 'hidden',
+    marginBottom: 10,
     padding: 6,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
   logoImg: {
     width: '100%',
     height: '100%',
   },
-  brandTitle: {
+  titleText: {
     letterSpacing: 0.5,
-    fontSize: 24,
+    fontSize: 22,
     color: '#0F172A',
     marginBottom: 4,
   },
@@ -614,133 +500,67 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   mottoText: {
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     fontSize: 9.5,
   },
-  brandSubtitle: {
-    letterSpacing: 0.2,
+  subtitleText: {
     fontSize: 12,
+    color: '#64748B',
     textAlign: 'center',
   },
-  roleTabsWrapper: {
+  roleTabsContainer: {
     flexDirection: 'row',
     width: '100%',
     backgroundColor: '#F1F5F9',
-    borderRadius: 16,
-    padding: 4,
-    marginBottom: 14,
+    borderRadius: 14,
+    padding: 3,
+    marginBottom: 18,
   },
-  roleTabItem: {
+  roleTabButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: 11,
     gap: 4,
   },
   roleTabIcon: {
-    fontSize: 14,
+    fontSize: 13,
   },
   roleTabLabel: {
     fontSize: 12,
   },
-  quickDemoCard: {
-    width: '100%',
-    borderRadius: 18,
-    borderWidth: 1.2,
-    padding: 12,
-    marginBottom: 14,
-  },
-  demoCardHeader: {
+  fieldHeaderRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  demoAvatarCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
-    marginRight: 10,
-  },
-  demoInfoBlock: {
-    flex: 1,
-  },
-  demoRowAlign: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 2,
-  },
-  demoBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  demoBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.2,
-  },
-  quickDemoActionBtn: {
+    alignItems: 'center',
     width: '100%',
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    marginBottom: 8,
+    marginBottom: 6,
+    paddingHorizontal: 2,
   },
-  personaSwitchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  fieldLabel: {
+    fontSize: 10.5,
+    letterSpacing: 0.8,
   },
-  personaSwitchChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 10,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+  demoLinkBtn: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-  },
-  sectionDividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
-  },
-  dividerLabel: {
-    paddingHorizontal: 10,
-    fontSize: 10,
-    letterSpacing: 0.8,
   },
   inputCapsule: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    height: 48,
+    height: 50,
     backgroundColor: '#F8FAFC',
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     marginBottom: 6,
   },
   inputCapsuleError: {
@@ -749,7 +569,7 @@ const styles = StyleSheet.create({
   countryCodeBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 8,
+    paddingRight: 10,
     borderRightWidth: 1,
     borderRightColor: '#E2E8F0',
     marginRight: 10,
@@ -759,14 +579,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#0F172A',
     fontWeight: '600',
-    letterSpacing: 0.6,
+    letterSpacing: 0.8,
     paddingVertical: 0,
     ...(Platform.OS === 'web' ? { outlineStyle: 'none' as any } : {}),
   },
   clearBtn: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
@@ -779,65 +599,70 @@ const styles = StyleSheet.create({
   errorText: {
     alignSelf: 'flex-start',
     marginBottom: 6,
-    marginLeft: 4,
+    marginLeft: 2,
   },
   helperRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
-    paddingHorizontal: 4,
-    marginBottom: 12,
+    paddingHorizontal: 2,
+    marginBottom: 16,
   },
   keypadToggleBtn: {
     paddingVertical: 2,
   },
-  primaryBtn: {
+  submitBtn: {
     width: '100%',
-    height: 48,
+    height: 50,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 10,
+    shadowRadius: 8,
     elevation: 4,
-    marginBottom: 14,
+    marginBottom: 18,
   },
-  primaryBtnDisabled: {
+  submitBtnDisabled: {
     backgroundColor: '#CBD5E1',
     shadowOpacity: 0,
     elevation: 0,
   },
+  submitBtnText: {
+    letterSpacing: 0.4,
+  },
   keypadEmbed: {
     width: '100%',
-    marginBottom: 14,
-    paddingTop: 10,
+    marginBottom: 16,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
   },
-  socialSection: {
-    width: '100%',
+  dividerRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    width: '100%',
     marginBottom: 14,
   },
-  socialDividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
   },
-  socialDividerText: {
-    paddingHorizontal: 8,
+  dividerText: {
+    paddingHorizontal: 10,
     fontSize: 11,
   },
-  socialIconsRow: {
+  socialRow: {
     flexDirection: 'row',
     gap: 14,
+    marginBottom: 18,
   },
-  socialBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  socialCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -849,11 +674,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  socialImg: {
+  socialIcon: {
     width: 20,
     height: 20,
   },
-  socialImgApple: {
+  socialIconApple: {
     width: 18,
     height: 20,
   },
@@ -862,7 +687,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  footerDivider: {
+  footerDot: {
     color: '#CBD5E1',
     fontSize: 12,
   },
