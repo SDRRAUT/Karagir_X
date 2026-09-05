@@ -29,7 +29,7 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSubmitRfq = async () => {
     if (!companyName || !contactPerson || !phone || !quantity) {
-      Alert.alert('अपूर्ण फॉर्म', 'कृपया कंपनी का नाम, संपर्क व्यक्ति, फोन और संख्या भरें।');
+      Alert.alert('Incomplete Form', 'Please fill in organization name, contact person, phone, and quantity.');
       return;
     }
 
@@ -49,21 +49,21 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
 
       setIsSubmitting(false);
       Alert.alert(
-        'RFQ सफलतापूर्वक प्रसारित!',
-        `आपकी मांग (ID: ${res.rfqId}) AI क्लस्टर इंजन द्वारा संबंधित शिल्पकारों से मिला दी गई है। कारीगरों से जल्द ही कोटेशन प्राप्त होंगे।`,
-        [{ text: 'ठीक है', onPress: () => navigation.navigate('MarketplaceHome') }]
+        'RFQ Broadcasted Successfully!',
+        `Your requirement (ID: ${res.rfqId}) has been matched with artisan clusters via our AI cluster engine. Artisans and facilitators will respond shortly.`,
+        [{ text: 'OK', onPress: () => navigation.navigate('MarketplaceHome') }]
       );
     } catch (_err) {
       setIsSubmitting(false);
-      Alert.alert('त्रुटि', 'RFQ दर्ज करने में समस्या हुई। कृपया पुनः प्रयास करें।');
+      Alert.alert('Error', 'Failed to submit RFQ. Please try again.');
     }
   };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="संस्थागत थोक खरीद"
-        subtitle="Corporate RFQ & Cluster Sourcing"
+        title="Corporate Bulk RFQ"
+        subtitle="Cluster Sourcing & Institutional Demand"
         showBack={true}
         onBackPress={() => navigation.goBack()}
         onVoicePress={() => {}}
@@ -74,78 +74,78 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={[styles.banner, { backgroundColor: theme.colors.terracotta.primary }]}>
           <View style={styles.bannerBadge}>
             <Text variant="labelSmall" weight="bold" color="#FFFFFF">
-              🏢 कॉर्पोरेट उपहार व थोक क्लस्टर आपूर्ति
+              🏢 Corporate Gifting & Institutional Cluster Supply
             </Text>
           </View>
           <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
-            सीधे ग्रामीण कारीगर क्लस्टर्स से थोक खरीद
+            Direct Bulk Sourcing from Rural Artisan Clusters
           </Text>
           <Text variant="labelSmall" color="#E0DCFF">
-            जीआई प्रमाणित शिल्प, डिजिटल शिल्प पासपोर्ट और जीएसटी चालान सहित।
+            GI certified crafts, digital provenance passports, and GST-compliant invoicing.
           </Text>
         </Card>
 
         {/* Form Card */}
         <Card style={styles.formCard}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 14 }}>
-            मांग का विवरण (Requirement Details)
+            Requirement Details
           </Text>
 
           <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-            कंपनी / संस्थान का नाम (Organization Name) *
+            Organization / Company Name *
           </Text>
           <TextInput
             style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
             value={companyName}
             onChangeText={setCompanyName}
-            placeholder="उदा. Tata Consultancy Services या Taj Hotels"
+            placeholder="e.g. Tata Consultancy Services or Taj Hotels"
             placeholderTextColor="#8D7168"
           />
 
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 6 }}>
               <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-                संपर्क व्यक्ति (Contact Person) *
+                Contact Person *
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
                 value={contactPerson}
                 onChangeText={setContactPerson}
-                placeholder="नाम दर्ज करें"
+                placeholder="Full Name"
                 placeholderTextColor="#8D7168"
               />
             </View>
 
             <View style={{ flex: 1, marginLeft: 6 }}>
               <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-                फ़ोन नंबर (Phone) *
+                Phone Number *
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
-                placeholder="10 अंक"
+                placeholder="10-digit number"
                 placeholderTextColor="#8D7168"
               />
             </View>
           </View>
 
           <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-            ईमेल (Email ID):
+            Email Address:
           </Text>
           <TextInput
             style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
-            placeholder="उदा. procurement@company.com"
+            placeholder="e.g. procurement@company.com"
             placeholderTextColor="#8D7168"
           />
 
           {/* Craft Category Chips */}
           <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-            शिल्प श्रेणी (Craft Category) *
+            Craft Category *
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 6 }}>
             {CRAFT_CATEGORIES.map((cat) => {
@@ -168,7 +168,7 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
                     weight={isSelected ? 'bold' : 'normal'}
                     color={isSelected ? '#FFFFFF' : theme.colors.text.primary}
                   >
-                    {cat.icon} {cat.nameHi}
+                    {cat.icon} {cat.nameEn || cat.nameHi}
                   </Text>
                 </TouchableOpacity>
               );
@@ -178,47 +178,47 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 6 }}>
               <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-                कुल संख्या (Quantity) *
+                Target Quantity *
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
                 value={quantity}
                 onChangeText={setQuantity}
                 keyboardType="numeric"
-                placeholder="उदा. 500"
+                placeholder="e.g. 500"
                 placeholderTextColor="#8D7168"
               />
             </View>
 
             <View style={{ flex: 1, marginLeft: 6 }}>
               <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-                बजट प्रति पीस (₹ Target)
+                Target Budget (₹/Unit)
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
                 value={targetBudget}
                 onChangeText={setTargetBudget}
                 keyboardType="numeric"
-                placeholder="उदा. 650"
+                placeholder="e.g. 650"
                 placeholderTextColor="#8D7168"
               />
             </View>
           </View>
 
           <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-            आवश्यक डिलीवरी समय सीमा (दिन / Days):
+            Required Delivery Timeline (Days):
           </Text>
           <TextInput
             style={[styles.input, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
             value={deadlineDays}
             onChangeText={setDeadlineDays}
             keyboardType="numeric"
-            placeholder="उदा. 30 दिन"
+            placeholder="e.g. 30"
             placeholderTextColor="#8D7168"
           />
 
           <Text variant="labelSmall" weight="bold" color={theme.colors.text.secondary} style={styles.fieldLabel}>
-            विशेष निर्देश / लोगो ब्रांडिंग आवश्यकताएं:
+            Special Instructions & Branding Specifications:
           </Text>
           <TextInput
             style={[styles.input, styles.textArea, { borderColor: theme.colors.border.subtle, color: theme.colors.text.primary }]}
@@ -226,7 +226,7 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
             onChangeText={setSpecs}
             multiline
             numberOfLines={3}
-            placeholder="आकार, रंग, कस्टमाइज़ेशन, पैकेजिंग आवश्यकता..."
+            placeholder="Size, colors, custom engraving, packaging preferences..."
             placeholderTextColor="#8D7168"
           />
         </Card>
@@ -235,7 +235,7 @@ export const CreateBulkRfqScreen: React.FC<Props> = ({ navigation }) => {
       {/* Bottom Sticky Action Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF' }]}>
         <Button
-          label={isSubmitting ? 'प्रसारित हो रहा है...' : 'AI क्लस्टर मैचिंग शुरू करें 🚀'}
+          label={isSubmitting ? 'Broadcasting...' : 'Launch AI Cluster Matching 🚀'}
           variant="primary"
           isLoading={isSubmitting}
           onPress={handleSubmitRfq}

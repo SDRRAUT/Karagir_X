@@ -14,15 +14,15 @@ export const OrdersScreen: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState<OrderTab>('NEW');
 
   const tabs: { key: OrderTab; label: string; count: number }[] = [
-    { key: 'NEW', label: 'नये (New)', count: 2 },
-    { key: 'IN_PROGRESS', label: 'बन रहे (Making)', count: 1 },
-    { key: 'DELIVERED', label: 'भेजे गए (Delivered)', count: 12 },
+    { key: 'NEW', label: 'New Orders', count: 2 },
+    { key: 'IN_PROGRESS', label: 'In Production', count: 1 },
+    { key: 'DELIVERED', label: 'Delivered', count: 12 },
   ];
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="कारीगर ऑर्डर्स"
+        title="Artisan Orders"
         subtitle="Orders & Direct Fulfillment"
         showDevanagariLogo={true}
         onVoicePress={() => {}}
@@ -66,15 +66,15 @@ export const OrdersScreen: React.FC = () => {
               <View style={styles.orderHeader}>
                 <View style={{ flex: 1 }}>
                   <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    दिल्ली (Delhi) से ऑर्डर
+                    Order from New Delhi
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84920 • 25 मिनट पहले
+                    Order #KS-84920 • 25 mins ago
                   </Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
-                    ⏰ 18 घन्टे बाकी
+                    ⏰ 18h Left
                   </Text>
                 </View>
               </View>
@@ -88,10 +88,10 @@ export const OrdersScreen: React.FC = () => {
                 />
                 <View style={{ flex: 1, paddingLeft: 12 }}>
                   <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                    हाथ से बनी टेराकोटा दीप माला
+                    Handmade Terracotta Diya Garland
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    मात्रा: 4 पीस • प्राकृतिक मिट्टी
+                    Quantity: 4 pcs • Natural Clay
                   </Text>
                   <Text
                     variant="labelSmall"
@@ -99,7 +99,7 @@ export const OrdersScreen: React.FC = () => {
                     color={theme.colors.secondary.teal}
                     style={{ marginTop: 4 }}
                   >
-                    सत्यापित खरीदार: प्रिया शर्मा ✓
+                    Verified Buyer: Priya Sharma ✓
                   </Text>
                 </View>
               </View>
@@ -107,10 +107,10 @@ export const OrdersScreen: React.FC = () => {
               <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    आपको सीधे बैंक में मिलेंगे:
+                    Direct Bank Settlement:
                   </Text>
                   <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    0% कमीशन कटौती (100% कारीगर को)
+                    0% Commission (100% to Artisan)
                   </Text>
                 </View>
                 <Text variant="headlineMedium" weight="bold" color="#6C63FF">
@@ -120,13 +120,13 @@ export const OrdersScreen: React.FC = () => {
 
               <View style={styles.actionRow}>
                 <Button
-                  label="ऑर्डर स्वीकारें (Accept)"
+                  label="Accept Order"
                   variant="primary"
                   onPress={() => {}}
                   style={{ flex: 1, marginRight: 8 }}
                 />
                 <Button
-                  label="अस्वीकारें"
+                  label="Decline"
                   variant="outline"
                   onPress={() => {}}
                   style={{ width: 100 }}
@@ -139,15 +139,15 @@ export const OrdersScreen: React.FC = () => {
               <View style={styles.orderHeader}>
                 <View style={{ flex: 1 }}>
                   <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    पुणे (Pune) से ऑर्डर
+                    Order from Pune
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84915 • 2 घन्टे पहले
+                    Order #KS-84915 • 2 hours ago
                   </Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: 'rgba(244, 185, 66, 0.2)' }]}>
                   <Text variant="labelSmall" weight="bold" color="#795600">
-                    ⏰ 22 घन्टे बाकी
+                    ⏰ 22h Left
                   </Text>
                 </View>
               </View>
@@ -161,10 +161,10 @@ export const OrdersScreen: React.FC = () => {
                 />
                 <View style={{ flex: 1, paddingLeft: 12 }}>
                   <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                    पारंपरिक मिट्टी की हांडी (2.5 L)
+                    Traditional Clay Handi (2.5 L)
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    मात्रा: 1 पीस • शीशा-मुक्त
+                    Quantity: 1 pc • Lead-Free
                   </Text>
                 </View>
               </View>
@@ -172,10 +172,10 @@ export const OrdersScreen: React.FC = () => {
               <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    कारीगर कुल भुगतान:
+                    Artisan Net Payout:
                   </Text>
                   <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    एस्क्रो में सुरक्षित
+                    Escrow Protected
                   </Text>
                 </View>
                 <Text variant="headlineMedium" weight="bold" color="#6C63FF">
@@ -185,7 +185,7 @@ export const OrdersScreen: React.FC = () => {
 
               <View style={styles.actionRow}>
                 <Button
-                  label="ऑर्डर स्वीकारें (Accept)"
+                  label="Accept Order"
                   variant="primary"
                   onPress={() => {}}
                   style={{ flex: 1 }}
@@ -202,15 +202,15 @@ export const OrdersScreen: React.FC = () => {
               <View style={styles.orderHeader}>
                 <View style={{ flex: 1 }}>
                   <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    मुंबई (Mumbai) — निर्माण प्रगति पर
+                    Mumbai — In Production
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84102 • डिलीवरी तिथि: 12 सितंबर
+                    Order #KS-84102 • Delivery: 12 Sept
                   </Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                    🔨 बन रहा है
+                    🔨 In Production
                   </Text>
                 </View>
               </View>
@@ -224,19 +224,19 @@ export const OrdersScreen: React.FC = () => {
                 />
                 <View style={{ flex: 1, paddingLeft: 12 }}>
                   <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-                    हैंडक्राफ्टेड टेराकोटा विंड चाइम्स
+                    Handcrafted Terracotta Wind Chimes
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    मात्रा: 2 सेट • कोल्हापुर जीआई
+                    Quantity: 2 sets • Kolhapur GI
                   </Text>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary} style={{ marginTop: 4 }}>
-                    भुगतान: ₹1,420
+                    Payout: ₹1,420
                   </Text>
                 </View>
               </View>
 
               <Button
-                label="पैकिंग पूर्ण व पिकअप तैयार करें"
+                label="Ready for Pickup & Packing Complete"
                 variant="primary"
                 onPress={() => {}}
                 style={{ marginTop: 8 }}
@@ -252,7 +252,7 @@ export const OrdersScreen: React.FC = () => {
               <View style={styles.orderHeader}>
                 <View style={{ flex: 1 }}>
                   <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    बेंगलुरु (Bengaluru) — सफल डिलीवरी
+                    Bengaluru — Delivery Complete
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
                     Order #KS-83901 • UTR981240129
@@ -260,7 +260,7 @@ export const OrdersScreen: React.FC = () => {
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                   <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    ✅ डिलीवर्ड
+                    ✅ Delivered
                   </Text>
                 </View>
               </View>
@@ -268,7 +268,7 @@ export const OrdersScreen: React.FC = () => {
               <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)', marginTop: 8 }]}>
                 <View>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    बैंक में क्रेडिट हो चुका है:
+                    Credited to Bank Account:
                   </Text>
                   <Text variant="labelSmall" weight="bold" color="#6C63FF">
                     State Bank of India •••• 4021

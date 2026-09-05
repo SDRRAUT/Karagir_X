@@ -43,10 +43,11 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
   };
 
-  const handleLogin = async (phoneOverride?: string) => {
+  const handleLogin = async (phoneOverride?: string, roleOverride?: UserRole) => {
     const targetPhone = phoneOverride || phoneNumber;
+    const targetRole = roleOverride || role;
     if (targetPhone.length !== 10 || !/^[6-9]\d{9}$/.test(targetPhone)) {
-      setErrorMessage('कृपया सही 10 अंकों का मोबाइल नंबर डालें (Enter valid 10-digit number)');
+      setErrorMessage('Please enter a valid 10-digit mobile number');
       return;
     }
 
@@ -58,9 +59,19 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
         `test_session_${Date.now()}`,
         '123456',
         targetPhone,
-        role,
-        locale
+        targetRole,
+        'en_IN'
       );
+
+      // Assign default name based on role
+      if (targetRole === 'BUYER') {
+        resp.user.fullName = resp.user.fullName || 'Priya Sharma (Buyer)';
+      } else if (targetRole === 'FACILITATOR') {
+        resp.user.fullName = resp.user.fullName || 'Pooja Verma (Sahyogi Lead)';
+      } else {
+        resp.user.fullName = resp.user.fullName || 'Ramesh Kumbhar (Master Artisan)';
+      }
+      resp.user.role = targetRole;
 
       await setSession(
         {
@@ -74,15 +85,44 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
       setIsLoading(false);
 
       if (resp.is_new_user || !resp.user.isProfileComplete) {
-        navigation.replace('ProfileSetup', { role });
+        navigation.replace('ProfileSetup', { role: targetRole });
       } else {
         navigation.replace('MainTabs', { screen: 'HomeTab' });
       }
     } catch {
       setIsLoading(false);
-      setErrorMessage('नेटवर्क त्रुटि — कृपया पुनः प्रयास करें। (Failed to authenticate)');
+      setErrorMessage('Network error — please check your connection and try again.');
     }
   };
+
+  const ROLE_DATA: Record<UserRole, { title: string; desc: string; demoLabel: string; badge: string }> = {
+    BUYER: {
+      title: 'Buyer Portal',
+      desc: 'Browse authentic GI heritage crafts, Diwali festival deals, GI provenance stories, and place direct corporate bulk orders.',
+      demoLabel: '🛍️ 1-Tap Login as Buyer (9876543210) →',
+      badge: 'B2C & B2B Wholesale',
+    },
+    ARTISAN: {
+      title: 'Artisan / Seller Studio',
+      desc: 'Smart Studio dashboard, 📸 AI Smart Catalogue (photo+voice), 🤖 Voice Saathi interview, and 💰 Fair Price Advisor.',
+      demoLabel: '🎨 1-Tap Login as Seller (9876543210) →',
+      badge: 'Zero Commission Hub',
+    },
+    FACILITATOR: {
+      title: 'Helper / Sahyogi Field Desk',
+      desc: 'Field Desk for rural artisan onboarding, 5,000-unit cluster quota allocation, SOS quota reallocation, and QC spec audit.',
+      demoLabel: '🤝 1-Tap Login as Helper / Sahyogi (9876543210) →',
+      badge: 'Cluster & Logistics',
+    },
+    ADMIN_STAFF: {
+      title: 'Platform Operations Desk',
+      desc: 'Cluster verification, escrow settlement ledger, and GI compliance oversight.',
+      demoLabel: '🛡️ 1-Tap Login as Admin (9876543210) →',
+      badge: 'Supervision',
+    },
+  };
+
+  const roleInfo = ROLE_DATA[role] || ROLE_DATA.ARTISAN;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -104,7 +144,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           </View>
 
-          {/* Heading & Subtitle matching Mockup */}
+          {/* Heading & Subtitle */}
           <View style={styles.headerBlock}>
             <Text variant="headlineLarge" weight="bold" color="#0F172A" style={styles.titleText}>
               Kalakar Setu
@@ -123,12 +163,16 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             </Text>
           </View>
 
-          {/* Role Segmented Pill Selector (English) */}
+          {/* Role Segmented Pill Selector (English: Buyer, Seller, Helper/Sahyogi) */}
           <View style={styles.roleSegmentContainer}>
-            {(['ARTISAN', 'BUYER', 'FACILITATOR'] as UserRole[]).map((r) => {
+            {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
               const isSelected = role === r;
               const label =
-                r === 'ARTISAN' ? '🎨 Artisan' : r === 'BUYER' ? '🛍️ Buyer' : '🤝 Facilitator';
+                r === 'BUYER'
+                  ? '🛍️ Buyer'
+                  : r === 'ARTISAN'
+                  ? '🎨 Seller'
+                  : '🤝 Helper / Sahyogi';
               return (
                 <TouchableOpacity
                   key={r}
@@ -152,21 +196,64 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
             })}
           </View>
 
-          {/* Quick Demo 1-Click Banner */}
+          {/* Selected Role Overview Feature Banner */}
+          <View style={styles.roleFeatureCard}>
+            <View style={styles.roleFeatureHeader}>
+              <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                {roleInfo.title}
+              </Text>
+              <View style={styles.roleFeatureBadge}>
+                <Text variant="caption" weight="bold" color="#EA580C">
+                  {roleInfo.badge}
+                </Text>
+              </View>
+            </View>
+            <Text variant="caption" color="#64748B" style={{ marginTop: 2, lineHeight: 16 }}>
+              {roleInfo.desc}
+            </Text>
+          </View>
+
+          {/* 1-Tap Quick Demo Login for Current Role */}
           <TouchableOpacity
             testID="quick-demo-btn"
             style={styles.quickDemoChip}
             onPress={() => {
               setPhoneNumber('9876543210');
-              handleLogin('9876543210');
+              handleLogin('9876543210', role);
             }}
             activeOpacity={0.85}
           >
             <Text style={{ fontSize: 13, marginRight: 6 }}>⚡</Text>
             <Text variant="caption" weight="bold" color="#EA580C">
-              1-Tap Demo Login (9876543210) →
+              {roleInfo.demoLabel}
             </Text>
           </TouchableOpacity>
+
+          {/* 3 Quick Role Demo Shortcuts */}
+          <View style={styles.multiRoleDemoRow}>
+            {(['BUYER', 'ARTISAN', 'FACILITATOR'] as UserRole[]).map((r) => {
+              const roleTitle = r === 'BUYER' ? '🛍️ As Buyer' : r === 'ARTISAN' ? '🎨 As Seller' : '🤝 As Sahyogi';
+              return (
+                <TouchableOpacity
+                  key={`quick-${r}`}
+                  style={[styles.quickRoleBtn, role === r && styles.quickRoleBtnActive]}
+                  onPress={() => {
+                    setSelectedRole(r);
+                    setPhoneNumber('9876543210');
+                    handleLogin('9876543210', r);
+                  }}
+                >
+                  <Text
+                    variant="caption"
+                    weight="bold"
+                    color={role === r ? '#EA580C' : '#64748B'}
+                  >
+                    {roleTitle}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
           {/* Modern Input Capsule */}
           <View
@@ -336,7 +423,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               onPress={() => navigation.navigate('LanguageSelection')}
             >
               <Text variant="caption" weight="bold" color="#EA580C">
-                🌐 भाषा बदलें
+                🌐 Change Language
               </Text>
             </TouchableOpacity>
             <Text style={styles.footerDot}>•</Text>
@@ -345,7 +432,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
               onPress={() => navigation.navigate('Onboarding')}
             >
               <Text variant="caption" weight="bold" color="#EA580C">
-                ℹ️ ऐप टूर (App Tour)
+                ℹ️ App Tour
               </Text>
             </TouchableOpacity>
           </View>
@@ -479,6 +566,29 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
+  roleFeatureCard: {
+    width: '100%',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    padding: 10,
+    marginBottom: 10,
+  },
+  roleFeatureHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  roleFeatureBadge: {
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+  },
   quickDemoChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -487,9 +597,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#FFEDD5',
     borderRadius: 16,
-    paddingVertical: 6,
+    paddingVertical: 7,
     paddingHorizontal: 14,
+    marginBottom: 8,
+  },
+  multiRoleDemoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 6,
+    width: '100%',
     marginBottom: 14,
+  },
+  quickRoleBtn: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickRoleBtnActive: {
+    borderColor: '#EA580C',
+    backgroundColor: '#FFF7ED',
   },
   inputCapsule: {
     flexDirection: 'row',

@@ -15,6 +15,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { Text } from '@/components/typography/Text';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface FlashProduct {
   id: string;
@@ -213,6 +214,38 @@ export const MarketplaceHomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Active Role Quick Persona Switcher Bar */}
+        <View style={styles.roleSwitcherContainer}>
+          <View style={styles.roleSwitcherPill}>
+            <TouchableOpacity
+              style={[styles.roleSwitchBtn, styles.roleSwitchBtnActive]}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="bold" color="#EA580C">
+                🛍️ Buyer Desk
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.roleSwitchBtn}
+              onPress={() => useAuthStore.getState().updateProfile({ role: 'ARTISAN' })}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="medium" color="#64748B">
+                🎨 Seller Studio
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.roleSwitchBtn}
+              onPress={() => useAuthStore.getState().updateProfile({ role: 'FACILITATOR' })}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="medium" color="#64748B">
+                🤝 Sahyogi Desk
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* 2. Modern Rounded Search Bar with Voice & Visual Search */}
         <View style={styles.searchContainer}>
           <Text style={styles.searchMagnifier}>🔍</Text>
@@ -613,11 +646,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.artisanStudioBtn}
             onPress={() => {
-              navigation.navigate('MainTabs', { screen: 'ProfileTab' });
+              useAuthStore.getState().updateProfile({ role: 'ARTISAN' });
             }}
           >
             <Text variant="caption" weight="bold" color="#4338CA">
-              🎨 कारीगर हैं? कारीगर स्टूडियो और बहीखाता खोलें (Artisan Studio) →
+              🎨 Are you an Artisan? Switch to Seller Studio & Ledger →
             </Text>
           </TouchableOpacity>
         </View>
@@ -724,6 +757,34 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  roleSwitcherContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 8,
+  },
+  roleSwitcherPill: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 20,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  roleSwitchBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleSwitchBtnActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   header: {
     flexDirection: 'row',

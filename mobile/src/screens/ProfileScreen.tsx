@@ -404,12 +404,58 @@ export const ProfileScreen: React.FC = () => {
 
         {/* App Settings & Language */}
         <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.settingsTitle}>
-          भाषा व सेटिंग्स (Preferences & Diagnostics)
+          Preferences & Diagnostics
         </Text>
 
         <Card style={styles.settingsCard}>
+          {/* Active Persona / Role Switcher */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            ऐप की भाषा (App Language)
+            Switch Active Role (Experience Different Interfaces)
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
+            {[
+              { role: 'BUYER', label: '🛍️ Buyer', title: 'Buyer Hub' },
+              { role: 'ARTISAN', label: '🎨 Seller', title: 'Artisan Studio' },
+              { role: 'FACILITATOR', label: '🤝 Helper', title: 'Sahyogi Desk' },
+            ].map((r) => {
+              const isCurrent = (user?.role || 'BUYER') === r.role;
+              return (
+                <TouchableOpacity
+                  key={r.role}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 10,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 1.5,
+                    borderColor: isCurrent ? theme.colors.terracotta.primary : '#E2E8F0',
+                    backgroundColor: isCurrent ? 'rgba(234, 88, 12, 0.08)' : '#FFFFFF',
+                  }}
+                  onPress={async () => {
+                    await useAuthStore.getState().updateProfile({ role: r.role as any });
+                    navigation.navigate('MainTabs', { screen: 'HomeTab' });
+                  }}
+                >
+                  <Text
+                    variant="labelMedium"
+                    weight={isCurrent ? 'bold' : 'medium'}
+                    color={isCurrent ? theme.colors.terracotta.primary : '#475569'}
+                  >
+                    {r.label}
+                  </Text>
+                  <Text variant="caption" color={isCurrent ? theme.colors.terracotta.primary : '#94A3B8'} style={{ fontSize: 9 }}>
+                    {isCurrent ? '● Active' : r.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 10 }]} />
+
+          <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
+            App Language
           </Text>
           <View style={styles.langGrid}>
             {languages.map((lang) => {
@@ -432,7 +478,7 @@ export const ProfileScreen: React.FC = () => {
                     weight={isSelected ? 'bold' : 'normal'}
                     color={isSelected ? theme.colors.terracotta.primary : theme.colors.text.primary}
                   >
-                    {lang.native}
+                    {lang.name}
                   </Text>
                 </TouchableOpacity>
               );
@@ -443,7 +489,7 @@ export const ProfileScreen: React.FC = () => {
 
           {/* Offline Toggle Simulation */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            नेटवर्क टेस्ट (Network Mode Simulation)
+            Network Mode Simulation
           </Text>
           <Button
             label={isOnline ? '🟢 Online Mode (Tap to test offline)' : '🔴 Offline Cache Mode (Tap to restore)'}
@@ -454,10 +500,10 @@ export const ProfileScreen: React.FC = () => {
 
           {/* Shared Device PIN Pad Switch */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            शेयर्ड फोन स्विच (Multi-Profile PIN Switcher)
+            Multi-Profile PIN Switcher (Shared Device)
           </Text>
           <Button
-            label={showPinPad ? 'Hide Keypad' : 'प्रदर्शित करें (Show Tactile Keypad)'}
+            label={showPinPad ? 'Hide Keypad' : 'Show Tactile Keypad'}
             variant="outline"
             onPress={() => setShowPinPad(!showPinPad)}
             style={{ marginBottom: 8 }}
@@ -466,7 +512,7 @@ export const ProfileScreen: React.FC = () => {
           {showPinPad && (
             <View style={styles.keypadWrapper}>
               <Text variant="labelLarge" weight="bold" align="center" style={{ marginBottom: 12 }}>
-                PIN: {pinDigits ? pinDigits.split('').map(() => '●').join(' ') : 'चार अंक दबाएं'}
+                PIN: {pinDigits ? pinDigits.split('').map(() => '●').join(' ') : 'Enter 4 Digits'}
               </Text>
               <TactileKeypad
                 onPressDigit={(d) => setPinDigits((prev) => (prev.length < 4 ? prev + d : prev))}
@@ -480,13 +526,13 @@ export const ProfileScreen: React.FC = () => {
 
           {/* Logout Button */}
           <Button
-            label="लॉग आउट करें (Sign Out)"
+            label="Sign Out"
             variant="danger"
             onPress={async () => {
               await logout();
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'AuthPhone', params: { role: 'ARTISAN' } }],
+                routes: [{ name: 'AuthPhone', params: { role: 'BUYER' } }],
               });
             }}
           />

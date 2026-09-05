@@ -68,14 +68,14 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title={`Voice Saathi • AI सवाल-जवाब (${questionIndex + 1}/${FOLLOW_UP_QUESTIONS.length})`}
-        subtitle="कलाकार सहायक • Conversational Voice Saathi"
+        title={`Voice Saathi • AI Interview (${questionIndex + 1}/${FOLLOW_UP_QUESTIONS.length})`}
+        subtitle="Conversational AI Assistant"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
         rightElement={
           <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
             <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
-              Skip (छोड़ें) →
+              Skip →
             </Text>
           </TouchableOpacity>
         }
@@ -108,9 +108,6 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
             <View style={{ flex: 1 }}>
               <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
                 {currentQuestion.textEn}
-              </Text>
-              <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 4 }}>
-                {currentQuestion.textHi}
               </Text>
             </View>
           </View>

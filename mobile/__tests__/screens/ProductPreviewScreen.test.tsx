@@ -31,19 +31,19 @@ describe('ProductPreviewScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('सिल्क साड़ी')).toBeTruthy();
+    expect(getByText('Handmade Silk Saree')).toBeTruthy();
     expect(getByText('₹2,400')).toBeTruthy();
 
-    // Switch language to English
-    const enTab = getByText('English');
+    // Switch language to Hindi
+    const hiTab = getByText('Hindi');
     await act(async () => {
-      fireEvent.press(enTab);
+      fireEvent.press(hiTab);
     });
 
-    expect(getByText('Handmade Silk Saree')).toBeTruthy();
+    expect(getByText('सिल्क साड़ी')).toBeTruthy();
 
     // Tap publish button
-    const publishBtn = getByText(/दुकान में पब्लिश करें/);
+    const publishBtn = getByText(/Publish to Store/);
     await act(async () => {
       fireEvent.press(publishBtn);
     });

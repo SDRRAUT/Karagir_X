@@ -21,17 +21,17 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
   const selectedPhoto: ProductPhoto | undefined = photos[selectedIndex] || photos[0];
 
   const angleLabels: Record<PhotoAngle, string> = {
-    FRONT: 'सामने (Front)',
-    TEXTURE: 'कारीगरी (Detail)',
-    SIDE_BACK: 'साइड / पीछे (Side)',
-    SCALE: 'नाप (Scale)',
+    FRONT: 'Front View',
+    TEXTURE: 'Detail View',
+    SIDE_BACK: 'Side / Back View',
+    SCALE: 'In-Hand Scale',
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('फोटो हटाएं', 'क्या आप इस फोटो को हटाना चाहते हैं?', [
-      { text: 'रद्द करें', style: 'cancel' },
+    Alert.alert('Delete Photo', 'Are you sure you want to remove this photo?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: 'हटाएं',
+        text: 'Delete',
         style: 'destructive',
         onPress: () => {
           removePhoto(id);
@@ -45,7 +45,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleAddMore = () => {
     if (photos.length >= 4) {
-      Alert.alert('अधिकतम सीमा', 'अधिकतम 4 फोटो पूरी हो चुकी हैं।');
+      Alert.alert('Maximum Limit', 'You can upload up to 4 photos per product.');
       return;
     }
     navigation.navigate('CameraCapture');
@@ -53,7 +53,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleProceedEnhance = () => {
     if (photos.length === 0) {
-      Alert.alert('फोटो आवश्यक है', 'कम से कम एक फोटो जोड़ें।');
+      Alert.alert('Photo Required', 'Please add at least one photo.');
       return;
     }
     navigation.navigate('AiEnhancement');
@@ -63,17 +63,17 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
         <AppHeader
-          title="फोटो समीक्षा"
+          title="Photo Review"
           subtitle="Review Product Photos"
           onBackPress={() => navigation.goBack()}
           showDevanagariLogo
         />
         <View style={styles.emptyContainer}>
           <Text variant="headlineMedium" color={theme.colors.charcoal[900]} align="center">
-            कोई फोटो नहीं मिली
+            No Photos Captured Yet
           </Text>
           <Button
-            label="फोटो खींचें (Take Photo) 📷"
+            label="Take Photo 📷"
             variant="primary"
             onPress={() => navigation.navigate('CameraCapture')}
             style={styles.emptyBtn}
@@ -86,7 +86,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title={`फोटो समीक्षा (${photos.length}/4)`}
+        title={`Photo Review (${photos.length}/4)`}
         subtitle="Review Product Photos"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
@@ -137,8 +137,8 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
               }
             >
               {selectedPhoto.quality === 'GOOD'
-                ? '✅ क्वालिटी अच्छी है (Clear & Sharp)'
-                : '⚠️ थोड़ी धुंधली है (Slightly Blurry)'}
+                ? '✅ Clear & Sharp'
+                : '⚠️ Slightly Blurry'}
             </Text>
           </View>
 
@@ -146,7 +146,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
           {primaryPhotoId === selectedPhoto.id && (
             <View style={styles.primaryBadge}>
               <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-                ⭐ मुख्य कवर फोटो (Primary Cover)
+                ⭐ Primary Cover Photo
               </Text>
             </View>
           )}
@@ -155,7 +155,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
         {/* Thumbnail Selector Strip */}
         <View style={styles.thumbnailSection}>
           <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionLabel}>
-            सभी एंगल्स ({photos.length}/4)
+            All Captured Angles ({photos.length}/4)
           </Text>
 
           <View style={styles.thumbnailRow}>
@@ -198,7 +198,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
               >
                 <Text style={styles.addAngleIcon}>➕</Text>
                 <Text variant="bodySmall" weight="bold" color="#6C63FF" align="center">
-                  और एंगल
+                  Add Angle
                 </Text>
               </TouchableOpacity>
             )}
@@ -208,7 +208,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
         {/* Set as Primary Button if not already */}
         {primaryPhotoId !== selectedPhoto.id && (
           <Button
-            label="इसे मुख्य कवर फोटो बनाएं (Set as Primary) ⭐"
+            label="Set as Primary Cover Photo ⭐"
             variant="secondary"
             size="default"
             onPress={() => setPrimaryPhoto(selectedPhoto.id)}
@@ -220,7 +220,7 @@ export const PhotoReviewScreen: React.FC<Props> = ({ navigation }) => {
       {/* Bottom CTA to AI Enhancement */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="AI से फोटो सुंदर बनाएं (Enhance with AI) ✨"
+          label="Enhance with AI ✨"
           variant="primary"
           size="default"
           onPress={handleProceedEnhance}

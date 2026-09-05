@@ -54,7 +54,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
         title="Fair Price Advisor"
-        subtitle="Explainable Value Ledger • उचित दाम सुझाव"
+        subtitle="Explainable Value Ledger • Fair Price Recommendation"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
@@ -66,7 +66,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
             <Text style={{ fontSize: 20 }}>💡</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.voiceTagText}>EXPLAINABLE FAIR VALUE • निष्पक्ष मूल्य निर्धारण</Text>
+            <Text style={styles.voiceTagText}>EXPLAINABLE FAIR VALUE • TRANSPARENT BREAKDOWN</Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[800]} style={styles.voiceText}>
               "Why this price? AI evaluates raw materials, skilled craft time, technique complexity, and market signals so you never sell below your worth."
             </Text>
@@ -109,13 +109,13 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
           </View>
 
           <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={styles.insightText}>
-            "Similar GI-certified pots from Maharashtra are selling for ₹2,100–₹2,400 this season. Your fine hand-thrown detailing adds verified extra value."
+            "Similar GI-certified crafts from Maharashtra are selling for ₹2,100–₹2,400 this season. Your fine hand-thrown detailing adds verified extra value."
           </Text>
         </Card>
 
         {/* Cost Breakdown Card (Stitch Breakdown layout) */}
         <Card style={styles.breakdownCard} variant="elevated">
-          <Text style={styles.breakdownTitle}>COST & VALUE BREAKDOWN (लागत विवरण)</Text>
+          <Text style={styles.breakdownTitle}>COST & VALUE BREAKDOWN</Text>
 
           {/* 1. Materials */}
           <View style={styles.breakdownItem}>
@@ -123,7 +123,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
               <Text style={styles.breakdownIcon}>🧵</Text>
               <View>
                 <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
-                  Raw Materials • कच्चा माल
+                  Raw Materials
                 </Text>
                 <Text variant="caption" color={theme.colors.charcoal[500]}>
                   Natural clay, mineral pigments, kiln firewood
@@ -199,7 +199,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
         {/* Price Stepper Controls */}
         <Card style={styles.adjustmentCard} variant="elevated">
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[500]} style={styles.adjustTitle}>
-            SET FINAL SELLING PRICE (अंतिम विक्रय मूल्य):
+            SET FINAL SELLING PRICE:
           </Text>
 
           <View style={styles.stepperRow}>
@@ -241,7 +241,7 @@ export const PricingRecommendationScreen: React.FC<Props> = ({ navigation }) => 
       {/* Sticky Bottom Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="Approve Price & Preview Catalog (दाम स्वीकृत करें व कैटलॉग समीक्षा करें) →"
+          label="Approve Price & Preview Catalog →"
           variant="primary"
           size="default"
           onPress={handleProceed}

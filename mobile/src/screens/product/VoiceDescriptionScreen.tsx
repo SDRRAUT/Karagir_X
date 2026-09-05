@@ -90,8 +90,8 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="बोलकर बताएं (Voice Story)"
-        subtitle="बोलिए साथी • 12+ भारतीय भाषायें"
+        title="Voice Story"
+        subtitle="Voice Saathi • 12+ Indian Languages"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
@@ -111,13 +111,13 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           )}
           <View style={styles.bannerInfo}>
             <View style={styles.voiceTagPill}>
-              <Text style={styles.voiceTagText}>बोली साथी • AI SAATHI</Text>
+              <Text style={styles.voiceTagText}>VOICE SAATHI • AI ASSISTANT</Text>
             </View>
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              अपनी कला के बारे में खुलकर बताएं
+              Tell us about your handcrafted creation
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
-              यह क्या है, कैसे बनाई, क्या सामग्री और समय लगा
+              What is it, how did you make it, what materials were used?
             </Text>
           </View>
         </Card>
@@ -147,7 +147,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               },
             ]}
             accessibilityRole="button"
-            accessibilityLabel={isRecording ? 'रिकॉर्डिंग रोकें' : 'रिकॉर्डिंग शुरू करें'}
+            accessibilityLabel={isRecording ? 'Stop Recording' : 'Start Recording'}
           >
             <Text style={styles.micIcon}>{isRecording ? '⏹️' : '🎙️'}</Text>
           </TouchableOpacity>
@@ -159,14 +159,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             color={isRecording ? '#6C63FF' : theme.colors.charcoal[900]}
             style={styles.timerText}
           >
-            {isRecording ? formatTimer(secondsRecorded) : 'माइक दबाकर बोलें'}
+            {isRecording ? formatTimer(secondsRecorded) : 'Tap Mic to Speak'}
           </Text>
 
           <View style={styles.guidancePill}>
             <Text variant="bodySmall" color={theme.colors.charcoal[600]}>
               {isRecording
-                ? '🔴 आवाज़ रिकॉर्ड हो रही है... जब पूरा हो जाए तो रोकें'
-                : '🎤 1-2 मिनट अपनी स्वाभाविक मातृभाषा में बोलें'}
+                ? '🔴 Recording audio... Tap when finished'
+                : '🎤 Speak naturally in your native language for 1-2 minutes'}
             </Text>
           </View>
 
@@ -199,15 +199,15 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               color={theme.colors.terracotta[600]}
               style={{ marginTop: 8 }}
             >
-              भाषिणी AI आवाज़ समझ रहा है...
+              Bhashini AI Speech Engine is listening...
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-              Bhashini Speech Engine: ट्रांसक्रिप्शन व जानकारी निकाली जा रही है
+              Bhashini Speech Engine: Transcribing voice & extracting craft attributes
             </Text>
           </Card>
         )}
 
-        {/* Successful Transcript Card (Stitch Bolie Saathi Transcription format) */}
+        {/* Successful Transcript Card */}
         {transcriptionResult && !isProcessing && (
           <Card style={styles.resultCard} variant="elevated">
             <View style={styles.resultHeader}>
@@ -215,12 +215,12 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
                 <Text style={styles.badgeText}>LIVE SPEECH TRANSCRIPTION</Text>
               </View>
               <Text variant="bodySmall" color={theme.colors.heritageTeal[700]} weight="bold">
-                Hindi • English Mixed
+                Natural Vernacular Speech
               </Text>
             </View>
 
             <Text variant="caption" weight="bold" color={theme.colors.brand.primary} style={{ marginTop: 6, marginBottom: 2 }}>
-              आपकी आवाज़ का सारांश (Voice Summary):
+              Voice Summary:
             </Text>
 
             <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.transcriptText}>
@@ -238,21 +238,21 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               {Boolean(transcriptionResult.extractedEntities.material) && (
                 <View style={styles.entityChip}>
                   <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[800]}>
-                    🧵 सामग्री: {transcriptionResult.extractedEntities.material}
+                    🧵 Material: {transcriptionResult.extractedEntities.material}
                   </Text>
                 </View>
               )}
               {Boolean(transcriptionResult.extractedEntities.technique) && (
                 <View style={styles.entityChip}>
                   <Text variant="bodySmall" weight="bold" color={theme.colors.terracotta[600]}>
-                    🖌️ शैली: {transcriptionResult.extractedEntities.technique}
+                    🖌️ Technique: {transcriptionResult.extractedEntities.technique}
                   </Text>
                 </View>
               )}
               {Boolean(transcriptionResult.extractedEntities.motif) && (
                 <View style={styles.entityChip}>
                   <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[800]}>
-                    🪡 पैटर्न: {transcriptionResult.extractedEntities.motif}
+                    🪡 Motif: {transcriptionResult.extractedEntities.motif}
                   </Text>
                 </View>
               )}
@@ -267,8 +267,8 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           <Button
             label={
               transcriptionResult
-                ? "अगला: सवाल-जवाब (Continue to AI Voice Saathi) →"
-                : "🎙️ अगला: सवाल-जवाब (Start Voice Saathi Interview) →"
+                ? "Next: Voice Saathi Interview →"
+                : "🎙️ Next: Start Voice Saathi Interview →"
             }
             variant="primary"
             size="default"

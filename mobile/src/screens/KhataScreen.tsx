@@ -11,38 +11,38 @@ export const KhataScreen: React.FC = () => {
   const theme = useTheme();
 
   const ledgerItems = [
-    { icon: '🧵', label: 'कच्चा माल (Raw Materials)', amount: '₹250' },
-    { icon: '⏱️', label: 'कारीगर मेहनत (Labor 4 Days)', amount: '₹1,400' },
-    { icon: '🎨', label: 'पारंपरिक शिल्प कौशल (GI Skill)', amount: '₹350' },
-    { icon: '📦', label: 'पर्यावरण-अनुकूल पैकेजिंग (Packaging)', amount: '₹60' },
+    { icon: '🧵', label: 'Raw Materials', amount: '₹250' },
+    { icon: '⏱️', label: 'Artisan Labor (4 Days)', amount: '₹1,400' },
+    { icon: '🎨', label: 'Traditional GI Craft Skill', amount: '₹350' },
+    { icon: '📦', label: 'Eco-Friendly Packaging', amount: '₹60' },
   ];
 
   const recentTransactions = [
     {
       id: 'tx-1',
-      title: 'Order #KS-83901 — टेराकोटा दीप',
-      date: 'आज, 09:45 AM',
+      title: 'Order #KS-83901 — Terracotta Diya',
+      date: 'Today, 09:45 AM',
       amount: '+₹2,090',
       type: 'CREDIT',
-      status: 'बैंक में जमा (Settled)',
+      status: 'Bank Settled',
       utr: 'UTR-981240129',
     },
     {
       id: 'tx-2',
-      title: 'B2B एडवांस भुगतान — TCS बल्क क्लस्टर',
-      date: 'कल, 04:30 PM',
+      title: 'B2B Advance Payout — TCS Cluster Batch',
+      date: 'Yesterday, 04:30 PM',
       amount: '+₹7,500',
       type: 'CREDIT',
-      status: 'एस्क्रो रिलीज (Escrow Release)',
+      status: 'Escrow Released',
       utr: 'UTR-849102834',
     },
     {
       id: 'tx-3',
-      title: 'मासिक पैकेजिंग सामग्री आपूर्ति',
-      date: '28 अगस्त, 11:20 AM',
+      title: 'Monthly Packaging Material Supply',
+      date: '28 Aug, 11:20 AM',
       amount: '-₹850',
       type: 'DEBIT',
-      status: 'सामग्री भुगतान',
+      status: 'Material Paid',
       utr: 'UPI-3029104',
     },
   ];
@@ -50,9 +50,9 @@ export const KhataScreen: React.FC = () => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="डिजिटल खाता"
+        title="Digital Ledger"
         subtitle="Passbook & Fair Share Ledger"
-        showDevanagariLogo={true}
+        showDevanagariLogo={false}
         onVoicePress={() => {}}
       />
 
@@ -62,7 +62,7 @@ export const KhataScreen: React.FC = () => {
           <View style={styles.heroTopRow}>
             <View>
               <Text variant="labelMedium" color="#D6D3FF">
-                कुल जीवनकाल कमाई (Lifetime Payouts)
+                Lifetime Earnings & Payouts
               </Text>
               <Text variant="displaySmall" weight="bold" color="#FFFFFF" style={{ marginTop: 4 }}>
                 ₹24,800
@@ -76,16 +76,16 @@ export const KhataScreen: React.FC = () => {
           <View style={styles.heroSubRow}>
             <View style={styles.heroSubItem}>
               <Text variant="labelSmall" color="#D6D3FF">
-                सफल ऑर्डर्स
+                Completed Orders
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
-                18 ऑर्डर्स
+                18 Orders
               </Text>
             </View>
             <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
             <View style={styles.heroSubItem}>
               <Text variant="labelSmall" color="#D6D3FF">
-                एस्क्रो में सुरक्षित
+                Escrow Protected
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
                 ₹2,892
@@ -94,10 +94,10 @@ export const KhataScreen: React.FC = () => {
             <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
             <View style={styles.heroSubItem}>
               <Text variant="labelSmall" color="#D6D3FF">
-                अगला भुगतान
+                Next Payout
               </Text>
               <Text variant="labelLarge" weight="bold" color="#FFFFFF">
-                कल 10 AM
+                Tomorrow 10 AM
               </Text>
             </View>
           </View>
@@ -114,12 +114,12 @@ export const KhataScreen: React.FC = () => {
                 State Bank of India (SBI)
               </Text>
               <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                खाता: •••• 4021 • ऑटो-क्रेडिट सक्रिय
+                Account: •••• 4021 • Auto-Credit Active
               </Text>
             </View>
             <View style={[styles.activePill, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
               <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                UPI सक्रिय ✓
+                UPI Active ✓
               </Text>
             </View>
           </View>
@@ -128,13 +128,13 @@ export const KhataScreen: React.FC = () => {
         {/* Fair Share Pricing Breakdown Ledger */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            पारदर्शी दाम गणना (Fair Share Ledger)
+            Transparent Price Ledger
           </Text>
         </View>
 
         <Card style={styles.ledgerCard}>
           <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginBottom: 12 }}>
-            कलाकार सेतु 100% पारदर्शी नीति — हर रुपए का स्पष्ट हिसाब:
+            Kalakar Setu 100% Transparency Policy — Clear accounting for every rupee:
           </Text>
 
           {ledgerItems.map((item, idx) => (
@@ -155,7 +155,7 @@ export const KhataScreen: React.FC = () => {
 
           <View style={styles.summaryRow}>
             <Text variant="labelMedium" color={theme.colors.text.secondary}>
-              ग्राहक द्वारा कुल देय दाम:
+              Total Paid by Customer:
             </Text>
             <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
               ₹2,150
@@ -165,10 +165,10 @@ export const KhataScreen: React.FC = () => {
           <View style={[styles.payoutHighlight, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
             <View>
               <Text variant="labelMedium" weight="bold" color="#6C63FF">
-                कारीगर को सीधा भुगतान (95%):
+                Direct Artisan Share (95%):
               </Text>
               <Text variant="labelSmall" color="#6C63FF">
-                प्लेटफ़ॉर्म व AI सुविधा शुल्क केवल 5% (₹108)
+                Platform & AI processing fee only 5% (₹108)
               </Text>
             </View>
             <Text variant="headlineSmall" weight="bold" color="#6C63FF">
@@ -180,7 +180,7 @@ export const KhataScreen: React.FC = () => {
         {/* Recent Passbook Transactions */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            हालिया लेन-देन (Passbook Entries)
+            Passbook Transactions
           </Text>
         </View>
 
@@ -221,7 +221,7 @@ export const KhataScreen: React.FC = () => {
 
         {/* Instant UPI Withdraw Button */}
         <Button
-          label="तत्काल बैंक ट्रांसफर (Instant UPI Transfer)"
+          label="Instant Bank Transfer (UPI)"
           variant="primary"
           onPress={() => {}}
           style={styles.withdrawBtn}

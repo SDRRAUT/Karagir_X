@@ -18,10 +18,10 @@ import { visionService, StageInfo, ENHANCEMENT_STAGES } from '@/api/visionServic
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AiEnhancement'>;
 
-const PRESETS: { id: StudioBackgroundPreset; labelHi: string; labelEn: string; color: string }[] = [
-  { id: 'STUDIO_WHITE', labelHi: 'सफेद स्टूडियो', labelEn: 'Studio White', color: '#FFFFFF' },
-  { id: 'WARM_PARCHMENT', labelHi: 'हस्तशिल्प क्रीम', labelEn: 'Warm Parchment', color: '#F9F6F0' },
-  { id: 'STUDIO_GREY', labelHi: 'तटस्थ ग्रे', labelEn: 'Neutral Grey', color: '#EBEBEB' },
+const PRESETS: { id: StudioBackgroundPreset; label: string; color: string }[] = [
+  { id: 'STUDIO_WHITE', label: 'Studio White', color: '#FFFFFF' },
+  { id: 'WARM_PARCHMENT', label: 'Warm Parchment', color: '#F9F6F0' },
+  { id: 'STUDIO_GREY', label: 'Neutral Grey', color: '#EBEBEB' },
 ];
 
 export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
@@ -86,7 +86,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
       }
     }
     setIsBatchEnhancing(false);
-    Alert.alert('सभी फोटो तैयार हैं!', 'सभी एंगल्स AI से सफलतापूर्वक निखार दिए गए हैं।');
+    Alert.alert('All Photos Enhanced!', 'All angles have been enhanced with AI lighting and background clean-up.');
   };
 
   const handleAcceptAndContinue = () => {
@@ -97,14 +97,14 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
         <AppHeader
-          title="AI स्टूडियो निखार"
+          title="AI Studio Enhancement"
           subtitle="Smart Craft Recognition"
           onBackPress={() => navigation.goBack()}
           showDevanagariLogo
         />
         <View style={styles.centerBox}>
           <Text variant="headlineMedium" color={theme.colors.charcoal[900]}>
-            कोई फोटो नहीं मिली
+            No Photos Found
           </Text>
         </View>
       </SafeAreaView>
@@ -127,22 +127,22 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="AI स्टूडियो निखार"
+        title="AI Studio Enhancement"
         subtitle="AI Recognition & Clean Finish"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Vernacular Audio Readback Banner (Stitch Voice Saathi style) */}
+        {/* Audio Readback Banner */}
         <View style={styles.voiceCard}>
           <View style={styles.voiceIconBox}>
             <Text style={{ fontSize: 20 }}>🎙️</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.voiceTagText}>बोलिए साथी • VOICE SAATHI</Text>
+            <Text style={styles.voiceTagText}>VOICE SAATHI • AI COMPANION</Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[800]} style={styles.voiceText}>
-              "देखिए! AI ने बैकग्राउंड साफ़ कर दिया है और टेराकोटा की बारीकियों को उभार दिया है।"
+              "Look! AI has cleaned background clutter, balanced exposure, and highlighted craft textures."
             </Text>
           </View>
           <TouchableOpacity activeOpacity={0.7} style={styles.listenBtn}>
@@ -155,7 +155,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
           <Card style={styles.progressCard} variant="elevated">
             <LoadingSpinner size={36} message="" />
             <Text variant="bodyLarge" weight="bold" color={theme.colors.terracotta[600]} style={styles.progressText}>
-              {currentStage.labelHi}
+              {currentStage.labelEn}
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
               {currentStage.labelEn} ({currentStage.progressPercent}%)
@@ -189,7 +189,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
               weight="bold"
               color={viewMode === 'ENHANCED' ? '#FFFFFF' : theme.colors.charcoal[700]}
             >
-              ✨ AI स्टूडियो फोटो (Enhanced)
+              ✨ Enhanced Studio Photo
             </Text>
           </TouchableOpacity>
 
@@ -206,12 +206,12 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
               weight="bold"
               color={viewMode === 'ORIGINAL' ? '#FFFFFF' : theme.colors.charcoal[700]}
             >
-              📷 मूल फोटो (Original)
+              📷 Original Photo
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Main Photo Canvas with Stitch AI Recognition Pill */}
+        {/* Main Photo Canvas */}
         <Card
           style={[
             styles.previewCard,
@@ -231,17 +231,17 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
             resizeMode="cover"
           />
 
-          {/* Stitch AI Recognition Pill Overlay */}
+          {/* AI Recognition Pill Overlay */}
           <View style={styles.recognitionPill}>
             <View style={styles.recognitionIcon}>
               <Text style={{ fontSize: 16 }}>⚡</Text>
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.recognitionStatus}>
-                {viewMode === 'ENHANCED' ? '✨ स्वच्छ स्टूडियो फिनिश' : '📷 मूल वर्कशॉप फोटो'}
+                {viewMode === 'ENHANCED' ? '✨ Clean Studio Finish' : '📷 Original Workshop Photo'}
               </Text>
               <Text style={styles.recognitionResult} numberOfLines={1}>
-                Terracotta Pottery Detected (GI #MH-24)
+                Terracotta Craft Detected (GI #MH-24)
               </Text>
             </View>
             <View style={styles.recognitionCheck}>
@@ -257,7 +257,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
               {Math.round(metrics.segmentationConfidence * 100)}%
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-              🎯 AI शुद्धता
+              🎯 AI Precision
             </Text>
           </View>
           <View style={styles.metricDivider} />
@@ -266,7 +266,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
               {Math.round(metrics.sharpnessScore * 100)}%
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-              🌟 स्पष्टता
+              🌟 Sharpness
             </Text>
           </View>
           <View style={styles.metricDivider} />
@@ -275,7 +275,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
               {Math.round(metrics.colorAccuracyScore * 100)}%
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-              🎨 रंग सत्यता
+              🎨 Color Fidelity
             </Text>
           </View>
         </Card>
@@ -283,7 +283,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
         {/* Studio Background Selector Presets */}
         <View style={styles.presetSection}>
           <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.presetTitle}>
-            स्टूडियो बैकग्राउंड चुनें (Studio Background):
+            Studio Background Preset:
           </Text>
           <View style={styles.presetRow}>
             {PRESETS.map((preset) => {
@@ -308,7 +308,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
                     weight="bold"
                     color={isSelected ? '#6C63FF' : theme.colors.charcoal[800]}
                   >
-                    {preset.labelHi}
+                    {preset.label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -316,11 +316,11 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Batch Enhance All Angles Button (If multiple photos exist) */}
+        {/* Batch Enhance All Angles Button */}
         {photos.length > 1 && (
           <View style={styles.batchContainer}>
             <Button
-              label={isBatchEnhancing ? 'सभी फोटो निखार रहे हैं...' : `सभी ${photos.length} फोटो AI से निखारें (Enhance All) ⚡`}
+              label={isBatchEnhancing ? 'Enhancing Photos...' : `Enhance All ${photos.length} Photos ⚡`}
               variant="secondary"
               size="default"
               isLoading={isBatchEnhancing}
@@ -333,7 +333,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
         {photos.length > 1 && (
           <View style={styles.multiRow}>
             <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.multiLabel}>
-              अन्य एंगल चुनें:
+              Select Angle:
             </Text>
             <View style={styles.photoThumbList}>
               {photos.map((p, idx) => (
@@ -367,7 +367,7 @@ export const AiEnhancementScreen: React.FC<Props> = ({ navigation }) => {
       {/* Sticky Bottom CTA */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label="यह फोटो सही है (Accept & Continue) ✓"
+          label="Accept & Continue ✓"
           variant="primary"
           size="default"
           onPress={handleAcceptAndContinue}

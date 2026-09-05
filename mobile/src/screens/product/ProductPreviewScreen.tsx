@@ -27,17 +27,17 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
     setPublishedProduct,
   } = useProductDraftStore();
 
-  const [selectedLang, setSelectedLang] = useState<'hi' | 'en' | 'bn'>('hi');
+  const [selectedLang, setSelectedLang] = useState<'hi' | 'en' | 'bn'>('en');
   const [isPublishing, setIsPublishing] = useState(false);
 
   const primaryPhoto =
     photos.find((p) => p.id === primaryPhotoId) || photos[0];
 
   const displayTitle =
-    titles[selectedLang] || titles.hi || titles.en || 'पारंपरिक हस्तकला उत्पाद';
+    titles[selectedLang] || titles.en || titles.hi || 'Handcrafted Artisan Product';
 
   const displayDescription =
-    descriptions[selectedLang] || descriptions.hi || descriptions.en || 'कारीगर द्वारा निर्मित';
+    descriptions[selectedLang] || descriptions.en || descriptions.hi || 'Artisan handcrafted with traditional heritage techniques.';
 
   const handlePublish = async () => {
     setIsPublishing(true);
@@ -71,8 +71,8 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="कैटलॉग पूर्वावलोकन"
-        subtitle="Catalog & Digital Passport"
+        title="Catalog Preview"
+        subtitle="Catalog & Digital Craft Passport"
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
@@ -95,7 +95,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           {/* Badge Over Photo */}
           <View style={styles.categoryBadge}>
             <Text style={styles.categoryBadgeText}>
-              ✓ {craftCategoryName || 'प्रमाणित हस्तशिल्प'}
+              ✓ {craftCategoryName || 'Certified Handcrafted'}
             </Text>
           </View>
         </Card>
@@ -103,10 +103,10 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
         {/* Trilingual Language Selector Tabs */}
         <View style={styles.langRow}>
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.langLabel}>
-            भाषा चुनें (Language):
+            Preview Language:
           </Text>
           <View style={styles.langButtons}>
-            {(['hi', 'en', 'bn'] as const).map((lang) => {
+            {(['en', 'hi', 'bn'] as const).map((lang) => {
               const isSelected = selectedLang === lang;
               return (
                 <TouchableOpacity
@@ -122,7 +122,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
                     weight="bold"
                     color={isSelected ? '#FFFFFF' : theme.colors.charcoal[800]}
                   >
-                    {lang === 'hi' ? 'हिन्दी' : lang === 'en' ? 'English' : 'বাংলা'}
+                    {lang === 'hi' ? 'Hindi' : lang === 'en' ? 'English' : 'Bengali'}
                   </Text>
                 </TouchableOpacity>
               );
@@ -140,7 +140,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.priceRow}>
             <View>
               <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-                स्वीकृत विक्रय मूल्य (Selling Price)
+                Approved Selling Price
               </Text>
               <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={{ marginTop: 2 }}>
                 ₹{(finalSellingPrice || 2150).toLocaleString('en-IN')}
@@ -148,7 +148,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             <View style={styles.verifiedBadge}>
               <Text style={styles.verifiedBadgeText}>
-                ✓ 100% प्रामाणिक हस्तशिल्प
+                ✓ 100% Authentic Handcrafted
               </Text>
             </View>
           </View>
@@ -157,17 +157,17 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* Cultural Storytelling Copy */}
           <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionHeading}>
-            शिल्प की कहानी (Artisan Story):
+            Artisan Story:
           </Text>
           <Text variant="bodyMedium" color={theme.colors.charcoal[700]} style={styles.descriptionText}>
             {displayDescription}
           </Text>
 
           {/* Care Instructions */}
-          {Boolean(careInstructions.hi) && (
+          {Boolean(careInstructions.en || careInstructions.hi) && (
             <View style={styles.careBox}>
               <Text variant="bodySmall" weight="bold" color="#6B6B8D">
-                💡 देखभाल के निर्देश: {careInstructions.hi}
+                💡 Care Instructions: {careInstructions.en || careInstructions.hi}
               </Text>
             </View>
           )}
@@ -188,7 +188,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
       {/* Sticky Bottom Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <Button
-          label={isPublishing ? 'पब्लिश हो रहा है...' : 'दुकान में पब्लिश करें (Publish to Store) 🚀'}
+          label={isPublishing ? 'Publishing to Store...' : 'Publish to Store 🚀'}
           variant="primary"
           size="default"
           isLoading={isPublishing}

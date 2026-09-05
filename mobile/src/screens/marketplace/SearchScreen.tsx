@@ -33,8 +33,8 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
     setIsVoiceActive(true);
     setTimeout(() => {
       setIsVoiceActive(false);
-      setSearchQuery('मधुबनी पेंटिंग');
-      addRecentSearch('मधुबनी पेंटिंग');
+      setSearchQuery('Madhubani Painting');
+      addRecentSearch('Madhubani Painting');
     }, 1200);
   };
 
@@ -43,7 +43,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       onPress={() => navigation.navigate('ProductDetail', { productId: item.id })}
       style={styles.resultItemTouch}
       accessibilityRole="button"
-      accessibilityLabel={item.title.hi}
+      accessibilityLabel={item.title.en || item.title.hi}
     >
       <Card style={styles.resultCard}>
         <Image source={{ uri: item.images[0] }} style={styles.resultImage} />
@@ -52,10 +52,10 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             {item.categoryName} • {item.artisan.state}
           </Text>
           <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]} numberOfLines={2}>
-            {item.title.hi}
+            {item.title.en || item.title.hi}
           </Text>
           <Text variant="caption" color={theme.colors.text.secondary}>
-            कारीगर: {item.artisan.name}
+            Artisan: {item.artisan.name}
           </Text>
           <View style={styles.priceRow}>
             <Text variant="headlineSmall" weight="bold" color={theme.colors.brand.primary}>
@@ -87,7 +87,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.inputBox, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200], ...theme.shadows.level1 }]}>
           <Text style={{ fontSize: 16, marginRight: 6 }}>🔍</Text>
           <TextInput
-            placeholder="शिल्प, साड़ी या कला खोजें..."
+            placeholder="Search crafts, sarees, or authentic art..."
             placeholderTextColor={theme.colors.text.muted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -112,7 +112,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
         <View style={[styles.voiceActiveCard, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}>
           <Text style={{ fontSize: 20, marginRight: 8 }}>🔴</Text>
           <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
-            सुन रहे हैं... अपनी भाषा में बोलें (Listening)
+            Listening... Speak in any language
           </Text>
         </View>
       )}
@@ -121,7 +121,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       {recentSearches.length > 0 && searchQuery.length === 0 && (
         <View style={styles.recentContainer}>
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]} style={styles.recentHeading}>
-            हाल की खोज (Recent Searches)
+            Recent Searches
           </Text>
           <View style={styles.recentPillsRow}>
             {recentSearches.map((term, i) => (
@@ -151,10 +151,10 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.emptyContainer}>
               <Text style={{ fontSize: 48, marginBottom: 8 }}>🔍</Text>
               <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-                कोई परिणाम नहीं मिला
+                No results found
               </Text>
               <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                कृपया किसी अन्य पारंपरिक शिल्प या राज्य का नाम खोजें
+                Try searching for another craft, saree, or artisan state
               </Text>
             </View>
           ) : null

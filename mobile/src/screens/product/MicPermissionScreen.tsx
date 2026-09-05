@@ -26,35 +26,35 @@ export const MicPermissionScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Header Text */}
         <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          माइक की अनुमति दें
+          Microphone Permission
         </Text>
         <Text variant="headlineSmall" color={theme.colors.terracotta[600]} style={styles.vernacularTitle}>
-          Allow Microphone Access
+          Voice-First AI Listing Assistant
         </Text>
 
         <Text variant="bodyLarge" color={theme.colors.charcoal[600]} style={styles.description}>
-          आपको कोई फॉर्म भरने की ज़रूरत नहीं है! बस अपनी भाषा में बोलें और AI आपकी पूरी दुकान खुद बना देगा।
+          No need to type! Just speak naturally in your own language and AI will craft your entire listing for you.
         </Text>
 
-        {/* Vernacular Audio Prompt Card */}
+        {/* Audio Prompt Card */}
         <View style={styles.voiceCard}>
           <Text style={styles.voiceSpeaker}>🔊</Text>
           <Text variant="bodyMedium" color={theme.colors.charcoal[800]} style={styles.voiceText}>
-            "प्रोडक्ट के बारे में बोलकर बताने के लिए माइक की अनुमति दें।"
+            "Please allow microphone access to describe your craft with voice."
           </Text>
         </View>
 
         {/* Actions */}
         <View style={styles.buttonContainer}>
           <Button
-            label="माइक की अनुमति दें (Allow Mic) 🎙️"
+            label="Allow Microphone 🎙️"
             variant="primary"
             size="default"
             onPress={handleAllowMic}
             style={styles.primaryBtn}
           />
           <Button
-            label="मैं टाइप करूंगा (Keyboard Mode)"
+            label="Type with Keyboard"
             variant="secondary"
             size="default"
             onPress={() => navigation.replace('VoiceDescription')}

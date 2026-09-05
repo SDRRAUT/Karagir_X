@@ -3,22 +3,30 @@ import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
 import { MarketplaceHomeScreen } from '@/screens/marketplace/MarketplaceHomeScreen';
+import { HomeScreen } from '@/screens/HomeScreen';
+import { SahyogiHomeScreen } from '@/screens/facilitator/SahyogiHomeScreen';
 import { CategoriesScreen } from '@/screens/marketplace/CategoriesScreen';
 import { OpportunitiesScreen } from '@/screens/linkage/OpportunitiesScreen';
 import { CartScreen } from '@/screens/marketplace/CartScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { Text } from '@/components/typography/Text';
 import { useCartStore } from '@/store/useCartStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Custom Outline Icons matching reference mockup exactly
 const TabIcons = {
-  Discover: ({ focused, color }: { focused: boolean; color: string }) => (
-    <View style={styles.iconBox}>
-      <Text style={[styles.tabEmoji, { color }]}>{focused ? '🏠' : '⌂'}</Text>
-    </View>
-  ),
+  Discover: ({ focused, color, role }: { focused: boolean; color: string; role?: string }) => {
+    let emoji = focused ? '🏠' : '⌂';
+    if (role === 'ARTISAN') emoji = '🎨';
+    if (role === 'FACILITATOR') emoji = '🤝';
+    return (
+      <View style={styles.iconBox}>
+        <Text style={[styles.tabEmoji, { color }]}>{emoji}</Text>
+      </View>
+    );
+  },
   Explore: ({ color }: { color: string }) => (
     <View style={styles.iconBox}>
       <Text style={[styles.tabEmoji, { color }]}>🧭</Text>
@@ -46,8 +54,18 @@ const TabIcons = {
   ),
 };
 
-// Screen wrappers to cleanly bridge NativeStack and Tab types
-const DiscoverTabScreen = (props: any) => <MarketplaceHomeScreen {...props} />;
+// Dynamic role-specific Home screen
+const DynamicHomeTabScreen = (props: any) => {
+  const role = useAuthStore((s) => s.user?.role);
+  if (role === 'ARTISAN') {
+    return <HomeScreen {...props} />;
+  }
+  if (role === 'FACILITATOR') {
+    return <SahyogiHomeScreen {...props} />;
+  }
+  return <MarketplaceHomeScreen {...props} />;
+};
+
 const ExploreTabScreen = (props: any) => <CategoriesScreen {...props} />;
 const BulkDealsTabScreen = (props: any) => <OpportunitiesScreen {...props} />;
 const CartTabScreen = (props: any) => <CartScreen {...props} />;
@@ -55,6 +73,10 @@ const AccountTabScreen = (props: any) => <ProfileScreen {...props} />;
 
 export const AppNavigator: React.FC = () => {
   const totalCartCount = useCartStore((s) => s.getTotalCount());
+  const role = useAuthStore((s) => s.user?.role);
+
+  const homeLabel =
+    role === 'ARTISAN' ? 'Artisan Studio' : role === 'FACILITATOR' ? 'Sahyogi Desk' : 'Discover';
 
   return (
     <Tab.Navigator
@@ -83,14 +105,14 @@ export const AppNavigator: React.FC = () => {
         },
       }}
     >
-      {/* 1. Discover Tab (Main Kalakar Setu Marketplace Matching Mockup) */}
+      {/* 1. Dynamic Home Tab (Discover for Buyer, Studio for Artisan, Sahyogi Desk for Helper) */}
       <Tab.Screen
         name="HomeTab"
-        component={DiscoverTabScreen}
+        component={DynamicHomeTabScreen}
         options={{
-          tabBarLabel: 'Discover',
+          tabBarLabel: homeLabel,
           tabBarIcon: ({ focused, color }) => (
-            <TabIcons.Discover focused={focused} color={color} />
+            <TabIcons.Discover focused={focused} color={color} role={role} />
           ),
         }}
       />

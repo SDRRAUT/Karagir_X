@@ -36,35 +36,35 @@ export const CameraPermissionScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.iconText}>📸</Text>
         </View>
 
-        {/* Title and Vernacular Cues */}
+        {/* Title */}
         <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          कैमरा की अनुमति दें
+          Camera Permission
         </Text>
         <Text variant="headlineSmall" color={theme.colors.terracotta[600]} style={styles.vernacularTitle}>
-          Allow Camera Access
+          AI Smart Product Photography
         </Text>
 
         <Text variant="bodyLarge" color={theme.colors.charcoal[600]} style={styles.description}>
-          अपने हस्तशिल्प और कलाकृतियों की सुंदर फोटो खींचने के लिए कैमरा की अनुमति आवश्यक है।
+          Camera access is required to capture clear photos of your authentic handcrafted creations.
         </Text>
 
         <View style={styles.voiceCard}>
           <Text style={styles.voiceSpeaker}>🔊</Text>
           <Text variant="bodyMedium" color={theme.colors.charcoal[800]} style={styles.voiceText}>
-            "प्रोडक्ट की फोटो लेने के लिए कैमरा की अनुमति देना ज़रूरी है।"
+            "Camera permission is needed to photograph your handcrafted products."
           </Text>
         </View>
 
         <View style={styles.buttonContainer}>
           <Button
-            label={isPermanentlyDenied ? 'फ़ोन सेटिंग्स खोलें (Open Settings) ⚙️' : 'अनुमति दें (Allow Camera) 📷'}
+            label={isPermanentlyDenied ? 'Open Device Settings ⚙️' : 'Allow Camera 📷'}
             variant="primary"
             size="default"
             onPress={handleRequest}
             style={styles.primaryBtn}
           />
           <Button
-            label="अभी नहीं (Not Now)"
+            label="Not Now"
             variant="secondary"
             size="default"
             onPress={() => navigation.goBack()}

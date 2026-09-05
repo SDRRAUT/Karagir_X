@@ -26,10 +26,10 @@ describe('AiEnhancementScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/AI स्टूडियो निखार/)).toBeTruthy();
+    expect(getByText(/AI Studio Enhancement/)).toBeTruthy();
 
     await waitFor(() => {
-      expect(getByText('✨ स्वच्छ स्टूडियो फिनिश')).toBeTruthy();
+      expect(getByText('✨ Clean Studio Finish')).toBeTruthy();
     });
 
     // Switch to original
@@ -37,13 +37,13 @@ describe('AiEnhancementScreen', () => {
       fireEvent.press(getByTestId('toggle-original-btn'));
     });
 
-    expect(getByText('📷 मूल वर्कशॉप फोटो')).toBeTruthy();
+    expect(getByText('📷 Original Workshop Photo')).toBeTruthy();
 
     // Switch back to enhanced
     await act(async () => {
       fireEvent.press(getByTestId('toggle-enhanced-btn'));
     });
 
-    expect(getByText('✨ स्वच्छ स्टूडियो फिनिश')).toBeTruthy();
+    expect(getByText('✨ Clean Studio Finish')).toBeTruthy();
   });
 });

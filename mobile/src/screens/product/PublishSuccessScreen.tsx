@@ -15,7 +15,7 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
-      `नमस्ते! मैंने कलाकार सेतु पर अपना नया हस्तशिल्प लाइव किया है। देखें: https://kalakarsetu.in/p/${publishedProduct?.id || 'demo'}`
+      `Hello! I just published my authentic handcrafted creation on Kalakar Setu. Check it out here: https://kalakarsetu.in/p/${publishedProduct?.id || 'demo'}`
     );
     Linking.openURL(`whatsapp://send?text=${text}`).catch(() => {
       // Fallback
@@ -43,10 +43,10 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={{ fontSize: 34 }}>🎉</Text>
           </View>
           <Text variant="headlineLarge" weight="bold" color="#2b2b2b" style={styles.title}>
-            बधाई हो! आपका प्रोडक्ट लाइव है
+            Congratulations!
           </Text>
           <Text variant="bodyMedium" color="#e85d2a" style={styles.vernacularTitle}>
-            Congratulations! Your Craft is Now Live on Marketplace
+            Your Craft Listing is Now Live on Marketplace
           </Text>
         </View>
 
@@ -62,7 +62,7 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
                 </Text>
               </View>
               <Text variant="headlineSmall" weight="bold" color="#2b2b2b" style={styles.passportTitle}>
-                डिजिटल शिल्प पासपोर्ट (Craft Passport)
+                Digital Craft Passport
               </Text>
               <Text variant="caption" color="#64748B" style={styles.locationText}>
                 📍 Kolhapur, Maharashtra • GI #MH-24
@@ -95,7 +95,7 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
                 Master Artisan & Origin
               </Text>
               <Text variant="bodyLarge" weight="bold" color="#2b2b2b">
-                Ramesh Kumbhar (सुनीता देवी)
+                Ramesh Kumbhar (Kolhapur Master Potter)
               </Text>
               <Text variant="caption" color="#64748B">
                 Panchganga Valley, Kolhapur (GI #MH-24 Region)
@@ -125,13 +125,13 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.storyTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 6 }}>📜</Text>
                 <Text variant="caption" weight="bold" color="#2b2b2b">
-                  Artisan's Voice Story (कलाकार की कहानी)
+                  Artisan's Voice Story
                 </Text>
               </View>
               <TouchableOpacity style={styles.listenBtn} onPress={handleListenStory}>
                 <Text style={{ fontSize: 12, marginRight: 4 }}>▶</Text>
                 <Text variant="caption" weight="bold" color="#e85d2a">
-                  Listen (सुनें)
+                  Listen
                 </Text>
               </TouchableOpacity>
             </View>
@@ -171,11 +171,11 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
         {/* Product Price Card */}
         <Card style={styles.summaryCard} variant="elevated">
           <Text variant="bodyMedium" weight="bold" color="#2b2b2b">
-            {publishedProduct?.title.hi || 'सिल्क साड़ी'}
+            {publishedProduct?.title.en || publishedProduct?.title.hi || 'Handcrafted Terracotta Diya'}
           </Text>
           <View style={styles.priceRow}>
             <Text variant="bodySmall" color="#64748B">
-              लिस्टिंग विक्रय मूल्य (Live Price):
+              Live Listing Price:
             </Text>
             <Text variant="headlineMedium" weight="bold" color="#2b2b2b">
               ₹{(publishedProduct?.sellingPrice || 2150).toLocaleString('en-IN')}
@@ -186,12 +186,12 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
         {/* Action Buttons */}
         <View style={styles.buttonStack}>
           <Button
-            label="व्हाट्सएप पर शेयर करें (Share on WhatsApp)"
+            label="Share on WhatsApp"
             variant="outline"
             onPress={handleShareWhatsApp}
           />
           <Button
-            label="होम डैशबोर्ड पर जाएं (Go to Home)"
+            label="Go to Home Dashboard"
             variant="primary"
             onPress={handleGoHome}
             style={styles.homeBtn}

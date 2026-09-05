@@ -100,6 +100,38 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {/* Active Role Quick Persona Switcher Bar */}
+        <View style={styles.roleSwitcherContainer}>
+          <View style={styles.roleSwitcherPill}>
+            <TouchableOpacity
+              style={styles.roleSwitchBtn}
+              onPress={() => useAuthStore.getState().updateProfile({ role: 'BUYER' })}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="medium" color="#64748B">
+                🛍️ Buyer Desk
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleSwitchBtn, styles.roleSwitchBtnActive]}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="bold" color="#EA580C">
+                🎨 Seller Studio
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.roleSwitchBtn}
+              onPress={() => useAuthStore.getState().updateProfile({ role: 'FACILITATOR' })}
+              activeOpacity={0.85}
+            >
+              <Text variant="caption" weight="medium" color="#64748B">
+                🤝 Sahyogi Desk
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Welcome Greeting & Audio Button */}
         <View style={styles.greetingSection}>
           <View style={styles.greetingTextContainer}>
@@ -573,6 +605,34 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 90, // Space for floating mic and bottom bar
+  },
+  roleSwitcherContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+  roleSwitcherPill: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 20,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  roleSwitchBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roleSwitchBtnActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   greetingSection: {
     flexDirection: 'row',

@@ -14,15 +14,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'CatalogGeneration'>;
 
 interface StepItem {
   id: number;
-  labelHi: string;
-  labelEn: string;
+  label: string;
+  detail: string;
 }
 
 const STEPS: StepItem[] = [
-  { id: 1, labelHi: 'फोटो स्टूडियो फिनिश तैयार...', labelEn: 'Studio photography finish...' },
-  { id: 2, labelHi: 'कहानी और विवरण तैयार हो रहा है...', labelEn: 'Craft storytelling & attributes...' },
-  { id: 3, labelHi: 'अंग्रेजी और हिंदी में अनुवाद...', labelEn: 'Trilingual catalog translation...' },
-  { id: 4, labelHi: 'सही बाज़ार दाम गणना...', labelEn: 'Fair pricing algorithm calculation...' },
+  { id: 1, label: 'Studio Photography Finish', detail: 'Enhancing shadows, lighting & background' },
+  { id: 2, label: 'Craft Storytelling & Attributes', detail: 'Extracting GI pedigree, motif & materials' },
+  { id: 3, label: 'Trilingual Catalog Translation', detail: 'Generating localized listings & SEO tags' },
+  { id: 4, label: 'Fair Price Algorithm Calculation', detail: 'Computing raw costs, labor floor & benchmark' },
 ];
 
 export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
@@ -89,19 +89,19 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <View style={styles.container}>
-        {/* Animated Charkha / Loom Icon */}
+        {/* Animated Loom Icon */}
         <View style={styles.animCircle}>
           <Text style={styles.animEmoji}>🧶</Text>
         </View>
 
         <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-          AI कैटलॉग तैयार हो रहा है
+          Synthesizing AI Catalogue
         </Text>
         <Text variant="bodyLarge" weight="semiBold" color="#EA580C" style={{ textAlign: 'center', marginBottom: 6 }}>
-          Synthesizing AI Smart Catalogue...
+          AI Smart Cataloguing in Progress...
         </Text>
         <Text variant="bodyMedium" color={theme.colors.charcoal[600]} style={styles.subtitle}>
-          Generating your complete multilingual product listing, craft storytelling, and Digital Craft Passport...
+          Generating complete product listing, craft storytelling, and Digital Craft Passport...
         </Text>
 
         {/* Step-by-Step Progress Card */}
@@ -134,10 +134,10 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
                     weight={isDone || isCurrent ? 'bold' : 'medium'}
                     color={isDone ? '#6C63FF' : isCurrent ? '#6C63FF' : theme.colors.charcoal[800]}
                   >
-                    {step.labelHi}
+                    {step.label}
                   </Text>
                   <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-                    {step.labelEn}
+                    {step.detail}
                   </Text>
                 </View>
               </View>
@@ -145,13 +145,13 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
           })}
         </Card>
 
-        {/* Vernacular Audio Readout */}
+        {/* Audio Readout */}
         <View style={styles.voiceCard}>
           <View style={styles.speakerBox}>
             <Text style={{ fontSize: 20 }}>🔊</Text>
           </View>
           <Text variant="bodyMedium" color={theme.colors.charcoal[800]} style={styles.voiceText}>
-            "आपकी दुकान की लिस्टिंग बन रही है। बस कुछ सेकंड और..."
+            "Generating your product listing and digital craft passport. Just a few moments..."
           </Text>
         </View>
       </View>

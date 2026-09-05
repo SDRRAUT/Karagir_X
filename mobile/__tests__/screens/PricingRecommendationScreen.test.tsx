@@ -34,8 +34,8 @@ describe('PricingRecommendationScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/उचित दाम सुझाव/)).toBeTruthy();
-    expect(getByText(/कच्चा माल/)).toBeTruthy();
+    expect(getByText(/Fair Price Recommendation/)).toBeTruthy();
+    expect(getByText(/Raw Materials/)).toBeTruthy();
 
     const increaseBtn = getByTestId('increase-price-btn');
     await act(async () => {
@@ -44,7 +44,7 @@ describe('PricingRecommendationScreen', () => {
 
     expect(useProductDraftStore.getState().finalSellingPrice).toBe(2200);
 
-    const proceedBtn = getByText(/कैटलॉग समीक्षा करें/);
+    const proceedBtn = getByText(/Approve Price & Preview Catalog/);
     await act(async () => {
       fireEvent.press(proceedBtn);
     });

@@ -36,21 +36,21 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
 
   const [fullName, setFullName] = useState(user?.fullName || 'Ramesh Kumbhar');
   const [selectedCraft, setSelectedCraft] = useState<string>('PAINTING_FOLK');
-  const [district] = useState('मधुबनी (Madhubani)');
-  const [state] = useState('बिहार (Bihar)');
+  const [district] = useState('Madhubani');
+  const [state] = useState('Bihar');
   const [shgCode, setShgCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleVoiceDictateName = () => {
     if (!fullName) {
-      setFullName('सुनीता देवी (Sunita Devi)');
+      setFullName('Sunita Devi');
     }
   };
 
   const handleSubmit = async () => {
     if (!fullName.trim()) {
-      setErrorMessage('कृपया अपना पूरा नाम दर्ज करें (Please enter your name)');
+      setErrorMessage('Please enter your full name');
       return;
     }
 
@@ -271,7 +271,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.ondcBadge}>
           <Text style={{ fontSize: 13 }}>🛡️</Text>
           <Text variant="caption" color={theme.colors.text.secondary}>
-            100% ONDC समर्थित • सुरक्षित हस्तशिल्प प्रमाणीकरण
+            100% ONDC Protocol Enabled • Certified GI Authenticity Guarantee
           </Text>
         </View>
       </ScrollView>

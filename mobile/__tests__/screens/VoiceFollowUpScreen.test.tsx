@@ -21,11 +21,11 @@ describe('VoiceFollowUpScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText(/AI सवाल-जवाब/)).toBeTruthy();
-    expect(getByText(/कलाकार सहायक/)).toBeTruthy();
+    expect(getByText(/Voice Saathi • AI Interview/)).toBeTruthy();
+    expect(getByText(/Voice Saathi • AI Craft Interviewer/)).toBeTruthy();
 
     // Tap first quick answer option
-    const firstOption = getByText(/1 दिन/);
+    const firstOption = getByText(/1 Day \(8 Hours\)/);
     await act(async () => {
       fireEvent.press(firstOption);
     });
@@ -41,11 +41,11 @@ describe('VoiceFollowUpScreen', () => {
       </ThemeProvider>
     );
 
-    const skipBtn = getByText(/छोड़ें/);
+    const skipBtn = getByText(/Skip →/);
     await act(async () => {
       fireEvent.press(skipBtn);
     });
 
-    expect(getByText(/AI सवाल-जवाब \(2\/3\)/)).toBeTruthy();
+    expect(getByText(/Voice Saathi • AI Interview \(2\/3\)/)).toBeTruthy();
   });
 });
