@@ -15,14 +15,14 @@ describe('RoleSelectionScreen', () => {
       </ThemeProvider>
     );
 
-    expect(getByText('आप किस रूप में जुड़ना चाहते हैं?')).toBeTruthy();
+    expect(getByText('How would you like to join?')).toBeTruthy();
 
     await act(async () => {
       fireEvent.press(getByTestId('role-card-BUYER'));
     });
 
     await act(async () => {
-      fireEvent.press(getByText('आगे बढ़ें (Continue) →'));
+      fireEvent.press(getByText('Continue →'));
     });
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('AuthPhone', { role: 'BUYER' });

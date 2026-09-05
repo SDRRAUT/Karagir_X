@@ -60,7 +60,7 @@ describe('AuthPhoneScreen', () => {
 
     // Open keypad
     await act(async () => {
-      fireEvent.press(getByText('🔢 कीपैड खोलें'));
+      fireEvent.press(getByText('🔢 Numeric Keypad'));
     });
 
     // Enter 9876543210 via keypad

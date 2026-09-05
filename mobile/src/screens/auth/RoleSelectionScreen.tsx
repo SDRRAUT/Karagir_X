@@ -3,11 +3,11 @@ import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { UserRole } from '@/api/types';
+import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RoleSelection'>;
 
@@ -19,38 +19,49 @@ interface RoleOption {
   icon: string;
   badge?: string;
   benefits: string[];
+  themeColor: string;
+  lightBg: string;
+  borderColor: string;
 }
 
 const ROLES: RoleOption[] = [
   {
     role: 'ARTISAN',
-    title: 'कारीगर / बुनकर',
-    subtitle: 'Artisan & Craftsperson',
-    description: 'मैं हस्तशिल्प बनाता हूँ और ऑनलाइन सीधे ग्राहकों को बेचना चाहता हूँ।',
+    title: 'Artisan & Craftsperson',
+    subtitle: 'Creator / Weaver / Potter',
+    description: 'Create and sell authentic handmade crafts directly to buyers with 0% commission and AI studio tools.',
     icon: '🎨',
-    badge: 'सुझावित',
+    badge: 'Recommended',
     benefits: ['✓ 0% Commission', '🏷️ GI Tag Support', '⚡ Direct UPI Payout'],
+    themeColor: '#EA580C',
+    lightBg: '#FFF7ED',
+    borderColor: '#FFEDD5',
   },
   {
     role: 'BUYER',
-    title: 'खरीदार / संग्रहकर्ता',
-    subtitle: 'Buyer & Collector',
-    description: 'मैं सीधे कारीगरों से प्रामाणिक और जीआई-टैग हस्तशिल्प खरीदना चाहता हूँ।',
+    title: 'Buyer & Collector',
+    subtitle: 'Retail Buyer / Bulk Patron',
+    description: 'Discover certified GI-tagged heritage handicrafts directly from master artisan workshops.',
     icon: '🛍️',
-    benefits: ['Authentic GI Crafts', 'Direct Studio Prices', 'Fast Delivery'],
+    benefits: ['Authentic GI Crafts', 'Direct Studio Prices', 'India Post Delivery'],
+    themeColor: '#4338CA',
+    lightBg: '#EEF2FF',
+    borderColor: '#E0E7FF',
   },
   {
     role: 'FACILITATOR',
-    title: 'सहयोगी / एनजीओ / SHG',
-    subtitle: 'Facilitator & NGO Lead',
-    description: 'मैं कारीगरों को लिस्टिंग, पैकेजिंग और डिजिटल ट्रेनिंग में मदद करता हूँ।',
+    title: 'Cluster Sahyogi & SHG',
+    subtitle: 'Field Lead / NGO Partner',
+    description: 'Assist artisan clusters with bulk orders, packaging, QC audits, and digital onboarding.',
     icon: '🤝',
-    benefits: ['Cluster Management', 'Bulk Orders', 'Digital Enablement'],
+    benefits: ['Cluster Management', 'Bulk RFQ Orders', 'Digital Enablement'],
+    themeColor: '#16A34A',
+    lightBg: '#F0FDF4',
+    borderColor: '#DCFCE7',
   },
 ];
 
 export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
-  const theme = useTheme();
   const [selectedRole, setSelectedRole] = useState<UserRole>('ARTISAN');
 
   const handleContinue = () => {
@@ -58,171 +69,158 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
-      {/* Stitch Top Header */}
+    <SafeAreaView style={styles.safeArea}>
       <AppHeader
         showBack
         showBrand
         rightAction={
-          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-              मदद (Help)
+          <View style={styles.helpPill}>
+            <Text variant="caption" weight="bold" color="#EA580C">
+              Help
             </Text>
           </View>
         }
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Progressive Onboarding Stepper */}
-        <View style={styles.stepperRow}>
-          <View style={styles.stepperBars}>
-            <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.primary }]} />
-            <View style={[styles.stepperBar, { backgroundColor: theme.colors.brand.container }]} />
-            <View style={[styles.stepperBar, { backgroundColor: theme.colors.sand[200] }]} />
-          </View>
-          <Text variant="caption" weight="bold" color={theme.colors.text.secondary}>
-            चरण 1/3
-          </Text>
-        </View>
-
-        {/* Header Section */}
-        <View style={styles.header}>
-          <View style={styles.eyebrowBadge}>
-            <Text variant="caption" weight="bold" color="#4B44CC">
-              ✨ कारीगर, खरीदार और स्वयं सहायता समूह के लिए
+        <View style={styles.innerContainer}>
+          {/* Progressive Stepper */}
+          <View style={styles.stepperRow}>
+            <View style={styles.stepperBars}>
+              <View style={[styles.stepperBar, { backgroundColor: '#EA580C' }]} />
+              <View style={[styles.stepperBar, { backgroundColor: '#E2E8F0' }]} />
+              <View style={[styles.stepperBar, { backgroundColor: '#E2E8F0' }]} />
+            </View>
+            <Text variant="caption" weight="bold" color="#64748B">
+              STEP 1 OF 3
             </Text>
           </View>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
-            आप किस रूप में जुड़ना चाहते हैं?
-          </Text>
-          <Text variant="bodyLarge" color={theme.colors.text.secondary} style={styles.subtitle}>
-            Select your account type to proceed
-          </Text>
 
-          {/* Bolie Saathi Voice Guide Banner */}
-          <View style={[styles.voiceGuideBanner, { backgroundColor: '#F0EEFF', borderColor: '#D6D3FF' }]}>
-            <View style={styles.voiceGuideLeft}>
-              <View style={[styles.voiceGuideDot, { backgroundColor: theme.colors.brand.primary }]}>
-                <Text style={{ fontSize: 11, color: '#FFFFFF' }}>🔊</Text>
-              </View>
-              <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
-                बोलिए साथी: <Text variant="caption" color={theme.colors.charcoal[800]}>भूमिका का विवरण सुनें</Text>
+          {/* Header Section */}
+          <View style={styles.header}>
+            <View style={styles.eyebrowBadge}>
+              <Text variant="caption" weight="bold" color="#EA580C">
+                ✨ CHOOSE YOUR ROLE
               </Text>
             </View>
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary} style={{ textDecorationLine: 'underline' }}>
-              Play
+            <Text variant="headlineMedium" weight="bold" color="#0F172A" style={styles.title}>
+              How would you like to join?
             </Text>
-          </View>
-        </View>
+            <Text variant="bodyMedium" color="#64748B" style={styles.subtitle}>
+              Select your account type to customize your workspace
+            </Text>
 
-        {/* Roles List */}
-        <View style={styles.list}>
-          {ROLES.map((item) => {
-            const isSelected = selectedRole === item.role;
-            return (
-              <TouchableOpacity
-                key={item.role}
-                activeOpacity={0.8}
-                onPress={() => setSelectedRole(item.role)}
-                testID={`role-card-${item.role}`}
-                accessibilityRole="radio"
-                accessibilityLabel={`${item.title}, ${item.subtitle}`}
-                accessibilityState={{ selected: isSelected }}
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
-                    borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
-                    borderRadius: theme.borderRadius.xl,
-                    ...theme.shadows.level1,
-                  },
-                ]}
-              >
-                <View style={styles.row}>
-                  <View
-                    style={[
-                      styles.iconCircle,
-                      {
-                        backgroundColor: isSelected ? '#FFFFFF' : theme.colors.sand[100],
-                        borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
-                      },
-                    ]}
-                  >
-                    <Text style={styles.icon}>{item.icon}</Text>
-                  </View>
-                  <View style={styles.textCol}>
-                    <View style={styles.titleRow}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Text
-                          variant="headlineMedium"
-                          weight="bold"
-                          color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
-                        >
-                          {item.title}
-                        </Text>
-                        {item.badge && (
-                          <View style={[styles.suggestedBadge, { backgroundColor: theme.colors.brand.primary }]}>
-                            <Text style={styles.suggestedText}>{item.badge}</Text>
+            {/* Voice Saathi Audio Guidance Button */}
+            <View style={styles.voiceWrapper}>
+              <VoiceCueButton
+                textHi="अपनी भूमिका चुनें। क्या आप कारीगर हैं, खरीदार हैं, या स्वयं सहायता समूह के सहयोगी हैं?"
+                label="Listen in Hindi"
+                size="medium"
+                testID="voice-cue-role-selection"
+              />
+            </View>
+          </View>
+
+          {/* Roles List */}
+          <View style={styles.list}>
+            {ROLES.map((item) => {
+              const isSelected = selectedRole === item.role;
+              return (
+                <TouchableOpacity
+                  key={item.role}
+                  activeOpacity={0.85}
+                  onPress={() => setSelectedRole(item.role)}
+                  testID={`role-card-${item.role}`}
+                  accessibilityRole="radio"
+                  accessibilityLabel={`${item.title}, ${item.subtitle}`}
+                  accessibilityState={{ selected: isSelected }}
+                  style={[
+                    styles.card,
+                    {
+                      backgroundColor: isSelected ? item.lightBg : '#FFFFFF',
+                      borderColor: isSelected ? item.themeColor : '#ECE8E1',
+                    },
+                  ]}
+                >
+                  <View style={styles.row}>
+                    <View
+                      style={[
+                        styles.iconCircle,
+                        {
+                          backgroundColor: isSelected ? '#FFFFFF' : item.lightBg,
+                          borderColor: isSelected ? item.themeColor : item.borderColor,
+                        },
+                      ]}
+                    >
+                      <Text style={styles.icon}>{item.icon}</Text>
+                    </View>
+                    <View style={styles.textCol}>
+                      <View style={styles.titleRow}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <Text
+                            variant="bodyLarge"
+                            weight="bold"
+                            color={isSelected ? item.themeColor : '#0F172A'}
+                          >
+                            {item.title}
+                          </Text>
+                          {item.badge && (
+                            <View style={[styles.suggestedBadge, { backgroundColor: item.themeColor }]}>
+                              <Text style={styles.suggestedText}>{item.badge}</Text>
+                            </View>
+                          )}
+                        </View>
+                        {isSelected && (
+                          <View style={[styles.checkPill, { backgroundColor: item.themeColor }]}>
+                            <Text style={styles.checkIcon}>✓</Text>
                           </View>
                         )}
                       </View>
-                      {isSelected && (
-                        <View style={[styles.checkPill, { backgroundColor: theme.colors.brand.primary }]}>
-                          <Text style={styles.checkIcon}>✓</Text>
-                        </View>
-                      )}
-                    </View>
-                    <Text variant="bodySmall" weight="bold" color={theme.colors.brand.primary}>
-                      {item.subtitle}
-                    </Text>
-                    <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.desc}>
-                      {item.description}
-                    </Text>
+                      <Text variant="caption" weight="semiBold" color={item.themeColor} style={styles.roleSubtitle}>
+                        {item.subtitle}
+                      </Text>
+                      <Text variant="bodySmall" color="#475569" style={styles.desc}>
+                        {item.description}
+                      </Text>
 
-                    {/* Benefit Tags */}
-                    <View style={styles.benefitsRow}>
-                      {item.benefits.map((b, idx) => (
-                        <View
-                          key={idx}
-                          style={[
-                            styles.benefitChip,
-                            {
-                              backgroundColor: isSelected ? '#FFFFFF' : theme.colors.sand[100],
-                              borderColor: isSelected ? theme.colors.brand.container : theme.colors.sand[200],
-                            },
-                          ]}
-                        >
-                          <Text variant="caption" weight="bold" color={isSelected ? theme.colors.brand.dark : theme.colors.text.secondary}>
-                            {b}
-                          </Text>
-                        </View>
-                      ))}
+                      {/* Benefit Tags */}
+                      <View style={styles.benefitsRow}>
+                        {item.benefits.map((b, idx) => (
+                          <View
+                            key={idx}
+                            style={[
+                              styles.benefitChip,
+                              {
+                                backgroundColor: isSelected ? '#FFFFFF' : '#F8FAFC',
+                                borderColor: isSelected ? item.borderColor : '#E2E8F0',
+                              },
+                            ]}
+                          >
+                            <Text variant="caption" weight="medium" color={isSelected ? item.themeColor : '#475569'}>
+                              {b}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </ScrollView>
 
       {/* Sticky Bottom CTA */}
-      <View
-        style={[
-          styles.bottomBar,
-          {
-            backgroundColor: theme.colors.surface.card,
-            borderTopColor: theme.colors.sand[200],
-            ...theme.shadows.level4,
-          },
-        ]}
-      >
-        <Button
-          label="आगे बढ़ें (Continue) →"
-          variant="primary"
-          size="decision"
-          onPress={handleContinue}
-        />
+      <View style={styles.bottomBar}>
+        <View style={styles.bottomInner}>
+          <Button
+            label="Continue →"
+            variant="primary"
+            size="decision"
+            onPress={handleContinue}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -231,90 +229,86 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#FAF8F5',
   },
   helpPill: {
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
     borderWidth: 1,
+    borderColor: '#FFEDD5',
+    backgroundColor: '#FFF7ED',
+  },
+  content: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 100,
+  },
+  innerContainer: {
+    width: '100%',
+    maxWidth: 440,
   },
   stepperRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
-    paddingHorizontal: 4,
+    marginBottom: 16,
   },
   stepperBars: {
     flexDirection: 'row',
     gap: 6,
     flex: 1,
-    maxWidth: 160,
+    marginRight: 16,
   },
   stepperBar: {
-    height: 6,
     flex: 1,
-    borderRadius: 3,
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 110,
+    height: 4,
+    borderRadius: 2,
   },
   header: {
-    marginBottom: 14,
-    alignItems: 'center',
+    marginBottom: 20,
   },
   eyebrowBadge: {
-    backgroundColor: '#F0EEFF',
-    borderColor: '#D6D3FF',
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF7ED',
+    borderColor: '#FFEDD5',
     borderWidth: 1,
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
     marginBottom: 8,
   },
-  voiceGuideBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginTop: 12,
-  },
-  voiceGuideLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  voiceGuideDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   title: {
-    textAlign: 'center',
+    fontSize: 22,
+    lineHeight: 28,
     marginBottom: 6,
     letterSpacing: -0.3,
   },
   subtitle: {
-    textAlign: 'center',
+    marginBottom: 12,
+  },
+  voiceWrapper: {
+    alignSelf: 'flex-start',
   },
   list: {
-    marginTop: 10,
+    gap: 12,
   },
   card: {
+    borderRadius: 20,
     padding: 16,
-    borderWidth: 2,
-    marginBottom: 14,
+    borderWidth: 1.5,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 2,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    gap: 12,
   },
   iconCircle: {
     width: 48,
@@ -323,18 +317,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
   },
   icon: {
-    fontSize: 26,
+    fontSize: 24,
   },
   textCol: {
     flex: 1,
   },
   titleRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
+  suggestedBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  suggestedText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   checkPill: {
     width: 22,
@@ -345,36 +349,25 @@ const styles = StyleSheet.create({
   },
   checkIcon: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
   },
+  roleSubtitle: {
+    marginBottom: 6,
+  },
   desc: {
-    marginTop: 6,
-  },
-  suggestedBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 4,
-  },
-  suggestedText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    lineHeight: 18,
+    marginBottom: 10,
   },
   benefitsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    marginTop: 10,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.06)',
   },
   benefitChip: {
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
     borderWidth: 1,
   },
   bottomBar: {
@@ -382,8 +375,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 16,
-    paddingBottom: 22,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
+    borderTopColor: '#ECE8E1',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  bottomInner: {
+    width: '100%',
+    maxWidth: 440,
   },
 });

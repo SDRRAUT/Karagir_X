@@ -86,7 +86,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         duration: 300,
         useNativeDriver: useNative,
       }).start(() => {
-        navigation.replace('AuthPhone', { role: 'ARTISAN' });
+        navigation.replace('Onboarding');
       });
     }, 2700);
 
@@ -103,7 +103,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   ]);
 
   const handleSkip = () => {
-    navigation.replace('AuthPhone', { role: 'ARTISAN' });
+    navigation.replace('Onboarding');
   };
 
   const progressWidth = progressAnim.interpolate({

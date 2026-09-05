@@ -315,7 +315,7 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
                 </Text>
               ) : (
                 <Text variant="caption" weight="semiBold" color={roleInfo.themeColor}>
-                  🔢 कीपैड खोलें
+                  🔢 Numeric Keypad
                 </Text>
               )}
             </TouchableOpacity>
