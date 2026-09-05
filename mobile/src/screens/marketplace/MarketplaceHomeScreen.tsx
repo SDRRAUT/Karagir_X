@@ -326,6 +326,170 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
+        {/* ⚡ 6 Core Killer Features Interactive Showcase Hub */}
+        <View style={styles.killerHubContainer}>
+          <View style={styles.killerHubHeader}>
+            <View style={{ flex: 1 }}>
+              <Text variant="headlineSmall" weight="bold" color="#0F172A">
+                ⚡ 6 Core Killer Features
+              </Text>
+              <Text variant="caption" color="#64748B">
+                Tap any feature to launch the live working experience
+              </Text>
+            </View>
+            <View style={styles.livePill}>
+              <Text style={styles.liveDot}>●</Text>
+              <Text variant="caption" weight="bold" color="#16A34A">
+                INTERACTIVE
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.killerGrid}>
+            {/* 1. AI Smart Catalogue */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('AiEnhancement')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#FFEDD5' }]}>
+                <Text style={{ fontSize: 20 }}>📸</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
+                  KILLER #1 • CATALOGUE
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  AI Smart Catalogue
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Photo + Voice → Auto-clean background & craft categorization
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+
+            {/* 2. Voice Saathi Interview */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('VoiceFollowUp')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#FEF3C7' }]}>
+                <Text style={{ fontSize: 20 }}>🤖</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
+                  KILLER #2 • VOICE SAATHI
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  AI Interview / Voice Saathi
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Conversational Q&A in artisan's language (Zero typing)
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+
+            {/* 3. Explainable Fair Price Advisor */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('PricingRecommendation')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#DCFCE7' }]}>
+                <Text style={{ fontSize: 20 }}>💰</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
+                  KILLER #3 • FAIR PRICING
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Explainable Fair Price Advisor
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Shows WHY: Material + Time + Complexity = Suggested Price
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+
+            {/* 4. Digital Craft Passport */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('PublishSuccess')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#E0E7FF' }]}>
+                <Text style={{ fontSize: 20 }}>🏛️</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
+                  KILLER #4 • CRAFT PASSPORT
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  GI & Digital Craft Passport
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  QR-linked provenance, audio story, and batch verification
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+
+            {/* 5. AI Bulk Order & Smart Cluster */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() =>
+                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
+              }
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#FCE7F3' }]}>
+                <Text style={{ fontSize: 20 }}>🏢</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
+                  KILLER #5 • SMART CLUSTER
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  AI Bulk Order → Smart Cluster
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  5,000 Units order pooled across 5 local artisans automatically
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+
+            {/* 6. Production Brief + Collective Tracking */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() =>
+                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
+              }
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconBox, { backgroundColor: '#E0F2FE' }]}>
+                <Text style={{ fontSize: 20 }}>📋</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.killerTag, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
+                  KILLER #6 • BRIEF & TRACKING
+                </Text>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Production Brief & Collective Tracking
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Shared specs (dimensions, clay) + unified live progress view
+                </Text>
+              </View>
+              <Text style={styles.killerArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* 5. Artisan Flash Deals Section Header with Timer */}
         <View style={styles.sectionHeader}>
           <View style={styles.sectionHeaderLeft}>
@@ -946,5 +1110,76 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     paddingVertical: 10,
+  },
+  killerHubContainer: {
+    marginHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  killerHubHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  livePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  liveDot: {
+    color: '#16A34A',
+    fontSize: 10,
+    marginRight: 4,
+  },
+  killerGrid: {
+    gap: 10,
+  },
+  killerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 12,
+  },
+  killerIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  killerTag: {
+    fontSize: 9,
+    fontWeight: '800',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+    letterSpacing: 0.5,
+    alignSelf: 'flex-start',
+    marginBottom: 2,
+  },
+  killerArrow: {
+    fontSize: 22,
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginLeft: 4,
   },
 });
