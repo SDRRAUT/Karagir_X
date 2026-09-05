@@ -62,4 +62,27 @@ describe('OnboardingScreen', () => {
     });
     expect(getByText(/Aapka Hunar, Ab Digital/i)).toBeTruthy();
   });
+
+  it('opens language dropdown modal and allows selecting a language', async () => {
+    const { getByText, getByTestId } = await render(
+      <ThemeProvider>
+        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
+      </ThemeProvider>
+    );
+
+    // Dropdown trigger is rendered in top right (replacing Skip)
+    const dropdownBtn = getByTestId('language-dropdown-btn');
+    expect(dropdownBtn).toBeTruthy();
+
+    // Open language dropdown modal
+    await act(async () => {
+      fireEvent.press(dropdownBtn);
+    });
+    expect(getByText(/भाषा चुनें \/ Select Language/i)).toBeTruthy();
+
+    // Choose Hindi
+    await act(async () => {
+      fireEvent.press(getByTestId('lang-option-hi_IN'));
+    });
+  });
 });

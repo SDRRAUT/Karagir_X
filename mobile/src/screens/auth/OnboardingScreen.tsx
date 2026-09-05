@@ -8,6 +8,7 @@ import {
   Animated,
   Platform,
   useWindowDimensions,
+  Modal,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -43,15 +44,15 @@ interface SlideData {
   voiceText: string;
 }
 
-const LANGUAGES: { code: SupportedLocale; label: string }[] = [
-  { code: 'hi_IN', label: 'हिंदी' },
-  { code: 'mr_IN', label: 'मराठी' },
-  { code: 'en_IN', label: 'English' },
-  { code: 'ta_IN', label: 'தமிழ்' },
-  { code: 'bn_IN', label: 'বাংলা' },
-  { code: 'gu_IN', label: 'ગુજરાતી' },
-  { code: 'te_IN', label: 'తెలుగు' },
-  { code: 'od_IN', label: 'ଓଡ଼ିଆ' },
+const LANGUAGES: { code: SupportedLocale; label: string; subLabel: string }[] = [
+  { code: 'hi_IN', label: 'हिंदी', subLabel: 'Hindi' },
+  { code: 'mr_IN', label: 'मराठी', subLabel: 'Marathi' },
+  { code: 'en_IN', label: 'English', subLabel: 'English' },
+  { code: 'ta_IN', label: 'தமிழ்', subLabel: 'Tamil' },
+  { code: 'bn_IN', label: 'বাংলা', subLabel: 'Bengali' },
+  { code: 'gu_IN', label: 'ગુજરાતી', subLabel: 'Gujarati' },
+  { code: 'te_IN', label: 'తెలుగు', subLabel: 'Telugu' },
+  { code: 'od_IN', label: 'ଓଡ଼ିଆ', subLabel: 'Odia' },
 ];
 
 const ONBOARDING_SLIDES: SlideData[] = [
@@ -130,6 +131,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
   const { locale, setLocale } = useAppStore();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideTranslateY = useRef(new Animated.Value(0)).current;
 
@@ -178,12 +180,8 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const handleSkip = () => {
-    voiceGuidance.stopSpeaking();
-    navigation.replace('AuthPhone', { role: 'ARTISAN' as UserRole });
-  };
-
   const slide = ONBOARDING_SLIDES[currentSlide];
+  const currentLangObj = LANGUAGES.find((l) => l.code === locale) || LANGUAGES[2];
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
@@ -205,71 +203,114 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          {/* Clean Brand Typography (No awkward box badge) */}
+          {/* Clean Brand Typography */}
           <Text style={[styles.brandWordmark, { color: slide.titleColor }]}>
             Karagir<Text style={{ color: '#EA580C' }}>X</Text>
           </Text>
         </View>
 
+        {/* Language Dropdown Trigger (Replaces Skip) */}
         <TouchableOpacity
-          onPress={handleSkip}
+          testID="language-dropdown-btn"
+          onPress={() => setIsLangMenuOpen(true)}
+          style={[
+            styles.langDropdownTrigger,
+            {
+              backgroundColor: 'rgba(255, 255, 255, 0.88)',
+              borderColor: slide.indicatorInactive,
+            },
+          ]}
+          activeOpacity={0.75}
           accessibilityRole="button"
-          accessibilityLabel="Skip onboarding tour"
-          style={styles.skipButton}
-          activeOpacity={0.7}
+          accessibilityLabel={`Selected language: ${currentLangObj.label}. Tap to change language.`}
         >
+          <Text style={styles.langGlobeIcon}>🌐</Text>
           <Text
             variant="caption"
             weight="bold"
             color={slide.titleColor}
-            style={styles.skipText}
+            style={styles.langTriggerLabel}
           >
-            Skip
+            {currentLangObj.label}
           </Text>
+          <Text style={[styles.langTriggerChevron, { color: slide.titleColor }]}>▾</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Language Selector Strip (Top of Onboarding) */}
-      <View style={styles.langSelectorWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.langScrollContent}
+      {/* Language Selection Modal Dropdown */}
+      <Modal
+        visible={isLangMenuOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsLangMenuOpen(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setIsLangMenuOpen(false)}
         >
-          {LANGUAGES.map((lang) => {
-            const isSelected = locale === lang.code;
-            return (
-              <TouchableOpacity
-                key={lang.code}
-                testID={`lang-chip-${lang.code}`}
-                onPress={() => setLocale(lang.code)}
-                style={[
-                  styles.langChip,
-                  isSelected && styles.langChipActive,
-                  {
-                    backgroundColor: isSelected
-                      ? '#FFFFFF'
-                      : 'rgba(255, 255, 255, 0.55)',
-                    borderColor: isSelected
-                      ? slide.indicatorActive
-                      : 'rgba(0, 0, 0, 0.06)',
-                  },
-                ]}
-                activeOpacity={0.8}
-              >
-                <Text
-                  variant="caption"
-                  weight={isSelected ? 'bold' : 'medium'}
-                  color={isSelected ? slide.titleColor : '#64748B'}
-                  style={styles.langChipText}
-                >
-                  {lang.label}
+          <TouchableOpacity activeOpacity={1} style={styles.langModalCard}>
+            <View style={styles.langModalHeader}>
+              <View>
+                <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                  भाषा चुनें / Select Language
                 </Text>
+                <Text variant="caption" color="#64748B" style={styles.langModalSub}>
+                  Apni pasandeeda bhasha chunein
+                </Text>
+              </View>
+              <TouchableOpacity
+                testID="modal-close-btn"
+                onPress={() => setIsLangMenuOpen(false)}
+                style={styles.modalCloseBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Close language selector"
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
               </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
+            </View>
+
+            <View style={styles.langListGrid}>
+              {LANGUAGES.map((lang) => {
+                const isSelected = locale === lang.code;
+                return (
+                  <TouchableOpacity
+                    key={lang.code}
+                    testID={`lang-option-${lang.code}`}
+                    onPress={() => {
+                      setLocale(lang.code);
+                      setIsLangMenuOpen(false);
+                    }}
+                    style={[
+                      styles.langOptionItem,
+                      isSelected && styles.langOptionSelected,
+                    ]}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.langOptionTextCol}>
+                      <Text
+                        variant="bodyMedium"
+                        weight={isSelected ? 'bold' : 'medium'}
+                        color={isSelected ? '#EA580C' : '#1E293B'}
+                      >
+                        {lang.label}
+                      </Text>
+                      <Text variant="caption" color={isSelected ? '#C2410C' : '#94A3B8'}>
+                        {lang.subLabel}
+                      </Text>
+                    </View>
+                    {isSelected && (
+                      <View style={styles.checkBadge}>
+                        <Text style={styles.checkBadgeText}>✓</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Main Responsive Body (Centered in Middle) */}
       <ScrollView
@@ -563,45 +604,112 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: -0.3,
   },
-  skipButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  skipText: {
-    fontSize: 12,
-    letterSpacing: 0.3,
-  },
-  langSelectorWrapper: {
-    width: '100%',
-    maxWidth: 480,
-    alignSelf: 'center',
-    paddingVertical: 4,
-  },
-  langScrollContent: {
-    paddingHorizontal: 20,
-    gap: 6,
+  langDropdownTrigger: {
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  langChip: {
-    paddingHorizontal: 11,
-    paddingVertical: 4,
-    borderRadius: 12,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 18,
     borderWidth: 1,
-  },
-  langChipActive: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
   },
-  langChipText: {
-    fontSize: 11.5,
+  langGlobeIcon: {
+    fontSize: 13,
+  },
+  langTriggerLabel: {
+    fontSize: 12,
     letterSpacing: 0.2,
+  },
+  langTriggerChevron: {
+    fontSize: 11,
+    marginTop: -1,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  langModalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.2,
+    shadowRadius: 28,
+    elevation: 12,
+  },
+  langModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  langModalSub: {
+    marginTop: 2,
+  },
+  modalCloseBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  langListGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  langOptionItem: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  langOptionSelected: {
+    backgroundColor: '#FFF7ED',
+    borderColor: '#EA580C',
+  },
+  langOptionTextCol: {
+    flex: 1,
+  },
+  checkBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#EA580C',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
+  },
+  checkBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
   scrollContainer: {
     flexGrow: 1,
