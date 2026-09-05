@@ -175,6 +175,182 @@ export const HomeScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
 
+        {/* 6 Core Killer Features Interactive Showcase */}
+        <View style={styles.killerFeaturesSection}>
+          <View style={styles.sectionHeaderRow}>
+            <View style={{ flex: 1 }}>
+              <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+                ⚡ 6 Core Killer Features
+              </Text>
+              <Text variant="caption" color="#737373">
+                Tap any feature to experience the live working flow
+              </Text>
+            </View>
+            <View style={styles.liveBadgePill}>
+              <Text style={styles.liveBadgeDot}>●</Text>
+              <Text variant="caption" weight="bold" color="#16A34A">
+                LIVE DEMO
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.killerGrid}>
+            {/* 1. AI Smart Catalogue */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('AiEnhancement')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#FFEDD5' }]}>
+                <Text style={{ fontSize: 22 }}>📸</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
+                    KILLER #1
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  AI Smart Catalogue
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Photo + Voice → Auto-clean background & craft recognition
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+
+            {/* 2. Voice Saathi Interview */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('VoiceFollowUp')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#FEF3C7' }]}>
+                <Text style={{ fontSize: 22 }}>🤖</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
+                    KILLER #2
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Voice Saathi Interview
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Conversational AI Q&A in vernacular language (Zero typing)
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+
+            {/* 3. Explainable Fair Price Advisor */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('PricingRecommendation')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#DCFCE7' }]}>
+                <Text style={{ fontSize: 22 }}>💰</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
+                    KILLER #3
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Explainable Fair Price Advisor
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Shows WHY: Materials + Labour + Complexity = Suggested Price
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+
+            {/* 4. Digital Craft Passport */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() => navigation.navigate('PublishSuccess')}
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#E0E7FF' }]}>
+                <Text style={{ fontSize: 22 }}>🏛️</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
+                    KILLER #4
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Digital Craft Passport
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  QR-linked provenance, artisan audio story & batch traceability
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+
+            {/* 5. AI Bulk Order & Smart Cluster */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() =>
+                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
+              }
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#FCE7F3' }]}>
+                <Text style={{ fontSize: 22 }}>🏢</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
+                    KILLER #5
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  AI Bulk Order → Smart Cluster
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  5,000 Diya order pooled across 5 local artisans automatically
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+
+            {/* 6. Production Brief + Collective Tracking */}
+            <TouchableOpacity
+              style={styles.killerCard}
+              onPress={() =>
+                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
+              }
+              activeOpacity={0.88}
+            >
+              <View style={[styles.killerIconCircle, { backgroundColor: '#E0F2FE' }]}>
+                <Text style={{ fontSize: 22 }}>📋</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.killerBadgeRow}>
+                  <Text style={[styles.killerPill, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
+                    KILLER #6
+                  </Text>
+                </View>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  Digital Production Brief & Tracking
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Standardized specs (dimensions, clay) + live collective progress
+                </Text>
+              </View>
+              <Text style={styles.arrowIcon}>›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Triple Dot Divider Motif */}
         <View style={styles.motifDivider}>
           <View style={styles.motifDot} />
@@ -571,6 +747,79 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
     marginBottom: 12,
+  },
+  killerFeaturesSection: {
+    marginHorizontal: 16,
+    marginTop: 20,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#ECE8DC',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  liveBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  liveBadgeDot: {
+    color: '#16A34A',
+    fontSize: 10,
+    marginRight: 4,
+  },
+  killerGrid: {
+    gap: 10,
+  },
+  killerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 12,
+  },
+  killerIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  killerBadgeRow: {
+    flexDirection: 'row',
+    marginBottom: 2,
+  },
+  killerPill: {
+    fontSize: 9,
+    fontWeight: '800',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+    letterSpacing: 0.5,
+  },
+  arrowIcon: {
+    fontSize: 22,
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginLeft: 4,
   },
   matchTag: {
     flexDirection: 'row',

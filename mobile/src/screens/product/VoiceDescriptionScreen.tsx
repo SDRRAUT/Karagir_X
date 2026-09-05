@@ -262,10 +262,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* Bottom Sticky Bar */}
-      {transcriptionResult && !isProcessing && (
+      {!isProcessing && (
         <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
           <Button
-            label="अगला: सवाल-जवाब (Continue to AI Q&A) →"
+            label={
+              transcriptionResult
+                ? "अगला: सवाल-जवाब (Continue to AI Voice Saathi) →"
+                : "🎙️ अगला: सवाल-जवाब (Start Voice Saathi Interview) →"
+            }
             variant="primary"
             size="default"
             onPress={() => navigation.navigate('VoiceFollowUp')}

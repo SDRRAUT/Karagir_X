@@ -90,12 +90,31 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
               }}
               style={styles.artisanAvatar}
             />
-            <View>
+            <View style={{ flex: 1 }}>
               <Text variant="caption" color="#64748B">
-                Master Artisan
+                Master Artisan & Origin
               </Text>
               <Text variant="bodyLarge" weight="bold" color="#2b2b2b">
                 Ramesh Kumbhar (सुनीता देवी)
+              </Text>
+              <Text variant="caption" color="#64748B">
+                Panchganga Valley, Kolhapur (GI #MH-24 Region)
+              </Text>
+            </View>
+          </View>
+
+          {/* Making Method & Batch Row */}
+          <View style={styles.provenanceGrid}>
+            <View style={styles.provenanceItem}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#EA580C' }}>🏺 MAKING METHOD</Text>
+              <Text variant="caption" color="#475569" style={{ marginTop: 2 }}>
+                Traditional wheel hand-throw • 3-day sun-dried • 850°C wood kiln
+              </Text>
+            </View>
+            <View style={styles.provenanceItem}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#16A34A' }}>📦 BATCH IDENTIFIER</Text>
+              <Text variant="caption" color="#475569" style={{ marginTop: 2 }}>
+                Batch #KLK-2026-DIWALI-084 • Limited Edition of 100
               </Text>
             </View>
           </View>
@@ -106,13 +125,13 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.storyTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 6 }}>📜</Text>
                 <Text variant="caption" weight="bold" color="#2b2b2b">
-                  Craft Story
+                  Artisan's Voice Story (कलाकार की कहानी)
                 </Text>
               </View>
               <TouchableOpacity style={styles.listenBtn} onPress={handleListenStory}>
                 <Text style={{ fontSize: 12, marginRight: 4 }}>▶</Text>
                 <Text variant="caption" weight="bold" color="#e85d2a">
-                  Listen
+                  Listen (सुनें)
                 </Text>
               </TouchableOpacity>
             </View>
@@ -125,7 +144,7 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.materialsRow}>
             <View style={[styles.materialTag, { backgroundColor: '#E6F6F8' }]}>
               <Text variant="caption" weight="bold" color="#1b9aaa">
-                Local Clay
+                Local River Clay
               </Text>
             </View>
             <View style={[styles.materialTag, { backgroundColor: '#FFF8E7' }]}>
@@ -138,6 +157,14 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
                 Hand-thrown
               </Text>
             </View>
+          </View>
+
+          {/* Verification Status Banner */}
+          <View style={styles.passportVerificationBanner}>
+            <Text style={{ fontSize: 14, marginRight: 6 }}>🔒</Text>
+            <Text variant="caption" color="#64748B" style={{ flex: 1, lineHeight: 14 }}>
+              Decentralized QR Craft Passport: Verifies authentic artisan pedigree, craft technique, and batch origin without claiming official state GI certification.
+            </Text>
           </View>
         </Card>
 
@@ -312,6 +339,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
+  },
+  provenanceGrid: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+  },
+  provenanceItem: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  passportVerificationBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   summaryCard: {
     padding: 16,
