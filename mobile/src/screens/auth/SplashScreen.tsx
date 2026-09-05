@@ -179,7 +179,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAF7F2',
+    backgroundColor: '#FAF8F5',
   },
   touchContainer: {
     flex: 1,
