@@ -16,17 +16,13 @@ import { Text } from '@/components/typography/Text';
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
-  // Animation values
-  const logoScale = useRef(new Animated.Value(0.4)).current;
+  // Smooth cinematic entrance animations
+  const logoScale = useRef(new Animated.Value(0.85)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const glowScale = useRef(new Animated.Value(0.8)).current;
-  const glowOpacity = useRef(new Animated.Value(0)).current;
+  const logoTranslateY = useRef(new Animated.Value(15)).current;
 
-  const textTranslateY = useRef(new Animated.Value(30)).current;
-  const textOpacity = useRef(new Animated.Value(0)).current;
-
-  const subtitleTranslateY = useRef(new Animated.Value(20)).current;
   const subtitleOpacity = useRef(new Animated.Value(0)).current;
+  const subtitleTranslateY = useRef(new Animated.Value(10)).current;
 
   const progressAnim = useRef(new Animated.Value(0)).current;
   const screenFadeOut = useRef(new Animated.Value(1)).current;
@@ -34,68 +30,48 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   useEffect(() => {
     const useNative = Platform.OS !== 'web';
 
-    // 1. Entrance animation sequence: Logo pops out, followed by Title & Subtitle
+    // 1. Elegant cinematic reveal: Artwork scales and eases in smoothly
+    Animated.parallel([
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 700,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: useNative,
+      }),
+      Animated.timing(logoScale, {
+        toValue: 1,
+        duration: 900,
+        easing: Easing.bezier(0.16, 1, 0.3, 1),
+        useNativeDriver: useNative,
+      }),
+      Animated.timing(logoTranslateY, {
+        toValue: 0,
+        duration: 800,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: useNative,
+      }),
+    ]).start();
+
+    // 2. Subtitle reveals after 400ms
     Animated.sequence([
-      // A. Logo and ambient glow spring out
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: useNative,
-        }),
-        Animated.spring(logoScale, {
-          toValue: 1,
-          friction: 6,
-          tension: 45,
-          useNativeDriver: useNative,
-        }),
-        Animated.timing(glowOpacity, {
-          toValue: 0.35,
-          duration: 600,
-          useNativeDriver: useNative,
-        }),
-        Animated.spring(glowScale, {
-          toValue: 1.15,
-          friction: 5,
-          tension: 35,
-          useNativeDriver: useNative,
-        }),
-      ]),
-
-      // B. Title text ("KarigarX") comes out with smooth upward slide & fade
-      Animated.parallel([
-        Animated.timing(textOpacity, {
-          toValue: 1,
-          duration: 450,
-          easing: Easing.out(Easing.cubic),
-          useNativeDriver: useNative,
-        }),
-        Animated.timing(textTranslateY, {
-          toValue: 0,
-          duration: 450,
-          easing: Easing.out(Easing.back(1.5)),
-          useNativeDriver: useNative,
-        }),
-      ]),
-
-      // C. Motto & subtitle fade in
+      Animated.delay(400),
       Animated.parallel([
         Animated.timing(subtitleOpacity, {
           toValue: 1,
-          duration: 400,
+          duration: 500,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: useNative,
         }),
         Animated.timing(subtitleTranslateY, {
           toValue: 0,
-          duration: 400,
+          duration: 500,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: useNative,
         }),
       ]),
     ]).start();
 
-    // 2. Subtle 3-second progress loader animation
+    // 3. Smooth 3-second progress indicator
     Animated.timing(progressAnim, {
       toValue: 1,
       duration: 2700,
@@ -103,7 +79,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       useNativeDriver: false,
     }).start();
 
-    // 3. Smooth exit transition at 3 seconds
+    // 4. Smooth fade out at 2.7s and transition into AuthPhone at 3.0s
     const exitTimer = setTimeout(() => {
       Animated.timing(screenFadeOut, {
         toValue: 0,
@@ -119,12 +95,9 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     navigation,
     logoScale,
     logoOpacity,
-    glowScale,
-    glowOpacity,
-    textTranslateY,
-    textOpacity,
-    subtitleTranslateY,
+    logoTranslateY,
     subtitleOpacity,
+    subtitleTranslateY,
     progressAnim,
     screenFadeOut,
   ]);
@@ -146,79 +119,44 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         onPress={handleSkip}
       >
         <Animated.View style={[styles.mainWrapper, { opacity: screenFadeOut }]}>
-          {/* Centered Logo & Brand Content */}
+          {/* Centered Luxury Artwork Container */}
           <View style={styles.centerBlock}>
-            {/* Ambient Warm Glow Halo behind Emblem */}
-            <View style={styles.logoAnchor}>
-              <Animated.View
-                style={[
-                  styles.glowHalo,
-                  {
-                    opacity: glowOpacity,
-                    transform: [{ scale: glowScale }],
-                  },
-                ]}
-              />
-
-              {/* Popping Logo Badge */}
-              <Animated.View
-                style={[
-                  styles.logoContainer,
-                  {
-                    opacity: logoOpacity,
-                    transform: [{ scale: logoScale }],
-                  },
-                ]}
-              >
-                <Image
-                  source={require('../../../assets/karigarx_logo.png')}
-                  style={styles.splashLogo}
-                  resizeMode="contain"
-                />
-              </Animated.View>
-            </View>
-
-            {/* App Name Coming Out Animation */}
             <Animated.View
               style={[
-                styles.titleBlock,
+                styles.artworkWrapper,
                 {
-                  opacity: textOpacity,
-                  transform: [{ translateY: textTranslateY }],
+                  opacity: logoOpacity,
+                  transform: [
+                    { scale: logoScale },
+                    { translateY: logoTranslateY },
+                  ],
                 },
               ]}
             >
-              <Text variant="displaySmall" weight="bold" color="#0F172A" style={styles.brandTitle}>
-                KarigarX
-              </Text>
-              <Text variant="bodySmall" weight="bold" color="#EA580C" style={styles.hindiSub}>
-                कारीगरX • कलाकार सेतु
-              </Text>
+              <Image
+                source={require('../../../assets/karigarx_logo.png')}
+                style={styles.heroArtwork}
+                resizeMode="contain"
+              />
             </Animated.View>
 
-            {/* Motto & Tagline Fade In */}
+            {/* Clean Minimalist Subtitle */}
             <Animated.View
               style={[
-                styles.mottoBlock,
+                styles.subtitleContainer,
                 {
                   opacity: subtitleOpacity,
                   transform: [{ translateY: subtitleTranslateY }],
                 },
               ]}
             >
-              <View style={styles.craftPill}>
-                <Text variant="caption" weight="bold" color="#EA580C" style={styles.mottoText}>
-                  ✨ CRAFT • CONNECT • GROW ✨
-                </Text>
-              </View>
-
-              <Text variant="bodySmall" color="#64748B" style={styles.subtext}>
-                Empowering India's Heritage Master Artisans
+              <Text variant="bodySmall" color="#64748B" style={styles.brandSubtext}>
+                Direct from India's Master Artisans
               </Text>
             </Animated.View>
           </View>
 
-          {/* Bottom Elegant Progress Line & Micro-indicator */}
+          {/* Bottom Minimalist Progress Bar */}
           <View style={styles.bottomBarContainer}>
             <View style={styles.progressBarTrack}>
               <Animated.View
@@ -229,7 +167,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
               />
             </View>
             <Text variant="caption" color="#94A3B8" style={styles.skipHint}>
-              Tap to enter
+              Tap to continue
             </Text>
           </View>
         </Animated.View>
@@ -241,7 +179,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAF8F5',
+    backgroundColor: '#FAF7F2',
   },
   touchContainer: {
     flex: 1,
@@ -255,85 +193,41 @@ const styles = StyleSheet.create({
   centerBlock: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
+    maxWidth: 420,
   },
-  logoAnchor: {
+  artworkWrapper: {
+    width: '100%',
+    maxWidth: 320,
+    aspectRatio: 1024 / 682,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 8,
   },
-  glowHalo: {
-    position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: '#EA580C',
-    filter: 'blur(20px)' as any,
-  },
-  logoContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 28,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#FED7AA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    padding: 10,
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    elevation: 8,
-  },
-  splashLogo: {
+  heroArtwork: {
     width: '100%',
     height: '100%',
   },
-  titleBlock: {
+  subtitleContainer: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 4,
   },
-  brandTitle: {
-    letterSpacing: 1,
-    fontSize: 32,
-    marginBottom: 2,
-    color: '#0F172A',
-  },
-  hindiSub: {
-    letterSpacing: 0.8,
-    fontSize: 13,
-  },
-  mottoBlock: {
-    alignItems: 'center',
-  },
-  craftPill: {
-    backgroundColor: '#FFF7ED',
-    borderColor: '#FFEDD5',
-    borderWidth: 1,
-    paddingVertical: 5,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    marginBottom: 8,
-  },
-  mottoText: {
-    letterSpacing: 1.4,
-    fontSize: 10.5,
-  },
-  subtext: {
+  brandSubtext: {
     textAlign: 'center',
-    letterSpacing: 0.3,
+    letterSpacing: 0.6,
     fontSize: 13,
+    color: '#64748B',
+    fontWeight: '500',
   },
   bottomBarContainer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 44,
     alignItems: 'center',
     width: '100%',
   },
   progressBarTrack: {
-    width: 120,
-    height: 3,
+    width: 80,
+    height: 2.5,
     borderRadius: 2,
     backgroundColor: '#E2E8F0',
     overflow: 'hidden',
@@ -346,6 +240,7 @@ const styles = StyleSheet.create({
   },
   skipHint: {
     fontSize: 11,
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
+    color: '#94A3B8',
   },
 });
