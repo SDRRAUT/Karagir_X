@@ -18,6 +18,7 @@ import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 import { voiceGuidance } from '@/utils/voiceGuidance';
 import { UserRole } from '@/api/types';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
+import { INDIC_DISPLAY_FONT } from '@/theme/typography';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -127,6 +128,82 @@ const ONBOARDING_SLIDES: SlideData[] = [
   },
 ];
 
+const LOCALIZED_CONTENT: Record<
+  string,
+  {
+    title: string;
+    description: string;
+    microLine?: string;
+    powerLine?: string;
+    costChip?: string;
+    fairPriceChip?: string;
+    marginChip?: string;
+    productChip?: string;
+    matchChip?: string;
+    buyerTags?: string[];
+    buttonLabel?: string;
+  }[]
+> = {
+  hi_IN: [
+    {
+      title: 'आपका हुनर, अब डिजिटल',
+      description:
+        'बस प्रोडक्ट की फोटो खींचो और अपनी भाषा में बताओ। AI उसे प्रोफेशनल कैटलॉग में बदल देगा।',
+      microLine: '📸 फोटो लो  •  🎙️ बोलो  •  ✨ कैटलॉग तैयार',
+      buttonLabel: 'आगे बढ़ें →',
+    },
+    {
+      title: 'अपने हुनर की सही कीमत पाइए',
+      description:
+        'AI बाज़ार की मांग, लागत और आपकी मेहनत को समझकर सही दाम तय करेगा — ताकि आप कम दाम में न बेचें।',
+      powerLine: '“सिर्फ बिकना नहीं, सही दाम पर बिकना।”',
+      costChip: '₹650 लागत',
+      fairPriceChip: '₹850 सही दाम',
+      marginChip: '📈 बेहतर मुनाफा',
+      buttonLabel: 'आगे बढ़ें →',
+    },
+    {
+      title: 'अब खरीदार खुद आप तक पहुंचेगा',
+      description:
+        'AI आपके उत्पादों को उन खरीदारों से मिलाएगा जो वाकई आपका सामान खरीदना चाहते हैं — चाहे ग्राहक हो या बड़ा व्यापारी।',
+      powerLine: '“आप सिर्फ प्रोडक्ट बनाइए। बाज़ार तक पहुंच हम संभालेंगे।”',
+      productChip: 'आपका उत्पाद',
+      matchChip: '🤖 AI मैच',
+      buyerTags: ['🏨 होटल', '🎁 कॉर्पोरेट', '🛍️ रीटेल', '🏛️ सरकारी खरीदार'],
+      buttonLabel: 'शुरू करें 🚀',
+    },
+  ],
+  mr_IN: [
+    {
+      title: 'तुमची कला, आता डिजिटल',
+      description:
+        'फक्त उत्पादनाचा फोटो काढा आणि आपल्या भाषेत सांगा. AI त्याचे व्यावसायिक कॅटलॉगमध्ये रूपांतर करेल.',
+      microLine: '📸 फोटो काढा  •  🎙️ बोला  •  ✨ कॅटलॉग तयार',
+      buttonLabel: 'पुढे →',
+    },
+    {
+      title: 'आपल्या कलेची योग्य किंमत मिळवा',
+      description:
+        'AI बाजारातील मागणी, साहित्याचा खर्च आणि तुमची मेहनत लक्षात घेऊन योग्य किंमत सुचवेल — जेणेकरून तुमचे नुकसान होणार नाही.',
+      powerLine: '“फक्त विकणे नाही, योग्य भावात विकणे.”',
+      costChip: '₹650 खर्च',
+      fairPriceChip: '₹850 योग्य भाव',
+      marginChip: '📈 जास्त नफा',
+      buttonLabel: 'पुढे →',
+    },
+    {
+      title: 'आता ग्राहक थेट तुमच्यापर्यंत पोहोचेल',
+      description:
+        'AI तुमची उत्पादने अशा ग्राहकांशी जोडेल ज्यांना खरोखर तुमचे काम आवडते — मग तो वैयक्तिक ग्राहक असो किंवा मोठा व्यापारी.',
+      powerLine: '“तुम्ही फक्त उत्पादन बनवा. बाजारपेठ आम्ही सांभाळू.”',
+      productChip: 'तुमचे उत्पादन',
+      matchChip: '🤖 AI मॅच',
+      buyerTags: ['🏨 हॉटेल्स', '🎁 कॉर्पोरेट', '🛍️ रिटेल', '🏛️ सरकारी खरेदीदार'],
+      buttonLabel: 'सुरुवात करा 🚀',
+    },
+  ],
+};
+
 export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
   const { locale, setLocale } = useAppStore();
@@ -182,6 +259,21 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
   const slide = ONBOARDING_SLIDES[currentSlide];
   const currentLangObj = LANGUAGES.find((l) => l.code === locale) || LANGUAGES[2];
+  const localized = LOCALIZED_CONTENT[locale]?.[currentSlide];
+
+  const title = localized?.title || slide.title;
+  const description = localized?.description || slide.description;
+  const microLine = localized?.microLine || slide.microLine;
+  const powerLine = localized?.powerLine || slide.powerLine;
+  const buttonLabel = localized?.buttonLabel || slide.buttonLabel;
+  const costChip = localized?.costChip || '₹650 Cost';
+  const fairPriceChip = localized?.fairPriceChip || '₹850 Fair Price';
+  const marginChip = localized?.marginChip || '📈 Better Margin';
+  const productChip = localized?.productChip || 'Your Product';
+  const matchChip = localized?.matchChip || '🤖 AI Match';
+  const buyerTags = localized?.buyerTags || ['🏨 Hotel', '🎁 Corporate', '🛍️ Retail', '🏛️ Govt. Buyer'];
+
+  const isIndicLocale = locale === 'hi_IN' || locale === 'mr_IN';
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
@@ -392,9 +484,10 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               style={[
                 styles.headline,
                 isCompact && styles.headlineCompact,
+                isIndicLocale && styles.headlineIndic,
               ]}
             >
-              {slide.title}
+              {title}
             </Text>
 
             {/* Micro-line / Power Line Badge */}
@@ -412,9 +505,9 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   variant="caption"
                   weight="bold"
                   color={slide.titleColor}
-                  style={styles.badgeText}
+                  style={[styles.badgeText, isIndicLocale && styles.badgeTextIndic]}
                 >
-                  {slide.microLine}
+                  {microLine}
                 </Text>
               </View>
             )}
@@ -433,16 +526,16 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   variant="caption"
                   weight="bold"
                   color={slide.titleColor}
-                  style={styles.powerQuoteText}
+                  style={[styles.powerQuoteText, isIndicLocale && styles.powerQuoteIndic]}
                 >
-                  {slide.powerLine}
+                  {powerLine}
                 </Text>
                 <View style={styles.metricRow}>
-                  <Text style={[styles.metricChip, { color: '#64748B' }]}>₹650 Cost</Text>
+                  <Text style={[styles.metricChip, { color: '#64748B' }, isIndicLocale && styles.metricChipIndic]}>{costChip}</Text>
                   <Text style={styles.metricArrow}>→</Text>
-                  <Text style={[styles.metricChip, { color: '#059669', fontWeight: '700' }]}>₹850 Fair Price</Text>
+                  <Text style={[styles.metricChip, { color: '#059669', fontWeight: '700' }, isIndicLocale && styles.metricChipIndic]}>{fairPriceChip}</Text>
                   <Text style={styles.metricArrow}>→</Text>
-                  <Text style={[styles.metricChip, { color: '#0284C7', fontWeight: '700' }]}>📈 Better Margin</Text>
+                  <Text style={[styles.metricChip, { color: '#0284C7', fontWeight: '700' }, isIndicLocale && styles.metricChipIndic]}>{marginChip}</Text>
                 </View>
               </View>
             )}
@@ -461,21 +554,22 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   variant="caption"
                   weight="bold"
                   color={slide.titleColor}
-                  style={styles.powerQuoteText}
+                  style={[styles.powerQuoteText, isIndicLocale && styles.powerQuoteIndic]}
                 >
-                  {slide.powerLine}
+                  {powerLine}
                 </Text>
                 <View style={styles.buyerFlowRow}>
-                  <Text style={styles.buyerFlowSource}>Your Product</Text>
+                  <Text style={[styles.buyerFlowSource, isIndicLocale && styles.buyerFlowIndic]}>{productChip}</Text>
                   <Text style={styles.buyerFlowArrow}>→</Text>
-                  <Text style={styles.buyerFlowAi}>🤖 AI Match</Text>
+                  <Text style={[styles.buyerFlowAi, isIndicLocale && styles.buyerFlowIndic]}>{matchChip}</Text>
                   <Text style={styles.buyerFlowArrow}>→</Text>
                 </View>
                 <View style={styles.buyerRow}>
-                  <Text style={styles.buyerTag}>🏨 Hotel</Text>
-                  <Text style={styles.buyerTag}>🎁 Corporate</Text>
-                  <Text style={styles.buyerTag}>🛍️ Retail</Text>
-                  <Text style={styles.buyerTag}>🏛️ Govt. Buyer</Text>
+                  {buyerTags.map((tag, tIdx) => (
+                    <Text key={tIdx} style={[styles.buyerTag, isIndicLocale && styles.buyerTagIndic]}>
+                      {tag}
+                    </Text>
+                  ))}
                 </View>
               </View>
             )}
@@ -497,9 +591,10 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               style={[
                 styles.descriptionText,
                 isCompact && styles.descriptionCompact,
+                isIndicLocale && styles.descriptionIndic,
               ]}
             >
-              {slide.description}
+              {description}
             </Text>
           </Animated.View>
         </View>
@@ -526,9 +621,9 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   variant="bodyLarge"
                   weight="bold"
                   color={slide.titleColor}
-                  style={styles.backBtnText}
+                  style={[styles.backBtnText, isIndicLocale && styles.btnTextIndic]}
                 >
-                  ← Back
+                  {isIndicLocale ? '← पीछे' : '← Back'}
                 </Text>
               </TouchableOpacity>
             )}
@@ -542,15 +637,15 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               ]}
               activeOpacity={0.88}
               accessibilityRole="button"
-              accessibilityLabel={slide.buttonLabel}
+              accessibilityLabel={buttonLabel}
             >
               <Text
                 variant="bodyLarge"
                 weight="bold"
                 color={slide.btnTextColor}
-                style={styles.nextBtnText}
+                style={[styles.nextBtnText, isIndicLocale && styles.btnTextIndic]}
               >
-                {slide.buttonLabel}
+                {buttonLabel}
               </Text>
             </TouchableOpacity>
           </View>
@@ -941,5 +1036,42 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontSize: 16,
     letterSpacing: 0.3,
+  },
+  headlineIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 27,
+    lineHeight: 35,
+    letterSpacing: 0,
+  },
+  powerQuoteIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 14.5,
+    lineHeight: 20,
+    letterSpacing: 0,
+  },
+  badgeTextIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 13,
+    letterSpacing: 0,
+  },
+  descriptionIndic: {
+    lineHeight: 23,
+    letterSpacing: 0,
+  },
+  metricChipIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 12,
+  },
+  buyerFlowIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 12,
+  },
+  buyerTagIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 11.5,
+  },
+  btnTextIndic: {
+    fontFamily: INDIC_DISPLAY_FONT,
+    fontSize: 17,
   },
 });

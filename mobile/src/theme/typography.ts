@@ -1,5 +1,10 @@
 import { Platform } from 'react-native';
 
+export const INDIC_DISPLAY_FONT = Platform.select({
+  web: "'Yatra One', 'Rozha One', cursive, serif",
+  default: 'YatraOne_400Regular',
+}) as string;
+
 export const FONT_FAMILY = {
   regular: 'Inter_400Regular',
   medium: 'Inter_500Medium',
@@ -7,6 +12,7 @@ export const FONT_FAMILY = {
   bold: 'Inter_700Bold',
   display: 'Inter_700Bold',
   body: 'Inter_400Regular',
+  indic: INDIC_DISPLAY_FONT,
 } as const;
 
 export const SYSTEM_FONTS = {
@@ -16,6 +22,7 @@ export const SYSTEM_FONTS = {
   bold: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
   display: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
   body: Platform.select({ ios: 'System', android: 'sans-serif', default: 'sans-serif' }) as string,
+  indic: INDIC_DISPLAY_FONT,
 };
 
 export const typography = {

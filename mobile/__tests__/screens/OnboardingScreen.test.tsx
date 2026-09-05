@@ -84,5 +84,6 @@ describe('OnboardingScreen', () => {
     await act(async () => {
       fireEvent.press(getByTestId('lang-option-hi_IN'));
     });
+    expect(getByText(/आपका हुनर, अब डिजिटल/i)).toBeTruthy();
   });
 });
