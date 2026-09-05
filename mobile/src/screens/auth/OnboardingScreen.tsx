@@ -117,7 +117,11 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
   // Responsive artwork sizing adapted to screen height & width
   const isCompact = height < 720;
-  const imageSize = Math.min(Math.max(width * 0.65, 210), isCompact ? 220 : 270);
+  const isTall = height >= 840;
+  const imageSize = Math.min(
+    Math.max(width * 0.68, 210),
+    isCompact ? 210 : isTall ? 290 : 250
+  );
 
   const changeSlide = (nextIndex: number) => {
     if (nextIndex === currentSlide) return;
@@ -364,20 +368,21 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingBottom: Platform.OS === 'web' ? 24 : 16,
   },
   mainWrapper: {
+    flex: 1,
     width: '100%',
     maxWidth: 440,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 4,
+    paddingVertical: 10,
   },
   artworkSection: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     width: '100%',
   },
   imageShadowBox: {
@@ -399,14 +404,14 @@ const styles = StyleSheet.create({
   detailsSection: {
     width: '100%',
     alignItems: 'center',
-    paddingTop: 6,
+    paddingTop: 8,
   },
   indicatorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 7,
-    marginBottom: 12,
+    marginBottom: 14,
   },
   indicatorHit: {
     paddingVertical: 4,
@@ -427,7 +432,8 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     letterSpacing: -0.5,
     textAlign: 'center',
-    marginBottom: 8,
+    marginTop: 4,
+    marginBottom: 10,
     paddingHorizontal: 8,
   },
   headlineCompact: {
@@ -436,7 +442,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   voiceWrapper: {
-    marginBottom: 10,
+    marginBottom: 12,
     alignSelf: 'center',
   },
   descriptionText: {
@@ -445,7 +451,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
     textAlign: 'center',
     paddingHorizontal: 8,
-    maxWidth: 380,
+    maxWidth: 360,
   },
   descriptionCompact: {
     fontSize: 12.5,
