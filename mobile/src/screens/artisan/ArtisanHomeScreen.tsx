@@ -27,7 +27,7 @@ interface ProductTile {
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isOnline, locale, setLocale } = useAppStore();
+  const { isOnline } = useAppStore();
   const { user } = useAuthStore();
   const { t, isHindi } = useTranslation();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -115,18 +115,6 @@ export const HomeScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRight}>
-          {/* Quick Language Toggle */}
-          <TouchableOpacity
-            style={styles.headerPillBtn}
-            onPress={() => setLocale(locale === 'hi_IN' ? 'en_IN' : 'hi_IN')}
-            activeOpacity={0.75}
-            accessibilityLabel="Toggle Language"
-          >
-            <Text style={styles.headerPillText}>
-              {locale === 'hi_IN' ? '🇬🇧 EN' : '🇮🇳 हिन्दी'}
-            </Text>
-          </TouchableOpacity>
-
           {/* Help Button */}
           <TouchableOpacity
             style={styles.helpButton}
@@ -829,20 +817,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-  },
-  headerPillBtn: {
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  headerPillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#334155',
+    gap: 8,
   },
   helpButton: {
     flexDirection: 'row',
