@@ -7,6 +7,7 @@ import {
   Image,
   Alert,
   Platform,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -26,10 +27,12 @@ interface ProductTile {
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isOnline } = useAppStore();
+  const { isOnline, locale, setLocale } = useAppStore();
   const { user } = useAuthStore();
   const { t, isHindi } = useTranslation();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showNotifModal, setShowNotifModal] = useState(false);
 
   const artisanProducts: ProductTile[] = [
     {
@@ -54,7 +57,14 @@ export const HomeScreen: React.FC = () => {
     }
   }, [isHindi]);
 
-  const artisanName = user?.fullName || (isHindi ? 'रमेश कुंभार' : 'Ramesh Kumbhar');
+  const artisanName =
+    user?.fullName &&
+    user.fullName.trim().toLowerCase() !== 'sahyogi' &&
+    user.fullName.trim().toLowerCase() !== 'buyer'
+      ? user.fullName
+      : isHindi
+      ? 'रमेश कुंभार'
+      : 'Ramesh Kumbhar';
 
   const handleVoiceGreeting = () => {
     setIsPlayingAudio(true);
@@ -89,26 +99,70 @@ export const HomeScreen: React.FC = () => {
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <View>
-            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
-              {t.common.appName}
-            </Text>
-            <View style={styles.roleBadgePill}>
-              <Text style={styles.roleBadgeText}>🏺 {t.artisan.badge}</Text>
+          <View style={styles.brandTitleContainer}>
+            <View style={styles.brandTitleRow}>
+              <Text style={styles.brandTitleMain}>KALAKAR SETU</Text>
+              <Text style={styles.brandTitleTilde}> ~ </Text>
+              <Text style={styles.brandTitleRole}>{isHindi ? 'कारीगर' : 'artisans'}</Text>
+            </View>
+            <View style={styles.giBadgeRow}>
+              <Text style={styles.giBadgeDot}>●</Text>
+              <Text style={styles.giBadgeText}>
+                {isHindi ? 'प्रमाणित डिजिटल कार्यशाला' : 'Verified Artisan Studio'}
+              </Text>
             </View>
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.profileAvatarButton}
-          onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
-          accessibilityLabel="Profile"
-        >
-          <Image
-            source={require('../../../assets/artisan_3d_avatar.jpg')}
-            style={styles.profileAvatarImg}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          {/* Quick Language Toggle */}
+          <TouchableOpacity
+            style={styles.headerPillBtn}
+            onPress={() => setLocale(locale === 'hi_IN' ? 'en_IN' : 'hi_IN')}
+            activeOpacity={0.75}
+            accessibilityLabel="Toggle Language"
+          >
+            <Text style={styles.headerPillText}>
+              {locale === 'hi_IN' ? '🇬🇧 EN' : '🇮🇳 हिन्दी'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Help Button */}
+          <TouchableOpacity
+            style={styles.helpButton}
+            onPress={() => setShowHelpModal(true)}
+            activeOpacity={0.8}
+            accessibilityLabel="Help"
+          >
+            <Text style={styles.helpButtonIcon}>❓</Text>
+            <Text style={styles.helpButtonText}>{isHindi ? 'सहायता' : 'Help'}</Text>
+          </TouchableOpacity>
+
+          {/* Notifications Bell */}
+          <TouchableOpacity
+            style={styles.headerIconButton}
+            onPress={() => setShowNotifModal(true)}
+            accessibilityLabel="Notifications"
+          >
+            <Text style={styles.headerIconEmoji}>🔔</Text>
+            <View style={styles.badgeIndicator}>
+              <Text style={styles.badgeIndicatorText}>2</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Profile Avatar with Online Indicator */}
+          <TouchableOpacity
+            style={styles.profileAvatarButton}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
+            accessibilityLabel="Profile"
+          >
+            <Image
+              source={require('../../../assets/artisan_3d_avatar.jpg')}
+              style={styles.profileAvatarImg}
+            />
+            <View style={styles.avatarOnlineBadge} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -541,6 +595,162 @@ export const HomeScreen: React.FC = () => {
       >
         <Text style={{ fontSize: 26 }}>🎙️</Text>
       </TouchableOpacity>
+
+      {/* Comprehensive Artisan Help & Support Modal */}
+      <Modal visible={showHelpModal} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowHelpModal(false)}
+        >
+          <View style={styles.helpModalCard}>
+            <View style={styles.helpModalHeader}>
+              <View style={styles.helpModalIconCircle}>
+                <Text style={{ fontSize: 24 }}>🤝</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="headlineSmall" weight="bold" color="#0F172A">
+                  {isHindi ? 'कारीगर सहायता केंद्र' : 'Artisan Saathi Helpdesk'}
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  {isHindi ? '24/7 नि:शुल्क मार्गदर्शन एवं क्लस्टर सहायता' : '24/7 Toll-free assistance & cluster support'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Helpline Call Card */}
+            <TouchableOpacity
+              style={styles.helpActionCard}
+              onPress={() =>
+                Alert.alert(
+                  isHindi ? 'टोल-फ्री हेल्पलाइन' : 'Toll-Free Helpline',
+                  isHindi
+                    ? '1800-2026-कलाकार (1800-2026-5252) पर कॉल की जा रही है...'
+                    : 'Calling 1800-2026-KALAKAR (1800-2026-5252)...'
+                )
+              }
+            >
+              <View style={[styles.helpActionIconBox, { backgroundColor: '#DCFCE7' }]}>
+                <Text style={{ fontSize: 20 }}>📞</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  {isHindi ? 'टोल-फ्री हेल्पलाइन (1800-2026-5252)' : 'Toll-Free Helpline (1800-2026-5252)'}
+                </Text>
+                <Text variant="caption" color="#16A34A" weight="bold">
+                  {isHindi ? 'मुफ़्त कॉल • सभी भारतीय भाषाओं में उपलब्ध' : 'Free 24/7 in Indian Languages'}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 14, color: '#16A34A', fontWeight: 'bold' }}>Call ›</Text>
+            </TouchableOpacity>
+
+            {/* Voice Saathi Guide */}
+            <TouchableOpacity
+              style={styles.helpActionCard}
+              onPress={() => {
+                setShowHelpModal(false);
+                handleVoiceGreeting();
+              }}
+            >
+              <View style={[styles.helpActionIconBox, { backgroundColor: '#FFEDD5' }]}>
+                <Text style={{ fontSize: 20 }}>🎙️</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  {isHindi ? 'आवाज़ साथी मार्गदर्शन सुनें' : 'Listen with Voice Saathi'}
+                </Text>
+                <Text variant="caption" color="#EA580C">
+                  {isHindi ? 'ऐप की सभी सुविधाओं को बोलकर समझें' : 'Speak or listen to audio walkthrough'}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 18, color: '#EA580C', fontWeight: 'bold' }}>›</Text>
+            </TouchableOpacity>
+
+            {/* Sahyogi Coordinator Call */}
+            <TouchableOpacity
+              style={styles.helpActionCard}
+              onPress={() =>
+                Alert.alert(
+                  isHindi ? 'क्लस्टर सहयोगी' : 'Cluster Coordinator',
+                  isHindi
+                    ? 'पूजा वर्मा (कोल्हापुर क्लस्टर लीड): +91 94310 88219'
+                    : 'Pooja Verma (Cluster Facilitator): +91 94310 88219'
+                )
+              }
+            >
+              <View style={[styles.helpActionIconBox, { backgroundColor: '#EEF2FF' }]}>
+                <Text style={{ fontSize: 20 }}>👩‍💼</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  {isHindi ? 'स्थानीय सहयोगी समन्वयक से संपर्क' : 'Contact Local Sahyogi Lead'}
+                </Text>
+                <Text variant="caption" color="#4F46E5">
+                  {isHindi ? 'पूजा वर्मा • कोल्हापुर क्लस्टर' : 'Pooja Verma • Kolhapur Cluster'}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 18, color: '#4F46E5', fontWeight: 'bold' }}>›</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setShowHelpModal(false)}
+            >
+              <Text variant="bodyMedium" weight="bold" color="#64748B">
+                {t.common.cancel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Notifications Modal */}
+      <Modal visible={showNotifModal} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowNotifModal(false)}
+        >
+          <View style={styles.helpModalCard}>
+            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={{ marginBottom: 12 }}>
+              🔔 {isHindi ? 'कार्यशाला सूचनाएं' : 'Studio Notifications'}
+            </Text>
+
+            <View style={styles.notifItem}>
+              <Text style={{ fontSize: 20, marginRight: 10 }}>📦</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  {isHindi ? 'नया थोक ऑर्डर अवसर: 500 मिट्टी के दीये' : 'New Bulk Order: 500 Terracotta Diyas'}
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  {isHindi ? 'टीसीएस दिवाली उपहार • 30% अग्रिम जमा • 12 दिन शेष' : 'TCS Corporate Gifting • 30% Advance • 12 Days Left'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.notifItem}>
+              <Text style={{ fontSize: 20, marginRight: 10 }}>🏛️</Text>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyMedium" weight="bold" color="#0F172A">
+                  {isHindi ? 'पीएम विश्वकर्मा टूलकिट प्रोत्साहन' : 'PM Vishwakarma Toolkit Grant'}
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  {isHindi ? '₹15,000 की डिजिटल टूलकिट वाउचर राशि स्वीकृत' : '₹15,000 digital e-voucher approved for pottery wheel'}
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setShowNotifModal(false)}
+            >
+              <Text variant="bodyMedium" weight="bold" color="#64748B">
+                {t.common.cancel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -558,56 +768,217 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerBar: {
-    height: 56,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 253, 247, 0.95)',
+    backgroundColor: '#FFFDF7',
     borderBottomWidth: 1,
     borderBottomColor: '#ECE8DC',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   logoImage: {
-    width: 32,
-    height: 32,
+    width: 36,
+    height: 36,
     marginRight: 8,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: -0.2,
+  brandTitleContainer: {
+    justifyContent: 'center',
   },
-  roleBadgePill: {
-    alignSelf: 'flex-start',
+  brandTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  brandTitleMain: {
+    fontSize: 14.5,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: 0.2,
+  },
+  brandTitleTilde: {
+    fontSize: 13,
+    color: '#94A3B8',
+    fontWeight: '400',
+  },
+  brandTitleRole: {
+    fontSize: 12,
+    color: '#EA580C',
+    fontWeight: '700',
+    letterSpacing: 0.1,
+  },
+  giBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  giBadgeDot: {
+    fontSize: 7,
+    color: '#16A34A',
+    marginRight: 4,
+  },
+  giBadgeText: {
+    fontSize: 9.5,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  headerPillBtn: {
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  headerPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  helpButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#FFF7ED',
     borderWidth: 1,
     borderColor: '#FFEDD5',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    marginTop: 1,
+    paddingHorizontal: 7,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+    gap: 3,
   },
-  roleBadgeText: {
+  helpButtonIcon: {
+    fontSize: 12,
+  },
+  helpButtonText: {
+    fontSize: 11.5,
+    fontWeight: '700',
     color: '#EA580C',
-    fontSize: 9.5,
+  },
+  headerIconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  headerIconEmoji: {
+    fontSize: 15,
+  },
+  badgeIndicator: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#EF4444',
+    minWidth: 15,
+    height: 15,
+    borderRadius: 7.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  badgeIndicatorText: {
+    color: '#FFFFFF',
+    fontSize: 8.5,
     fontWeight: '800',
-    letterSpacing: 0.5,
   },
   profileAvatarButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    overflow: 'hidden',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     borderWidth: 1.5,
-    borderColor: '#e85d2a',
+    borderColor: '#EA580C',
+    position: 'relative',
   },
   profileAvatarImg: {
     width: '100%',
     height: '100%',
+    borderRadius: 17,
+  },
+  avatarOnlineBadge: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: '#16A34A',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  helpModalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    width: '100%',
+    maxWidth: 420,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  helpModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12,
+  },
+  helpModalIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFF7ED',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpActionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    marginBottom: 10,
+    gap: 10,
+  },
+  helpActionIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notifItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F8FAFC',
+    marginBottom: 10,
+  },
+  modalCloseButton: {
+    marginTop: 8,
+    alignItems: 'center',
+    paddingVertical: 10,
   },
   scrollContent: {
     paddingBottom: 90, // Space for floating mic and bottom bar
