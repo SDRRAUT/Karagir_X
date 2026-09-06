@@ -79,9 +79,7 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
             });
 
             if (!event.defaultPrevented) {
-              if (route.name === 'CreateTab') {
-                navigation.navigate('CameraPermission');
-              } else if (route.name === 'OnboardTab') {
+              if (route.name === 'OnboardTab') {
                 navigation.navigate('MicPermission');
               } else if (!isFocused) {
                 navigation.navigate(route.name);
@@ -115,12 +113,14 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
                   style={[
                     styles.centerCircleButton,
                     {
-                      backgroundColor: activeTintColor,
-                      shadowColor: activeTintColor,
+                      backgroundColor: route.name === 'SaathiTab' ? '#EA580C' : activeTintColor,
+                      shadowColor: route.name === 'SaathiTab' ? '#EA580C' : activeTintColor,
                     },
                   ]}
                 >
-                  {route.name === 'CreateTab' ? (
+                  {route.name === 'SaathiTab' ? (
+                    <Text style={styles.centerEmojiIcon}>🎙️</Text>
+                  ) : route.name === 'CreateTab' ? (
                     <Text style={styles.centerPlusIcon}>+</Text>
                   ) : route.name === 'OnboardTab' ? (
                     <Text style={styles.centerEmojiIcon}>🎙️</Text>

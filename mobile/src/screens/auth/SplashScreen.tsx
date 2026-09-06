@@ -48,19 +48,19 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   const doNavigate = () => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    const role = activeRole || user?.role || 'ARTISAN';
-    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
-  };
-
-  useEffect(() => {
-    // Direct redirect on screens
-    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
     if (soundRef.current) {
       soundRef.current.stopAsync().catch(() => {});
     }
-    const role = activeRole || user?.role || 'ARTISAN';
-    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
-  }, [activeRole, user?.role, navigation]);
+    const currentAuth = useAuthStore.getState();
+    if (currentAuth.isAuthenticated && currentAuth.user?.role) {
+      navigation.replace('MainTabs', {
+        screen: 'HomeTab',
+        params: { role: currentAuth.activeRole || currentAuth.user.role },
+      });
+    } else {
+      navigation.replace('RoleSelection');
+    }
+  };
 
   const handleDevJump = async (role: UserRole) => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);

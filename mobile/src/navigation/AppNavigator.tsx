@@ -3,7 +3,13 @@ import { View, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from './types';
-import { ArtisanHomeScreen, KhataScreen, OrdersScreen } from '@/screens/artisan';
+import {
+  ArtisanHomeScreen,
+  ArtisanCreateScreen,
+  VoiceSaathiScreen,
+  KhataScreen,
+  OrdersScreen,
+} from '@/screens/artisan';
 import { BuyerHomeScreen, CategoriesScreen, CartScreen } from '@/screens/buyer';
 import {
   AdminDashboardScreen,
@@ -25,6 +31,16 @@ const TabIcons = {
   Home: ({ focused, color }: { focused?: boolean; color: string }) => (
     <View style={styles.iconBox}>
       <Icon name={focused ? 'home' : 'homeOutline'} size={22} color={color} />
+    </View>
+  ),
+  Create: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Text style={{ fontSize: 20 }}>📸</Text>
+    </View>
+  ),
+  Saathi: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Text style={{ fontSize: 22 }}>🎙️</Text>
     </View>
   ),
   Governance: ({ focused, color }: { focused?: boolean; color: string }) => (
@@ -96,6 +112,8 @@ const OrdersTabScreen = (props: any) => <OrdersScreen {...props} />;
 const KhataTabScreen = (props: any) => <KhataScreen {...props} />;
 const AccountTabScreen = (props: any) => <ProfileScreen {...props} />;
 const ArtisanHomeTabScreen = (props: any) => <ArtisanHomeScreen {...props} />;
+const ArtisanCreateTabScreen = (props: any) => <ArtisanCreateScreen {...props} />;
+const VoiceSaathiTabScreen = (props: any) => <VoiceSaathiScreen {...props} />;
 const AdminDashboardTabScreen = (props: any) => <AdminDashboardScreen {...props} />;
 const AdminKycTabScreen = (props: any) => <AdminKycScreen {...props} />;
 const AdminModerationTabScreen = (props: any) => <AdminModerationScreen {...props} />;
@@ -113,7 +131,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
   const totalCartCount = useCartStore((s) => s.getTotalCount());
   const activeRole = useAuthStore((s) => s.activeRole);
   const user = useAuthStore((s) => s.user);
-  const { t } = useTranslation();
+  const { t, isHindi } = useTranslation();
   const routeRole = route?.params?.role as UserRole | undefined;
   const role: UserRole = routeRole || activeRole || user?.role || 'ARTISAN';
 
@@ -121,7 +139,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
   const tabHeight = 60 + bottomInset;
 
   const activeTintColor =
-    role === 'BUYER' ? '#4338CA' : role === 'ADMIN' ? '#6366F1' : '#EA580C';
+    role === 'BUYER' ? '#4338CA' : role === 'ADMIN' ? '#6366F1' : '#7C3AED';
 
   const roleLabel =
     role === 'ARTISAN' ? 'Artisans' :
@@ -154,7 +172,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         tabBarInactiveTintColor: '#94A3B8',
       }}
     >
-      {/* 1. ARTISAN TABS (Studio, Orders, [Create +], Khata, Profile) */}
+      {/* 1. ARTISAN TABS (Home 🏠, Create 📸, Saathi 🎙️ (Center Star), Orders 📦, Khata 💰) */}
       {role === 'ARTISAN' && (
         <>
           <Tab.Screen
@@ -162,8 +180,26 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
             component={ArtisanHomeTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: t.nav.studio,
-              tabBarIcon: ({ color, focused }) => <TabIcons.Studio focused={focused} color={color} />,
+              tabBarLabel: isHindi ? 'होम' : 'Home',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="CreateTab"
+            component={ArtisanCreateTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: isHindi ? 'बनाओ' : 'Create',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Create focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="SaathiTab"
+            component={VoiceSaathiTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: isHindi ? 'साथी' : 'Saathi',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Saathi focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
@@ -171,40 +207,17 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
             component={OrdersTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: t.nav.orders,
+              tabBarLabel: isHindi ? 'ऑर्डर' : 'Orders',
               tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
             }}
-          />
-          <Tab.Screen
-            name="CreateTab"
-            component={PlaceholderScreen}
-            options={{
-              title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: t.nav.create,
-            }}
-            listeners={({ navigation }) => ({
-              tabPress: (e) => {
-                e.preventDefault();
-                (navigation as any)?.navigate('CameraPermission');
-              },
-            })}
           />
           <Tab.Screen
             name="KhataTab"
             component={KhataTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: t.nav.khata,
+              tabBarLabel: isHindi ? 'खाता' : 'Khata',
               tabBarIcon: ({ color, focused }) => <TabIcons.Khata focused={focused} color={color} />,
-            }}
-          />
-          <Tab.Screen
-            name="ProfileTab"
-            component={AccountTabScreen}
-            options={{
-              title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: t.nav.account,
-              tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
             }}
           />
         </>

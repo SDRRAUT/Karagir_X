@@ -49,18 +49,6 @@ const ROLES: RoleOption[] = [
     lightBg: '#EEF2FF',
     borderColor: '#E0E7FF',
   },
-  {
-    role: 'ADMIN',
-    title: 'Platform Admin & Operations',
-    subtitle: 'National Governance & Compliance',
-    description: 'Command center to audit AI-flagged listings, approve artisan KYC, reconcile nodal escrow, and supervise logistics.',
-    avatar3D: require('@/../assets/sahyogi_3d_avatar.jpg'),
-    badge: 'Operations',
-    benefits: ['Live Command Center', 'KYC & AI Moderation', 'Escrow Reconciliation'],
-    themeColor: '#6366F1',
-    lightBg: '#EEF2FF',
-    borderColor: '#C7D2FE',
-  },
 ];
 
 import { useAuthStore } from '@/store/useAuthStore';
@@ -223,6 +211,22 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
               );
             })}
           </View>
+
+          {/* Discreet Operations & Staff Link */}
+          <TouchableOpacity
+            style={styles.staffPortalLink}
+            activeOpacity={0.7}
+            onPress={() => {
+              useAuthStore.getState().setActiveRole('ADMIN');
+              navigation.navigate('AuthPhone', { role: 'ADMIN' });
+            }}
+            testID="staff-portal-btn"
+          >
+            <Icon name="shieldCheck" size={14} color="#64748B" />
+            <Text variant="caption" weight="medium" color="#64748B">
+              Internal Governance & Staff Portal →
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -413,5 +417,19 @@ const styles = StyleSheet.create({
   bottomInner: {
     width: '100%',
     maxWidth: 440,
+  },
+  staffPortalLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginTop: 12,
+    marginBottom: 20,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
 });

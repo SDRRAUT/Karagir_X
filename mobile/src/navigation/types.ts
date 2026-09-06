@@ -10,6 +10,7 @@ export type MainTabParamList = {
   OrdersTab?: undefined;
   KhataTab?: undefined;
   CreateTab?: undefined;
+  SaathiTab?: undefined;
   OnboardTab?: undefined;
   KycTab?: undefined;
   ModerationTab?: undefined;

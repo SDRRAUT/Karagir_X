@@ -1,1571 +1,856 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  Alert,
+  ScrollView,
   Platform,
-  Modal,
+  Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '@/navigation/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
-import { useAppStore } from '@/store/useAppStore';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useTranslation } from '@/hooks/useTranslation';
+import { Icon } from '@/components/icons/Icon';
+import { MelaModeModal } from './components/MelaModeModal';
+import { B2BBulkModal } from './components/B2BBulkModal';
+import { FairPriceCalculatorModal } from './components/FairPriceCalculatorModal';
+import { CraftPassportModal } from './components/CraftPassportModal';
 
-interface ProductTile {
-  id: string;
-  name: string;
-  price: string;
-  imageUrl: string;
-}
+const { width } = Dimensions.get('window');
 
-export const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isOnline } = useAppStore();
-  const { user } = useAuthStore();
-  const { t, isHindi } = useTranslation();
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [showHelpModal, setShowHelpModal] = useState(false);
-  const [showNotifModal, setShowNotifModal] = useState(false);
+export const ArtisanHomeScreen: React.FC<any> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [showMelaModal, setShowMelaModal] = useState(false);
-  const [melaAmount, setMelaAmount] = useState('150');
+  const [showB2BModal, setShowB2BModal] = useState(false);
+  const [showFairPriceModal, setShowFairPriceModal] = useState(false);
+  const [showPassportModal, setShowPassportModal] = useState(false);
 
-  const artisanProducts: ProductTile[] = [
+  const handleSpeak = (text: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const CORE_PILLARS = [
     {
-      id: 'prod_1',
-      name: t.artisan.terracottaDiya,
-      price: `₹145 ${t.artisan.perPiece}`,
-      imageUrl:
-        'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+      id: 'p1',
+      title: 'Voice-First Listing',
+      hindi: 'आवाज़ से लिस्टिंग',
+      desc: '12 dialects regional speech intake',
+      emoji: '🎙️',
+      color: '#EA580C',
+      bg: '#FFF7ED',
+      action: () => navigation?.navigate?.('SaathiTab'),
     },
     {
-      id: 'prod_2',
-      name: t.artisan.handmadePot,
-      price: `₹350 ${t.artisan.perPiece}`,
-      imageUrl:
-        'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+      id: 'p2',
+      title: 'Auto Product Catalog',
+      hindi: 'स्वचालित कैटलॉग',
+      desc: 'AI synthesizes story & specs in 30s',
+      emoji: '📝',
+      color: '#7C3AED',
+      bg: '#F5F3FF',
+      action: () => navigation?.navigate?.('CreateTab'),
+    },
+    {
+      id: 'p3',
+      title: 'Photo Enhancement',
+      hindi: 'फोटो स्टूडियो AI',
+      desc: '4K studio lighting & background removal',
+      emoji: '✨',
+      color: '#0284C7',
+      bg: '#F0F9FF',
+      action: () => navigation?.navigate?.('CreateTab'),
+    },
+    {
+      id: 'p4',
+      title: 'Fair Price Calculator',
+      hindi: 'पारदर्शी मूल्य कैलकुलेटर',
+      desc: 'Material + labor hours + GI skill',
+      emoji: '💰',
+      color: '#059669',
+      bg: '#ECFDF5',
+      action: () => setShowFairPriceModal(true),
+    },
+    {
+      id: 'p5',
+      title: 'QR Craft Passport',
+      hindi: 'डिजिटल शिल्प पासपोर्ट',
+      desc: 'Cryptographic GI provenance & story',
+      emoji: '🏛️',
+      color: '#4F46E5',
+      bg: '#EEF2FF',
+      action: () => setShowPassportModal(true),
+    },
+    {
+      id: 'p6',
+      title: 'Artisan Clusters (B2B)',
+      hindi: 'कारीगर क्लस्टर समूह',
+      desc: 'Virtual cooperative for bulk orders',
+      emoji: '🏢',
+      color: '#D97706',
+      bg: '#FEF3C7',
+      action: () => setShowB2BModal(true),
+    },
+    {
+      id: 'p7',
+      title: 'Buyer–Artisan Matching',
+      hindi: 'खरीदार-कारीगर मिलान',
+      desc: 'Direct GI discovery & Mela digital bridge',
+      emoji: '🤝',
+      color: '#E11D48',
+      bg: '#FFF1F2',
+      action: () => setShowMelaModal(true),
+    },
+    {
+      id: 'p8',
+      title: 'Order & Live Tracking',
+      hindi: 'लाइव डिलीवरी ट्रैकिंग',
+      desc: '5-stage progress + India Post pickup',
+      emoji: '🚚',
+      color: '#16A34A',
+      bg: '#F0FDF4',
+      action: () => navigation?.navigate?.('OrdersTab'),
     },
   ];
 
-  useEffect(() => {
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.title = isHindi ? 'कलाकार सेतु ~ कारीगर' : 'Kalakar Setu ~ Artisans';
-    }
-  }, [isHindi]);
-
-  const artisanName =
-    user?.fullName &&
-    user.fullName.trim().toLowerCase() !== 'sahyogi' &&
-    user.fullName.trim().toLowerCase() !== 'buyer'
-      ? user.fullName
-      : isHindi
-      ? 'रमेश कुंभार'
-      : 'Ramesh Kumbhar';
-
-  const handleVoiceGreeting = () => {
-    setIsPlayingAudio(true);
-    Alert.alert(
-      '🗣️ Voice Saathi',
-      t.artisan.voiceGreetingText,
-      [{ text: 'OK', onPress: () => setIsPlayingAudio(false) }]
-    );
-  };
-
-  const handleSpeakText = (text: string) => {
-    Alert.alert('🔊 Voice Readback', text);
-  };
-
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Offline Banner */}
-      {!isOnline && (
-        <View style={styles.offlineBanner}>
-          <Text style={{ fontSize: 14, marginRight: 6 }}>☁️</Text>
-          <Text variant="caption" weight="bold" color="#FFFFFF">
-            {t.profile.offlineMode}
-          </Text>
-        </View>
-      )}
-
-      {/* Fixed Header Bar */}
-      <View style={styles.headerBar}>
-        <View style={styles.headerLeft}>
-          <Image
-            source={require('../../../assets/kalakar_setu_logo.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          <View style={styles.brandTitleContainer}>
-            <View style={styles.brandTitleRow}>
-              <Text style={styles.brandTitleMain}>KALAKAR SETU</Text>
-              <Text style={styles.brandTitleTilde}> ~ </Text>
-              <Text style={styles.brandTitleRole}>{isHindi ? 'कारीगर' : 'artisans'}</Text>
-            </View>
-            <View style={styles.giBadgeRow}>
-              <Text style={styles.giBadgeDot}>●</Text>
-              <Text style={styles.giBadgeText}>
-                {isHindi ? 'प्रमाणित डिजिटल कार्यशाला' : 'Verified Artisan Studio'}
-              </Text>
-            </View>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* 1. Header (Compact, Left-Aligned Brand, Right Avatar & Notification) */}
+      <View style={styles.header}>
+        <View style={styles.headerBrandRow}>
+          <View style={styles.headerLogoBadge}>
+            <Text style={styles.headerLogoEmoji}>🎨</Text>
           </View>
+          <Text style={styles.brandTitle}>Kalakar Setu</Text>
         </View>
 
-        <View style={styles.headerRight}>
-          {/* Help Button */}
+        <View style={styles.headerRightCluster}>
+          {/* Notifications Bell with Badge */}
           <TouchableOpacity
-            style={styles.helpButton}
-            onPress={() => setShowHelpModal(true)}
-            activeOpacity={0.8}
-            accessibilityLabel="Help"
+            style={styles.headerIconBtn}
+            onPress={() => handleSpeak('Aapke 3 naye notification hain: 2 naye orders aur 1 mela alert.')}
+            activeOpacity={0.7}
           >
-            <Text style={styles.helpButtonIcon}>❓</Text>
-            <Text style={styles.helpButtonText}>{isHindi ? 'सहायता' : 'Help'}</Text>
-          </TouchableOpacity>
-
-          {/* Notifications Bell */}
-          <TouchableOpacity
-            style={styles.headerIconButton}
-            onPress={() => setShowNotifModal(true)}
-            accessibilityLabel="Notifications"
-          >
-            <Text style={styles.headerIconEmoji}>🔔</Text>
-            <View style={styles.badgeIndicator}>
-              <Text style={styles.badgeIndicatorText}>2</Text>
+            <Icon name="bell" size={20} color="#334155" />
+            <View style={styles.notifBadge}>
+              <Text style={styles.notifBadgeText}>3</Text>
             </View>
           </TouchableOpacity>
 
-          {/* Profile Avatar with Online Indicator */}
+          {/* Profile Avatar Button (Ramesh Ji) */}
           <TouchableOpacity
-            style={styles.profileAvatarButton}
-            onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
-            accessibilityLabel="Profile"
+            onPress={() => navigation?.navigate?.('ProfileTab')}
+            style={styles.avatarButton}
+            activeOpacity={0.75}
           >
-            <Image
-              source={require('../../../assets/artisan_3d_avatar.jpg')}
-              style={styles.profileAvatarImg}
-            />
-            <View style={styles.avatarOnlineBadge} />
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarEmoji}>👤</Text>
+            </View>
+            <Text style={styles.avatarName}>Ramesh</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-        {/* Welcome Greeting & Audio Button */}
-        <View style={styles.greetingSection}>
-          <View style={styles.greetingTextContainer}>
-            <Text variant="headlineMedium" weight="bold" color="#2b2b2b" style={styles.namasteTitle}>
-              {t.artisan.namaste}, {artisanName}!
-            </Text>
-            <Text variant="bodySmall" color="#737373" style={styles.workshopSubtitle}>
-              {t.artisan.welcomeBack}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.voiceGreetingBtn, isPlayingAudio && styles.voiceGreetingBtnActive]}
-            onPress={handleVoiceGreeting}
-            accessibilityLabel="Play welcome greeting"
-          >
-            <Text style={{ fontSize: 22 }}>🗣️</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 3 KPI Metric Tiles (Stitch Exact Layout) */}
-        <View style={styles.kpiGrid}>
-          {/* Earnings Tile */}
-          <View style={styles.kpiCard}>
-            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              {t.artisan.earningsLabel}
-            </Text>
-            <Text variant="headlineSmall" weight="bold" color="#e85d2a" style={styles.kpiValue}>
-              ₹1,114k
-            </Text>
-          </View>
-
-          {/* Orders Tile */}
-          <View style={styles.kpiCard}>
-            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              {t.artisan.ordersLabel}
-            </Text>
-            <Text variant="headlineSmall" weight="bold" color="#1b9aaa" style={styles.kpiValue}>
-              3
-            </Text>
-          </View>
-
-          {/* Opps Tile */}
-          <View style={styles.kpiCard}>
-            <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              {t.artisan.oppsLabel}
-            </Text>
-            <Text variant="headlineSmall" weight="bold" color="#f4b942" style={styles.kpiValue}>
-              2
-            </Text>
-          </View>
-        </View>
-
-        {/* Stitch "Create New Product" Hero Action Card */}
-        <TouchableOpacity
-          style={styles.createProductHeroCard}
-          onPress={() => navigation.navigate('CameraPermission')}
-          activeOpacity={0.92}
-        >
-          <View style={styles.heroButtonIconsRow}>
-            <View style={styles.heroIconCircle}>
-              <Text style={{ fontSize: 20 }}>📷</Text>
-            </View>
-            <View style={styles.heroIconCircle}>
-              <Text style={{ fontSize: 20 }}>🎙️</Text>
-            </View>
-          </View>
-          <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={styles.createProductTitle}>
-            {t.artisan.createProductHero}
-          </Text>
-          <Text variant="caption" color="rgba(255, 255, 255, 0.85)">
-            {t.artisan.createProductHeroSub}
-          </Text>
-        </TouchableOpacity>
-
-        {/* 6 Core Killer Features Interactive Showcase */}
-        <View style={styles.killerFeaturesSection}>
-          <View style={styles.sectionHeaderRow}>
-            <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-                ⚡ {t.artisan.coreFeaturesTitle}
-              </Text>
-              <Text variant="caption" color="#737373">
-                {t.artisan.coreFeaturesSub}
-              </Text>
-            </View>
-            <View style={styles.liveBadgePill}>
-              <Text style={styles.liveBadgeDot}>●</Text>
-              <Text variant="caption" weight="bold" color="#16A34A">
-                {t.artisan.liveDemo}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.killerGrid}>
-            {/* 1. AI Smart Catalogue */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('AiEnhancement')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#FFEDD5' }]}>
-                <Text style={{ fontSize: 22 }}>📸</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
-                    {isHindi ? 'विशेष सुविधा #1' : 'KILLER #1'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.aiCatalogue}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.aiCatalogueDesc}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-
-            {/* 2. Voice Saathi Interview */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('VoiceFollowUp')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={{ fontSize: 22 }}>🤖</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
-                    {isHindi ? 'विशेष सुविधा #2' : 'KILLER #2'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.voiceSaathiInterview}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.voiceSaathiInterviewDesc}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-
-            {/* 3. Explainable Fair Price Advisor */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PricingRecommendation')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={{ fontSize: 22 }}>💰</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
-                    {isHindi ? 'विशेष सुविधा #3' : 'KILLER #3'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.fairPriceAdvisor}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.fairPriceAdvisorDesc}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-
-            {/* 4. Digital Craft Passport */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PublishSuccess')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#E0E7FF' }]}>
-                <Text style={{ fontSize: 22 }}>🏛️</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
-                    {isHindi ? 'विशेष सुविधा #4' : 'KILLER #4'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.qrPassport}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.qrPassportDesc}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-
-            {/* 5. AI Bulk Order & Smart Cluster */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#FCE7F3' }]}>
-                <Text style={{ fontSize: 22 }}>🏢</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
-                    {isHindi ? 'विशेष सुविधा #5' : 'KILLER #5'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'एआई थोक ऑर्डर एवं क्लस्टर' : 'AI Bulk Order → Smart Cluster'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? '5,000 दीयों का ऑर्डर 5 स्थानीय कारीगरों में स्वचालित रूप से विभाजित' : '5,000 Diya order pooled across 5 local artisans automatically'}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-
-            {/* 6. Production Brief + Collective Tracking */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconCircle, { backgroundColor: '#E0F2FE' }]}>
-                <Text style={{ fontSize: 22 }}>📋</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.killerBadgeRow}>
-                  <Text style={[styles.killerPill, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
-                    {isHindi ? 'विशेष सुविधा #6' : 'KILLER #6'}
-                  </Text>
-                </View>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'डिजिटल उत्पादन विवरण पत्र' : 'Digital Production Brief & Tracking'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? 'मानकीकृत विनिर्देश एवं सामूहिक लाइव प्रगति' : 'Standardized specs (dimensions, clay) + live collective progress'}
-                </Text>
-              </View>
-              <Text style={styles.arrowIcon}>›</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Triple Dot Divider Motif */}
-        <View style={styles.motifDivider}>
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-        </View>
-
-        {/* My Products Reel Section */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            {t.artisan.myProducts}
-          </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                isHindi
-                  ? 'आपके उत्पाद। टेराकोटा दीया 145 रुपये प्रति नग, और हस्तनिर्मित मिट्टी का पात्र 350 रुपये प्रति नग।'
-                  : 'Your Products. Terracotta Diya selling at 145 rupees per piece, and Handmade Pot at 350 rupees per piece.'
-              )
-            }
-            accessibilityLabel="Read products section aloud"
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Horizontal Snap Scroll Reel */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.productsReel}
-        >
-          {artisanProducts.map((item) => (
-            <View key={item.id} style={styles.productTileCard}>
-              <Image source={{ uri: item.imageUrl }} style={styles.tileImg} resizeMode="cover" />
-              <View style={styles.tileInfo}>
-                <Text variant="caption" weight="bold" color="#2b2b2b" numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text variant="caption" weight="bold" color="#e85d2a">
-                  {item.price}
-                </Text>
-              </View>
-            </View>
-          ))}
-
-          <TouchableOpacity
-            style={styles.viewAllCard}
-            onPress={() => navigation.navigate('CameraPermission')}
-          >
-            <Text style={{ fontSize: 28, color: '#737373', marginBottom: 4 }}>⊕</Text>
-            <Text variant="caption" weight="bold" color="#737373">
-              {t.artisan.viewAllProducts}
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* Triple Dot Divider Motif */}
-        <View style={styles.motifDivider}>
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-        </View>
-
-        {/* 🌟 ARTISAN MUST-BUILD #4: "Kya Banayein" (क्या बनाएं?) Demand Advisory */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            {isHindi ? '💡 क्या बनाएं? • एआई मांग सलाह' : '💡 Kya Banayein? • AI Demand Advisory'}
-          </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                isHindi
-                  ? 'क्या बनाएं सलाह। दीपावली उत्सव हेतु हस्तनिर्मित मिट्टी के दीये और कलश की भारी मांग है। अनुशंसित उत्पादन 250 नग।'
-                  : 'What to craft advice. High buyer demand for festive terracotta diyas and pots. Recommended batch 250 units.'
-              )
-            }
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.demandAdvisoryCard}>
-          <View style={styles.demandBadgeRow}>
-            <View style={styles.demandSurgePill}>
-              <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>🔥 +320% DEMAND SURGE</Text>
-            </View>
-            <Text style={{ fontSize: 11, color: '#92400E', fontWeight: 'bold' }}>
-              {isHindi ? 'दीपावली एवं विवाह उत्सव' : 'Diwali & Festive Season'}
-            </Text>
-          </View>
-          <Text variant="bodyLarge" weight="bold" color="#0F172A">
-            {isHindi ? 'हस्तनिर्मित नक्काशीदार दीये एवं सुराही पात्र' : 'Hand-carved Terracotta Diyas & Surahi Pots'}
-          </Text>
-          <Text variant="caption" color="#64748B" style={{ marginVertical: 6 }}>
-            {isHindi
-              ? '3,400+ ऑनलाइन खरीदार इस सप्ताह यह खोज रहे हैं। यदि आप 250 नग बनाते हैं तो अनुमानित लाभ ₹18,750 होगा।'
-              : '3,400+ active buyers searched for this item this week. Creating 250 units will yield an estimated ₹18,750 profit.'}
-          </Text>
-          <TouchableOpacity
-            style={styles.startCraftingBtn}
-            onPress={() => navigation.navigate('CameraPermission')}
-          >
-            <Text style={styles.startCraftingBtnText}>
-              ✨ {isHindi ? 'यह उत्पाद बनाना शुरू करें' : 'Start Crafting Batch'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Triple Dot Divider Motif */}
-        <View style={styles.motifDivider}>
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-          <View style={styles.motifDot} />
-        </View>
-
-        {/* New Opportunities Section (Stitch Exact Card) */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            {t.artisan.newOpportunities}
-          </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                isHindi
-                  ? 'नए अवसर। 500 हस्तनिर्मित मिट्टी के उत्पादों के लिए कॉर्पोरेट उपहार का थोक ऑर्डर अनुरोध। अनुमानित मूल्य 25 हजार रुपये।'
-                  : 'New Opportunities. Bulk order request from corporate gifting client for 500 hand-painted clay items. Estimated value 25 thousand rupees.'
-              )
-            }
-            accessibilityLabel="Read opportunities section aloud"
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.opportunityCard}>
-          <View style={styles.oppTopRow}>
-            <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" weight="bold" color="#0E535C">
-                {t.artisan.bulkOrderRequest}
-              </Text>
-              <Text variant="bodySmall" color="#147582" style={{ marginTop: 2 }}>
-                {t.artisan.bulkOrderDesc}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.oppTagsRow}>
-            <View style={styles.matchTag}>
-              <Text style={{ fontSize: 11, marginRight: 4, color: '#FFFFFF' }}>✓</Text>
-              <Text variant="caption" weight="bold" color="#FFFFFF">
-                {t.artisan.matchPottery}
-              </Text>
-            </View>
-            <View style={styles.estTag}>
-              <Text variant="caption" weight="bold" color="#0E535C">
-                {t.artisan.estValue}
-              </Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.reviewDetailsBtn}
-            onPress={() => navigation.navigate('MainTabs', { screen: 'BulkDealsTab' })}
-          >
-            <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              {t.artisan.reviewDetails}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 🌟 ARTISAN MUST-BUILD #6: Mela Mode Quick-Billing with Instant UPI QR */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            {isHindi ? '🎪 मेला मोड • त्वरित क्यूआर बिलिंग' : '🎪 Mela Mode • Quick QR Billing'}
-          </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                isHindi
-                  ? 'मेला मोड। प्रदर्शनी अथवा हाट बाजार में ग्राहकों से तुरंत यूपीआई क्यूआर कोड स्कैन करवाकर सीधे भुगतान लें।'
-                  : 'Mela Mode. Accept instant digital payments at exhibitions and fairs directly into your bank via QR.'
-              )
-            }
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={styles.melaModeCard}
-          onPress={() => setShowMelaModal(true)}
-          activeOpacity={0.9}
-        >
-          <View style={styles.melaModeLeft}>
-            <View style={styles.melaPillBadge}>
-              <Text style={styles.melaPillBadgeText}>🎪 HIGH-SPEED POS</Text>
-            </View>
-            <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={{ marginTop: 4 }}>
-              {isHindi ? 'हाट/प्रदर्शनी त्वरित बिलिंग' : 'Instant Exhibition Counter QR'}
-            </Text>
-            <Text variant="caption" color="#FFEDD5">
-              {isHindi ? '2-टैप ऑफलाइन बिलिंग • सीधे कारीगर के बैंक खाते में 100%' : '2-Tap offline billing • 100% direct to artisan bank'}
-            </Text>
-          </View>
-          <View style={styles.melaQrBox}>
-            <Text style={{ fontSize: 28 }}>📱</Text>
-            <Text style={{ fontSize: 9, color: '#EA580C', fontWeight: 'bold' }}>SCAN QR</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Schemes & Support Section (Stitch Exact Card) */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            {t.artisan.schemesAndSupport}
-          </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                isHindi
-                  ? 'सरकारी योजनाएं एवं सहायता। कारीगर क्रेडिट कार्ड। शिल्पकारों के लिए विशेष रियायती ब्याज दर पर ऋण सुविधा।'
-                  : 'Schemes and Support. Artisan Credit Card. Apply for low interest loans designed specifically for craftspeople.'
-              )
-            }
-            accessibilityLabel="Read schemes section aloud"
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          style={styles.schemeCard}
-          onPress={() =>
-            Alert.alert(
-              isHindi ? '💳 कारीगर क्रेडिट कार्ड योजना' : '💳 Artisan Credit Card Scheme',
-              isHindi
-                ? 'सत्यापित पारंपरिक शिल्पकारों के लिए मुद्रा / पीएम विश्वकर्मा 5% रियायती ऋण के लिए आवेदन करें।'
-                : 'Apply for Mudra / PM Vishwakarma low-interest loans (5% subsidised) designed specifically for verified traditional artisans.'
-            )
-          }
-          activeOpacity={0.88}
-        >
-          <View style={styles.schemeIconCircle}>
-            <Text style={{ fontSize: 22 }}>🏛️</Text>
-          </View>
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text variant="bodyMedium" weight="bold" color="#2b2b2b">
-              {t.artisan.artisanCreditCard}
-            </Text>
-            <Text variant="bodySmall" color="#737373" numberOfLines={2} style={{ marginTop: 2 }}>
-              {t.artisan.artisanCreditCardDesc}
-            </Text>
-          </View>
-          <Text style={{ fontSize: 18, color: '#A3A3A3' }}>›</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      {/* Floating Saffron Mic Button (Stitch Exact Floating Action Button) */}
-      <TouchableOpacity
-        style={styles.floatingMicBtn}
-        onPress={() => navigation.navigate('MicPermission')}
-        accessibilityLabel="Voice Assistant Mic"
-        activeOpacity={0.88}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollBody}
       >
-        <Text style={{ fontSize: 26 }}>🎙️</Text>
-      </TouchableOpacity>
+        {/* 2. Personalized Greeting Row */}
+        <View style={styles.greetingRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greetingTitle}>🌞 Namaste Ramesh Ji</Text>
+            <Text style={styles.greetingSub}>आज सोमवार है, दिन शुभ है</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() =>
+              handleSpeak(
+                'Namaste Ramesh Ji! Aaj somwar hai, din shubh hai. Aaj aapki kamai do hazaar char sau rupaye hui hai. Do naye order accept karne ke liye pending hain.'
+              )
+            }
+            style={styles.voiceGreetButton}
+            activeOpacity={0.75}
+          >
+            <Text style={styles.voiceGreetIcon}>🔊</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Comprehensive Artisan Help & Support Modal */}
-      <Modal visible={showHelpModal} transparent animationType="fade">
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={() => setShowHelpModal(false)}
-        >
-          <View style={styles.helpModalCard}>
-            <View style={styles.helpModalHeader}>
-              <View style={styles.helpModalIconCircle}>
-                <Text style={{ fontSize: 24 }}>🤝</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                  {isHindi ? 'कारीगर सहायता केंद्र' : 'Artisan Saathi Helpdesk'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? '24/7 नि:शुल्क मार्गदर्शन एवं क्लस्टर सहायता' : '24/7 Toll-free assistance & cluster support'}
-                </Text>
-              </View>
-            </View>
-
-            {/* Helpline Call Card */}
+        {/* 3. BIG EARNINGS CARD (Emotional Hook - P1) */}
+        <View style={styles.bigEarningsCard}>
+          <View style={styles.earningsHeaderRow}>
+            <Text style={styles.earningsCardLabel}>💰 आज की कमाई (Today's Earnings)</Text>
             <TouchableOpacity
-              style={styles.helpActionCard}
-              onPress={() =>
-                Alert.alert(
-                  isHindi ? 'टोल-फ्री हेल्पलाइन' : 'Toll-Free Helpline',
-                  isHindi
-                    ? '1800-2026-कलाकार (1800-2026-5252) पर कॉल की जा रही है...'
-                    : 'Calling 1800-2026-KALAKAR (1800-2026-5252)...'
-                )
-              }
+              onPress={() => handleSpeak('Aaj aapne do hazaar char sau rupaye kamaye hain, kal se tees pratishat zyada.')}
+              style={styles.audioPill}
             >
-              <View style={[styles.helpActionIconBox, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={{ fontSize: 20 }}>📞</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'टोल-फ्री हेल्पलाइन (1800-2026-5252)' : 'Toll-Free Helpline (1800-2026-5252)'}
-                </Text>
-                <Text variant="caption" color="#16A34A" weight="bold">
-                  {isHindi ? 'मुफ़्त कॉल • सभी भारतीय भाषाओं में उपलब्ध' : 'Free 24/7 in Indian Languages'}
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, color: '#16A34A', fontWeight: 'bold' }}>Call ›</Text>
-            </TouchableOpacity>
-
-            {/* Voice Saathi Guide */}
-            <TouchableOpacity
-              style={styles.helpActionCard}
-              onPress={() => {
-                setShowHelpModal(false);
-                handleVoiceGreeting();
-              }}
-            >
-              <View style={[styles.helpActionIconBox, { backgroundColor: '#FFEDD5' }]}>
-                <Text style={{ fontSize: 20 }}>🎙️</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'आवाज़ साथी मार्गदर्शन सुनें' : 'Listen with Voice Saathi'}
-                </Text>
-                <Text variant="caption" color="#EA580C">
-                  {isHindi ? 'ऐप की सभी सुविधाओं को बोलकर समझें' : 'Speak or listen to audio walkthrough'}
-                </Text>
-              </View>
-              <Text style={{ fontSize: 18, color: '#EA580C', fontWeight: 'bold' }}>›</Text>
-            </TouchableOpacity>
-
-            {/* Sahyogi Coordinator Call */}
-            <TouchableOpacity
-              style={styles.helpActionCard}
-              onPress={() =>
-                Alert.alert(
-                  isHindi ? 'क्लस्टर सहयोगी' : 'Cluster Coordinator',
-                  isHindi
-                    ? 'पूजा वर्मा (कोल्हापुर क्लस्टर लीड): +91 94310 88219'
-                    : 'Pooja Verma (Cluster Facilitator): +91 94310 88219'
-                )
-              }
-            >
-              <View style={[styles.helpActionIconBox, { backgroundColor: '#EEF2FF' }]}>
-                <Text style={{ fontSize: 20 }}>👩‍💼</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'स्थानीय सहयोगी समन्वयक से संपर्क' : 'Contact Local Sahyogi Lead'}
-                </Text>
-                <Text variant="caption" color="#4F46E5">
-                  {isHindi ? 'पूजा वर्मा • कोल्हापुर क्लस्टर' : 'Pooja Verma • Kolhapur Cluster'}
-                </Text>
-              </View>
-              <Text style={{ fontSize: 18, color: '#4F46E5', fontWeight: 'bold' }}>›</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.modalCloseButton}
-              onPress={() => setShowHelpModal(false)}
-            >
-              <Text variant="bodyMedium" weight="bold" color="#64748B">
-                {t.common.cancel}
-              </Text>
+              <Text style={styles.audioPillText}>🔊 Suno</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </Modal>
 
-      {/* Notifications Modal */}
-      <Modal visible={showNotifModal} transparent animationType="fade">
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={() => setShowNotifModal(false)}
-        >
-          <View style={styles.helpModalCard}>
-            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={{ marginBottom: 12 }}>
-              🔔 {isHindi ? 'कार्यशाला सूचनाएं' : 'Studio Notifications'}
-            </Text>
+          <Text style={styles.earningsAmount}>₹ 2,400</Text>
 
-            <View style={styles.notifItem}>
-              <Text style={{ fontSize: 20, marginRight: 10 }}>📦</Text>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'नया थोक ऑर्डर अवसर: 500 मिट्टी के दीये' : 'New Bulk Order: 500 Terracotta Diyas'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? 'टीसीएस दिवाली उपहार • 30% अग्रिम जमा • 12 दिन शेष' : 'TCS Corporate Gifting • 30% Advance • 12 Days Left'}
-                </Text>
-              </View>
+          <View style={styles.earningsGrowthRow}>
+            <View style={styles.growthBadge}>
+              <Text style={styles.growthBadgeText}>📈 कल से 30% ज़्यादा</Text>
             </View>
-
-            <View style={styles.notifItem}>
-              <Text style={{ fontSize: 20, marginRight: 10 }}>🏛️</Text>
-              <View style={{ flex: 1 }}>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'पीएम विश्वकर्मा टूलकिट प्रोत्साहन' : 'PM Vishwakarma Toolkit Grant'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? '₹15,000 की डिजिटल टूलकिट वाउचर राशि स्वीकृत' : '₹15,000 digital e-voucher approved for pottery wheel'}
-                </Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.modalCloseButton}
-              onPress={() => setShowNotifModal(false)}
-            >
-              <Text variant="bodyMedium" weight="bold" color="#64748B">
-                {t.common.cancel}
-              </Text>
-            </TouchableOpacity>
+            <Text style={styles.escrowSubText}>🔒 ₹2,892 Escrow mein safe hai</Text>
           </View>
-        </TouchableOpacity>
-      </Modal>
+        </View>
 
-      {/* 🌟 ARTISAN MUST-BUILD #6: Mela Quick Billing UPI QR Modal */}
-      <Modal visible={showMelaModal} transparent animationType="slide">
-        <TouchableOpacity
-          style={styles.modalBackdrop}
-          activeOpacity={1}
-          onPress={() => setShowMelaModal(false)}
-        >
-          <View style={styles.melaModalBox}>
-            <View style={styles.melaModalTop}>
-              <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                {isHindi ? '🎪 मेला त्वरित क्यूआर' : '🎪 Mela Instant QR'}
-              </Text>
-              <TouchableOpacity onPress={() => setShowMelaModal(false)}>
-                <Text style={{ fontSize: 18, color: '#64748B', fontWeight: 'bold' }}>✕</Text>
+        {/* 4. URGENT ACTIONS (⚡ ज़रूरी काम - Priority Alerts - P2) */}
+        <View style={styles.urgentSection}>
+          <Text style={styles.sectionHeaderTitle}>⚡ ज़रूरी काम (URGENT ACTIONS)</Text>
+          <TouchableOpacity
+            onPress={() => navigation?.navigate?.('OrdersTab')}
+            style={styles.urgentAlertCard}
+            activeOpacity={0.8}
+          >
+            <View style={styles.urgentRedBadge}>
+              <View style={styles.urgentRedDot} />
+              <Text style={styles.urgentRedText}>🔴 2 नए ORDER AAYE — ACCEPT KARO</Text>
+            </View>
+            <View style={styles.urgentTimerRow}>
+              <Text style={styles.urgentTimerText}>⏰ 18 ghante bache hain accept karne ke liye</Text>
+              <Text style={styles.urgentArrow}>Orders Dekhein →</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* 5. TODAY'S SMART TIP ("Kya Banayein" AI - P3) */}
+        <View style={styles.tipSection}>
+          <Text style={styles.sectionHeaderTitle}>🎁 आज का सुझाव (Today's Smart Tip)</Text>
+          <View style={styles.tipCard}>
+            <View style={styles.tipHeaderRow}>
+              <Text style={styles.tipBulb}>💡</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.tipFestival}>Diwali 45 din mein hai</Text>
+                <Text style={styles.tipAction}>Terracotta Diya banana shuru karo</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() =>
+                  handleSpeak(
+                    'Diwali festival 45 din mein hai. Terracotta diya banana shuru karein. 250 units par atharah hazaar saat sau pachas rupaye profit estimated hai.'
+                  )
+                }
+                style={styles.tipAudioBtn}
+              >
+                <Text style={styles.tipAudioIcon}>🔊</Text>
               </TouchableOpacity>
             </View>
-            <Text variant="caption" color="#64748B" style={{ marginBottom: 12 }}>
-              {isHindi ? 'ग्राहक से यह क्यूआर स्कैन करवाएं (गूगल पे / फोनपे / पेटीएम)' : 'Ask buyer to scan via any UPI app (GPay / PhonePe / Paytm)'}
-            </Text>
 
-            {/* QR Simulation Card */}
-            <View style={styles.qrVisualContainer}>
-              <View style={styles.qrBoxSim}>
-                <Text style={{ fontSize: 72 }}>🏁</Text>
-                <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A', marginTop: 4 }}>
-                  UPI: kalakar.ramesh@sbi
-                </Text>
-              </View>
-              <Text variant="headlineMedium" weight="bold" color="#EA580C" style={{ marginTop: 8 }}>
-                ₹{melaAmount}
-              </Text>
-            </View>
-
-            {/* Amount Presets */}
-            <View style={styles.amountPresetsRow}>
-              {['100', '150', '250', '500'].map((amt) => (
-                <TouchableOpacity
-                  key={amt}
-                  style={[styles.presetBtn, melaAmount === amt && styles.presetBtnActive]}
-                  onPress={() => setMelaAmount(amt)}
-                >
-                  <Text style={[styles.presetBtnText, melaAmount === amt && styles.presetBtnTextActive]}>
-                    ₹{amt}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View style={styles.tipProfitBox}>
+              <Text style={styles.tipProfitLabel}>Estimated Batch Profit:</Text>
+              <Text style={styles.tipProfitValue}>₹18,750 (250 Units)</Text>
             </View>
 
             <TouchableOpacity
-              style={styles.confirmCashBtn}
-              onPress={() => {
-                setShowMelaModal(false);
-                Alert.alert(
-                  '✅ Payment Recorded',
-                  isHindi ? `₹${melaAmount} का भुगतान प्राप्त हुआ! खाता बही में दर्ज किया गया।` : `Payment of ₹${melaAmount} received! Added to Bahi Khata.`
-                );
-              }}
+              onPress={() => navigation?.navigate?.('CreateTab')}
+              style={styles.startBatchButton}
+              activeOpacity={0.85}
             >
-              <Text variant="bodyMedium" weight="bold" color="#FFFFFF">
-                ✓ {isHindi ? 'भुगतान प्राप्त हुआ (खाते में दर्ज)' : 'Confirm Payment Received'}
-              </Text>
+              <Text style={styles.startBatchButtonText}>शुरू करें (Start Crafting Batch) →</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </Modal>
-    </SafeAreaView>
+        </View>
+
+        {/* 6. MY SHOP SNAPSHOT (4 Mini KPIs - P4) */}
+        <View style={styles.snapshotSection}>
+          <Text style={styles.sectionHeaderTitle}>📊 मेरी दुकान (My Shop Snapshot)</Text>
+          <View style={styles.snapshotGrid}>
+            <View style={styles.snapshotTile}>
+              <Text style={styles.snapshotVal}>12</Text>
+              <Text style={styles.snapshotLbl}>Products</Text>
+            </View>
+            <View style={styles.snapshotTile}>
+              <Text style={[styles.snapshotVal, { color: '#059669' }]}>3</Text>
+              <Text style={styles.snapshotLbl}>Live Active</Text>
+            </View>
+            <View style={styles.snapshotTile}>
+              <Text style={[styles.snapshotVal, { color: '#7C3AED' }]}>₹8k</Text>
+              <Text style={styles.snapshotLbl}>This Week</Text>
+            </View>
+            <View style={styles.snapshotTile}>
+              <Text style={[styles.snapshotVal, { color: '#D97706' }]}>⭐ 4.9</Text>
+              <Text style={styles.snapshotLbl}>Rating</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* 7. SPECIAL MODES (Mela Mode & B2B Bulk - P5) */}
+        <View style={styles.specialModesSection}>
+          <Text style={styles.sectionHeaderTitle}>🎪 विशेष मोड (Special Modes)</Text>
+          <View style={styles.specialModesGrid}>
+            {/* Mela Mode Trigger */}
+            <TouchableOpacity
+              onPress={() => setShowMelaModal(true)}
+              style={styles.modeCardMela}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modeCardEmoji}>🎪</Text>
+              <Text style={styles.modeCardTitle}>Mela Mode</Text>
+              <Text style={styles.modeCardSub}>Fast Exhibition POS & UPI QR</Text>
+              <View style={styles.modeBadgeMela}>
+                <Text style={styles.modeBadgeTextMela}>Live POS →</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* B2B Bulk Trigger */}
+            <TouchableOpacity
+              onPress={() => setShowB2BModal(true)}
+              style={styles.modeCardB2b}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modeCardEmoji}>🏢</Text>
+              <Text style={styles.modeCardTitle}>B2B Bulk</Text>
+              <Text style={styles.modeCardSub}>Smart Cluster Cooperative</Text>
+              <View style={styles.modeBadgeB2b}>
+                <Text style={styles.modeBadgeTextB2b}>2 RFQs →</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 8. THE 8 CORE PILLARS INNOVATION HUB */}
+        <View style={styles.pillarsSection}>
+          <View style={styles.pillarsHeaderRow}>
+            <View>
+              <Text style={styles.sectionHeaderTitle}>✨ 8 CORE PILLARS (मुख्य विशेषताएं)</Text>
+              <Text style={styles.pillarsSubTitle}>Tap any pillar to test live workflow</Text>
+            </View>
+            <TouchableOpacity
+              onPress={() =>
+                handleSpeak(
+                  'Kalakar Setu ke aath mukhya stambh: Voice listing, automatic catalog, photo enhancement, fair price calculator, QR craft passport, artisan cluster, buyer matching, aur live delivery tracking.'
+                )
+              }
+              style={styles.pillarsAudioBtn}
+            >
+              <Text style={styles.pillarsAudioIcon}>🔊</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.pillarsGrid}>
+            {CORE_PILLARS.map((pillar) => (
+              <TouchableOpacity
+                key={pillar.id}
+                onPress={pillar.action}
+                style={[styles.pillarCard, { backgroundColor: '#FFFFFF', borderColor: '#E2E8F0' }]}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.pillarIconBox, { backgroundColor: pillar.bg }]}>
+                  <Text style={styles.pillarEmoji}>{pillar.emoji}</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <Text style={styles.pillarTitle}>{pillar.title}</Text>
+                  <Text style={[styles.pillarHindi, { color: pillar.color }]}>{pillar.hindi}</Text>
+                  <Text style={styles.pillarDesc} numberOfLines={1}>
+                    {pillar.desc}
+                  </Text>
+                </View>
+                <View style={[styles.pillarLaunchBadge, { backgroundColor: pillar.bg }]}>
+                  <Text style={[styles.pillarLaunchText, { color: pillar.color }]}>Launch →</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Mela Mode Interactive Modal */}
+      <MelaModeModal visible={showMelaModal} onClose={() => setShowMelaModal(false)} />
+
+      {/* B2B Bulk Interactive Modal */}
+      <B2BBulkModal visible={showB2BModal} onClose={() => setShowB2BModal(false)} />
+
+      {/* Fair Price Calculator Modal */}
+      <FairPriceCalculatorModal
+        visible={showFairPriceModal}
+        onClose={() => setShowFairPriceModal(false)}
+      />
+
+      {/* QR Craft Passport Modal */}
+      <CraftPassportModal
+        visible={showPassportModal}
+        onClose={() => setShowPassportModal(false)}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#FFFDF7', // Stitch exact canvas
+    backgroundColor: '#F8FAFC',
   },
-  offlineBanner: {
-    backgroundColor: '#EF4444',
-    paddingVertical: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerBar: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFDF7',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#ECE8DC',
+    borderBottomColor: '#E2E8F0',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  headerBrandCol: {
     flex: 1,
   },
-  logoImage: {
-    width: 36,
-    height: 36,
-    marginRight: 8,
-  },
-  brandTitleContainer: {
-    justifyContent: 'center',
-  },
-  brandTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  brandTitleMain: {
-    fontSize: 14.5,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: 0.2,
-  },
-  brandTitleTilde: {
-    fontSize: 13,
-    color: '#94A3B8',
-    fontWeight: '400',
-  },
-  brandTitleRole: {
-    fontSize: 12,
-    color: '#EA580C',
-    fontWeight: '700',
-    letterSpacing: 0.1,
-  },
-  giBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  giBadgeDot: {
-    fontSize: 7,
-    color: '#16A34A',
-    marginRight: 4,
-  },
-  giBadgeText: {
-    fontSize: 9.5,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  headerRight: {
+  headerBrandRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  helpButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    paddingHorizontal: 7,
-    paddingVertical: 4.5,
-    borderRadius: 12,
-    gap: 3,
-  },
-  helpButtonIcon: {
-    fontSize: 12,
-  },
-  helpButtonText: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: '#EA580C',
-  },
-  headerIconButton: {
+  headerLogoBadge: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    backgroundColor: '#F5F3FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerLogoEmoji: {
+    fontSize: 18,
+  },
+  brandTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#7C3AED',
+    letterSpacing: -0.5,
+  },
+  headerRightCluster: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerIconBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  headerIconEmoji: {
-    fontSize: 15,
-  },
-  badgeIndicator: {
+  notifBadge: {
     position: 'absolute',
     top: -2,
     right: -2,
     backgroundColor: '#EF4444',
-    minWidth: 15,
-    height: 15,
-    borderRadius: 7.5,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 2,
   },
-  badgeIndicatorText: {
+  notifBadgeText: {
     color: '#FFFFFF',
-    fontSize: 8.5,
+    fontSize: 9,
     fontWeight: '800',
   },
-  profileAvatarButton: {
+  avatarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F3FF',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#DDD6FE',
+    gap: 6,
+  },
+  avatarCircle: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#7C3AED',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarEmoji: {
+    fontSize: 14,
+  },
+  avatarName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#7C3AED',
+  },
+  scrollBody: {
+    padding: 16,
+    paddingBottom: 95,
+    gap: 14,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  greetingTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  greetingSub: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  voiceGreetButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceGreetIcon: {
+    fontSize: 18,
+  },
+  bigEarningsCard: {
+    backgroundColor: '#7C3AED',
+    borderRadius: 24,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#7C3AED',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 8,
+      },
+      web: {
+        boxShadow: '0px 8px 24px rgba(124, 58, 237, 0.28)',
+      },
+    }),
+  },
+  earningsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  earningsCardLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#DDD6FE',
+  },
+  audioPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  audioPillText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  earningsAmount: {
+    fontSize: 38,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginVertical: 6,
+    letterSpacing: -0.5,
+  },
+  earningsGrowthRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  growthBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  growthBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  escrowSubText: {
+    fontSize: 11,
+    color: '#EDE9FE',
+    fontWeight: '600',
+  },
+  urgentSection: {},
+  sectionHeaderTitle: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#475569',
+    letterSpacing: 0.3,
+    marginBottom: 8,
+  },
+  urgentAlertCard: {
+    backgroundColor: '#FFF1F2',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#FECDD3',
+  },
+  urgentRedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  urgentRedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E11D48',
+  },
+  urgentRedText: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#BE123C',
+  },
+  urgentTimerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  urgentTimerText: {
+    fontSize: 11.5,
+    color: '#9F1239',
+    fontWeight: '500',
+  },
+  urgentArrow: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#BE123C',
+  },
+  tipSection: {},
+  tipCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  tipHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  tipBulb: {
+    fontSize: 26,
+  },
+  tipFestival: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  tipAction: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  tipAudioBtn: {
+    backgroundColor: '#FEF3C7',
     width: 34,
     height: 34,
     borderRadius: 17,
-    borderWidth: 1.5,
-    borderColor: '#EA580C',
-    position: 'relative',
-  },
-  profileAvatarImg: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 17,
-  },
-  avatarOnlineBadge: {
-    position: 'absolute',
-    bottom: -1,
-    right: -1,
-    width: 9,
-    height: 9,
-    borderRadius: 4.5,
-    backgroundColor: '#16A34A',
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  helpModalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    width: '100%',
-    maxWidth: 420,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  helpModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 12,
-  },
-  helpModalIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  helpActionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
+  tipAudioIcon: {
+    fontSize: 16,
+  },
+  tipProfitBox: {
+    backgroundColor: '#F0FDF4',
+    padding: 10,
     borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    marginBottom: 10,
-    gap: 10,
-  },
-  helpActionIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  notifItem: {
+    marginVertical: 12,
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-    marginBottom: 10,
-  },
-  modalCloseButton: {
-    marginTop: 8,
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  scrollContent: {
-    paddingBottom: 90, // Space for floating mic and bottom bar
-  },
-  greetingSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  greetingTextContainer: {
-    flex: 1,
-  },
-  namasteTitle: {
-    fontSize: 24,
-    letterSpacing: -0.3,
-  },
-  workshopSubtitle: {
-    marginTop: 2,
-  },
-  voiceGreetingBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFD7C7',
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#e85d2a',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
   },
-  voiceGreetingBtnActive: {
-    backgroundColor: '#e85d2a',
+  tipProfitLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#166534',
   },
-  kpiGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    gap: 8,
-    marginTop: 6,
+  tipProfitValue: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#15803D',
   },
-  kpiCard: {
-    flex: 1,
-    backgroundColor: '#F5F3EB',
+  startBatchButton: {
+    backgroundColor: '#F59E0B',
     borderRadius: 14,
     paddingVertical: 12,
-    paddingHorizontal: 8,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ECE8DC',
   },
-  kpiLabel: {
-    fontSize: 10,
-    letterSpacing: 0.8,
-    marginBottom: 4,
+  startBatchButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
   },
-  kpiValue: {
-    fontSize: 18,
-  },
-  createProductHeroCard: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    backgroundColor: '#e85d2a', // Stitch Terracotta #e85d2a
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#e85d2a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  heroButtonIconsRow: {
+  snapshotSection: {},
+  snapshotGrid: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 10,
-  },
-  heroIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  createProductTitle: {
-    fontSize: 20,
-    marginBottom: 4,
-  },
-  motifDivider: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
     gap: 8,
-    paddingVertical: 16,
-    opacity: 0.25,
   },
-  motifDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#2b2b2b',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  audioSpeakerBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F5F3EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  productsReel: {
-    paddingHorizontal: 16,
-    gap: 12,
-    paddingBottom: 8,
-  },
-  productTileCard: {
-    width: 140,
+  snapshotTile: {
+    flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#ECE8DC',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  tileImg: {
-    width: '100%',
-    height: 100,
-  },
-  tileInfo: {
-    padding: 8,
-  },
-  viewAllCard: {
-    width: 140,
-    height: 146,
-    backgroundColor: '#F5F3EB',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#ECE8DC',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  opportunityCard: {
-    marginHorizontal: 16,
-    backgroundColor: '#C8EEF3', // Stitch secondary container
     borderRadius: 16,
-    padding: 16,
+    padding: 12,
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#B0E2EA',
-    marginBottom: 8,
+    borderColor: '#E2E8F0',
   },
-  oppTopRow: {
+  snapshotVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  snapshotLbl: {
+    fontSize: 10,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  specialModesSection: {},
+  specialModesGrid: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    gap: 10,
   },
-  oppTagsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 12,
+  modeCardMela: {
+    flex: 1,
+    backgroundColor: '#FEF3C7',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
   },
-  killerFeaturesSection: {
-    marginHorizontal: 16,
-    marginTop: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#ECE8DC',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+  modeCardB2b: {
+    flex: 1,
+    backgroundColor: '#EEF2FF',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
   },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 14,
+  modeCardEmoji: {
+    fontSize: 26,
+    marginBottom: 4,
   },
-  liveBadgePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#DCFCE7',
+  modeCardTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  modeCardSub: {
+    fontSize: 10.5,
+    color: '#64748B',
+    marginVertical: 4,
+  },
+  modeBadgeMela: {
+    backgroundColor: '#D97706',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  liveBadgeDot: {
-    color: '#16A34A',
-    fontSize: 10,
-    marginRight: 4,
-  },
-  killerGrid: {
-    gap: 10,
-  },
-  killerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 12,
-  },
-  killerIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  killerBadgeRow: {
-    flexDirection: 'row',
-    marginBottom: 2,
-  },
-  killerPill: {
-    fontSize: 9,
-    fontWeight: '800',
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: 6,
-    letterSpacing: 0.5,
-  },
-  arrowIcon: {
-    fontSize: 22,
-    color: '#94A3B8',
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  matchTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1b9aaa',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  estTag: {
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  reviewDetailsBtn: {
-    backgroundColor: '#1b9aaa',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  schemeCard: {
-    marginHorizontal: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderWidth: 1,
-    borderColor: '#ECE8DC',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-    marginBottom: 16,
-  },
-  schemeIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFE4A0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  floatingMicBtn: {
-    position: 'absolute',
-    right: 20,
-    bottom: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#e85d2a', // Stitch Saffron #e85d2a
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#e85d2a',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
-    zIndex: 50,
-  },
-  // Demand Advisory Styles
-  demandAdvisoryCard: {
-    marginHorizontal: 16,
-    backgroundColor: '#FFFBEB',
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: '#FDE68A',
-    padding: 16,
-    marginBottom: 16,
-  },
-  demandBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  demandSurgePill: {
-    backgroundColor: '#EA580C',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  startCraftingBtn: {
-    backgroundColor: '#0F172A',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 10,
     alignSelf: 'flex-start',
     marginTop: 4,
   },
-  startCraftingBtnText: {
-    color: '#FFFFFF',
-    fontSize: 11.5,
-    fontWeight: 'bold',
-  },
-  // Mela Mode Styles
-  melaModeCard: {
-    marginHorizontal: 16,
-    backgroundColor: '#EA580C',
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    shadowColor: '#EA580C',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  melaModeLeft: {
-    flex: 1,
-    marginRight: 10,
-  },
-  melaPillBadge: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-  },
-  melaPillBadgeText: {
+  modeBadgeTextMela: {
     color: '#FFFFFF',
     fontSize: 9.5,
-    fontWeight: '900',
-    letterSpacing: 0.5,
+    fontWeight: '800',
   },
-  melaQrBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  modeBadgeB2b: {
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  modeBadgeTextB2b: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
+  pillarsSection: {
+    marginTop: 8,
+  },
+  pillarsHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  pillarsSubTitle: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  pillarsAudioBtn: {
+    backgroundColor: '#EDE9FE',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  melaModalBox: {
-    width: '90%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 20,
-    alignItems: 'center',
+  pillarsAudioIcon: {
+    fontSize: 16,
   },
-  melaModalTop: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  qrVisualContainer: {
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FED7AA',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-  },
-  qrBoxSim: {
-    alignItems: 'center',
-  },
-  amountPresetsRow: {
-    flexDirection: 'row',
+  pillarsGrid: {
     gap: 8,
-    marginBottom: 16,
-    width: '100%',
   },
-  presetBtn: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingVertical: 8,
-    borderRadius: 10,
+  pillarCard: {
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
   },
-  presetBtnActive: {
-    backgroundColor: '#FFF7ED',
-    borderColor: '#EA580C',
-    borderWidth: 1.5,
-  },
-  presetBtnText: {
-    color: '#64748B',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  presetBtnTextActive: {
-    color: '#EA580C',
-  },
-  confirmCashBtn: {
-    width: '100%',
-    backgroundColor: '#16A34A',
-    paddingVertical: 12,
+  pillarIconBox: {
+    width: 42,
+    height: 42,
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillarEmoji: {
+    fontSize: 22,
+  },
+  pillarTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  pillarHindi: {
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 1,
+  },
+  pillarDesc: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  pillarLaunchBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+  pillarLaunchText: {
+    fontSize: 11,
+    fontWeight: '800',
   },
 });

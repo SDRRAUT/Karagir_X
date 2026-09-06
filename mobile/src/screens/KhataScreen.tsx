@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 48,
+    paddingBottom: 130,
   },
   heroCard: {
     borderRadius: 16,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
@@ -13,6 +13,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
+import { useCartStore } from '@/store/useCartStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
+import { useProductDraftStore } from '@/store/useProductDraftStore';
 
 export const ProfileScreen: React.FC = () => {
   const theme = useTheme();
@@ -413,6 +416,26 @@ export const ProfileScreen: React.FC = () => {
               </View>
             </View>
 
+            {/* Artisan Journey Stats (4 mini KPIs) */}
+            <View style={{ flexDirection: 'row', gap: 8, marginVertical: 10 }}>
+              <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#0F172A' }}>47</Text>
+                <Text style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>{isHindi ? 'बिक्री' : 'Sales'}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#059669' }}>12k</Text>
+                <Text style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>{isHindi ? 'ग्राहक' : 'Buyers'}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#D97706' }}>⭐ 4.9</Text>
+                <Text style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>{isHindi ? 'रेटिंग' : 'Rating'}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 14, padding: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#7C3AED' }}>18</Text>
+                <Text style={{ fontSize: 10, color: '#64748B', marginTop: 2 }}>{isHindi ? 'देश' : 'Country'}</Text>
+              </View>
+            </View>
+
             {/* Artisan Finance & Growth */}
             <View style={styles.sectionHeader}>
               <View style={styles.sectionHeaderTitle}>
@@ -438,7 +461,7 @@ export const ProfileScreen: React.FC = () => {
                     {t.profile.mudraCredit}
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    {t.profile.mudraCreditSub}
+                    {isHindi ? 'पूर्व-स्वीकृत: ₹50,000 ऋण' : 'Pre-approved: ₹50,000 credit'}
                   </Text>
                 </View>
                 <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
@@ -455,7 +478,25 @@ export const ProfileScreen: React.FC = () => {
                     {t.profile.pmVishwakarma}
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    {t.profile.pmVishwakarmaSub}
+                    {isHindi ? 'सक्रिय • ₹15,000 टूलकिट अनुदान प्राप्त' : 'Linked & Active • ₹15,000 grant received'}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              {/* PM DAKSH Skill Training */}
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🎓</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {isHindi ? 'पीएम दक्ष प्रशिक्षण' : 'PM DAKSH Training'}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {isHindi ? 'पास में 3 नए कार्यशालाएं उपलब्ध' : '3 new advanced craft workshops nearby'}
                   </Text>
                 </View>
                 <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
@@ -777,16 +818,91 @@ export const ProfileScreen: React.FC = () => {
 
           <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 14 }]} />
 
+          {/* Reset App / Demo State Button */}
+          <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
+            {isHindi ? 'ऐप रीसेट एवं शुरुआत' : 'App Reset & Restart'}
+          </Text>
+          <Button
+            label={isHindi ? '🔄 ऐप रीसेट करें (स्प्लैश स्क्रीन पर जाएं)' : '🔄 Reset App (Back to Splash)'}
+            variant="outline"
+            onPress={() => {
+              const handlePerformReset = async () => {
+                try {
+                  await logout();
+                  useCartStore.getState().clearCart();
+                  useWishlistStore.getState().clearWishlist();
+                  useProductDraftStore.getState().resetDraft();
+                  useAuthStore.getState().setActiveRole(null as any);
+                  useAuthStore.setState({ user: null, isAuthenticated: false, tokens: null });
+                } catch (err) {
+                  console.error('Reset error:', err);
+                }
+
+                try {
+                  const rootNav = navigation.getParent() || navigation;
+                  rootNav.reset({
+                    index: 0,
+                    routes: [{ name: 'Splash' }],
+                  });
+                } catch {
+                  try {
+                    (navigation as any).navigate('Splash');
+                  } catch {
+                    navigation.reset({
+                      index: 0,
+                      routes: [{ name: 'Splash' }],
+                    });
+                  }
+                }
+              };
+
+              if (Platform.OS === 'web') {
+                const confirmed = window.confirm(
+                  isHindi
+                    ? 'क्या आप सभी सत्र डेटा रीसेट करके मुख्य स्प्लैश स्क्रीन (Splash) पर वापस जाना चाहते हैं?'
+                    : 'Are you sure you want to reset all active session data and return to the main splash screen?'
+                );
+                if (confirmed) {
+                  handlePerformReset();
+                }
+              } else {
+                Alert.alert(
+                  isHindi ? 'ऐप रीसेट करें?' : 'Reset Application?',
+                  isHindi
+                    ? 'क्या आप सभी सत्र डेटा रीसेट करके मुख्य स्प्लैश स्क्रीन (Splash) पर वापस जाना चाहते हैं?'
+                    : 'Are you sure you want to reset all active session data and return to the main splash screen?',
+                  [
+                    { text: isHindi ? 'रद्द करें' : 'Cancel', style: 'cancel' },
+                    {
+                      text: isHindi ? 'रीसेट करें' : 'Reset & Restart',
+                      style: 'destructive',
+                      onPress: handlePerformReset,
+                    },
+                  ]
+                );
+              }
+            }}
+            style={{ marginBottom: 12 }}
+          />
+
           {/* Logout Button */}
           <Button
             label={t.profile.signOut}
             variant="danger"
             onPress={async () => {
               await logout();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'AuthPhone', params: { role } }],
-              });
+              try {
+                const rootNav = navigation.getParent() || navigation;
+                rootNav.reset({
+                  index: 0,
+                  routes: [{ name: 'AuthPhone', params: { role } }],
+                });
+              } catch {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'AuthPhone', params: { role } }],
+                });
+              }
             }}
           />
         </Card>
@@ -801,7 +917,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 48,
+    paddingBottom: 140, // Space so everything scrolls completely above the floating bottom tab bar
     maxWidth: 600,
     width: '100%',
     alignSelf: 'center',

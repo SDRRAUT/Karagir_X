@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalakar Setu — Technical Approach Slide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #ECEFF1;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .slide-container {
+      width: 1280px;
+      height: 720px;
+      background: #FFFFFF;
+      border: 4px solid #1E293B;
+      border-radius: 12px;
+      padding: 20px 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    /* Top Header */
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .team-badge {
+      border: 2px solid #0F172A;
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      color: #0F172A;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #F8FAFC;
+    }
+    .main-title-box {
+      border: 3.5px solid #0F172A;
+      border-radius: 40px;
+      padding: 8px 48px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 0 #0F172A;
+    }
+    .main-title-box h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #0F172A;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .event-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: #0F172A;
+      text-align: right;
+    }
+    .event-logo-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EA580C, #F59E0B);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+    }
+
+    /* Main Slide Grid */
+    .slide-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* Left Column */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .bullets-card {
+      border: 2.5px solid #0F172A;
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: #FAFAFA;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+    .bullet-item {
+      font-size: 13.5px;
+      line-height: 1.4;
+      color: #1E293B;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .bullet-dot {
+      color: #0F172A;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+    .bullet-label {
+      font-weight: 800;
+      color: #0F766E;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .bullet-val {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    /* UI Mockup Box */
+    .ui-mockup-card {
+      border: 2.5px solid #0F172A;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #FFFFFF;
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+    .ui-header-bar {
+      background: #0F172A;
+      color: white;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ui-content-preview {
+      flex: 1;
+      background: #F8FAFC;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+    .ui-panel {
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ui-panel-title {
+      font-size: 10px;
+      font-weight: 800;
+      color: #EA580C;
+    }
+    .ui-panel-text {
+      font-size: 9px;
+      color: #64748B;
+      line-height: 1.2;
+    }
+    .ui-caption {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0F172A;
+      padding: 4px 8px;
+      background: #F1F5F9;
+      border-top: 1px solid #CBD5E1;
+    }
+
+    /* Right Column (Architecture Diagram) */
+    .right-col {
+      border: 2.5px solid #0F172A;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #FFFFFF;
+    }
+
+    /* Frontend Layer */
+    .arch-box {
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 8px 10px;
+      position: relative;
+      background: #FFFFFF;
+    }
+    .arch-tag {
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background: #0F172A;
+      color: white;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .frontend-stack {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      margin-top: 6px;
+      padding-top: 4px;
+    }
+    .tech-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .tech-icon {
+      font-size: 18px;
+    }
+    .tech-name {
+      font-size: 10px;
+      font-weight: 800;
+      color: #0F172A;
+    }
+
+    /* Middle Backend & AI Layer */
+    .middle-arch-grid {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .gateway-box {
+      border: 2px solid #0F172A;
+      border-radius: 8px;
+      background: #F0FDF4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      text-align: center;
+    }
+    .gateway-logo {
+      font-size: 26px;
+    }
+    .gateway-title {
+      font-size: 11px;
+      font-weight: 900;
+      color: #166534;
+      margin-top: 2px;
+    }
+
+    .services-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .service-row-1 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    .service-card {
+      border: 1.5px solid #CBD5E1;
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #F8FAFC;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .service-icon {
+      font-size: 16px;
+    }
+    .service-title {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #1E293B;
+      margin-top: 2px;
+    }
+    .service-sub {
+      font-size: 8px;
+      color: #64748B;
+    }
+
+    /* Database Layer */
+    .db-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    /* Bottom Integrations & Security */
+    .bottom-arch-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 10px;
+    }
+    .integration-box {
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 8px;
+      background: #FFFBEB;
+    }
+    .integration-title {
+      font-size: 10.5px;
+      font-weight: 900;
+      color: #92400E;
+      margin-bottom: 4px;
+    }
+    .integration-icons {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2px;
+    }
+    .integ-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-align: center;
+    }
+    .integ-text {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: #78350F;
+    }
+
+    .security-box {
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 8px;
+      background: #EEF2FF;
+    }
+    .security-title {
+      font-size: 10.5px;
+      font-weight: 900;
+      color: #3730A3;
+      margin-bottom: 4px;
+    }
+    .security-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sec-badge {
+      font-size: 8px;
+      font-weight: 800;
+      color: #312E81;
+      background: #E0E7FF;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid #C7D2FE;
+    }
+
+    /* Slide Footer Number */
+    .slide-footer-num {
+      position: absolute;
+      bottom: 12px;
+      right: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 18px;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-container">
+    <!-- Top Header -->
+    <div class="top-header">
+      <div class="team-badge">
+        <span>🎨</span>
+        <span>Kalakar Setu</span>
+      </div>
+
+      <div class="main-title-box">
+        <h1>TECHNICAL APPROACH</h1>
+      </div>
+
+      <div class="event-badge">
+        <div>
+          <div>SMART INDIA</div>
+          <div>HACKATHON 2025</div>
+        </div>
+        <div class="event-logo-circle">💡</div>
+      </div>
+    </div>
+
+    <!-- Main Slide Body -->
+    <div class="slide-body">
+      <!-- Left Column: Technical Stack Details + UI Mockup -->
+      <div class="left-col">
+        <div class="bullets-card">
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Multimodal AI & Vision:</span> <span class="bullet-val">Google Gemini 1.5 Flash (Image + Regional Voice).</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Image Enhancement Studio:</span> <span class="bullet-val">Canvas Studio Engine & U²-Net Segmentation.</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Vernacular Speech-to-Text:</span> <span class="bullet-val">Web Speech API & Bhashini (12 Indic Languages).</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Fair Price Calculator:</span> <span class="bullet-val">Algorithmic Regression Model (≥95% Artisan Payout).</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Mobile & Web Client:</span> <span class="bullet-val">React Native 0.74, Expo SDK 51 & Zustand State.</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Data & Geospatial DB:</span> <span class="bullet-val">PostgreSQL 15 & PostGIS (GI Regional Cluster Mapping).</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Digital Craft Passport:</span> <span class="bullet-val">Cryptographic SHA-256 Hash & Dynamic QR Matrix.</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Logistics Tracking:</span> <span class="bullet-val">India Post Speed Post API (5-Stage Visual Tracker).</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Open Network & Commerce:</span> <span class="bullet-val">ONDC Protocol Adapter & WhatsApp Business API.</span></div>
+          </div>
+          <div class="bullet-item">
+            <span class="bullet-dot">•</span>
+            <div><span class="bullet-label">Security & Access Control:</span> <span class="bullet-val">PostgreSQL Row-Level Security (RLS) & JWT Auth.</span></div>
+          </div>
+        </div>
+
+        <!-- UI Mockup / Prototype Box -->
+        <div class="ui-mockup-card">
+          <div class="ui-header-bar">
+            <span>📱 Kalakar Setu — 3-Second Artisan & Buyer Interface</span>
+            <span>🟢 Live Connected</span>
+          </div>
+          <div class="ui-content-preview">
+            <div class="ui-panel">
+              <div class="ui-panel-title">📸 AI Smart Camera</div>
+              <div class="ui-panel-text">• Real-time frame luminance & focus check</div>
+              <div class="ui-panel-text">• Live voice cues: "रोशनी सही है"</div>
+              <div class="ui-panel-text">• 4K studio lighting toggle</div>
+            </div>
+            <div class="ui-panel">
+              <div class="ui-panel-title">🎙️ Voice Cataloging</div>
+              <div class="ui-panel-text">• Hindi / Marathi speech stream</div>
+              <div class="ui-panel-text">• Auto trilingual SEO titles</div>
+              <div class="ui-panel-text">• Fair price ₹850 breakdown</div>
+            </div>
+            <div class="ui-panel">
+              <div class="ui-panel-title">🏛️ QR Craft Passport</div>
+              <div class="ui-panel-text">• GI-MH-KLP-2026 Provenance</div>
+              <div class="ui-panel-text">• Instant 1080p Flyer Download</div>
+              <div class="ui-panel-text">• ONDC & WhatsApp 1-tap live</div>
+            </div>
+          </div>
+          <div class="ui-caption">
+            User Interface: Artisan 3-Second Rule Hub, Voice Saathi & Real-Time Multimodal Catalog Engine
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: System Architecture Box -->
+      <div class="right-col">
+        <!-- Frontend Architecture -->
+        <div class="arch-box">
+          <div class="arch-tag">Frontend Client Layer</div>
+          <div class="frontend-stack">
+            <div class="tech-pill">
+              <span class="tech-icon">⚛️</span>
+              <span class="tech-name">React Native</span>
+            </div>
+            <div class="tech-pill">
+              <span class="tech-icon">📱</span>
+              <span class="tech-name">Expo SDK 51</span>
+            </div>
+            <div class="tech-pill">
+              <span class="tech-icon">🎙️</span>
+              <span class="tech-name">Web Speech API</span>
+            </div>
+            <div class="tech-pill">
+              <span class="tech-icon">✨</span>
+              <span class="tech-name">Canvas Studio</span>
+            </div>
+            <div class="tech-pill">
+              <span class="tech-icon">⚡</span>
+              <span class="tech-name">Zustand Store</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle API Gateway & Backend Microservices -->
+        <div class="middle-arch-grid">
+          <div class="gateway-box">
+            <div class="gateway-logo">🟢</div>
+            <div class="gateway-title">Node.js Gateway</div>
+            <div style="font-size: 8px; color: #166534; margin-top: 2px;">Edge Functions</div>
+          </div>
+
+          <div class="services-stack">
+            <div class="service-row-1">
+              <div class="service-card" style="border-color: #FED7AA; background: #FFF7ED;">
+                <span class="service-icon">🤖</span>
+                <span class="service-title">Gemini 1.5 Flash</span>
+                <span class="service-sub">Multimodal Vision</span>
+              </div>
+              <div class="service-card" style="border-color: #BAE6FD; background: #F0F9FF;">
+                <span class="service-icon">🗺️</span>
+                <span class="service-title">PostGIS Module</span>
+                <span class="service-sub">Regional GI Clusters</span>
+              </div>
+              <div class="service-card" style="border-color: #DDD6FE; background: #F5F3FF;">
+                <span class="service-icon">🏛️</span>
+                <span class="service-title">QR Passport</span>
+                <span class="service-sub">Cryptographic Seal</span>
+              </div>
+            </div>
+
+            <!-- Database Stack -->
+            <div class="db-grid">
+              <div class="service-card">
+                <span class="service-icon">🐘</span>
+                <span class="service-title">PostgreSQL 15</span>
+                <span class="service-sub">Supabase Managed</span>
+              </div>
+              <div class="service-card">
+                <span class="service-icon">☁️</span>
+                <span class="service-title">Object Storage</span>
+                <span class="service-sub">4K Craft Assets</span>
+              </div>
+              <div class="service-card">
+                <span class="service-icon">📴</span>
+                <span class="service-title">WatermelonDB</span>
+                <span class="service-sub">Offline-First Cache</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: Integrations & Security -->
+        <div class="bottom-arch-row">
+          <div class="integration-box">
+            <div class="integration-title">🔌 External Integrations:</div>
+            <div class="integration-icons">
+              <div class="integ-item">
+                <span style="font-size: 16px;">📮</span>
+                <span class="integ-text">India Post API</span>
+              </div>
+              <div class="integ-item">
+                <span style="font-size: 16px;">🌐</span>
+                <span class="integ-text">ONDC Gateway</span>
+              </div>
+              <div class="integ-item">
+                <span style="font-size: 16px;">💬</span>
+                <span class="integ-text">WhatsApp API</span>
+              </div>
+              <div class="integ-item">
+                <span style="font-size: 16px;">🏛️</span>
+                <span class="integ-text">Govt Schemes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="security-box">
+            <div class="security-title">🔒 Security & Trust:</div>
+            <div class="security-content">
+              <span style="font-size: 20px;">🛡️</span>
+              <div style="display: flex; flex-direction: column; gap: 3px;">
+                <span class="sec-badge">Postgres RLS Multi-Tenant</span>
+                <span class="sec-badge">JWT + Tactile 4-Digit PIN</span>
+                <span class="sec-badge">Escrow Milestone Protocol</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide Number -->
+    <div class="slide-footer-num">3</div>
+  </div>
+
+</body>
+</html>

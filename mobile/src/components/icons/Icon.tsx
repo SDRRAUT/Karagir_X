@@ -47,6 +47,8 @@ export type IconName =
   | 'clock'
   | 'bag'
   | 'bagOutline'
+  | 'cart'
+  | 'cartOutline'
   | 'tag'
   | 'truck'
   | 'sparkles'
@@ -58,6 +60,8 @@ export type IconName =
   | 'mailOutline'
   | 'lock'
   | 'lockOutline'
+  | 'bell'
+  | 'bellOutline'
   | 'zap'
   | 'keypad'
   | 'keyboard'
@@ -71,6 +75,8 @@ export type IconName =
   | 'creditCard'
   | 'tool'
   | 'package'
+  | 'settings'
+  | 'settingsOutline'
   | 'helpCircle';
 
 export interface IconProps {
@@ -212,12 +218,24 @@ export const Icon: React.FC<IconProps> = ({
       return <Feather name="clock" size={size} color={iconColor} style={style} />;
     case 'helpCircle':
       return <Feather name="help-circle" size={size} color={iconColor} style={style} />;
+    case 'settings':
+      return <Ionicons name="settings" size={size} color={iconColor} style={style} />;
+    case 'settingsOutline':
+      return <Ionicons name="settings-outline" size={size} color={iconColor} style={style} />;
+    case 'bell':
+      return <Ionicons name="notifications" size={size} color={iconColor} style={style} />;
+    case 'bellOutline':
+      return <Ionicons name="notifications-outline" size={size} color={iconColor} style={style} />;
 
     // Commerce
     case 'bag':
       return <Ionicons name="bag-handle" size={size} color={iconColor} style={style} />;
     case 'bagOutline':
       return <Ionicons name="bag-handle-outline" size={size} color={iconColor} style={style} />;
+    case 'cart':
+      return <Ionicons name="cart" size={size} color={iconColor} style={style} />;
+    case 'cartOutline':
+      return <Ionicons name="cart-outline" size={size} color={iconColor} style={style} />;
     case 'tag':
       return <Feather name="tag" size={size} color={iconColor} style={style} />;
     case 'truck':

@@ -1,347 +1,636 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme/ThemeProvider';
+import React, { useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  Dimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
-import { Card } from '@/components/cards/Card';
-import { Button } from '@/components/buttons/Button';
-import { AppHeader } from '@/components/navigation/AppHeader';
 
-export const KhataScreen: React.FC = () => {
-  const theme = useTheme();
+const { width } = Dimensions.get('window');
 
-  const ledgerItems = [
-    { icon: '🧵', label: 'Raw Materials', amount: '₹250' },
-    { icon: '⏱️', label: 'Artisan Labor (4 Days)', amount: '₹1,400' },
-    { icon: '🎨', label: 'Traditional GI Craft Skill', amount: '₹350' },
-    { icon: '📦', label: 'Eco-Friendly Packaging', amount: '₹60' },
-  ];
+export const KhataScreen: React.FC<any> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const [loanApplied, setLoanApplied] = useState(false);
 
-  const recentTransactions = [
-    {
-      id: 'tx-1',
-      title: 'Order #KS-83901 — Terracotta Diya',
-      date: 'Today, 09:45 AM',
-      amount: '+₹2,090',
-      type: 'CREDIT',
-      status: 'Bank Settled',
-      utr: 'UTR-981240129',
-    },
-    {
-      id: 'tx-2',
-      title: 'B2B Advance Payout — TCS Cluster Batch',
-      date: 'Yesterday, 04:30 PM',
-      amount: '+₹7,500',
-      type: 'CREDIT',
-      status: 'Escrow Released',
-      utr: 'UTR-849102834',
-    },
-    {
-      id: 'tx-3',
-      title: 'Monthly Packaging Material Supply',
-      date: '28 Aug, 11:20 AM',
-      amount: '-₹850',
-      type: 'DEBIT',
-      status: 'Material Paid',
-      utr: 'UPI-3029104',
-    },
-  ];
+  const handleSpeak = (text: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleApplyCredit = () => {
+    setLoanApplied(true);
+    handleSpeak('Badhaai ho! Aapka Karigar credit loan pachhees hazaar rupaye pre-approved hokar submit ho gaya hai.');
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
-      <AppHeader
-        title="Digital Ledger"
-        subtitle="Passbook & Fair Share Ledger"
-        showDevanagariLogo={false}
-        onVoicePress={() => {}}
-      />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>💰 मेरा खाता (Khata)</Text>
+          <Text style={styles.headerSub}>100% Transparent Fair Price Ledger</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() =>
+            handleSpeak(
+              'Aapki kul kamai chaubees hazaar aath sau rupaye hai. Escrow mein do hazaar aath sau baanve rupaye surakshit hain. Agla payout kal subah das baje aapke State Bank of India khate mein credit hoga.'
+            )
+          }
+          style={styles.headerAudioBtn}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.headerAudioIcon}>🔊</Text>
+        </TouchableOpacity>
+      </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Lifetime Earnings Stat Hero Card (Stitch Forest Green Earnings Style) */}
-        <Card style={[styles.heroCard, { backgroundColor: '#4B44CC', borderColor: '#27593C' }]}>
-          <View style={styles.heroTopRow}>
-            <View>
-              <Text variant="labelMedium" color="#D6D3FF">
-                Lifetime Earnings & Payouts
-              </Text>
-              <Text variant="displaySmall" weight="bold" color="#FFFFFF" style={{ marginTop: 4 }}>
-                ₹24,800
-              </Text>
-            </View>
-            <View style={[styles.audioPromptCircle, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
-              <Text style={{ fontSize: 18 }}>🔊</Text>
-            </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+        {/* 1. BIG EARNINGS CARD */}
+        <View style={styles.bigEarningsCard}>
+          <View style={styles.cardTopRow}>
+            <Text style={styles.cardLabel}>कुल कमाई (Total Earnings)</Text>
+            <TouchableOpacity
+              onPress={() =>
+                handleSpeak('Kul kamai chaubees hazaar aath sau rupaye. Is mahine teen hazaar do sau rupaye badhe hain.')
+              }
+              style={styles.cardAudioBtn}
+            >
+              <Text style={styles.cardAudioText}>🔊 Suno</Text>
+            </TouchableOpacity>
           </View>
 
-          <View style={styles.heroSubRow}>
-            <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#D6D3FF">
-                Completed Orders
-              </Text>
-              <Text variant="labelLarge" weight="bold" color="#FFFFFF">
-                18 Orders
-              </Text>
-            </View>
-            <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
-            <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#D6D3FF">
-                Escrow Protected
-              </Text>
-              <Text variant="labelLarge" weight="bold" color="#FFFFFF">
-                ₹2,892
-              </Text>
-            </View>
-            <View style={[styles.vDivider, { backgroundColor: 'rgba(16, 185, 129, 0.25)' }]} />
-            <View style={styles.heroSubItem}>
-              <Text variant="labelSmall" color="#D6D3FF">
-                Next Payout
-              </Text>
-              <Text variant="labelLarge" weight="bold" color="#FFFFFF">
-                Tomorrow 10 AM
-              </Text>
-            </View>
-          </View>
-        </Card>
+          <Text style={styles.cardAmount}>₹ 24,800</Text>
 
-        {/* Bank & Payout Destination */}
-        <Card style={styles.bankCard}>
-          <View style={styles.bankRow}>
-            <View style={[styles.bankIconCircle, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
-              <Text style={{ fontSize: 20 }}>🏦</Text>
-            </View>
-            <View style={{ flex: 1, paddingHorizontal: 12 }}>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                State Bank of India (SBI)
-              </Text>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                Account: •••• 4021 • Auto-Credit Active
-              </Text>
-            </View>
-            <View style={[styles.activePill, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-              <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                UPI Active ✓
-              </Text>
-            </View>
+          <View style={styles.monthlyGrowthPill}>
+            <Text style={styles.monthlyGrowthText}>📈 Is mahine +₹3,200</Text>
           </View>
-        </Card>
 
-        {/* Fair Share Pricing Breakdown Ledger */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            Transparent Price Ledger
-          </Text>
+          <View style={styles.bankStatusRow}>
+            <Text style={styles.bankNameText}>🏦 SBI ••••4021 ✓ Active</Text>
+            <Text style={styles.autoCreditText}>🔄 Auto-credit ON</Text>
+          </View>
         </View>
 
-        <Card style={styles.ledgerCard}>
-          <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginBottom: 12 }}>
-            Kalakar Setu 100% Transparency Policy — Clear accounting for every rupee:
-          </Text>
-
-          {ledgerItems.map((item, idx) => (
-            <View key={idx} style={styles.ledgerItemRow}>
-              <View style={styles.ledgerItemLeft}>
-                <Text style={{ fontSize: 16, marginRight: 8 }}>{item.icon}</Text>
-                <Text variant="labelMedium" color={theme.colors.text.primary}>
-                  {item.label}
-                </Text>
-              </View>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                {item.amount}
-              </Text>
+        {/* 2. ESCROW STATUS STRIP */}
+        <View style={styles.escrowCard}>
+          <View style={styles.escrowRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.escrowTitle}>🔒 Escrow mein safe: ₹2,892</Text>
+              <Text style={styles.escrowSub}>(3 orders complete hone par milega)</Text>
             </View>
-          ))}
-
-          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 12 }]} />
-
-          <View style={styles.summaryRow}>
-            <Text variant="labelMedium" color={theme.colors.text.secondary}>
-              Total Paid by Customer:
-            </Text>
-            <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-              ₹2,150
-            </Text>
-          </View>
-
-          <View style={[styles.payoutHighlight, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
-            <View>
-              <Text variant="labelMedium" weight="bold" color="#6C63FF">
-                Direct Artisan Share (95%):
-              </Text>
-              <Text variant="labelSmall" color="#6C63FF">
-                Platform & AI processing fee only 5% (₹108)
-              </Text>
+            <View style={styles.payoutTimeBadge}>
+              <Text style={styles.payoutTimeText}>⏰ Next payout: Kal 10 AM</Text>
             </View>
-            <Text variant="headlineSmall" weight="bold" color="#6C63FF">
-              ₹2,042
-            </Text>
           </View>
-        </Card>
-
-        {/* Recent Passbook Transactions */}
-        <View style={styles.sectionHeader}>
-          <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            Passbook Transactions
-          </Text>
         </View>
 
-        <Card style={styles.txCard}>
-          {recentTransactions.map((tx, idx) => (
-            <View key={tx.id}>
-              <View style={styles.txRow}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                    {tx.title}
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    {tx.date} • {tx.utr}
-                  </Text>
-                  <Text
-                    variant="labelSmall"
-                    weight="bold"
-                    color={tx.type === 'CREDIT' ? '#6C63FF' : theme.colors.terracotta.primary}
-                    style={{ marginTop: 2 }}
-                  >
-                    {tx.status}
-                  </Text>
-                </View>
-                <Text
-                  variant="labelLarge"
-                  weight="bold"
-                  color={tx.type === 'CREDIT' ? '#6C63FF' : '#EF4444'}
-                >
-                  {tx.amount}
-                </Text>
-              </View>
-              {idx < recentTransactions.length - 1 && (
-                <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 10 }]} />
-              )}
+        {/* 3. 100% TRANSPARENT PRICE BREAKDOWN LEDGER (Anti-Exploitation USP) */}
+        <View style={styles.ledgerSectionCard}>
+          <View style={styles.ledgerHeaderRow}>
+            <View>
+              <Text style={styles.ledgerSectionTitle}>💎 100% TRANSPARENT BREAKDOWN (USP)</Text>
+              <Text style={styles.ledgerSectionSub}>Last Sale: Terracotta Diya Set × 2</Text>
             </View>
-          ))}
-        </Card>
+            <TouchableOpacity
+              onPress={() =>
+                handleSpeak(
+                  'Customer ne kul do hazaar ek sau pachas rupaye diye. Mitti aur rang do sau pachas rupaye, aapki mehnat chaudah sau rupaye, GI skill bonus teen sau pachas rupaye, packing saath rupaye, platform fee ek sau aath rupaye. Aapko mila do hazaar bayalees rupaye, yani pachaanve pratishat.'
+                )
+              }
+              style={styles.ledgerAudioBtn}
+            >
+              <Text style={styles.ledgerAudioText}>🔊 पूरा सुनो</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* Instant UPI Withdraw Button */}
-        <Button
-          label="Instant Bank Transfer (UPI)"
-          variant="primary"
-          onPress={() => {}}
-          style={styles.withdrawBtn}
-        />
+          <View style={styles.ledgerTable}>
+            <View style={styles.ledgerRow}>
+              <Text style={styles.ledgerLabel}>Customer ne diye (Paid):</Text>
+              <Text style={styles.ledgerCustomerVal}>₹2,150</Text>
+            </View>
+            <View style={styles.ledgerDivider} />
+
+            <View style={styles.ledgerRow}>
+              <Text style={styles.ledgerItemLabel}>Mitti + Rang (Raw Material):</Text>
+              <Text style={styles.ledgerDebitVal}>-₹250</Text>
+            </View>
+
+            <View style={[styles.ledgerRow, styles.ledgerRowGreen]}>
+              <Text style={styles.ledgerHighlightLabel}>Aapki Mehnat (Labor Hours):</Text>
+              <Text style={styles.ledgerHighlightVal}>+₹1,400 ✓</Text>
+            </View>
+
+            <View style={[styles.ledgerRow, styles.ledgerRowGreen]}>
+              <Text style={styles.ledgerHighlightLabel}>GI Skill Bonus (Heritage Craft):</Text>
+              <Text style={styles.ledgerHighlightVal}>+₹350 ✓</Text>
+            </View>
+
+            <View style={styles.ledgerRow}>
+              <Text style={styles.ledgerItemLabel}>Eco Packaging:</Text>
+              <Text style={styles.ledgerDebitVal}>-₹60</Text>
+            </View>
+
+            <View style={styles.ledgerRow}>
+              <Text style={styles.ledgerItemLabel}>Platform Tech Fee (5%):</Text>
+              <Text style={styles.ledgerDebitVal}>-₹108</Text>
+            </View>
+            <View style={styles.ledgerDivider} />
+
+            {/* Artisan Take Home (95%) */}
+            <View style={styles.ledgerFinalRow}>
+              <View>
+                <Text style={styles.ledgerFinalLabel}>💰 Aapko Mila (Take-Home):</Text>
+                <Text style={styles.ledgerFinalSub}>(95% of total paid by customer)</Text>
+              </View>
+              <Text style={styles.ledgerFinalAmount}>₹2,042</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* 4. PASSBOOK (TRANSACTIONS LEDGER) */}
+        <View style={styles.passbookSection}>
+          <View style={styles.passbookHeaderRow}>
+            <Text style={styles.passbookTitle}>📜 Passbook (Ledger)</Text>
+            <Text style={styles.passbookSub}>Auditable Bank UTRs</Text>
+          </View>
+
+          <View style={styles.transactionsList}>
+            {/* Tx 1 */}
+            <View style={styles.txCard}>
+              <View style={styles.txLeft}>
+                <Text style={styles.txTitle}>+₹2,042  Order Payment</Text>
+                <Text style={styles.txSub}>6 Sept • UTR: 902837482910</Text>
+              </View>
+              <View style={styles.txBadgeCredit}>
+                <Text style={styles.txBadgeCreditText}>Bank Transfer ✓</Text>
+              </View>
+            </View>
+
+            {/* Tx 2 */}
+            <View style={styles.txCard}>
+              <View style={styles.txLeft}>
+                <Text style={styles.txTitle}>+₹1,800  Mela Mode Sale</Text>
+                <Text style={styles.txSub}>5 Sept • UPI Direct Settlement</Text>
+              </View>
+              <View style={styles.txBadgeCredit}>
+                <Text style={styles.txBadgeCreditText}>UPI Instant ✓</Text>
+              </View>
+            </View>
+
+            {/* Tx 3 */}
+            <View style={styles.txCard}>
+              <View style={styles.txLeft}>
+                <Text style={styles.txTitle}>+₹15,000 PM Vishwakarma Grant</Text>
+                <Text style={styles.txSub}>1 Sept • Govt Direct Benefit Transfer</Text>
+              </View>
+              <View style={styles.txBadgeGovt}>
+                <Text style={styles.txBadgeGovtText}>Govt Scheme 🏛️</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* 5. KAARIGAR CREDIT SCORE (Financial Inclusion USP) */}
+        <View style={styles.creditScoreCard}>
+          <View style={styles.creditHeaderRow}>
+            <View>
+              <Text style={styles.creditTitle}>💳 Kaarigar Credit Score (USP)</Text>
+              <Text style={styles.creditSub}>Micro-Credit for tools & raw materials</Text>
+            </View>
+            <View style={styles.scoreBadge}>
+              <Text style={styles.scoreBadgeText}>⭐ 785 / 900</Text>
+            </View>
+          </View>
+
+          {/* Progress Bar */}
+          <View style={styles.scoreProgressBar}>
+            <View style={styles.scoreProgressFill} />
+          </View>
+
+          <View style={styles.creditEligibleBox}>
+            <Text style={styles.creditEligibleText}>
+              ✅ <Text style={{ fontWeight: '800' }}>₹25,000 tak loan mil sakta hai</Text> (bina paperwork / zero collateral).
+            </Text>
+          </View>
+
+          {loanApplied ? (
+            <View style={styles.loanAppliedBanner}>
+              <Text style={styles.loanAppliedText}>✓ Loan Application Submitted! Disbursal in 2 hours.</Text>
+            </View>
+          ) : (
+            <TouchableOpacity onPress={handleApplyCredit} style={styles.applyCreditButton} activeOpacity={0.85}>
+              <Text style={styles.applyCreditButtonText}>Apply Now (ऋण के लिए आवेदन करें) →</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  headerLeft: {
     flex: 1,
   },
-  content: {
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  headerSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  headerAudioBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerAudioIcon: {
+    fontSize: 16,
+  },
+  scrollBody: {
     padding: 16,
-    paddingBottom: 48,
+    paddingBottom: 95,
+    gap: 14,
   },
-  heroCard: {
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 14,
+  bigEarningsCard: {
+    backgroundColor: '#0F172A',
+    borderRadius: 24,
+    padding: 20,
   },
-  heroTopRow: {
+  cardTopRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: 18,
-  },
-  audioPromptCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroSubRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.2)',
-  },
-  heroSubItem: {
     alignItems: 'center',
   },
-  vDivider: {
-    width: 1,
-    height: 28,
+  cardLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#94A3B8',
   },
-  bankCard: {
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 18,
+  cardAudioBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
-  bankRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  cardAudioText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
-  bankIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+  cardAmount: {
+    fontSize: 38,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    marginVertical: 6,
+    letterSpacing: -0.5,
   },
-  activePill: {
+  monthlyGrowthPill: {
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
-  },
-  sectionHeader: {
-    marginTop: 6,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
     marginBottom: 12,
   },
-  ledgerCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
+  monthlyGrowthText: {
+    color: '#34D399',
+    fontSize: 11.5,
+    fontWeight: '800',
   },
-  ledgerItemRow: {
+  bankStatusRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  bankNameText: {
+    color: '#E2E8F0',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  autoCreditText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  escrowCard: {
+    backgroundColor: '#F0FDF4',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  escrowRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  escrowTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#166534',
+  },
+  escrowSub: {
+    fontSize: 11,
+    color: '#15803D',
+    marginTop: 2,
+  },
+  payoutTimeBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  payoutTimeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#166534',
+  },
+  ledgerSectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  ledgerHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  ledgerSectionTitle: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#7C3AED',
+    letterSpacing: 0.3,
+  },
+  ledgerSectionSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  ledgerAudioBtn: {
+    backgroundColor: '#EDE9FE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  ledgerAudioText: {
+    color: '#7C3AED',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  ledgerTable: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  ledgerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 6,
   },
-  ledgerItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+  ledgerRowGreen: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    marginVertical: 2,
   },
-  divider: {
+  ledgerDivider: {
     height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 4,
   },
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
+  ledgerLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#475569',
   },
-  payoutHighlight: {
+  ledgerCustomerVal: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  ledgerItemLabel: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+  ledgerDebitVal: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#DC2626',
+  },
+  ledgerHighlightLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047857',
+  },
+  ledgerHighlightVal: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#047857',
+  },
+  ledgerFinalRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
-    borderRadius: 12,
-    marginTop: 10,
+    alignItems: 'center',
+    paddingTop: 8,
+    marginTop: 4,
+  },
+  ledgerFinalLabel: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  ledgerFinalSub: {
+    fontSize: 10,
+    color: '#059669',
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  ledgerFinalAmount: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#059669',
+  },
+  passbookSection: {},
+  passbookHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  passbookTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#334155',
+  },
+  passbookSub: {
+    fontSize: 11,
+    color: '#94A3B8',
+  },
+  transactionsList: {
+    gap: 8,
   },
   txCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
-  },
-  txRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  withdrawBtn: {
-    marginBottom: 20,
+  txLeft: {
+    flex: 1,
+  },
+  txTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  txSub: {
+    fontSize: 10.5,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  txBadgeCredit: {
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  txBadgeCreditText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#065F46',
+  },
+  txBadgeGovt: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  txBadgeGovtText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  creditScoreCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+  },
+  creditHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  creditTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  creditSub: {
+    fontSize: 11,
+    color: '#64748B',
+  },
+  scoreBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  scoreBadgeText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#B45309',
+  },
+  scoreProgressBar: {
+    height: 8,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginVertical: 8,
+  },
+  scoreProgressFill: {
+    width: '87%',
+    height: '100%',
+    backgroundColor: '#F59E0B',
+    borderRadius: 4,
+  },
+  creditEligibleBox: {
+    backgroundColor: '#FFFBEB',
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  creditEligibleText: {
+    fontSize: 12,
+    color: '#92400E',
+    lineHeight: 16,
+  },
+  applyCreditButton: {
+    backgroundColor: '#7C3AED',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  applyCreditButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  loanAppliedBanner: {
+    backgroundColor: '#ECFDF5',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loanAppliedText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047857',
   },
 });

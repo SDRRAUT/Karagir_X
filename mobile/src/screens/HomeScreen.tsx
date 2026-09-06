@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -79,34 +80,76 @@ export const HomeScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Fixed Header Bar */}
+      {/* Sleek Minimalist Brand Header */}
       <View style={styles.headerBar}>
-        <View style={styles.headerLeft}>
-          <Image
-            source={require('../../assets/kalakar_setu_logo.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          <View>
-            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
+        <View style={styles.headerTopRow}>
+          {/* Left: App Logo & Brand Title */}
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../assets/kalakar_setu_logo.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.brandTitleMain}>
               Kalakar Setu
             </Text>
-            <View style={styles.roleBadgePill}>
-              <Text style={styles.roleBadgeText}>🏺 ARTISAN STUDIO</Text>
-            </View>
+          </View>
+
+          {/* Right: Actions */}
+          <View style={styles.headerRight}>
+            {/* Help Button */}
+            <TouchableOpacity
+              style={styles.headerActionButton}
+              onPress={() => Alert.alert('Help & Support', 'Welcome to Kalakar Setu Artisan Studio. Support Helpline: 1800-120-KALA')}
+              activeOpacity={0.7}
+              accessibilityLabel="Help"
+            >
+              <Icon name="helpCircle" size={17} color="#64748B" />
+            </TouchableOpacity>
+
+            {/* Notifications Bell */}
+            <TouchableOpacity
+              style={styles.headerActionButton}
+              onPress={() => Alert.alert('Notifications', '1. ₹1,200 payout processed\n2. 5-star review received')}
+              activeOpacity={0.7}
+              accessibilityLabel="Notifications"
+            >
+              <Icon name="bellOutline" size={17} color="#64748B" />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>2</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Profile Avatar with Online Indicator */}
+            <TouchableOpacity
+              style={styles.profileAvatarContainer}
+              onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
+              activeOpacity={0.8}
+              accessibilityLabel="Profile"
+            >
+              <Image
+                source={require('../../assets/artisan_3d_avatar.jpg')}
+                style={styles.profileAvatarImg}
+              />
+              <View style={styles.avatarOnlineBadge} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.profileAvatarButton}
-          onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
-          accessibilityLabel="Profile"
-        >
-          <Image
-            source={require('../../assets/artisan_3d_avatar.jpg')}
-            style={styles.profileAvatarImg}
-          />
-        </TouchableOpacity>
+        {/* Subtle Horizontal Divider */}
+        <View style={styles.headerDivider} />
+
+        {/* Sub-Header Date Row */}
+        <View style={styles.headerDateRow}>
+          <Text style={styles.headerDateText}>
+            {(() => {
+              const now = new Date();
+              const daysEn = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+              const monthsEn = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+              return `${daysEn[now.getDay()]}, ${now.getDate()} ${monthsEn[now.getMonth()]}`;
+            })()}
+          </Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -548,56 +591,116 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerBar: {
-    height: 56,
     paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
+    backgroundColor: '#FAF8F5',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECE8E1',
+  },
+  headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 253, 247, 0.95)',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ECE8DC',
+    minHeight: 38,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 9,
+    flex: 1,
   },
   logoImage: {
     width: 32,
     height: 32,
-    marginRight: 8,
+    borderRadius: 8,
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: -0.2,
-  },
-  roleBadgePill: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    marginTop: 1,
-  },
-  roleBadgeText: {
-    color: '#EA580C',
-    fontSize: 9.5,
+  brandTitleMain: {
+    fontSize: 23,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    color: '#7C3AED',
+    letterSpacing: -0.3,
   },
-  profileAvatarButton: {
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  headerActionButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ECE8E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
+    position: 'relative',
+  },
+  headerDivider: {
+    height: 1,
+    backgroundColor: '#ECE8E1',
+    marginTop: 8,
+    marginBottom: 5,
+  },
+  headerDateRow: {
+    paddingVertical: 1,
+  },
+  headerDateText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#8B5CF6',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#EF4444',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  notificationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '800',
+    lineHeight: 11,
+  },
+  profileAvatarContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    overflow: 'hidden',
+    position: 'relative',
+  },
+  profileAvatarImg: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: '#e85d2a',
   },
-  profileAvatarImg: {
-    width: '100%',
-    height: '100%',
+  avatarOnlineBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#16A34A',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   scrollContent: {
     paddingBottom: 90, // Space for floating mic and bottom bar

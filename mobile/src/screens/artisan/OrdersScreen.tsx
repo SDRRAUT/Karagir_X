@@ -1,352 +1,851 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme/ThemeProvider';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  Dimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
-import { Card } from '@/components/cards/Card';
-import { Button } from '@/components/buttons/Button';
-import { AppHeader } from '@/components/navigation/AppHeader';
 
-type OrderTab = 'NEW' | 'IN_PROGRESS' | 'DELIVERED';
+const { width } = Dimensions.get('window');
 
-export const OrdersScreen: React.FC = () => {
-  const theme = useTheme();
-  const [selectedTab, setSelectedTab] = useState<OrderTab>('NEW');
+type OrderTabType = 'new' | 'making' | 'done';
 
-  const tabs: { key: OrderTab; label: string; count: number }[] = [
-    { key: 'NEW', label: 'New Orders', count: 2 },
-    { key: 'IN_PROGRESS', label: 'In Production', count: 1 },
-    { key: 'DELIVERED', label: 'Delivered', count: 12 },
-  ];
+export const OrdersScreen: React.FC<any> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const [activeTab, setActiveTab] = useState<OrderTabType>('new');
+  const [acceptedOrders, setAcceptedOrders] = useState<string[]>([]);
+  const [rejectedOrders, setRejectedOrders] = useState<string[]>([]);
+  const [pickupRequested, setPickupRequested] = useState(false);
+  const [uploadedPhoto, setUploadedPhoto] = useState(false);
+
+  const handleSpeak = (text: string) => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleAcceptOrder = (id: string) => {
+    setAcceptedOrders((prev) => [...prev, id]);
+    handleSpeak('Order accept ho gaya hai. Paisa escrow mein surakshit hai. Production shuru karein.');
+  };
+
+  const handleRejectOrder = (id: string) => {
+    setRejectedOrders((prev) => [...prev, id]);
+    handleSpeak('Order reject kar diya gaya hai.');
+  };
+
+  const handleRequestPickup = () => {
+    setPickupRequested(true);
+    handleSpeak('India Post Speed Post pickup book ho gaya hai. Postman kal subah parcel lene aayega.');
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
-      <AppHeader
-        title="Artisan Orders"
-        subtitle="Orders & Direct Fulfillment"
-        showDevanagariLogo={true}
-        onVoicePress={() => {}}
-      />
-
-      {/* Segmented Filter Tab Pills */}
-      <View style={styles.tabBar}>
-        {tabs.map((tab) => {
-          const isActive = selectedTab === tab.key;
-          return (
-            <TouchableOpacity
-              key={tab.key}
-              onPress={() => setSelectedTab(tab.key)}
-              style={[
-                styles.tabPill,
-                {
-                  backgroundColor: isActive ? theme.colors.terracotta.primary : theme.colors.surface.card,
-                  borderColor: isActive ? theme.colors.terracotta.primary : theme.colors.border.subtle,
-                },
-              ]}
-              activeOpacity={0.8}
-            >
-              <Text
-                variant="labelSmall"
-                weight={isActive ? 'bold' : 'normal'}
-                color={isActive ? '#FFFFFF' : theme.colors.text.secondary}
-              >
-                {tab.label} [{tab.count}]
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerTitle}>📦 मेरे Orders</Text>
+          <Text style={styles.headerSub}>Fulfillment, Escrow & Dispatch</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() =>
+            handleSpeak('Aapke 2 naye orders hain, 1 order production mein hai aur 12 orders deliver ho chuke hain.')
+          }
+          style={styles.headerAudioBtn}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.headerAudioIcon}>🔊</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* NEW ORDERS */}
-        {selectedTab === 'NEW' && (
-          <View style={styles.listContainer}>
-            {/* Order 1 */}
-            <Card style={styles.orderCard}>
-              <View style={styles.orderHeader}>
+      {/* Segmented Tab Filter Pills */}
+      <View style={styles.tabsFilterContainer}>
+        <TouchableOpacity
+          onPress={() => setActiveTab('new')}
+          style={[styles.tabFilterPill, activeTab === 'new' && styles.tabFilterPillActiveNew]}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabFilterText, activeTab === 'new' && styles.tabFilterTextActiveNew]}>
+            🔴 New (2)
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab('making')}
+          style={[styles.tabFilterPill, activeTab === 'making' && styles.tabFilterPillActiveMaking]}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabFilterText, activeTab === 'making' && styles.tabFilterTextActiveMaking]}>
+            🟡 Making (1)
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveTab('done')}
+          style={[styles.tabFilterPill, activeTab === 'done' && styles.tabFilterPillActiveDone]}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.tabFilterText, activeTab === 'done' && styles.tabFilterTextActiveDone]}>
+            🟢 Done (12)
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 1: NEW ORDERS */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'new' && (
+          <View style={styles.tabContentBlock}>
+            <View style={styles.noticeBar}>
+              <Text style={styles.noticeBarText}>⚠️ 2 orders accept karne ke liye bache hain</Text>
+            </View>
+
+            {/* Order Card 1 */}
+            {!rejectedOrders.includes('ord_1') && (
+              <View style={styles.orderCard}>
+                <View style={styles.orderCardHeader}>
+                  <View style={styles.orderBadgeNew}>
+                    <Text style={styles.orderBadgeNewText}>🔴 NEW ORDER</Text>
+                  </View>
+                  <View style={styles.timerBadge}>
+                    <Text style={styles.timerBadgeText}>⏰ 18 ghante bache</Text>
+                  </View>
+                </View>
+
+                {/* Buyer & Product Info */}
+                <View style={styles.buyerRow}>
+                  <View style={styles.buyerAvatar}>
+                    <Text style={{ fontSize: 16 }}>👤</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.buyerName}>Priya Sharma ✓</Text>
+                    <Text style={styles.buyerCity}>Kothrud, Pune, Maharashtra</Text>
+                  </View>
+                  <Text style={styles.orderPrice}>₹1,250</Text>
+                </View>
+
+                <View style={styles.productSpecRow}>
+                  <Text style={{ fontSize: 24 }}>🪔</Text>
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <Text style={styles.productSpecName}>Terracotta Diya Set × 2</Text>
+                    <Text style={styles.productSpecSub}>5-piece traditional festive finish</Text>
+                  </View>
+                </View>
+
+                {/* Escrow Trust Guarantee Box */}
+                <View style={styles.escrowTrustBox}>
+                  <Text style={styles.escrowTrustText}>
+                    🔒 <Text style={{ fontWeight: '700' }}>Escrow: Paisa Safe hai</Text> — Delivery ke baad direct bank account mein transfer hoga.
+                  </Text>
+                </View>
+
+                {/* Action Buttons Row */}
+                {acceptedOrders.includes('ord_1') ? (
+                  <View style={styles.acceptedOrderBanner}>
+                    <Text style={styles.acceptedOrderText}>✓ Order Accepted! Moved to Making tab.</Text>
+                  </View>
+                ) : (
+                  <View style={styles.actionButtonsRow}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleSpeak(
+                          'Priya Sharma Ji Pune se Terracotta Diya Set ke 2 piece ka order de rahi hain. Total price ek hazaar do sau pachaas rupaye hai.'
+                        )
+                      }
+                      style={styles.listenButton}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={styles.listenButtonText}>🔊 Suno</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => handleRejectOrder('ord_1')}
+                      style={styles.rejectButton}
+                      activeOpacity={0.75}
+                    >
+                      <Text style={styles.rejectButtonText}>✗ Reject</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => handleAcceptOrder('ord_1')}
+                      style={styles.acceptButton}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={styles.acceptButtonText}>✓ ACCEPT</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Order Card 2 */}
+            <View style={styles.orderCard}>
+              <View style={styles.orderCardHeader}>
+                <View style={styles.orderBadgeNew}>
+                  <Text style={styles.orderBadgeNewText}>🔴 NEW ORDER</Text>
+                </View>
+                <View style={styles.timerBadge}>
+                  <Text style={styles.timerBadgeText}>⏰ 22 ghante bache</Text>
+                </View>
+              </View>
+
+              <View style={styles.buyerRow}>
+                <View style={styles.buyerAvatar}>
+                  <Text style={{ fontSize: 16 }}>👤</Text>
+                </View>
                 <View style={{ flex: 1 }}>
-                  <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    Order from New Delhi
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84920 • 25 mins ago
-                  </Text>
+                  <Text style={styles.buyerName}>Rahul Mehta ✓</Text>
+                  <Text style={styles.buyerCity}>Andheri West, Mumbai</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
-                    ⏰ 18h Left
-                  </Text>
+                <Text style={styles.orderPrice}>₹850</Text>
+              </View>
+
+              <View style={styles.productSpecRow}>
+                <Text style={{ fontSize: 24 }}>🏺</Text>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={styles.productSpecName}>Clay Water Pot (Matka) × 1</Text>
+                  <Text style={styles.productSpecSub}>Natural cooling Kolhapur clay</Text>
                 </View>
               </View>
 
-              <View style={styles.productRow}>
-                <Image
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=200&q=80',
-                  }}
-                  style={styles.productThumb}
-                />
-                <View style={{ flex: 1, paddingLeft: 12 }}>
-                  <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                    Handmade Terracotta Diya Garland
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    Quantity: 4 pcs • Natural Clay
-                  </Text>
-                  <Text
-                    variant="labelSmall"
-                    weight="bold"
-                    color={theme.colors.secondary.teal}
-                    style={{ marginTop: 4 }}
-                  >
-                    Verified Buyer: Priya Sharma ✓
-                  </Text>
-                </View>
-              </View>
-
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
-                <View>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Direct Bank Settlement:
-                  </Text>
-                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    0% Commission (100% to Artisan)
-                  </Text>
-                </View>
-                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
-                  ₹2,042
+              <View style={styles.escrowTrustBox}>
+                <Text style={styles.escrowTrustText}>
+                  🔒 <Text style={{ fontWeight: '700' }}>Escrow: ₹850 Locked</Text> — Direct Auto-Credit ready.
                 </Text>
               </View>
 
-              <View style={styles.actionRow}>
-                <Button
-                  label="Accept Order"
-                  variant="primary"
-                  onPress={() => {}}
-                  style={{ flex: 1, marginRight: 8 }}
-                />
-                <Button
-                  label="Decline"
-                  variant="outline"
-                  onPress={() => {}}
-                  style={{ width: 100 }}
-                />
-              </View>
-            </Card>
+              <View style={styles.actionButtonsRow}>
+                <TouchableOpacity
+                  onPress={() =>
+                    handleSpeak('Rahul Mehta Ji Mumbai se Clay Water Pot ka order de rahe hain. Price aath sau pachaas rupaye.')
+                  }
+                  style={styles.listenButton}
+                  activeOpacity={0.75}
+                >
+                  <Text style={styles.listenButtonText}>🔊 Suno</Text>
+                </TouchableOpacity>
 
-            {/* Order 2 */}
-            <Card style={styles.orderCard}>
-              <View style={styles.orderHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    Order from Pune
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84915 • 2 hours ago
-                  </Text>
-                </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(244, 185, 66, 0.2)' }]}>
-                  <Text variant="labelSmall" weight="bold" color="#795600">
-                    ⏰ 22h Left
-                  </Text>
-                </View>
-              </View>
+                <TouchableOpacity
+                  onPress={() => handleRejectOrder('ord_2')}
+                  style={styles.rejectButton}
+                  activeOpacity={0.75}
+                >
+                  <Text style={styles.rejectButtonText}>✗ Reject</Text>
+                </TouchableOpacity>
 
-              <View style={styles.productRow}>
-                <Image
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=200&q=80',
-                  }}
-                  style={styles.productThumb}
-                />
-                <View style={{ flex: 1, paddingLeft: 12 }}>
-                  <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                    Traditional Clay Handi (2.5 L)
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    Quantity: 1 pc • Lead-Free
-                  </Text>
-                </View>
+                <TouchableOpacity
+                  onPress={() => handleAcceptOrder('ord_2')}
+                  style={styles.acceptButton}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.acceptButtonText}>✓ ACCEPT</Text>
+                </TouchableOpacity>
               </View>
-
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)' }]}>
-                <View>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Artisan Net Payout:
-                  </Text>
-                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    Escrow Protected
-                  </Text>
-                </View>
-                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
-                  ₹850
-                </Text>
-              </View>
-
-              <View style={styles.actionRow}>
-                <Button
-                  label="Accept Order"
-                  variant="primary"
-                  onPress={() => {}}
-                  style={{ flex: 1 }}
-                />
-              </View>
-            </Card>
+            </View>
           </View>
         )}
 
-        {/* IN PROGRESS */}
-        {selectedTab === 'IN_PROGRESS' && (
-          <View style={styles.listContainer}>
-            <Card style={styles.orderCard}>
-              <View style={styles.orderHeader}>
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 2: IN PRODUCTION (MAKING) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'making' && (
+          <View style={styles.tabContentBlock}>
+            <View style={styles.orderCard}>
+              <View style={styles.orderCardHeader}>
+                <View style={styles.orderBadgeMaking}>
+                  <Text style={styles.orderBadgeMakingText}>🟡 IN PRODUCTION</Text>
+                </View>
+                <View style={styles.timerBadgeMaking}>
+                  <Text style={styles.timerBadgeMakingText}>⏰ 5 din bache hain</Text>
+                </View>
+              </View>
+
+              <View style={styles.buyerRow}>
+                <View style={styles.buyerAvatar}>
+                  <Text style={{ fontSize: 16 }}>👤</Text>
+                </View>
                 <View style={{ flex: 1 }}>
-                  <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    Mumbai — In Production
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-84102 • Delivery: 12 Sept
-                  </Text>
+                  <Text style={styles.buyerName}>Anita Desai (Mumbai)</Text>
+                  <Text style={styles.buyerCity}>📅 Deliver by: 12 Sept 2026</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                    🔨 In Production
-                  </Text>
+                <Text style={styles.orderPrice}>₹2,250</Text>
+              </View>
+
+              <View style={styles.productSpecRow}>
+                <Text style={{ fontSize: 24 }}>🏺</Text>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={styles.productSpecName}>Handcrafted Clay Pot × 5</Text>
+                  <Text style={styles.productSpecSub}>GI Certified Kolhapur Terracotta</Text>
                 </View>
               </View>
 
-              <View style={styles.productRow}>
-                <Image
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=200&q=80',
-                  }}
-                  style={styles.productThumb}
-                />
-                <View style={{ flex: 1, paddingLeft: 12 }}>
-                  <Text variant="labelLarge" weight="bold" color={theme.colors.text.primary}>
-                    Handcrafted Terracotta Wind Chimes
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    Quantity: 2 sets • Kolhapur GI
-                  </Text>
-                  <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary} style={{ marginTop: 4 }}>
-                    Payout: ₹1,420
-                  </Text>
+              {/* 5-STAGE VISUAL PROGRESS BAR */}
+              <View style={styles.progressStagesBox}>
+                <Text style={styles.progressStagesTitle}>Crafting Lifecycle Progress:</Text>
+                <View style={styles.stageTrackRow}>
+                  {/* Stage 1 */}
+                  <View style={styles.stageNode}>
+                    <View style={[styles.stageCircle, styles.stageCircleDone]}>
+                      <Text style={styles.stageCheck}>✓</Text>
+                    </View>
+                    <Text style={styles.stageLabel}>Clay</Text>
+                  </View>
+                  <View style={[styles.stageConnector, styles.stageConnectorDone]} />
+
+                  {/* Stage 2 */}
+                  <View style={styles.stageNode}>
+                    <View style={[styles.stageCircle, styles.stageCircleDone]}>
+                      <Text style={styles.stageCheck}>✓</Text>
+                    </View>
+                    <Text style={styles.stageLabel}>Shape</Text>
+                  </View>
+                  <View style={[styles.stageConnector, styles.stageConnectorDone]} />
+
+                  {/* Stage 3 */}
+                  <View style={styles.stageNode}>
+                    <View style={[styles.stageCircle, styles.stageCircleDone]}>
+                      <Text style={styles.stageCheck}>✓</Text>
+                    </View>
+                    <Text style={styles.stageLabel}>Fire</Text>
+                  </View>
+                  <View style={styles.stageConnector} />
+
+                  {/* Stage 4 */}
+                  <View style={styles.stageNode}>
+                    <View style={styles.stageCircle}>
+                      <Text style={styles.stagePendingText}>4</Text>
+                    </View>
+                    <Text style={styles.stageLabel}>Paint</Text>
+                  </View>
+                  <View style={styles.stageConnector} />
+
+                  {/* Stage 5 */}
+                  <View style={styles.stageNode}>
+                    <View style={styles.stageCircle}>
+                      <Text style={styles.stagePendingText}>5</Text>
+                    </View>
+                    <Text style={styles.stageLabel}>Pack</Text>
+                  </View>
                 </View>
               </View>
 
-              <Button
-                label="Ready for Pickup & Packing Complete"
-                variant="primary"
-                onPress={() => {}}
-                style={{ marginTop: 8 }}
-              />
-            </Card>
+              {/* Upload Production Photo Button (Trust Builder) */}
+              <TouchableOpacity
+                onPress={() => {
+                  setUploadedPhoto(true);
+                  handleSpeak('Crafting photo upload ho gayi hai. Buyer ko update bhej diya gaya hai.');
+                }}
+                style={styles.photoUploadButton}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.photoUploadText}>
+                  {uploadedPhoto ? '✓ Progress Photo Sent to Buyer!' : '🎥 [Progress photo upload] (Buyer trust)'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* India Post Pickup Trigger CTA */}
+              {pickupRequested ? (
+                <View style={styles.pickupDoneBanner}>
+                  <Text style={styles.pickupDoneTitle}>📮 India Post Pickup Booked!</Text>
+                  <Text style={styles.pickupDoneSub}>
+                    Tracking ID: <Text style={{ fontWeight: '800' }}>EK928371948IN</Text> • Pickup tomorrow morning.
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleRequestPickup}
+                  style={styles.requestPickupButton}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.requestPickupText}>📮 Pickup Bulao (Ready to Ship)</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         )}
 
-        {/* DELIVERED */}
-        {selectedTab === 'DELIVERED' && (
-          <View style={styles.listContainer}>
-            <Card style={styles.orderCard}>
-              <View style={styles.orderHeader}>
-                <View style={{ flex: 1 }}>
-                  <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-                    Bengaluru — Delivery Complete
-                  </Text>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Order #KS-83901 • UTR981240129
-                  </Text>
+        {/* ------------------------------------------------------------- */}
+        {/* TAB 3: DELIVERED (DONE) */}
+        {/* ------------------------------------------------------------- */}
+        {activeTab === 'done' && (
+          <View style={styles.tabContentBlock}>
+            {/* Completed Order 1 */}
+            <View style={styles.orderCard}>
+              <View style={styles.orderCardHeader}>
+                <View style={styles.orderBadgeDone}>
+                  <Text style={styles.orderBadgeDoneText}>🟢 DELIVERED & PAID</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    ✅ Delivered
-                  </Text>
-                </View>
+                <Text style={styles.deliveryDateText}>6 Sept 2026</Text>
               </View>
 
-              <View style={[styles.payoutContainer, { backgroundColor: 'rgba(108, 99, 255, 0.08)', marginTop: 8 }]}>
-                <View>
-                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    Credited to Bank Account:
-                  </Text>
-                  <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    State Bank of India •••• 4021
-                  </Text>
+              <View style={styles.buyerRow}>
+                <View style={styles.buyerAvatar}>
+                  <Text style={{ fontSize: 16 }}>👤</Text>
                 </View>
-                <Text variant="headlineMedium" weight="bold" color="#6C63FF">
-                  ₹2,090
-                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.buyerName}>Sunil Shinde ✓</Text>
+                  <Text style={styles.buyerCity}>Satara, Maharashtra</Text>
+                </View>
+                <Text style={[styles.orderPrice, { color: '#059669' }]}>+₹2,400</Text>
               </View>
-            </Card>
+
+              <View style={styles.settledInfoBox}>
+                <Text style={styles.settledText}>
+                  💰 ₹2,400 credited to SBI A/C ••••4021 (UTR: 902837482910)
+                </Text>
+                <Text style={styles.trackingSub}>📮 India Post Speed Post: EK928371948IN</Text>
+              </View>
+            </View>
+
+            {/* Completed Order 2 */}
+            <View style={styles.orderCard}>
+              <View style={styles.orderCardHeader}>
+                <View style={styles.orderBadgeDone}>
+                  <Text style={styles.orderBadgeDoneText}>🟢 DELIVERED & PAID</Text>
+                </View>
+                <Text style={styles.deliveryDateText}>4 Sept 2026</Text>
+              </View>
+
+              <View style={styles.buyerRow}>
+                <View style={styles.buyerAvatar}>
+                  <Text style={{ fontSize: 16 }}>👤</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.buyerName}>Meera Joshi ✓</Text>
+                  <Text style={styles.buyerCity}>Bengaluru, Karnataka</Text>
+                </View>
+                <Text style={[styles.orderPrice, { color: '#059669' }]}>+₹1,800</Text>
+              </View>
+
+              <View style={styles.settledInfoBox}>
+                <Text style={styles.settledText}>
+                  💰 ₹1,800 credited to SBI A/C ••••4021 (UTR: 894729103829)
+                </Text>
+                <Text style={styles.trackingSub}>📮 India Post Speed Post: EK829104829IN</Text>
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
+    backgroundColor: '#F8FAFC',
   },
-  tabBar: {
+  header: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 8,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
   },
-  tabPill: {
+  headerLeft: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  headerSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  headerAudioBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EFF6FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  content: {
-    padding: 16,
-    paddingBottom: 48,
+  headerAudioIcon: {
+    fontSize: 16,
   },
-  listContainer: {
-    gap: 14,
+  tabsFilterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    gap: 8,
+  },
+  tabFilterPill: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+  },
+  tabFilterPillActiveNew: {
+    backgroundColor: '#FFE4E6',
+    borderWidth: 1,
+    borderColor: '#FDA4AF',
+  },
+  tabFilterPillActiveMaking: {
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  tabFilterPillActiveDone: {
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+  },
+  tabFilterText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  tabFilterTextActiveNew: {
+    color: '#E11D48',
+  },
+  tabFilterTextActiveMaking: {
+    color: '#D97706',
+  },
+  tabFilterTextActiveDone: {
+    color: '#15803D',
+  },
+  scrollBody: {
+    padding: 16,
+    paddingBottom: 95,
+  },
+  tabContentBlock: {
+    gap: 12,
+  },
+  noticeBar: {
+    backgroundColor: '#FFFBEB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  noticeBarText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#92400E',
   },
   orderCard: {
-    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  orderHeader: {
+  orderCardHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  orderBadgeNew: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  orderBadgeNewText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#DC2626',
+  },
+  orderBadgeMaking: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  orderBadgeMakingText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#D97706',
+  },
+  orderBadgeDone: {
+    backgroundColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  orderBadgeDoneText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  timerBadge: {
+    backgroundColor: '#FFF1F2',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  timerBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#BE123C',
+  },
+  timerBadgeMaking: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  timerBadgeMakingText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  deliveryDateText: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '600',
+  },
+  buyerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  buyerAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buyerName: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  buyerCity: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  orderPrice: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#0F172A',
+  },
+  productSpecRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  productSpecName: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  productSpecSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  escrowTrustBox: {
+    backgroundColor: '#F0FDF4',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
     marginBottom: 12,
   },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  escrowTrustText: {
+    fontSize: 11.5,
+    color: '#166534',
+    lineHeight: 16,
   },
-  productRow: {
+  actionButtonsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    gap: 8,
   },
-  productThumb: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    backgroundColor: '#E0DCFF',
+  listenButton: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
-  payoutContainer: {
+  listenButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  rejectButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  rejectButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#EF4444',
+  },
+  acceptButton: {
+    flex: 1,
+    backgroundColor: '#059669',
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  acceptButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  acceptedOrderBanner: {
+    backgroundColor: '#ECFDF5',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  acceptedOrderText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047857',
+  },
+  progressStagesBox: {
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  progressStagesTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    marginBottom: 8,
+  },
+  stageTrackRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 12,
+    paddingHorizontal: 4,
+  },
+  stageNode: {
+    alignItems: 'center',
+  },
+  stageCircle: {
+    width: 24,
+    height: 24,
     borderRadius: 12,
+    backgroundColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stageCircleDone: {
+    backgroundColor: '#059669',
+  },
+  stageCheck: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  stagePendingText: {
+    color: '#64748B',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  stageLabel: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#475569',
+    marginTop: 4,
+  },
+  stageConnector: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#E2E8F0',
     marginBottom: 14,
   },
-  actionRow: {
-    flexDirection: 'row',
+  stageConnectorDone: {
+    backgroundColor: '#059669',
+  },
+  photoUploadButton: {
+    backgroundColor: '#EFF6FF',
+    paddingVertical: 10,
+    borderRadius: 10,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    marginBottom: 10,
+  },
+  photoUploadText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+  requestPickupButton: {
+    backgroundColor: '#EA580C',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  requestPickupText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  pickupDoneBanner: {
+    backgroundColor: '#ECFDF5',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    alignItems: 'center',
+  },
+  pickupDoneTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#047857',
+  },
+  pickupDoneSub: {
+    fontSize: 11,
+    color: '#065F46',
+    marginTop: 2,
+  },
+  settledInfoBox: {
+    backgroundColor: '#F0FDF4',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+    marginTop: 6,
+  },
+  settledText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#166534',
+  },
+  trackingSub: {
+    fontSize: 10.5,
+    color: '#15803D',
+    marginTop: 2,
   },
 });

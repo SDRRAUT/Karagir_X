@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -303,32 +304,36 @@ export const MarketplaceHomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* 1. Header Bar matching UI Mockup */}
+      {/* 1. Minimalist Luxury Header Bar */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Image
-              source={require('../../../assets/kalakar_setu_logo.png')}
-              style={{ width: 28, height: 28 }}
-              resizeMode="contain"
-            />
-            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.appTitle}>
-              {t.common.appName}
-            </Text>
+          <Image
+            source={require('../../../assets/kalakar_setu_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <View style={styles.brandTitleContainer}>
+            <View style={styles.brandTitleRow}>
+              <Text style={styles.brandTitleMain}>KALAKAR SETU</Text>
+              <View style={styles.buyerRolePill}>
+                <Text style={styles.buyerRolePillText}>{isHindi ? 'खरीदार' : 'BUYER'}</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={styles.locationSelector}
+              onPress={() => setShowLocationModal(true)}
+              activeOpacity={0.8}
+            >
+              <Icon name="mapPin" size={11} color="#64748B" />
+              <Text variant="caption" color="#64748B" style={styles.deliverToText}>
+                {isHindi ? '110001 • ' : '110001 • '}
+              </Text>
+              <Text variant="caption" weight="bold" color="#0F172A" numberOfLines={1}>
+                {selectedAddress}
+              </Text>
+              <Icon name="chevronDown" size={11} color="#64748B" style={{ marginLeft: 2 }} />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.locationSelector}
-            onPress={() => setShowLocationModal(true)}
-            activeOpacity={0.8}
-          >
-            <Text variant="caption" color="#64748B">
-              📍 {isHindi ? 'पिनकोड 110001 • ' : 'Deliver to 110001 • '}
-            </Text>
-            <Text variant="caption" weight="bold" color="#0F172A">
-              {selectedAddress}
-            </Text>
-            <Text style={styles.chevronIcon}> ▾</Text>
-          </TouchableOpacity>
         </View>
 
         <View style={styles.headerRight}>
@@ -336,33 +341,39 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.headerIconButton}
             onPress={() => setShowNotificationModal(true)}
+            activeOpacity={0.7}
             accessibilityLabel="Notifications"
           >
-            <Text style={styles.bellEmoji}>🔔</Text>
+            <Icon name="bellOutline" size={17} color="#64748B" />
           </TouchableOpacity>
 
           {/* Cart Icon with Red Counter Badge */}
           <TouchableOpacity
             style={styles.headerIconButton}
             onPress={() => navigation.navigate('Cart')}
+            activeOpacity={0.7}
             accessibilityLabel="Shopping Cart"
           >
-            <Text style={styles.cartEmoji}>🛒</Text>
-            <View style={styles.cartBadgeCircle}>
-              <Text style={styles.cartBadgeNumber}>{totalCartCount}</Text>
-            </View>
+            <Icon name="cartOutline" size={18} color="#64748B" />
+            {totalCartCount > 0 && (
+              <View style={styles.cartBadgeCircle}>
+                <Text style={styles.cartBadgeNumber}>{totalCartCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           {/* Buyer Avatar */}
           <TouchableOpacity
             style={styles.avatarCircle}
             onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
+            activeOpacity={0.8}
             accessibilityLabel="Profile Account"
           >
             <Image
               source={require('../../../assets/buyer_3d_avatar.jpg')}
-              style={{ width: '100%', height: '100%', borderRadius: 18 }}
+              style={styles.avatarImage}
             />
+            <View style={styles.avatarOnlineBadge} />
           </TouchableOpacity>
         </View>
       </View>
@@ -1319,87 +1330,130 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
+    height: 60,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 10,
     backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1EFEA',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 2,
   },
   headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+  },
+  logoImage: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  brandTitleContainer: {
     justifyContent: 'center',
   },
-  appTitle: {
-    fontSize: 22,
-    letterSpacing: -0.3,
+  brandTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  brandTitleMain: {
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+    color: '#0F172A',
+  },
+  buyerRolePill: {
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  buyerRolePillText: {
+    fontSize: 8.5,
+    fontWeight: '800',
+    color: '#4338CA',
+    letterSpacing: 0.4,
   },
   locationSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 1,
+    gap: 3,
   },
-  chevronIcon: {
+  deliverToText: {
+    fontSize: 10,
+    fontWeight: '600',
     color: '#64748B',
-    fontSize: 12,
-    fontWeight: 'bold',
   },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   headerIconButton: {
     width: 36,
     height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#ECE8E1',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-  },
-  bellEmoji: {
-    fontSize: 20,
-  },
-  cartEmoji: {
-    fontSize: 20,
   },
   cartBadgeCircle: {
     position: 'absolute',
     top: -2,
     right: -2,
     backgroundColor: '#EF4444',
-    width: 16,
+    minWidth: 16,
     height: 16,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   cartBadgeNumber: {
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 9,
+    fontWeight: '800',
+    lineHeight: 11,
   },
   avatarCircle: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    overflow: 'hidden',
+    position: 'relative',
+  },
+  avatarImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 1.5,
     borderColor: '#4338CA',
   },
-  buyerBadgePill: {
-    backgroundColor: '#EEF2FF',
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    marginLeft: 4,
-  },
-  buyerBadgeText: {
-    color: '#4338CA',
-    fontSize: 9.5,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+  avatarOnlineBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#16A34A',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   scrollContent: {
     paddingBottom: 95,
