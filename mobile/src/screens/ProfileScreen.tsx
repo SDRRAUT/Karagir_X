@@ -70,7 +70,15 @@ export const ProfileScreen: React.FC = () => {
   const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isFacilitator ? 'Pooja Verma' : 'Ramesh Kumbhar');
   const roleThemeColor = isBuyer ? '#4338CA' : isFacilitator ? '#16A34A' : theme.colors.terracotta.primary;
   const roleLightBg = isBuyer ? '#EEF2FF' : isFacilitator ? '#F0FDF4' : 'rgba(108, 99, 255, 0.12)';
-  const roleLocation = user?.district && user?.state ? `${user.district}, ${user.state}` : (isBuyer ? 'Delhi NCR, New Delhi' : isFacilitator ? 'Kolhapur Cluster, Maharashtra' : 'Kolhapur, Maharashtra');
+  const locationParts = [
+    user?.villageName,
+    user?.subDistrict,
+    user?.district,
+    user?.state,
+  ].filter(Boolean);
+  const roleLocation = locationParts.length > 0
+    ? locationParts.join(', ')
+    : (isBuyer ? 'Delhi NCR, New Delhi' : isFacilitator ? 'Kolhapur Cluster, Maharashtra' : 'Kolhapur, Maharashtra');
   const roleTagline = isBuyer
     ? 'Verified Buyer & Collector • Patron Member'
     : isFacilitator
@@ -151,7 +159,7 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.clubTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 4 }}>✨</Text>
                 <Text variant="labelMedium" weight="bold" color="#FFFFFF">
-                  {isBuyer ? 'KaragirX Buyer Club' : isFacilitator ? 'Sahyogi Field Lead Desk' : 'Kalakar Artisan Club'}
+                  {isBuyer ? 'Kalakar Setu Buyer Club' : isFacilitator ? 'Sahyogi Field Lead Desk' : 'Kalakar Artisan Club'}
                 </Text>
               </View>
               <Text variant="labelSmall" color="#E0DCFF" style={{ marginTop: 2 }}>

@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from './types';
 import { MarketplaceHomeScreen } from '@/screens/marketplace/MarketplaceHomeScreen';
 import { HomeScreen } from '@/screens/HomeScreen';
@@ -8,8 +9,11 @@ import { SahyogiHomeScreen } from '@/screens/facilitator/SahyogiHomeScreen';
 import { CategoriesScreen } from '@/screens/marketplace/CategoriesScreen';
 import { OpportunitiesScreen } from '@/screens/linkage/OpportunitiesScreen';
 import { CartScreen } from '@/screens/marketplace/CartScreen';
+import { OrdersScreen } from '@/screens/OrdersScreen';
+import { KhataScreen } from '@/screens/KhataScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 import { useCartStore } from '@/store/useCartStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -17,29 +21,39 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Custom Outline Icons matching reference mockup exactly
 const TabIcons = {
-  Discover: ({ focused, color, role }: { focused: boolean; color: string; role?: string }) => {
-    let emoji = focused ? '🏠' : '⌂';
-    if (role === 'ARTISAN') emoji = '🎨';
-    if (role === 'FACILITATOR') emoji = '🤝';
-    return (
-      <View style={styles.iconBox}>
-        <Text style={[styles.tabEmoji, { color }]}>{emoji}</Text>
-      </View>
-    );
-  },
+  Home: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'home' : 'homeOutline'} size={22} color={color} />
+    </View>
+  ),
+  Studio: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'shop' : 'shopOutline'} size={22} color={color} />
+    </View>
+  ),
   Explore: ({ color }: { color: string }) => (
     <View style={styles.iconBox}>
-      <Text style={[styles.tabEmoji, { color }]}>🧭</Text>
+      <Icon name="search" size={22} color={color} />
     </View>
   ),
   BulkDeals: ({ color }: { color: string }) => (
     <View style={styles.iconBox}>
-      <Text style={[styles.tabEmoji, { color }]}>👥</Text>
+      <Icon name="sparkles" size={22} color={color} />
+    </View>
+  ),
+  Orders: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'orders' : 'ordersOutline'} size={22} color={color} />
+    </View>
+  ),
+  Khata: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'wallet' : 'walletOutline'} size={22} color={color} />
     </View>
   ),
   Cart: ({ color, count }: { color: string; count: number }) => (
     <View style={styles.iconBox}>
-      <Text style={[styles.tabEmoji, { color }]}>🛍️</Text>
+      <Icon name="bagOutline" size={22} color={color} />
       {count > 0 && (
         <View style={styles.badgeContainer}>
           <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
@@ -47,115 +61,210 @@ const TabIcons = {
       )}
     </View>
   ),
-  Account: ({ color }: { color: string }) => (
+  Account: ({ focused, color }: { focused?: boolean; color: string }) => (
     <View style={styles.iconBox}>
-      <Text style={[styles.tabEmoji, { color }]}>👤</Text>
+      <Icon name={focused ? 'profile' : 'profileOutline'} size={22} color={color} />
     </View>
   ),
-};
-
-// Dynamic role-specific Home screen
-const DynamicHomeTabScreen = (props: any) => {
-  const role = useAuthStore((s) => s.user?.role);
-  if (role === 'ARTISAN') {
-    return <HomeScreen {...props} />;
-  }
-  if (role === 'FACILITATOR') {
-    return <SahyogiHomeScreen {...props} />;
-  }
-  return <MarketplaceHomeScreen {...props} />;
 };
 
 const ExploreTabScreen = (props: any) => <CategoriesScreen {...props} />;
 const BulkDealsTabScreen = (props: any) => <OpportunitiesScreen {...props} />;
 const CartTabScreen = (props: any) => <CartScreen {...props} />;
+const OrdersTabScreen = (props: any) => <OrdersScreen {...props} />;
+const KhataTabScreen = (props: any) => <KhataScreen {...props} />;
 const AccountTabScreen = (props: any) => <ProfileScreen {...props} />;
+const ArtisanHomeTabScreen = (props: any) => <HomeScreen {...props} />;
+const SahyogiHomeTabScreen = (props: any) => <SahyogiHomeScreen {...props} />;
+const BuyerHomeTabScreen = (props: any) => <MarketplaceHomeScreen {...props} />;
 
 export const AppNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
-  const role = useAuthStore((s) => s.user?.role);
+  const role = useAuthStore((s) => s.user?.role) || 'ARTISAN';
 
-  const homeLabel =
-    role === 'ARTISAN' ? 'Artisan Studio' : role === 'FACILITATOR' ? 'Sahyogi Desk' : 'Discover';
+  const bottomInset = Math.max(insets.bottom, 10);
+  const tabHeight = 60 + bottomInset;
+
+  const activeTintColor =
+    role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C';
+
+  const roleLabel =
+    role === 'ARTISAN' ? 'Artisans' :
+    role === 'BUYER' ? 'Buyer' :
+    role === 'FACILITATOR' ? 'Sahyogi' : '';
+
+  const appTitle = roleLabel ? `Kalakar Setu ~ ${roleLabel}` : 'Kalakar Setu';
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.title = appTitle;
+    }
+  }, [appTitle]);
 
   return (
     <Tab.Navigator
+      key={`tabs_${role}`}
       initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#EA580C', // Vibrant burnt terracotta from user mockup
-        tabBarInactiveTintColor: '#94A3B8', // Neutral slate gray
+        title: appTitle,
+        tabBarActiveTintColor: activeTintColor,
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarStyle: {
-          height: 64,
+          height: tabHeight,
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#F1F5F9',
-          paddingBottom: 6,
+          paddingBottom: bottomInset,
           paddingTop: 6,
-          elevation: 10,
+          elevation: 12,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.04,
-          shadowRadius: 8,
+          shadowOpacity: 0.06,
+          shadowRadius: 10,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          marginTop: 2,
+          marginBottom: 2,
         },
       }}
     >
-      {/* 1. Dynamic Home Tab (Discover for Buyer, Studio for Artisan, Sahyogi Desk for Helper) */}
-      <Tab.Screen
-        name="HomeTab"
-        component={DynamicHomeTabScreen}
-        options={{
-          tabBarLabel: homeLabel,
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcons.Discover focused={focused} color={color} role={role} />
-          ),
-        }}
-      />
+      {/* 1. ARTISAN TABS (Studio, Orders, Khata, Profile) */}
+      {role === 'ARTISAN' && (
+        <>
+          <Tab.Screen
+            name="HomeTab"
+            component={ArtisanHomeTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: 'Studio',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Studio focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="OrdersTab"
+            component={OrdersTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: 'Orders',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="KhataTab"
+            component={KhataTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: 'Khata',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Khata focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="ProfileTab"
+            component={AccountTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: 'Account',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
+            }}
+          />
+        </>
+      )}
 
-      {/* 2. Explore Tab (Categories & Regional GI Heritage) */}
-      <Tab.Screen
-        name="ExploreTab"
-        component={ExploreTabScreen}
-        options={{
-          tabBarLabel: 'Explore',
-          tabBarIcon: ({ color }) => <TabIcons.Explore color={color} />,
-        }}
-      />
+      {/* 2. FACILITATOR / SAHYOGI TABS (Desk, B2B Deals, Fulfillment, Profile) */}
+      {role === 'FACILITATOR' && (
+        <>
+          <Tab.Screen
+            name="HomeTab"
+            component={SahyogiHomeTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Sahyogi',
+              tabBarLabel: 'Sahyogi Desk',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="BulkDealsTab"
+            component={BulkDealsTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Sahyogi',
+              tabBarLabel: 'B2B Deals',
+              tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="OrdersTab"
+            component={OrdersTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Sahyogi',
+              tabBarLabel: 'Fulfillment',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="ProfileTab"
+            component={AccountTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Sahyogi',
+              tabBarLabel: 'Account',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
+            }}
+          />
+        </>
+      )}
 
-      {/* 3. Bulk Deals Tab (B2B Cluster RFQs & Wholesale Linkages) */}
-      <Tab.Screen
-        name="BulkDealsTab"
-        component={BulkDealsTabScreen}
-        options={{
-          tabBarLabel: 'Bulk Deals',
-          tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
-        }}
-      />
-
-      {/* 4. Cart Tab (Shopping Cart with live count badge) */}
-      <Tab.Screen
-        name="CartTab"
-        component={CartTabScreen}
-        options={{
-          tabBarLabel: 'Cart',
-          tabBarIcon: ({ color }) => <TabIcons.Cart color={color} count={totalCartCount} />,
-        }}
-      />
-
-      {/* 5. Account Tab (User Profile, Switcher & Settings) */}
-      <Tab.Screen
-        name="ProfileTab"
-        component={AccountTabScreen}
-        options={{
-          tabBarLabel: 'Account',
-          tabBarIcon: ({ color }) => <TabIcons.Account color={color} />,
-        }}
-      />
+      {/* 3. BUYER TABS (Discover, Explore, Bulk Deals, Cart, Profile) */}
+      {role === 'BUYER' && (
+        <>
+          <Tab.Screen
+            name="HomeTab"
+            component={BuyerHomeTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Buyer',
+              tabBarLabel: 'Discover',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="ExploreTab"
+            component={ExploreTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Buyer',
+              tabBarLabel: 'Explore',
+              tabBarIcon: ({ color }) => <TabIcons.Explore color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="BulkDealsTab"
+            component={BulkDealsTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Buyer',
+              tabBarLabel: 'Bulk Deals',
+              tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="CartTab"
+            component={CartTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Buyer',
+              tabBarLabel: 'Cart',
+              tabBarIcon: ({ color }) => <TabIcons.Cart color={color} count={totalCartCount} />,
+            }}
+          />
+          <Tab.Screen
+            name="ProfileTab"
+            component={AccountTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Buyer',
+              tabBarLabel: 'Account',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
+            }}
+          />
+        </>
+      )}
     </Tab.Navigator>
   );
 };

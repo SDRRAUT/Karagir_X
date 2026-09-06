@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { AppHeader } from '@/components/navigation/AppHeader';
+import { Icon } from '@/components/icons/Icon';
 import { UserRole } from '@/api/types';
 import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 
@@ -16,7 +17,7 @@ interface RoleOption {
   title: string;
   subtitle: string;
   description: string;
-  icon: string;
+  avatar3D: any;
   badge?: string;
   benefits: string[];
   themeColor: string;
@@ -30,9 +31,9 @@ const ROLES: RoleOption[] = [
     title: 'Artisan & Craftsperson',
     subtitle: 'Creator / Weaver / Potter',
     description: 'Create and sell authentic handmade crafts directly to buyers with 0% commission and AI studio tools.',
-    icon: '🎨',
+    avatar3D: require('@/../assets/artisan_3d_avatar.jpg'),
     badge: 'Recommended',
-    benefits: ['✓ 0% Commission', '🏷️ GI Tag Support', '⚡ Direct UPI Payout'],
+    benefits: ['0% Commission', 'GI Tag Support', 'Direct UPI Payout'],
     themeColor: '#EA580C',
     lightBg: '#FFF7ED',
     borderColor: '#FFEDD5',
@@ -42,7 +43,7 @@ const ROLES: RoleOption[] = [
     title: 'Buyer & Collector',
     subtitle: 'Retail Buyer / Bulk Patron',
     description: 'Discover certified GI-tagged heritage handicrafts directly from master artisan workshops.',
-    icon: '🛍️',
+    avatar3D: require('@/../assets/buyer_3d_avatar.jpg'),
     benefits: ['Authentic GI Crafts', 'Direct Studio Prices', 'India Post Delivery'],
     themeColor: '#4338CA',
     lightBg: '#EEF2FF',
@@ -53,7 +54,7 @@ const ROLES: RoleOption[] = [
     title: 'Cluster Sahyogi & SHG',
     subtitle: 'Field Lead / NGO Partner',
     description: 'Assist artisan clusters with bulk orders, packaging, QC audits, and digital onboarding.',
-    icon: '🤝',
+    avatar3D: require('@/../assets/sahyogi_3d_avatar.jpg'),
     benefits: ['Cluster Management', 'Bulk RFQ Orders', 'Digital Enablement'],
     themeColor: '#16A34A',
     lightBg: '#F0FDF4',
@@ -99,8 +100,9 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
           {/* Header Section */}
           <View style={styles.header}>
             <View style={styles.eyebrowBadge}>
+              <Icon name="sparkles" size={13} color="#EA580C" style={{ marginRight: 5 }} />
               <Text variant="caption" weight="bold" color="#EA580C">
-                ✨ CHOOSE YOUR ROLE
+                CHOOSE YOUR ROLE
               </Text>
             </View>
             <Text variant="headlineMedium" weight="bold" color="#0F172A" style={styles.title}>
@@ -152,7 +154,11 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
                         },
                       ]}
                     >
-                      <Text style={styles.icon}>{item.icon}</Text>
+                      <Image
+                        source={item.avatar3D}
+                        style={styles.role3DImage}
+                        resizeMode="cover"
+                      />
                     </View>
                     <View style={styles.textCol}>
                       <View style={styles.titleRow}>
@@ -172,7 +178,7 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
                         </View>
                         {isSelected && (
                           <View style={[styles.checkPill, { backgroundColor: item.themeColor }]}>
-                            <Text style={styles.checkIcon}>✓</Text>
+                            <Icon name="check" size={12} color="#FFFFFF" />
                           </View>
                         )}
                       </View>
@@ -311,15 +317,23 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    borderWidth: 2,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  icon: {
-    fontSize: 24,
+  role3DImage: {
+    width: '100%',
+    height: '100%',
   },
   textCol: {
     flex: 1,

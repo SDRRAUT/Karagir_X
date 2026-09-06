@@ -22,14 +22,33 @@ export default function App() {
   useEffect(() => {
     // Inject Google Fonts stylesheet for immediate web support (Yatra One / Rozha One)
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const id = 'google-font-indic-yatra';
-      if (!document.getElementById(id)) {
+      document.title = 'Kalakar Setu';
+      const fontId = 'google-font-indic-yatra';
+      if (!document.getElementById(fontId)) {
         const link = document.createElement('link');
-        link.id = id;
+        link.id = fontId;
         link.rel = 'stylesheet';
         link.href =
           'https://fonts.googleapis.com/css2?family=Rozha+One&family=Yatra+One&display=swap';
         document.head.appendChild(link);
+      }
+
+      // Remove web browser input focus outline square boxes
+      const outlineStyleId = 'disable-browser-input-focus-outline';
+      if (!document.getElementById(outlineStyleId)) {
+        const style = document.createElement('style');
+        style.id = outlineStyleId;
+        style.textContent = `
+          input, textarea, select {
+            outline: none !important;
+            box-shadow: none !important;
+          }
+          input:focus, textarea:focus, select:focus {
+            outline: none !important;
+            box-shadow: none !important;
+          }
+        `;
+        document.head.appendChild(style);
       }
     }
 

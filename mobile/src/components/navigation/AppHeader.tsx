@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, ViewStyle, Image } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
+import { Icon } from '@/components/icons/Icon';
 
 export interface AppHeaderProps {
   title?: string;
@@ -87,13 +88,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         {displayEmblem ? (
           <View style={styles.brandRow}>
             <Image
-              source={require('../../../assets/karigarx_logo.png')}
+              source={require('../../../assets/kalakar_setu_logo.png')}
               style={styles.brandLogoImage}
               resizeMode="contain"
             />
             <View style={styles.titleCol}>
               <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-                {title === 'Kalakar Setu' ? 'KARIGARX' : title}
+                {title}
               </Text>
               <Text variant="bodySmall" weight="medium" color={theme.colors.brand.primary}>
                 {subtitle || 'Craft • Connect • Grow'}
@@ -122,7 +123,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           onPress={onVoicePress}
           activeOpacity={0.8}
         >
-          <Text style={{ fontSize: 18 }}>🎙️</Text>
+          <Icon name="microphone" size={18} color="#6366F1" />
         </TouchableOpacity>
       ) : null}
     </View>

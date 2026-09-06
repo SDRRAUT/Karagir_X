@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   Animated,
+  Easing,
   Platform,
   useWindowDimensions,
   Modal,
@@ -14,11 +15,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
-import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
 import { voiceGuidance } from '@/utils/voiceGuidance';
 import { UserRole } from '@/api/types';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { INDIC_DISPLAY_FONT } from '@/theme/typography';
+import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -58,6 +60,16 @@ export interface OnboardingRoleOption {
   tagMr: string;
   icon: string;
   themeColor: string;
+  cardGradientSelected: readonly [string, string, ...string[]];
+  cardGradientUnselected: readonly [string, string, ...string[]];
+  iconGradient: readonly [string, string, ...string[]];
+  tagGradient: readonly [string, string, ...string[]];
+  tagTextColor: string;
+  borderSelected: string;
+  borderUnselected: string;
+  perkEn: string;
+  perkHi: string;
+  perkMr: string;
   lightBg: string;
   borderColor: string;
   ctaEn: string;
@@ -79,11 +91,21 @@ export const ONBOARDING_ROLES: OnboardingRoleOption[] = [
     tagMr: '✨ ०% कमिशन',
     icon: '🎨',
     themeColor: '#EA580C',
+    cardGradientSelected: ['#FFFFFF', '#FFF7ED', '#FFEDD5'] as const,
+    cardGradientUnselected: ['#FFFFFF', '#FAF9F8'] as const,
+    iconGradient: ['#FF7A1A', '#EA580C', '#C2410C'] as const,
+    tagGradient: ['#FFF7ED', '#FED7AA'] as const,
+    tagTextColor: '#C2410C',
+    borderSelected: '#EA580C',
+    borderUnselected: '#E2E8F0',
+    perkEn: '⚡ 0% Cut • GI Verified • Direct UPI',
+    perkHi: '⚡ ०% कमीशन • जीआई प्रमाणित • सीधा UPI भुगतान',
+    perkMr: '⚡ ०% कमिशन • जीआय प्रमाणित • थेट UPI पेमेंट',
     lightBg: '#FFF7ED',
     borderColor: '#FED7AA',
-    ctaEn: 'Artisan Safar Shuru Karein 🎨',
-    ctaHi: 'कारीगर के रूप में जुड़ें 🎨',
-    ctaMr: 'कारागीर म्हणून सुरू करा 🎨',
+    ctaEn: 'Start as Artisan 🎨',
+    ctaHi: 'कारीगर शुरू करें 🎨',
+    ctaMr: 'कारागीर सुरू करा 🎨',
   },
   {
     role: 'BUYER',
@@ -97,12 +119,22 @@ export const ONBOARDING_ROLES: OnboardingRoleOption[] = [
     tagHi: '🛍️ रीटेल व थोक',
     tagMr: '🛍️ किरकोळ व घाऊक',
     icon: '🛍️',
-    themeColor: '#4338CA',
+    themeColor: '#2563EB',
+    cardGradientSelected: ['#FFFFFF', '#EFF6FF', '#DBEAFE'] as const,
+    cardGradientUnselected: ['#FFFFFF', '#F8FAFC'] as const,
+    iconGradient: ['#3B82F6', '#2563EB', '#1D4ED8'] as const,
+    tagGradient: ['#EFF6FF', '#BFDBFE'] as const,
+    tagTextColor: '#1D4ED8',
+    borderSelected: '#2563EB',
+    borderUnselected: '#E2E8F0',
+    perkEn: '🏷️ 100% Authentic • Workshop Rates • India Post',
+    perkHi: '🏷️ १००% असली • वर्कशॉप रेट • डाकघर डिलीवरी',
+    perkMr: '🏷️ १००% अस्सल • स्टुडिओ दर • डाकघर डिलिव्हरी',
     lightBg: '#EEF2FF',
     borderColor: '#C7D2FE',
-    ctaEn: 'Buyer Portal Me Jaayein 🛍️',
-    ctaHi: 'खरीदार के रूप में जुड़ें 🛍️',
-    ctaMr: 'खरेदीदार म्हणून सुरू करा 🛍️',
+    ctaEn: 'Start as Buyer 🛍️',
+    ctaHi: 'खरीदार शुरू करें 🛍️',
+    ctaMr: 'खरेदीदार सुरू करा 🛍️',
   },
   {
     role: 'FACILITATOR',
@@ -116,12 +148,22 @@ export const ONBOARDING_ROLES: OnboardingRoleOption[] = [
     tagHi: '🤝 क्लस्टर साथी',
     tagMr: '🤝 बचत गट साथी',
     icon: '🤝',
-    themeColor: '#16A34A',
+    themeColor: '#059669',
+    cardGradientSelected: ['#FFFFFF', '#ECFDF5', '#D1FAE5'] as const,
+    cardGradientUnselected: ['#FFFFFF', '#F8FAFC'] as const,
+    iconGradient: ['#10B981', '#059669', '#047857'] as const,
+    tagGradient: ['#ECFDF5', '#A7F3D0'] as const,
+    tagTextColor: '#047857',
+    borderSelected: '#059669',
+    borderUnselected: '#E2E8F0',
+    perkEn: '📦 Bulk RFQs • Cluster Groups • Quality Audits',
+    perkHi: '📦 बड़े ऑर्डर्स • क्लस्टर समूह • गुणवत्ता जांच',
+    perkMr: '📦 मोठ्या ऑर्डर्स • बचत गट • गुणवत्ता तपासणी',
     lightBg: '#F0FDF4',
     borderColor: '#BBF7D0',
-    ctaEn: 'Sahyogi Desk Shuru Karein 🤝',
-    ctaHi: 'सहयोगी के रूप में जुड़ें 🤝',
-    ctaMr: 'सहयोगी म्हणून सुरू करा 🤝',
+    ctaEn: 'Start as Sahyogi 🤝',
+    ctaHi: 'सहयोगी शुरू करें 🤝',
+    ctaMr: 'सहयोगी सुरू करा 🤝',
   },
 ];
 
@@ -206,28 +248,6 @@ const ONBOARDING_SLIDES: SlideData[] = [
     voiceBorder: '#ECD2A4',
     voiceText: '#6D4408',
   },
-  {
-    id: 3,
-    image: require('../../../assets/logo.png'),
-    bgColor: '#FAF8F5', // Warm Clean Artisan Eggshell
-    isDark: false,
-    title: 'Apna Role Chunein',
-    description:
-      'Aapke chune hue role ke anusaar aapka profile aur specialized features set kiye jayenge.',
-    badgeType: 'role',
-    voiceHi:
-      'आप खरीदार, कारीगर या सहयोगी में से अपनी भूमिका चुनें ताकि आपको सही सुविधाएं मिल सकें।',
-    buttonLabel: 'Next →',
-    titleColor: '#1A1817',
-    descColor: '#544E49',
-    indicatorActive: '#EA580C',
-    indicatorInactive: '#E5DFD7',
-    btnBg: '#FFFFFF',
-    btnTextColor: '#1A1817',
-    voiceBg: 'rgba(255, 255, 255, 0.85)',
-    voiceBorder: '#E5DFD7',
-    voiceText: '#C2410C',
-  },
 ];
 
 const LOCALIZED_CONTENT: Record<
@@ -274,12 +294,6 @@ const LOCALIZED_CONTENT: Record<
       buyerTags: ['🏨 होटल', '🎁 कॉर्पोरेट', '🛍️ रीटेल', '🏛️ सरकारी खरीदार'],
       buttonLabel: 'आगे बढ़ें →',
     },
-    {
-      title: 'आप किस रूप में जुड़ना चाहते हैं?',
-      description:
-        'अपनी भूमिका चुनें — हर किसी के लिए अलग डैशबोर्ड, प्रोफाइल और सुविधाएं हैं।',
-      buttonLabel: 'आगे बढ़ें →',
-    },
   ],
   mr_IN: [
     {
@@ -309,23 +323,563 @@ const LOCALIZED_CONTENT: Record<
       buyerTags: ['🏨 हॉटेल्स', '🎁 कॉर्पोरेट', '🛍️ रिटेल', '🏛️ सरकारी खरेदीदार'],
       buttonLabel: 'पुढे →',
     },
+  ],
+  en_IN: [
     {
-      title: 'तुम्ही कोणत्या भूमिकेत सामील होऊ इच्छिता?',
+      title: 'Aapka Hunar, Ab Digital',
       description:
-        'आपली भूमिका निवडा — प्रत्येकासाठी स्वतंत्र प्रोफाइल, डॅशबोर्ड आणि विशेष सुविधा आहेत.',
-      buttonLabel: 'पुढे →',
+        'Just snap a photo of your craft and speak in your language. AI transforms it into a professional digital catalog.',
+      microLine: '📸 Take Photo  •  🎙️ Speak  •  ✨ Catalog Ready',
+      costChip: '₹650 Cost',
+      fairPriceChip: '₹850 Fair Price',
+      marginChip: '📈 Better Profit',
+      productChip: 'Your Product',
+      matchChip: '🤖 AI Match',
+      buyerTags: ['🏨 Hotels', '🎁 Corporate', '🛍️ Retail', '🏛️ Govt. Buyers'],
+      buttonLabel: 'Next →',
+    },
+    {
+      title: 'Apne Hunar Ki Sahi Keemat Paaiye',
+      description:
+        'AI calculates fair pricing based on raw materials, hours worked and market demand — so you never sell at a loss.',
+      powerLine: '“Not just selling, but selling at the right price.”',
+      costChip: '₹650 Cost',
+      fairPriceChip: '₹850 Fair Price',
+      marginChip: '📈 Better Profit',
+      buttonLabel: 'Next →',
+    },
+    {
+      title: 'Ab Buyer Khud Aap Tak Pahunchega',
+      description:
+        'AI matches your crafts directly with genuine buyers who value authentic handmade art — from individuals to corporate gifters.',
+      powerLine: '“You focus on creating. We handle the market reach.”',
+      productChip: 'Your Craft',
+      matchChip: '🤖 AI Match',
+      buyerTags: ['🏨 Hotels', '🎁 Corporate', '🛍️ Retail', '🏛️ Govt. Buyers'],
+      buttonLabel: 'Next →',
     },
   ],
+  bn_IN: [
+    {
+      title: 'আপনার শিল্প, এবার ডিজিটাল',
+      description:
+        'শুধু পণ্যের ছবি তুলুন এবং নিজের ভাষায় বলুন। AI তৈরি করবে পেশাদার ডিজিটাল ক্যাটালগ।',
+      microLine: '📸 ছবি তুলুন  •  🎙️ বলুন  •  ✨ ক্যাটালগ প্রস্তুত',
+      buttonLabel: 'পরবর্তী →',
+    },
+    {
+      title: 'আপনার শিল্পের সঠিক মূল্য পান',
+      description:
+        'AI কাঁচামাল এবং পরিশ্রমের সঠিক মূল্যায়ন করে ন্যায্য দাম নির্ধারণ করে যাতে কোনো ক্ষতি না হয়।',
+      powerLine: '“শুধু বিক্রি নয়, উপযুক্ত মূল্যে বিক্রি।”',
+      costChip: '₹650 খরচ',
+      fairPriceChip: '₹850 ন্যায্য দাম',
+      marginChip: '📈 বেশি লাভ',
+      buttonLabel: 'পরবর্তী →',
+    },
+    {
+      title: 'ক্রেতারা এবার সরাসরি আপনার কাছে আসবে',
+      description:
+        'AI আপনার পণ্যগুলোকে সরাসরি বড় হোটেল, কর্পোরেট এবং সংগ্রাহকদের সাথে সংযুক্ত করবে।',
+      powerLine: '“আপনি তৈরি করুন। ক্রেতা পৌঁছে দেওয়ার দায়িত্ব আমাদের।”',
+      productChip: 'আপনার পণ্য',
+      matchChip: '🤖 AI সংযোগ',
+      buyerTags: ['🏨 হোটেল', '🎁 কর্পোরেট', '🛍️ খুচরা', '🏛️ সরকারি ক্রেতা'],
+      buttonLabel: 'পরবর্তী →',
+    },
+  ],
+  ta_IN: [
+    {
+      title: 'உங்கள் கலை, இப்போது டிஜிட்டல்',
+      description:
+        'பொருளைப் புகைப்படம் எடுத்து உங்கள் மொழியில் பேசுங்கள். AI அழகான தொழில்முறை பட்டியலை உருவாக்கும்.',
+      microLine: '📸 படம் எடு  •  🎙️ பேசு  •  ✨ பட்டியல் தயார்',
+      buttonLabel: 'அடுத்து →',
+    },
+    {
+      title: 'உங்கள் கலைக்கு நியாயமான விலை பெறுங்கள்',
+      description:
+        'AI மூலப்பொருள் மற்றும் உங்கள் உழைப்பைக் கணக்கிட்டு நியாயமான விலையைப் பெற்றுத் தரும்.',
+      powerLine: '“விற்பது மட்டும் அல்ல, சரியான விலைக்கு விற்பது.”',
+      costChip: '₹650 செலவு',
+      fairPriceChip: '₹850 நியாய விலை',
+      marginChip: '📈 அதிக லாபம்',
+      buttonLabel: 'அடுத்து →',
+    },
+    {
+      title: 'வாங்குபவர்கள் நேரடியாக உங்களை அடைவார்கள்',
+      description:
+        'AI உங்கள் கைவினைப்பொருட்களை நேரடியாக பெரிய வாடிக்கையாளர்களுடன் இணைக்கிறது.',
+      powerLine: '“நீங்கள் உருவாக்குங்கள். சந்தையை நாங்கள் பார்த்துக் கொள்கிறோம்.”',
+      productChip: 'உங்கள் பொருள்',
+      matchChip: '🤖 AI பொருத்தம்',
+      buyerTags: ['🏨 ஹோட்டல்', '🎁 கார்ப்பரேட்', '🛍️ சில்லறை', '🏛️ அரசு வாங்குபவர்'],
+      buttonLabel: 'அடுத்து →',
+    },
+  ],
+  te_IN: [
+    {
+      title: 'మీ కళ, ఇప్పుడు డిజిటల్',
+      description:
+        'వస్తువు ఫోటో తీసి మీ భాషలో మాట్లాడండి. AI అందమైన డిజిటల్ కేటలాగ్ తయారు చేస్తుంది.',
+      microLine: '📸 ఫోటో తీయండి  •  🎙️ చెప్పండి  •  ✨ కేటలాగ్ సిద్ధం',
+      buttonLabel: 'తరువాత →',
+    },
+    {
+      title: 'మీ కళకు సరైన ధరను పొందండి',
+      description:
+        'AI ముడిసరుకు ఖర్చు మరియు మీ కష్టాన్ని బట్టి న్యాయమైన ధరను నిర్ణయిస్తుంది.',
+      powerLine: '“అమ్మడమే కాదు, సరైన ధరకు అమ్మడం.”',
+      costChip: '₹650 ఖర్చు',
+      fairPriceChip: '₹850 సరైన ధర',
+      marginChip: '📈 మంచి లాభం',
+      buttonLabel: 'తరువాత →',
+    },
+    {
+      title: 'కొనుగోలుదారులు నేరుగా మిమ్మల్ని చేరుకుంటారు',
+      description:
+        'AI మీ వస్తువులను పెద్ద కొనుగోలుదారులు, హోటళ్ళు మరియు కార్పొరేట్లతో కలుపుతుంది.',
+      powerLine: '“మీరు తయారు చేయండి. మార్కెట్ బాధ్యత మాది.”',
+      productChip: 'మీ వస్తువు',
+      matchChip: '🤖 AI అనుసంధానం',
+      buyerTags: ['🏨 హోటళ్ళు', '🎁 కార్పొరేట్', '🛍️ రిటైల్', '🏛️ ప్రభుత్వ కొనుగోలుదారులు'],
+      buttonLabel: 'తరువాత →',
+    },
+  ],
+  gu_IN: [
+    {
+      title: 'તમારી કલા, હવે ડિજિટલ',
+      description:
+        'બસ પ્રોડક્ટનો ફોટો લો અને તમારી ભાષામાં જણાવો. AI સરસ પ્રોફેશનલ કેટલોગ બનાવી આપશે.',
+      microLine: '📸 ફોટો લો  •  🎙️ બોલો  •  ✨ કેટલોગ તૈયાર',
+      buttonLabel: 'આગળ →',
+    },
+    {
+      title: 'તમારી કળાની સાચી કિંમત મેળવો',
+      description:
+        'AI કાચા માલ અને મહેનતના આધારે વાજબી ભાવ નક્કી કરશે — જેથી તમારું નુકસાન ન થાય.',
+      powerLine: '“માત્ર વેચવું નહીં, સાચા ભાવે વેચવું.”',
+      costChip: '₹650 ખર્ચ',
+      fairPriceChip: '₹850 વાજબી ભાવ',
+      marginChip: '📈 સારો નફો',
+      buttonLabel: 'આગળ →',
+    },
+    {
+      title: 'ગ્રાહકો હવે સીધા તમારી પાસે આવશે',
+      description:
+        'AI તમારા ઉત્પાદનોને હોટેલ્સ અને મોટા કોર્પોરેટ ગ્રાહકો સાથે સીધા જોડશે.',
+      powerLine: '“તમે માત્ર ઉત્પાદન બનાવો. માર્કેટ સુધી પહોંચ અમે સંભાળીશું.”',
+      productChip: 'તમારું ઉત્પાદન',
+      matchChip: '🤖 AI મેચ',
+      buyerTags: ['🏨 હોટેલ', '🎁 કોર્પોરેટ', '🛍️ રિટેલ', '🏛️ સરકારી ગ્રાહક'],
+      buttonLabel: 'આગળ →',
+    },
+  ],
+  od_IN: [
+    {
+      title: 'ଆପଣଙ୍କ କଳା, ଏବେ ଡିଜିଟାଲ୍',
+      description:
+        'କେବଳ ଫଟୋ ଉଠାନ୍ତୁ ଏବଂ ନିଜ ଭାଷାରେ କୁହନ୍ତୁ। AI ବ୍ୟବସାୟିକ କାଟାଲଗ୍ ପ୍ରସ୍ତୁତ କରିବ।',
+      microLine: '📸 ଫଟୋ ନିଅନ୍ତୁ  •  🎙️ କୁହନ୍ତୁ  •  ✨ କାଟାଲଗ୍ ପ୍ରସ୍ତୁତ',
+      buttonLabel: 'ଆଗକୁ →',
+    },
+    {
+      title: 'ଆପଣଙ୍କ କଳାର ଉଚିତ୍ ମୂଲ୍ୟ ପାଆନ୍ତୁ',
+      description:
+        'AI କଞ୍ଚାମାଲ ଓ ଆପଣଙ୍କ ପରିଶ୍ରମ ଅନୁସାରେ ଉଚିତ୍ ମୂଲ୍ୟ ସ୍ଥିର କରିବ ଯାହାଦ୍ୱାରା କ୍ଷତି ହେବ ନାହିଁ।',
+      powerLine: '“କେବଳ ବିକ୍ରି ନୁହେଁ, ସଠିକ୍ ମୂଲ୍ୟରେ ବିକ୍ରି।”',
+      costChip: '₹650 ଖର୍ଚ୍ଚ',
+      fairPriceChip: '₹850 ଉଚିତ୍ ମୂଲ୍ୟ',
+      marginChip: '📈 ଅଧିକ ଲାଭ',
+      buttonLabel: 'ଆଗକୁ →',
+    },
+    {
+      title: 'ଗ୍ରାହକମାନେ ଏବେ ସିଧା ଆପଣଙ୍କ ପାଖରେ ପହଞ୍ଚିବେ',
+      description:
+        'AI ଆପଣଙ୍କ ସାମଗ୍ରୀକୁ ବଡ଼ କ୍ରେତା, ହୋଟେଲ ଓ କର୍ପୋରେଟ୍ ଗ୍ରାହକଙ୍କ ସହ ସିଧାସଳଖ ଯୋଡ଼ିବ।',
+      powerLine: '“ଆପଣ କେବଳ ତିଆରି କରନ୍ତୁ। ବଜାର ଆମେ ସମ୍ଭାଳିବୁ।”',
+      productChip: 'ଆପଣଙ୍କ ସାମଗ୍ରୀ',
+      matchChip: '🤖 AI ସଂଯୋଗ',
+      buyerTags: ['🏨 ହୋଟେଲ', '🎁 କର୍ପୋରେଟ୍', '🛍️ ଖୁଚୁରା', '🏛️ ସରକାରୀ କ୍ରେତା'],
+      buttonLabel: 'ଆଗକୁ →',
+    },
+  ],
+};
+
+const ROLE_TRANSLATIONS: Record<
+  SupportedLocale,
+  Partial<
+    Record<
+      UserRole,
+      { title: string; subtitle: string; cta: string }
+    >
+  >
+> = {
+  hi_IN: {
+    ARTISAN: {
+      title: 'कारीगर / दस्तकार',
+      subtitle: 'फोटो खींचकर AI कैटलॉग बनाएं, सही दाम और सीधे ग्राहक पाएं',
+      cta: 'कारीगर शुरू करें 🎨',
+    },
+    BUYER: {
+      title: 'खरीदार / ग्राहक',
+      subtitle: 'असली प्रमाणित जीआई हस्तशिल्प सीधे कारीगरों से खरीदें',
+      cta: 'खरीदार शुरू करें 🛍️',
+    },
+    FACILITATOR: {
+      title: 'सहयोगी / क्लस्टर मित्र',
+      subtitle: 'कारीगर समूहों, बचत गट, पैकेजिंग और बड़े ऑर्डर में सहायता करें',
+      cta: 'सहयोगी शुरू करें 🤝',
+    },
+  },
+  mr_IN: {
+    ARTISAN: {
+      title: 'कारागीर / हस्तकलाकार',
+      subtitle: 'फोटो काढून AI कॅटलॉग बनवा, योग्य भाव आणि थेट ग्राहक मिळवा',
+      cta: 'कारागीर सुरू करा 🎨',
+    },
+    BUYER: {
+      title: 'खरेदीदार / ग्राहक',
+      subtitle: 'प्रमाणित जीआय हस्तकला थेट कारागिरांकडून खरेदी करा',
+      cta: 'खरेदीदार सुरू करा 🛍️',
+    },
+    FACILITATOR: {
+      title: 'सहयोगी / बचत गट प्रमुख',
+      subtitle: 'बचत गट, पॅकेजिंग आणि मोठ्या ऑर्डर्समध्ये कारागिरांना मदत करा',
+      cta: 'सहयोगी सुरू करा 🤝',
+    },
+  },
+  bn_IN: {
+    ARTISAN: {
+      title: 'কারিগর / শিল্পী',
+      subtitle: 'ছবি তুলে AI ক্যাটালগ তৈরি করুন এবং সরাসরি ক্রেতা পান',
+      cta: 'কারিগর শুরু করুন 🎨',
+    },
+    BUYER: {
+      title: 'ক্রেতা / সংগ্রাহক',
+      subtitle: 'আসল হস্তশিল্প সরাসরি কারিগরদের কাছ থেকে কিনুন',
+      cta: 'ক্রেতা শুরু করুন 🛍️',
+    },
+    FACILITATOR: {
+      title: 'সহযোগী / ক্লাস্টার সহায়ক',
+      subtitle: 'স্বনির্ভর দল, গুণমান পরীক্ষা ও প্যাকেজিংয়ে সাহায্য করুন',
+      cta: 'সহযোগী শুরু করুন 🤝',
+    },
+  },
+  ta_IN: {
+    ARTISAN: {
+      title: 'கைவினைஞர் / கலைஞர்',
+      subtitle: 'AI பட்டியல் உருவாக்கி இடைத்தரகர் இல்லாமல் வாங்குபவர்களை அடையுங்கள்',
+      cta: 'கைவினைஞர் தொடங்கு 🎨',
+    },
+    BUYER: {
+      title: 'வாங்குபவர் / சேகரிப்பாளர்',
+      subtitle: 'உண்மையான கைவினைப் பொருட்களை நேரடியாகப் பெறுங்கள்',
+      cta: 'வாங்குபவர் தொடங்கு 🛍️',
+    },
+    FACILITATOR: {
+      title: 'உதவியாளர் / ஒருங்கிணைப்பாளர்',
+      subtitle: 'சுயஉதவிக் குழுக்கள், தர ஆய்வு மற்றும் மொத்த ஆர்டர்களுக்கு உதவுங்கள்',
+      cta: 'உதவியாளர் தொடங்கு 🤝',
+    },
+  },
+  te_IN: {
+    ARTISAN: {
+      title: 'చేతివృత్తిదారుడు / కళాకారుడు',
+      subtitle: 'AI కేటలాగ్‌తో నేరుగా కొనుగోలుదారులను చేరుకోండి',
+      cta: 'కళాకారుడు ప్రారంభించు 🎨',
+    },
+    BUYER: {
+      title: 'కొనుగోలుదారు / వినియోగదారు',
+      subtitle: 'అసలైన కళాఖండాలను నేరుగా కొనుగోలు చేయండి',
+      cta: 'కొనుగోలుదారుడు ప్రారంభించు 🛍️',
+    },
+    FACILITATOR: {
+      title: 'సహయోగి / క్లస్టర్ మిత్రుడు',
+      subtitle: 'స్వయం సహాయక బృందాలు మరియు బల్క్ ఆర్డర్లకు సహాయం చేయండి',
+      cta: 'సహయోగి ప్రారంభించు 🤝',
+    },
+  },
+  gu_IN: {
+    ARTISAN: {
+      title: 'કારીગર / હસ્તકલાકાર',
+      subtitle: 'AI કેટલોગ બનાવો અને યોગ્ય કિંમતે સીધા ગ્રાહકો મેળવો',
+      cta: 'કારીગર શરૂ કરો 🎨',
+    },
+    BUYER: {
+      title: 'ગ્રાહક / ખરીદનાર',
+      subtitle: 'અસલી હસ્તકલા સીધી કારીગરો પાસેથી ખરીદો',
+      cta: 'ગ્રાહક શરૂ કરો 🛍️',
+    },
+    FACILITATOR: {
+      title: 'સહયોગી / ક્લસ્ટર મિત્ર',
+      subtitle: 'સ્વસહાય જૂથો અને પેકિંગમાં કારીગરોને મદદ કરો',
+      cta: 'સહયોગી શરૂ કરો 🤝',
+    },
+  },
+  od_IN: {
+    ARTISAN: {
+      title: 'କାରିଗର / ଶିଳ୍ପୀ',
+      subtitle: 'ଫଟୋ ଉଠାଇ AI କାଟାଲଗ୍ ପ୍ରସ୍ତୁତ କରନ୍ତୁ ଏବଂ ସଠିକ୍ ମୂଲ୍ୟ ପାଆନ୍ତୁ',
+      cta: 'କାରିଗର ଆରମ୍ଭ କରନ୍ତୁ 🎨',
+    },
+    BUYER: {
+      title: 'କ୍ରେତା / ଗ୍ରାହକ',
+      subtitle: 'ଅସଲି ହସ୍ତଶିଳ୍ପ ସିଧାସଳଖ କାରିଗରଙ୍କଠାରୁ କିଣନ୍ତୁ',
+      cta: 'କ୍ରେତା ଆରମ୍ଭ କରନ୍ତୁ 🛍️',
+    },
+    FACILITATOR: {
+      title: 'ସହଯୋଗୀ / କ୍ଲଷ୍ଟର ସାଥୀ',
+      subtitle: 'ମହିଳା ମଣ୍ଡଳ ଓ ପ୍ୟାକିଂ କାର୍ଯ୍ୟରେ କାରିଗରଙ୍କୁ ସାହାଯ୍ୟ କରନ୍ତୁ',
+      cta: 'ସହଯୋଗୀ ଆରମ୍ଭ କରନ୍ତୁ 🤝',
+    },
+  },
+  en_IN: {
+    ARTISAN: {
+      title: 'Artisan / Maker',
+      subtitle: 'Sell handmade crafts with AI catalog, fair pricing & 0% commission',
+      cta: 'Start as Artisan 🎨',
+    },
+    BUYER: {
+      title: 'Buyer / Collector',
+      subtitle: 'Discover verified GI-tagged crafts, retail & bulk direct from makers',
+      cta: 'Start as Buyer 🛍️',
+    },
+    FACILITATOR: {
+      title: 'Sahyogi / SHG Lead',
+      subtitle: 'Support artisan clusters, bulk orders, QC audits & digital onboarding',
+      cta: 'Start as Sahyogi 🤝',
+    },
+  },
+};
+
+const BACK_BUTTON_TEXT: Record<SupportedLocale, string> = {
+  hi_IN: '← पीछे',
+  mr_IN: '← मागे',
+  bn_IN: '← পিছনে',
+  ta_IN: '← பின்',
+  te_IN: '← వెనుకకు',
+  gu_IN: '← પાછા',
+  od_IN: '← ପଛକୁ',
+  en_IN: '← Back',
+};
+
+const LISTENING_TEXT: Record<SupportedLocale, string> = {
+  hi_IN: '🎧 ऑडियो चल रहा है...',
+  mr_IN: '🎧 ऑडिओ सुरू आहे...',
+  bn_IN: '🎧 অডিও চলছে...',
+  ta_IN: '🎧 ஆடியோ ஒலிக்கிறது...',
+  te_IN: '🎧 ఆడియో ప్లే అవుతోంది...',
+  gu_IN: '🎧 ઑડિયો ચાલી રહ્યો છે...',
+  od_IN: '🎧 ଅଡିଓ ଚାଲିଛି...',
+  en_IN: '🎧 Playing audio guide...',
 };
 
 export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const { width, height } = useWindowDimensions();
   const { locale, setLocale } = useAppStore();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('ARTISAN');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioRemainingSec, setAudioRemainingSec] = useState<number | null>(null);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideTranslateY = useRef(new Animated.Value(0)).current;
+
+  // Wave animation for audio indicator
+  const waveAnim1 = useRef(new Animated.Value(1)).current;
+  const waveAnim2 = useRef(new Animated.Value(1)).current;
+  const waveAnim3 = useRef(new Animated.Value(1)).current;
+  const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  // Audio files indexed by slide number (slide 0 = screen 1, slide 1 = screen 2, slide 2 = screen 3)
+  const SLIDE_AUDIO: Record<number, any> = {
+    0: require('../../../assets/audio/1.mp3'),
+    1: require('../../../assets/audio/2_screen2.mp3'),
+    2: require('../../../assets/audio/3.mp3'),
+  };
+
+  const startWaveAnimation = useCallback(() => {
+    const useNative = Platform.OS !== 'web';
+    const makeWave = (anim: Animated.Value, delay: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(anim, {
+            toValue: 1.8,
+            duration: 280,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: useNative,
+          }),
+          Animated.timing(anim, {
+            toValue: 0.5,
+            duration: 280,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: useNative,
+          }),
+        ])
+      );
+    waveLoopRef.current = Animated.parallel([
+      makeWave(waveAnim1, 0),
+      makeWave(waveAnim2, 120),
+      makeWave(waveAnim3, 240),
+    ]);
+    waveLoopRef.current.start();
+  }, [waveAnim1, waveAnim2, waveAnim3]);
+
+  const stopWaveAnimation = useCallback(() => {
+    waveLoopRef.current?.stop();
+    waveAnim1.setValue(1);
+    waveAnim2.setValue(1);
+    waveAnim3.setValue(1);
+  }, [waveAnim1, waveAnim2, waveAnim3]);
+
+  const gestureCleanupRef = useRef<(() => void) | null>(null);
+
+  const cleanupGestureListener = useCallback(() => {
+    if (gestureCleanupRef.current) {
+      gestureCleanupRef.current();
+      gestureCleanupRef.current = null;
+    }
+  }, []);
+
+  const stopCurrentAudio = useCallback(async () => {
+    cleanupGestureListener();
+    setIsAudioPlaying(false);
+    setAudioRemainingSec(null);
+    stopWaveAnimation();
+    if (soundRef.current) {
+      try {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+      } catch (_) {}
+      soundRef.current = null;
+    }
+  }, [cleanupGestureListener, stopWaveAnimation]);
+
+  const playSlideAudio = useCallback(async (slideIndex: number) => {
+    await stopCurrentAudio();
+    const audioAsset = SLIDE_AUDIO[slideIndex];
+    if (!audioAsset) return; // Slide 3 has no audio
+
+    try {
+      if (Platform.OS !== 'web') {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+      }
+      // Load without auto-playing first so createAsync never rejects due to browser autoplay policy
+      const { sound } = await Audio.Sound.createAsync(
+        audioAsset,
+        { shouldPlay: false, volume: 1.0 }
+      );
+      soundRef.current = sound;
+
+      sound.setOnPlaybackStatusUpdate((s) => {
+        if (!s.isLoaded) {
+          setIsAudioPlaying(false);
+          setAudioRemainingSec(null);
+          stopWaveAnimation();
+          soundRef.current = null;
+          return;
+        }
+        if (s.durationMillis && s.positionMillis != null) {
+          const remainingMs = Math.max(0, s.durationMillis - s.positionMillis);
+          const remSec = Math.ceil(remainingMs / 1000);
+          setAudioRemainingSec(remSec > 0 ? remSec : null);
+        }
+        if (s.isPlaying) {
+          setIsAudioPlaying(true);
+          startWaveAnimation();
+        }
+        if (s.didJustFinish) {
+          setIsAudioPlaying(false);
+          setAudioRemainingSec(null);
+          stopWaveAnimation();
+          sound.unloadAsync().catch(() => {});
+          soundRef.current = null;
+        }
+      });
+
+      // Try playing
+      try {
+        const playResult = await sound.playAsync();
+        if ((playResult as any)?.isPlaying) {
+          setIsAudioPlaying(true);
+          startWaveAnimation();
+        }
+      } catch (_autoplayErr) {
+        // Autoplay blocked by browser policy without user gesture on web.
+        // Listen for first user click / touch / key anywhere on the screen:
+        setIsAudioPlaying(false);
+        stopWaveAnimation();
+
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          const onFirstGesture = async () => {
+            cleanupGestureListener();
+            if (soundRef.current === sound) {
+              try {
+                const res = await sound.playAsync();
+                if ((res as any)?.isPlaying) {
+                  setIsAudioPlaying(true);
+                  startWaveAnimation();
+                }
+              } catch (_) {}
+            }
+          };
+          window.addEventListener('pointerdown', onFirstGesture, { once: true });
+          window.addEventListener('keydown', onFirstGesture, { once: true });
+          gestureCleanupRef.current = () => {
+            window.removeEventListener('pointerdown', onFirstGesture);
+            window.removeEventListener('keydown', onFirstGesture);
+          };
+        }
+      }
+    } catch (_err) {
+      setIsAudioPlaying(false);
+      stopWaveAnimation();
+    }
+  }, [cleanupGestureListener, startWaveAnimation, stopCurrentAudio, stopWaveAnimation]);
+
+  const handleToggleAudio = useCallback(async () => {
+    if (isAudioPlaying) {
+      if (soundRef.current) {
+        try {
+          await soundRef.current.pauseAsync();
+        } catch (_) {}
+      }
+      setIsAudioPlaying(false);
+      stopWaveAnimation();
+    } else {
+      cleanupGestureListener();
+      if (soundRef.current) {
+        try {
+          await soundRef.current.playAsync();
+          setIsAudioPlaying(true);
+          startWaveAnimation();
+          return;
+        } catch (_) {}
+      }
+      playSlideAudio(currentSlide);
+    }
+  }, [cleanupGestureListener, currentSlide, isAudioPlaying, playSlideAudio, startWaveAnimation, stopWaveAnimation]);
+
+
+  // Play audio when slide mounts
+  useEffect(() => {
+    playSlideAudio(currentSlide);
+    return () => {
+      stopCurrentAudio();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSlide]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCurrentAudio();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Responsive artwork sizing adapted to screen height & width
   const isCompact = height < 740;
@@ -361,7 +915,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     if (currentSlide < ONBOARDING_SLIDES.length - 1) {
       changeSlide(currentSlide + 1);
     } else {
-      navigation.replace('AuthPhone', { role: selectedRole });
+      navigation.navigate('RoleSelection');
     }
   };
 
@@ -388,70 +942,76 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const matchChip = localized?.matchChip || '🤖 AI Match';
   const buyerTags = localized?.buyerTags || ['🏨 Hotel', '🎁 Corporate', '🛍️ Retail', '🏛️ Govt. Buyer'];
 
-  const isIndicLocale = locale === 'hi_IN' || locale === 'mr_IN';
+  const isIndicLocale = locale !== 'en_IN';
 
-  const activeRoleOpt = ONBOARDING_ROLES.find((r) => r.role === selectedRole) || ONBOARDING_ROLES[0];
-  const dynamicRoleButtonLabel =
-    locale === 'hi_IN'
-      ? activeRoleOpt.ctaHi
-      : locale === 'mr_IN'
-      ? activeRoleOpt.ctaMr
-      : activeRoleOpt.ctaEn;
-
-  const finalButtonLabel = currentSlide === 3 ? dynamicRoleButtonLabel : buttonLabel;
+  const finalButtonLabel = buttonLabel;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: slide.bgColor }]}>
       {/* Top App Header Row */}
       <View style={styles.topHeader}>
         <View style={styles.headerLeft}>
-          {currentSlide > 0 && (
-            <TouchableOpacity
-              testID="onboarding-header-back-btn"
-              onPress={handlePrev}
-              style={styles.headerBackBtn}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Previous slide"
-            >
-              <Text style={[styles.headerBackIcon, { color: slide.titleColor }]}>
-                ‹
-              </Text>
-            </TouchableOpacity>
-          )}
-
           {/* Clean Brand Typography */}
           <Text style={[styles.brandWordmark, { color: slide.titleColor }]}>
-            Karagir<Text style={{ color: '#EA580C' }}>X</Text>
+            Kalakar <Text style={{ color: '#EA580C' }}>Setu</Text>
           </Text>
         </View>
 
-        {/* Language Dropdown Trigger (Replaces Skip) */}
-        <TouchableOpacity
-          testID="language-dropdown-btn"
-          onPress={() => setIsLangMenuOpen(true)}
-          style={[
-            styles.langDropdownTrigger,
-            {
-              backgroundColor: 'rgba(255, 255, 255, 0.88)',
-              borderColor: slide.indicatorInactive,
-            },
-          ]}
-          activeOpacity={0.75}
-          accessibilityRole="button"
-          accessibilityLabel={`Selected language: ${currentLangObj.label}. Tap to change language.`}
-        >
-          <Text style={styles.langGlobeIcon}>🌐</Text>
-          <Text
-            variant="caption"
-            weight="bold"
-            color={slide.titleColor}
-            style={styles.langTriggerLabel}
+        {/* Right Header: Speaker Option + Language Dropdown */}
+        <View style={styles.headerRight}>
+          {/* Speaker Button beside language selector */}
+          <TouchableOpacity
+            testID="onboarding-audio-btn"
+            onPress={handleToggleAudio}
+            style={[
+              styles.headerAudioBtn,
+              isAudioPlaying ? styles.headerAudioPlaying : styles.headerAudioInactive,
+              { borderColor: isAudioPlaying ? '#EA580C' : slide.indicatorInactive },
+            ]}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel={isAudioPlaying ? 'Pause audio guidance' : 'Play audio guidance'}
           >
-            {currentLangObj.label}
-          </Text>
-          <Text style={[styles.langTriggerChevron, { color: slide.titleColor }]}>▾</Text>
-        </TouchableOpacity>
+            <Text style={styles.headerSpeakerEmoji}>{isAudioPlaying ? '🔊' : '🔈'}</Text>
+            {isAudioPlaying && (
+              <View style={styles.headerWaveMini}>
+                {([waveAnim1, waveAnim2, waveAnim3] as Animated.Value[]).map((anim, i) => (
+                  <Animated.View
+                    key={i}
+                    style={[styles.headerWaveBarMini, { transform: [{ scaleY: anim }] }]}
+                  />
+                ))}
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Language Dropdown Trigger */}
+          <TouchableOpacity
+            testID="language-dropdown-btn"
+            onPress={() => setIsLangMenuOpen(true)}
+            style={[
+              styles.langDropdownTrigger,
+              {
+                backgroundColor: 'rgba(255, 255, 255, 0.88)',
+                borderColor: slide.indicatorInactive,
+              },
+            ]}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel={`Selected language: ${currentLangObj.label}. Tap to change language.`}
+          >
+            <Text style={styles.langGlobeIcon}>🌐</Text>
+            <Text
+              variant="caption"
+              weight="bold"
+              color={slide.titleColor}
+              style={styles.langTriggerLabel}
+            >
+              {currentLangObj.label}
+            </Text>
+            <Text style={[styles.langTriggerChevron, { color: slide.titleColor }]}>▾</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Language Selection Modal Dropdown */}
@@ -536,33 +1096,22 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
         bounces={false}
       >
         <View style={styles.mainWrapper}>
-          {/* Animated Illustration or Role Header */}
+          {/* Top Artwork / Logo Section */}
           {slide.badgeType === 'role' ? (
             <Animated.View
               style={[
-                styles.roleHeaderSection,
+                styles.roleLogoHeroSection,
                 {
                   opacity: fadeAnim,
                   transform: [{ translateY: slideTranslateY }],
                 },
               ]}
             >
-              <View style={styles.roleHeaderBadge}>
-                <Image
-                  source={require('../../../assets/logo.png')}
-                  style={styles.roleHeaderLogo}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.roleSubBadgePill}>
-                <Text style={styles.roleSubBadgeText}>
-                  {locale === 'hi_IN'
-                    ? '✨ अपनी पहचान चुनें'
-                    : locale === 'mr_IN'
-                    ? '✨ आपली ओळख निवडा'
-                    : '✨ CHOOSE YOUR JOURNEY ✨'}
-                </Text>
-              </View>
+              <Image
+                source={require('../../../assets/kalakar_setu_logo.png')}
+                style={styles.roleHeroLogo}
+                resizeMode="contain"
+              />
             </Animated.View>
           ) : (
             <Animated.View
@@ -728,135 +1277,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
 
-            {/* Slide 3: Buyer | Artisan | Sahyogi Role Selection Cards */}
-            {slide.badgeType === 'role' && (
-              <View style={styles.roleCardsContainer}>
-                {ONBOARDING_ROLES.map((roleOpt) => {
-                  const isSelected = selectedRole === roleOpt.role;
-                  const roleTitle =
-                    locale === 'hi_IN'
-                      ? roleOpt.titleHi
-                      : locale === 'mr_IN'
-                      ? roleOpt.titleMr
-                      : roleOpt.titleEn;
-                  const roleSubtitle =
-                    locale === 'hi_IN'
-                      ? roleOpt.subtitleHi
-                      : locale === 'mr_IN'
-                      ? roleOpt.subtitleMr
-                      : roleOpt.subtitleEn;
-                  const roleTag =
-                    locale === 'hi_IN'
-                      ? roleOpt.tagHi
-                      : locale === 'mr_IN'
-                      ? roleOpt.tagMr
-                      : roleOpt.tagEn;
-
-                  return (
-                    <TouchableOpacity
-                      key={roleOpt.role}
-                      testID={`role-card-${roleOpt.role}`}
-                      onPress={() => setSelectedRole(roleOpt.role)}
-                      activeOpacity={0.82}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${roleTitle}, ${isSelected ? 'Selected' : 'Not selected'}`}
-                      style={[
-                        styles.roleCard,
-                        isSelected && {
-                          borderColor: roleOpt.themeColor,
-                          backgroundColor: roleOpt.lightBg,
-                          borderWidth: 2,
-                          shadowColor: roleOpt.themeColor,
-                          shadowOpacity: 0.16,
-                          shadowRadius: 10,
-                          elevation: 4,
-                        },
-                      ]}
-                    >
-                      {/* Icon Circle */}
-                      <View
-                        style={[
-                          styles.roleIconCircle,
-                          {
-                            backgroundColor: isSelected ? roleOpt.themeColor : '#F1F5F9',
-                          },
-                        ]}
-                      >
-                        <Text style={styles.roleIconEmoji}>{roleOpt.icon}</Text>
-                      </View>
-
-                      {/* Text Column */}
-                      <View style={styles.roleTextCol}>
-                        <View style={styles.roleTitleRow}>
-                          <Text
-                            variant="bodyLarge"
-                            weight="bold"
-                            color={isSelected ? roleOpt.themeColor : '#1E293B'}
-                            style={[styles.roleCardTitle, isIndicLocale && styles.roleTitleIndic]}
-                          >
-                            {roleTitle}
-                          </Text>
-                          <View
-                            style={[
-                              styles.roleTagPill,
-                              {
-                                backgroundColor: isSelected
-                                  ? 'rgba(255, 255, 255, 0.95)'
-                                  : '#F8FAFC',
-                                borderColor: isSelected ? roleOpt.borderColor : '#E2E8F0',
-                              },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.roleTagText,
-                                { color: isSelected ? roleOpt.themeColor : '#64748B' },
-                                isIndicLocale && styles.roleTagIndic,
-                              ]}
-                            >
-                              {roleTag}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text
-                          variant="caption"
-                          color={isSelected ? '#334155' : '#64748B'}
-                          style={[styles.roleCardSub, isIndicLocale && styles.roleSubIndic]}
-                          numberOfLines={2}
-                        >
-                          {roleSubtitle}
-                        </Text>
-                      </View>
-
-                      {/* Radio Circle */}
-                      <View
-                        style={[
-                          styles.roleRadioCircle,
-                          isSelected && {
-                            backgroundColor: roleOpt.themeColor,
-                            borderColor: roleOpt.themeColor,
-                          },
-                        ]}
-                      >
-                        {isSelected && <Text style={styles.roleCheckmark}>✓</Text>}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            )}
-
-            {/* Hindi Voice Guidance Button */}
-            <View style={styles.voiceWrapper}>
-              <VoiceCueButton
-                textHi={slide.voiceHi}
-                label="Listen in Hindi"
-                size="small"
-                testID={`voice-cue-slide-${currentSlide}`}
-              />
-            </View>
-
-            {/* Subtext Description (1 short empathetic sentence) */}
+            {/* Subtext Description */}
             <Text
               variant="bodyMedium"
               color={slide.descColor}
@@ -895,7 +1316,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   color={slide.titleColor}
                   style={[styles.backBtnText, isIndicLocale && styles.btnTextIndic]}
                 >
-                  {isIndicLocale ? '← पीछे' : '← Back'}
+                  {BACK_BUTTON_TEXT[locale] || '← Back'}
                 </Text>
               </TouchableOpacity>
             )}
@@ -906,28 +1327,30 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               style={[
                 styles.nextBtn,
                 currentSlide === 0 && styles.nextBtnFull,
-                currentSlide === 3 && {
-                  backgroundColor: activeRoleOpt.themeColor,
-                  borderColor: activeRoleOpt.themeColor,
-                  shadowColor: activeRoleOpt.themeColor,
-                  shadowOpacity: 0.32,
-                  shadowOffset: { width: 0, height: 6 },
-                  shadowRadius: 14,
-                  elevation: 6,
-                },
+                { backgroundColor: slide.btnBg },
               ]}
               activeOpacity={0.88}
               accessibilityRole="button"
               accessibilityLabel={finalButtonLabel}
             >
-              <Text
-                variant="bodyLarge"
-                weight="bold"
-                color={currentSlide === 3 ? '#FFFFFF' : slide.btnTextColor}
-                style={[styles.nextBtnText, isIndicLocale && styles.btnTextIndic]}
-              >
-                {finalButtonLabel}
-              </Text>
+              <View style={styles.nextBtnContentRow}>
+                <Text
+                  variant="bodyLarge"
+                  weight="bold"
+                  color={slide.btnTextColor}
+                  style={[styles.nextBtnText, isIndicLocale && styles.btnTextIndic]}
+                >
+                  {finalButtonLabel}
+                </Text>
+
+                {/* Small audio ending timer badge */}
+                {isAudioPlaying && audioRemainingSec != null && (
+                  <View style={styles.smallAudioTimerBadge}>
+                    <Text style={styles.smallAudioTimerIcon}>🎧</Text>
+                    <Text style={styles.smallAudioTimerText}>{audioRemainingSec}s</Text>
+                  </View>
+                )}
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -956,24 +1379,47 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
-  headerBackBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+  headerAudioBtn: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    height: 32,
+    paddingHorizontal: 10,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.06)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+    gap: 4,
   },
-  headerBackIcon: {
-    fontSize: 22,
-    lineHeight: 24,
-    fontWeight: '600',
-    marginTop: -2,
-    marginLeft: -2,
+  headerAudioPlaying: {
+    backgroundColor: '#FFF7ED',
+  },
+  headerAudioInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+  },
+  headerSpeakerEmoji: {
+    fontSize: 14,
+  },
+  headerWaveMini: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    height: 12,
+  },
+  headerWaveBarMini: {
+    width: 2,
+    height: 10,
+    borderRadius: 1,
+    backgroundColor: '#EA580C',
   },
   brandWordmark: {
     fontSize: 20,
@@ -1107,6 +1553,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 8,
     width: '100%',
+  },
+  roleLogoHeroSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 14,
+    paddingBottom: 8,
+    width: '100%',
+  },
+  roleHeroLogo: {
+    width: 300,
+    height: 150,
+    maxWidth: '92%',
   },
   imageShadowBox: {
     borderRadius: 28,
@@ -1318,6 +1776,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 0.3,
   },
+  nextBtnContentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  smallAudioTimerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3.5,
+    backgroundColor: 'rgba(234, 88, 12, 0.1)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderWidth: 1,
+    borderColor: 'rgba(234, 88, 12, 0.28)',
+  },
+  smallAudioTimerIcon: {
+    fontSize: 11,
+  },
+  smallAudioTimerText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#EA580C',
+  },
   headlineIndic: {
     fontFamily: INDIC_DISPLAY_FONT,
     fontSize: 27,
@@ -1355,133 +1838,101 @@ const styles = StyleSheet.create({
     fontFamily: INDIC_DISPLAY_FONT,
     fontSize: 17,
   },
-  roleHeaderSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 4,
-    paddingBottom: 2,
+  // Minimalist Role Card Styles
+  minimalRoleCardsContainer: {
+    width: '100%',
+    maxWidth: 420,
+    marginTop: 10,
+    marginBottom: 6,
+    gap: 10,
   },
-  roleHeaderBadge: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#FFFFFF',
+  minimalRoleCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    borderWidth: 1.5,
+    gap: 13,
+  },
+  minimalRoleCardSelected: {
+    backgroundColor: '#FFFFFF',
     shadowColor: '#EA580C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 10,
-    elevation: 4,
-    borderWidth: 1.5,
-    borderColor: '#FED7AA',
-    marginBottom: 6,
+    elevation: 3,
   },
-  roleHeaderLogo: {
-    width: 42,
-    height: 42,
-  },
-  roleSubBadgePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 12,
-    backgroundColor: 'rgba(234, 88, 12, 0.08)',
-    borderWidth: 0.5,
-    borderColor: 'rgba(234, 88, 12, 0.25)',
-  },
-  roleSubBadgeText: {
-    fontSize: 10.5,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    color: '#EA580C',
-  },
-  roleCardsContainer: {
-    width: '100%',
-    maxWidth: 380,
-    gap: 9,
-    marginBottom: 10,
-    marginTop: 2,
-  },
-  roleCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
-    borderWidth: 1.5,
+  minimalRoleCardUnselected: {
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
     borderColor: '#E2E8F0',
-    shadowColor: '#334155',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  roleIconCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+  minimalRoleIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
-  roleIconEmoji: {
+  minimalRoleIcon: {
     fontSize: 20,
   },
-  roleTextCol: {
+  minimalRoleTextCol: {
     flex: 1,
-    marginLeft: 10,
-    marginRight: 6,
+    justifyContent: 'center',
   },
-  roleTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 2,
-  },
-  roleCardTitle: {
-    fontSize: 14.5,
+  minimalRoleTitle: {
+    fontSize: 15,
+    fontWeight: '700',
     letterSpacing: -0.2,
+    marginBottom: 2,
   },
   roleTitleIndic: {
     fontFamily: INDIC_DISPLAY_FONT,
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 16.5,
+    lineHeight: 21,
   },
-  roleTagPill: {
-    paddingHorizontal: 7,
-    paddingVertical: 1.5,
-    borderRadius: 8,
-    borderWidth: 0.5,
-  },
-  roleTagText: {
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  roleTagIndic: {
-    fontFamily: INDIC_DISPLAY_FONT,
-    fontSize: 11,
-  },
-  roleCardSub: {
-    fontSize: 11,
-    lineHeight: 15,
+  minimalRoleSub: {
+    fontSize: 12.5,
+    lineHeight: 17,
+    letterSpacing: 0,
   },
   roleSubIndic: {
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 17,
   },
-  roleRadioCircle: {
+  minimalRadioCircle: {
     width: 22,
     height: 22,
     borderRadius: 11,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
-  roleCheckmark: {
+  minimalRadioCheck: {
     color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '800',
+  },
+  nextBtnRoleSlide: {
+    paddingVertical: 0,
+    overflow: 'hidden',
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+  },
+  nextBtnRoleGradient: {
+    width: '100%',
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 28,
   },
 });

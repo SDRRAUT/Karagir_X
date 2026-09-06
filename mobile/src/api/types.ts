@@ -22,6 +22,75 @@ export interface AuthTokens {
   expiresInSeconds: number;
 }
 
+export interface Country {
+  id: number;
+  name: string;
+  isoCode: string;
+  phoneCode: string;
+  nameHi?: string;
+  nameMr?: string;
+  isActive: boolean;
+}
+
+export interface State {
+  id: number;
+  countryId: number;
+  name: string;
+  nameHi?: string;
+  nameMr?: string;
+  lgdCode: number;
+  stateType: 'STATE' | 'UT';
+  isActive: boolean;
+}
+
+export interface District {
+  id: number;
+  stateId: number;
+  name: string;
+  nameHi?: string;
+  nameMr?: string;
+  lgdCode: number;
+  isActive: boolean;
+}
+
+export interface SubDistrict {
+  id: number;
+  districtId: number;
+  name: string;
+  nameHi?: string;
+  nameMr?: string;
+  lgdCode: number;
+  subDistrictType: 'TALUKA' | 'TEHSIL' | 'MANDAL' | 'BLOCK' | 'SUB_DIVISION';
+  isActive: boolean;
+}
+
+export interface Village {
+  id: number;
+  subDistrictId: number;
+  name: string;
+  nameHi?: string;
+  nameMr?: string;
+  lgdCode?: number;
+  pincode?: string;
+  isCraftCluster: boolean;
+  craftSpecialty?: string;
+  isActive: boolean;
+}
+
+export interface LocationHierarchyValue {
+  countryId?: number;
+  stateId?: number;
+  districtId?: number;
+  subDistrictId?: number;
+  villageId?: number;
+  countryName: string;
+  stateName: string;
+  districtName: string;
+  subDistrictName?: string;
+  villageName?: string;
+  pincode?: string;
+}
+
 export interface UserProfile {
   id: string;
   phoneNumber: string;
@@ -29,8 +98,14 @@ export interface UserProfile {
   role: UserRole;
   preferredLanguage: string;
   craftCategoryCode?: string;
+  countryId?: number;
+  stateId?: number;
+  districtId?: number;
+  subDistrictId?: number;
+  villageId?: number;
   district?: string;
   state?: string;
+  subDistrict?: string;
   villageName?: string;
   shgOrFacilitatorCode?: string;
   isProfileComplete?: boolean;
@@ -66,8 +141,14 @@ export interface VerifyOtpResponse {
 export interface ProfileSetupRequest {
   full_name: string;
   craft_category_code: string;
+  country_id?: number;
+  state_id?: number;
+  district_id?: number;
+  sub_district_id?: number;
+  village_id?: number;
   district: string;
   state: string;
+  sub_district?: string;
   village_name?: string;
   shg_or_facilitator_code?: string;
 }

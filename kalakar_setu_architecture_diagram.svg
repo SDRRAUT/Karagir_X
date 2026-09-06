@@ -1,0 +1,534 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1680 1440" width="100%" height="100%" style="background-color: #090D16; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <!-- Background Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E293B" stroke-width="0.8" stroke-opacity="0.45"/>
+    </pattern>
+
+    <!-- Gradients for Cards and Badges -->
+    <linearGradient id="bg-canvas" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070B14"/>
+      <stop offset="50%" stop-color="#0B1120"/>
+      <stop offset="100%" stop-color="#080D1A"/>
+    </linearGradient>
+
+    <!-- Top Portal Gradient -->
+    <linearGradient id="grad-portal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#3730A3"/>
+    </linearGradient>
+
+    <!-- Pillar 1: Artisan (Orange Terracotta) -->
+    <linearGradient id="grad-artisan-header" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EA580C"/>
+      <stop offset="100%" stop-color="#C2410C"/>
+    </linearGradient>
+    <linearGradient id="grad-artisan-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1715"/>
+      <stop offset="100%" stop-color="#171210"/>
+    </linearGradient>
+
+    <!-- Pillar 2: AI Engine (Purple / Cyber Indigo) -->
+    <linearGradient id="grad-ai-header" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333EA"/>
+      <stop offset="100%" stop-color="#6B21A8"/>
+    </linearGradient>
+    <linearGradient id="grad-ai-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1325"/>
+      <stop offset="100%" stop-color="#140E1D"/>
+    </linearGradient>
+
+    <!-- Pillar 3: Govt & Buyers (Teal / Emerald / Slate) -->
+    <linearGradient id="grad-govt-header" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="grad-govt-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111D24"/>
+      <stop offset="100%" stop-color="#0D161C"/>
+    </linearGradient>
+
+    <!-- Buyer Branch Gradient -->
+    <linearGradient id="grad-buyer-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0369A1"/>
+      <stop offset="100%" stop-color="#075985"/>
+    </linearGradient>
+
+    <!-- Govt Official Branch Gradient -->
+    <linearGradient id="grad-official-card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+
+    <!-- Final Trophy Convergence Gradient -->
+    <linearGradient id="grad-trophy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glow-trophy" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="glow-portal" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="card-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+
+    <!-- Arrowhead Markers -->
+    <marker id="arr-indigo" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#818CF8"/>
+    </marker>
+    <marker id="arr-orange" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#FB923C"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#C084FC"/>
+    </marker>
+    <marker id="arr-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38BDF8"/>
+    </marker>
+    <marker id="arr-emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34D399"/>
+    </marker>
+    <marker id="arr-gold" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#FBBF24"/>
+    </marker>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="100%" height="100%" fill="url(#bg-canvas)"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+
+  <!-- Subtle Ambient Glow Orbs -->
+  <circle cx="840" cy="120" r="220" fill="#4F46E5" opacity="0.12" filter="blur(60px)"/>
+  <circle cx="290" cy="500" r="250" fill="#EA580C" opacity="0.08" filter="blur(70px)"/>
+  <circle cx="840" cy="800" r="280" fill="#9333EA" opacity="0.09" filter="blur(70px)"/>
+  <circle cx="1390" cy="500" r="250" fill="#0D9488" opacity="0.08" filter="blur(70px)"/>
+  <circle cx="840" cy="1300" r="240" fill="#F59E0B" opacity="0.12" filter="blur(60px)"/>
+
+  <!-- ==========================================
+       TITLE HEADER
+       ========================================== -->
+  <g transform="translate(840, 48)" text-anchor="middle">
+    <text font-size="24" font-weight="900" fill="#FFFFFF" letter-spacing="1">
+      KALAKAR SETU <tspan fill="#F59E0B">•</tspan> END-TO-END SYSTEM ARCHITECTURE
+    </text>
+    <text y="24" font-size="13" font-weight="500" fill="#94A3B8" letter-spacing="0.5">
+      AI-Powered Digital Inclusion, Decentralized Production &amp; Sovereign Market Linkage for Indian Artisans
+    </text>
+  </g>
+
+  <!-- ==========================================
+       COLUMN CONTAINERS / BACKGROUND ZONES
+       ========================================== -->
+  <!-- Left Pillar Zone (Artisan) -->
+  <rect x="70" y="195" width="440" height="920" rx="20" fill="#140E0C" fill-opacity="0.4" stroke="#EA580C" stroke-width="1.2" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+  <!-- Middle Pillar Zone (Central AI) -->
+  <rect x="610" y="195" width="460" height="1035" rx="20" fill="#130C1C" fill-opacity="0.4" stroke="#9333EA" stroke-width="1.2" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+  <!-- Right Pillar Zone (Govt & Buyers) -->
+  <rect x="1150" y="195" width="460" height="1035" rx="20" fill="#0A151C" fill-opacity="0.4" stroke="#0D9488" stroke-width="1.2" stroke-opacity="0.25" stroke-dasharray="6,4"/>
+
+  <!-- =========================================================
+       CONNECTIONS & ARROW PATHWAYS (Rendered below cards)
+       ========================================================= -->
+  <g fill="none">
+    <!-- Top Portal Split to 3 Pillars -->
+    <path d="M 840 162 L 840 210" stroke="#818CF8" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+    <path d="M 840 162 L 840 185 Q 840 195 825 195 L 290 195 Q 290 195 290 210" stroke="#FB923C" stroke-width="2.5" marker-end="url(#arr-orange)"/>
+    <path d="M 840 162 L 840 185 Q 840 195 855 195 L 1380 195 Q 1380 195 1380 210" stroke="#34D399" stroke-width="2.5" marker-end="url(#arr-emerald)"/>
+
+    <!-- Left Pillar: Artisan Header -> Dashboard -->
+    <path d="M 290 285 L 290 320" stroke="#FB923C" stroke-width="2.2" marker-end="url(#arr-orange)"/>
+    <!-- Dashboard -> 3 Sub-tabs -->
+    <path d="M 290 376 L 290 405" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+    <path d="M 290 388 L 165 388 L 165 405" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+    <path d="M 290 388 L 415 388 L 415 405" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+    <!-- [ADD] Tab -> AI Photo Studio -->
+    <path d="M 165 460 L 165 515" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+    <!-- AI Photo Studio -> Multilingual Voice -->
+    <path d="M 290 580 L 290 620" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+    <!-- Multilingual Voice -> Auto-Link to Schemes -->
+    <path d="M 290 685 L 290 935" stroke="#FB923C" stroke-width="2" marker-end="url(#arr-orange)"/>
+
+    <!-- [GROWTH] -> Demand Forecasting (Center AI) -->
+    <path d="M 415 460 L 415 548 Q 415 548 640 548" stroke="#F59E0B" stroke-width="2.2" marker-end="url(#arr-gold)"/>
+
+    <!-- [ORDERS] -> Cluster Fulfillment (Center AI) -->
+    <path d="M 290 460 L 290 490 Q 290 652 640 652" stroke="#FB923C" stroke-width="2.2" marker-end="url(#arr-orange)"/>
+
+    <!-- Right Pillar: Govt & Buyers Header -> Role-Based Login -->
+    <path d="M 1380 285 L 1380 320" stroke="#34D399" stroke-width="2.2" marker-end="url(#arr-emerald)"/>
+    <!-- Role-Based Login -> [Buyers] & [Govt Officials] -->
+    <path d="M 1380 376 L 1380 395 L 1265 395 L 1265 415" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cyan)"/>
+    <path d="M 1380 376 L 1380 395 L 1495 395 L 1495 415" stroke="#34D399" stroke-width="2" marker-end="url(#arr-emerald)"/>
+
+    <!-- B2B/B2C Buyers -> Demand Forecasting (Input) -->
+    <path d="M 1220 475 L 1220 540 L 1040 540" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cyan)"/>
+    <!-- MoSJE Govt Officials -> Demand Forecasting (Input) -->
+    <path d="M 1520 475 L 1520 555 L 1040 555" stroke="#34D399" stroke-width="2" marker-end="url(#arr-emerald)"/>
+
+    <!-- B2B/B2C Buyers -> Cluster Fulfillment (Input) -->
+    <path d="M 1240 475 L 1240 652 L 1040 652" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cyan)"/>
+
+    <!-- Central AI Engine: Inter-Module Flows -->
+    <!-- AI Photo Studio -> Craft DNA Checker -->
+    <path d="M 480 548 L 560 548 Q 580 548 580 758 L 640 758" stroke="#C084FC" stroke-width="2.2" marker-end="url(#arr-purple)"/>
+    <!-- Craft DNA Checker -> AR Preview (Buyers) -->
+    <path d="M 1040 758 L 1220 758" stroke="#38BDF8" stroke-width="2.2" marker-end="url(#arr-cyan)"/>
+
+    <!-- Multilingual Voice -> "Kahaani" Generator -->
+    <path d="M 480 652 L 540 652 Q 560 652 560 862 L 640 862" stroke="#C084FC" stroke-width="2.2" marker-end="url(#arr-purple)"/>
+    <!-- "Kahaani" Generator -> Product Catalog (Buyers) -->
+    <path d="M 1040 862 L 1220 862" stroke="#38BDF8" stroke-width="2.2" marker-end="url(#arr-cyan)"/>
+
+    <!-- Vertical Central AI Chain -->
+    <path d="M 840 580 L 840 620" stroke="#C084FC" stroke-width="2" marker-end="url(#arr-purple)"/>
+    <path d="M 840 685 L 840 725" stroke="#C084FC" stroke-width="2" marker-end="url(#arr-purple)"/>
+    <path d="M 840 790 L 840 830" stroke="#C084FC" stroke-width="2" marker-end="url(#arr-purple)"/>
+    <path d="M 840 895 L 840 935" stroke="#C084FC" stroke-width="2" marker-end="url(#arr-purple)"/>
+
+    <!-- AI Dynamic Pricing -> Auto-Link to Schemes (Arrow Left) -->
+    <path d="M 640 968 L 480 968" stroke="#FB923C" stroke-width="2.2" marker-end="url(#arr-orange)"/>
+    <!-- MoSJE Govt -> AI Dynamic Pricing / Schemes (Arrow Left from Govt) -->
+    <path d="M 1520 475 L 1520 968 L 1040 968" stroke="#34D399" stroke-width="2" marker-end="url(#arr-emerald)"/>
+
+    <!-- Auto-Link to Schemes -> Omni-Channel Sync -->
+    <path d="M 290 1000 L 290 1072 Q 290 1072 640 1072" stroke="#FB923C" stroke-width="2.2" marker-end="url(#arr-orange)"/>
+
+    <!-- AI Dynamic Pricing -> Omni-Channel Sync -->
+    <path d="M 840 1000 L 840 1040" stroke="#C084FC" stroke-width="2" marker-end="url(#arr-purple)"/>
+
+    <!-- Product Catalog -> Omni-Channel Sync -->
+    <path d="M 1315 895 L 1315 1072 L 1040 1072" stroke="#38BDF8" stroke-width="2" marker-end="url(#arr-cyan)"/>
+
+    <!-- Omni-Channel Sync -> Auto-Pack & Ship Label -->
+    <path d="M 840 1105 L 840 1145" stroke="#818CF8" stroke-width="2.5" marker-end="url(#arr-indigo)"/>
+
+    <!-- MoSJE Govt -> Impact Dashboard & Scheme Approvals -->
+    <path d="M 1495 475 L 1495 1145" stroke="#34D399" stroke-width="2.2" marker-end="url(#arr-emerald)"/>
+
+    <!-- Convergence to Final Outcome [🏆 EMPOWERED ARTISAN ECONOMY] -->
+    <path d="M 840 1215 L 840 1255 Q 840 1265 840 1265" stroke="#FBBF24" stroke-width="3" marker-end="url(#arr-gold)"/>
+    <path d="M 1380 1215 L 1380 1245 Q 1380 1260 1180 1260 L 1150 1265" stroke="#FBBF24" stroke-width="2.5" marker-end="url(#arr-gold)"/>
+  </g>
+
+  <!-- =========================================================
+       CARD NODES & COMPONENTS
+       ========================================================= -->
+
+  <!-- 1. MULTI-MODAL ENTRY PORTAL (Top Center) -->
+  <g transform="translate(560, 92)" filter="url(#card-shadow)">
+    <rect width="560" height="70" rx="16" fill="url(#grad-portal)" stroke="#818CF8" stroke-width="1.8"/>
+    <g transform="translate(280, 26)" text-anchor="middle">
+      <text font-size="16" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">
+        🔐 Multi-Modal Entry Portal
+      </text>
+      <text y="22" font-size="12" font-weight="500" fill="#C7D2FE">
+        (Face ID • Multilingual Voice Login • Phone OTP)
+      </text>
+    </g>
+  </g>
+
+  <!-- =========================================================
+       LEFT PILLAR: 🛠️ ARTISAN (APP)
+       ========================================================= -->
+  <!-- Header Card -->
+  <g transform="translate(90, 215)" filter="url(#card-shadow)">
+    <rect width="400" height="70" rx="16" fill="url(#grad-artisan-header)" stroke="#FDBA74" stroke-width="1.5"/>
+    <g transform="translate(200, 26)" text-anchor="middle">
+      <text font-size="17" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">
+        🛠️ ARTISAN (APP)
+      </text>
+      <text y="22" font-size="12" font-weight="600" fill="#FFEDD5">
+        Offline-First Mode • Edge AI on Device
+      </text>
+    </g>
+  </g>
+
+  <!-- Zero-UI Dashboard -->
+  <g transform="translate(100, 320)" filter="url(#card-shadow)">
+    <rect width="380" height="56" rx="14" fill="#24140E" stroke="#EA580C" stroke-width="1.2"/>
+    <g transform="translate(190, 24)" text-anchor="middle">
+      <text font-size="14" font-weight="700" fill="#FED7AA">
+        ⚡ Zero-UI "Ek Tap" Dashboard
+      </text>
+      <text y="18" font-size="11" font-weight="500" fill="#9A6553">
+        Voice-Assisted Simplified Artisan Hub
+      </text>
+    </g>
+  </g>
+
+  <!-- 3 Sub-Tabs: ADD, ORDERS, GROWTH -->
+  <!-- [ADD] -->
+  <g transform="translate(95, 405)" filter="url(#card-shadow)">
+    <rect width="100" height="55" rx="10" fill="#381D14" stroke="#FB923C" stroke-width="1.2"/>
+    <text x="50" y="25" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">📸 ADD</text>
+    <text x="50" y="42" font-size="9.5" font-weight="600" fill="#FDBA74" text-anchor="middle">Product</text>
+  </g>
+  <!-- [ORDERS] -->
+  <g transform="translate(210, 405)" filter="url(#card-shadow)">
+    <rect width="115" height="55" rx="10" fill="#381D14" stroke="#FB923C" stroke-width="1.2"/>
+    <text x="57" y="25" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">📦 ORDERS</text>
+    <text x="57" y="42" font-size="9.5" font-weight="600" fill="#FDBA74" text-anchor="middle">Fulfillment</text>
+  </g>
+  <!-- [GROWTH] -->
+  <g transform="translate(340, 405)" filter="url(#card-shadow)">
+    <rect width="115" height="55" rx="10" fill="#381D14" stroke="#FB923C" stroke-width="1.2"/>
+    <text x="57" y="25" font-size="12" font-weight="800" fill="#FFFFFF" text-anchor="middle">📈 GROWTH</text>
+    <text x="57" y="42" font-size="9.5" font-weight="600" fill="#FDBA74" text-anchor="middle">Advisory</text>
+  </g>
+
+  <!-- AI Photo Studio -->
+  <g transform="translate(90, 515)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-artisan-card)" stroke="#EA580C" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        📸 AI Photo Studio
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#FDBA74">
+        (Offline Edge AI • Background Cutout &amp; Enhance)
+      </text>
+    </g>
+  </g>
+
+  <!-- Multilingual Voice Cataloging Engine -->
+  <g transform="translate(90, 620)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-artisan-card)" stroke="#EA580C" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14" font-weight="700" fill="#FFFFFF">
+        🎙️ Multilingual Voice Cataloging
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#FDBA74">
+        (Speaks in 10+ local dialects: Hindi, Marathi, etc.)
+      </text>
+    </g>
+  </g>
+
+  <!-- Auto-Link to Schemes -->
+  <g transform="translate(90, 935)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-artisan-card)" stroke="#EA580C" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        🏛️ Auto-Link to Schemes
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#FDBA74">
+        (PM-DAKSH, Mudra Loans, PM Vishwakarma)
+      </text>
+    </g>
+  </g>
+
+  <!-- =========================================================
+       MIDDLE PILLAR: 🧠 CENTRAL AI ENGINE
+       ========================================================= -->
+  <!-- Header Card -->
+  <g transform="translate(630, 215)" filter="url(#card-shadow)">
+    <rect width="420" height="70" rx="16" fill="url(#grad-ai-header)" stroke="#D8B4FE" stroke-width="1.5"/>
+    <g transform="translate(210, 26)" text-anchor="middle">
+      <text font-size="17" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">
+        🧠 CENTRAL AI ENGINE
+      </text>
+      <text y="22" font-size="12" font-weight="600" fill="#F3E8FF">
+        (The Smart Brain of Kalakar Setu)
+      </text>
+    </g>
+  </g>
+
+  <!-- Demand Forecasting -->
+  <g transform="translate(640, 515)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        📊 Demand Forecasting
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        ["Kya Banayein" Trend &amp; Festival Alerts]
+      </text>
+    </g>
+  </g>
+
+  <!-- Cluster Fulfillment -->
+  <g transform="translate(640, 620)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        🤝 Cluster Fulfillment
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        [Smart SHG Co-operative Bulk Splitting]
+      </text>
+    </g>
+  </g>
+
+  <!-- Craft DNA Checker -->
+  <g transform="translate(640, 725)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        🧬 Craft DNA Checker
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        (GI Authenticity Score &amp; Handmade Verification)
+      </text>
+    </g>
+  </g>
+
+  <!-- "Kahaani" Generator -->
+  <g transform="translate(640, 830)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        📖 "Kahaani" Generator
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        (Auto-generates Artisan Provenance Story)
+      </text>
+    </g>
+  </g>
+
+  <!-- AI Dynamic Pricing -->
+  <g transform="translate(640, 935)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        💎 AI Dynamic Pricing
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        [Raw Material Est. • Anti-Exploitation Alert]
+      </text>
+    </g>
+  </g>
+
+  <!-- Omni-Channel Sync -->
+  <g transform="translate(640, 1040)" filter="url(#card-shadow)">
+    <rect width="400" height="65" rx="14" fill="url(#grad-ai-card)" stroke="#9333EA" stroke-width="1.3"/>
+    <g transform="translate(200, 24)" text-anchor="middle">
+      <text font-size="14.5" font-weight="700" fill="#FFFFFF">
+        🌐 Omni-Channel Sync
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#D8B4FE">
+        (WhatsApp Store, GeM Portal, ONDC Protocol)
+      </text>
+    </g>
+  </g>
+
+  <!-- Auto-Pack & Ship Label (India Post) -->
+  <g transform="translate(620, 1145)" filter="url(#card-shadow)">
+    <rect width="440" height="70" rx="16" fill="#172554" stroke="#60A5FA" stroke-width="1.5"/>
+    <g transform="translate(220, 26)" text-anchor="middle">
+      <text font-size="15" font-weight="800" fill="#FFFFFF">
+        📦 Auto-Pack &amp; Ship Label
+      </text>
+      <text y="22" font-size="12" font-weight="600" fill="#BFDBFE">
+        [India Post &amp; SpeedPost API Integration]
+      </text>
+    </g>
+  </g>
+
+  <!-- =========================================================
+       RIGHT PILLAR: 🏛️ GOVT & BUYERS
+       ========================================================= -->
+  <!-- Header Card -->
+  <g transform="translate(1170, 215)" filter="url(#card-shadow)">
+    <rect width="420" height="70" rx="16" fill="url(#grad-govt-header)" stroke="#5EEAD4" stroke-width="1.5"/>
+    <g transform="translate(210, 26)" text-anchor="middle">
+      <text font-size="17" font-weight="800" fill="#FFFFFF" letter-spacing="0.5">
+        🏛️ GOVT &amp; BUYERS
+      </text>
+      <text y="22" font-size="12" font-weight="600" fill="#CCFBF1">
+        (Web / ONDC / WhatsApp Buyer Network)
+      </text>
+    </g>
+  </g>
+
+  <!-- Role-Based Login -->
+  <g transform="translate(1200, 320)" filter="url(#card-shadow)">
+    <rect width="360" height="56" rx="14" fill="#0E1D24" stroke="#0D9488" stroke-width="1.2"/>
+    <g transform="translate(180, 24)" text-anchor="middle">
+      <text font-size="14" font-weight="700" fill="#99F6E4">
+        🔑 Role-Based Login
+      </text>
+      <text y="18" font-size="11" font-weight="500" fill="#5EEAD4">
+        Institutional • Bulk • Direct Consumer
+      </text>
+    </g>
+  </g>
+
+  <!-- Sub-Branch 1: B2B/B2C Buyers -->
+  <g transform="translate(1170, 415)" filter="url(#card-shadow)">
+    <rect width="190" height="60" rx="12" fill="url(#grad-buyer-card)" stroke="#38BDF8" stroke-width="1.2"/>
+    <g transform="translate(95, 23)" text-anchor="middle">
+      <text font-size="12.5" font-weight="800" fill="#FFFFFF">🛍️ B2B / B2C</text>
+      <text y="18" font-size="11" font-weight="600" fill="#BAE6FD">Buyers Portal</text>
+    </g>
+  </g>
+
+  <!-- Sub-Branch 2: MoSJE Govt Officials -->
+  <g transform="translate(1390, 415)" filter="url(#card-shadow)">
+    <rect width="200" height="60" rx="12" fill="url(#grad-official-card)" stroke="#34D399" stroke-width="1.2"/>
+    <g transform="translate(100, 23)" text-anchor="middle">
+      <text font-size="12.5" font-weight="800" fill="#FFFFFF">🏛️ MoSJE Govt</text>
+      <text y="18" font-size="11" font-weight="600" fill="#A7F3D0">Ministry Officials</text>
+    </g>
+  </g>
+
+  <!-- AR Preview -->
+  <g transform="translate(1220, 725)" filter="url(#card-shadow)">
+    <rect width="210" height="65" rx="14" fill="url(#grad-govt-card)" stroke="#0284C7" stroke-width="1.3"/>
+    <g transform="translate(105, 24)" text-anchor="middle">
+      <text font-size="14" font-weight="700" fill="#FFFFFF">
+        🥽 AR Preview
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#7DD3FC">
+        (View in Room / 3D Look)
+      </text>
+    </g>
+  </g>
+
+  <!-- Product Catalog -->
+  <g transform="translate(1220, 830)" filter="url(#card-shadow)">
+    <rect width="210" height="65" rx="14" fill="url(#grad-govt-card)" stroke="#0284C7" stroke-width="1.3"/>
+    <g transform="translate(105, 24)" text-anchor="middle">
+      <text font-size="14" font-weight="700" fill="#FFFFFF">
+        🛍️ Product Catalog
+      </text>
+      <text y="20" font-size="11.5" font-weight="500" fill="#7DD3FC">
+        [GI Verified &amp; Certified]
+      </text>
+    </g>
+  </g>
+
+  <!-- Impact Dashboard & Scheme Approvals -->
+  <g transform="translate(1190, 1145)" filter="url(#card-shadow)">
+    <rect width="380" height="70" rx="16" fill="#064E3B" stroke="#34D399" stroke-width="1.5"/>
+    <g transform="translate(190, 26)" text-anchor="middle">
+      <text font-size="15" font-weight="800" fill="#FFFFFF">
+        📊 Impact Dashboard
+      </text>
+      <text y="22" font-size="12" font-weight="600" fill="#A7F3D0">
+        [Scheme Approvals • Subsidy Tracking]
+      </text>
+    </g>
+  </g>
+
+  <!-- =========================================================
+       BOTTOM CONVERGENCE: 🏆 EMPOWERED ARTISAN ECONOMY
+       ========================================================= -->
+  <g transform="translate(480, 1265)" filter="url(#glow-trophy)">
+    <rect width="720" height="85" rx="20" fill="url(#grad-trophy)" stroke="#FEF08A" stroke-width="2.5"/>
+    <g transform="translate(360, 32)" text-anchor="middle">
+      <text font-size="19" font-weight="900" fill="#FFFFFF" letter-spacing="1">
+        🏆 EMPOWERED ARTISAN ECONOMY
+      </text>
+      <text y="26" font-size="13.5" font-weight="700" fill="#FEF3C7">
+        ✨ Financial Upliftment • Zero Middlemen • Sovereign Global Market Access ✨
+      </text>
+    </g>
+  </g>
+</svg>

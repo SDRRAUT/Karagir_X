@@ -49,11 +49,24 @@ import { QuoteNegotiationScreen } from '@/screens/linkage/QuoteNegotiationScreen
 import { B2BContractScreen } from '@/screens/linkage/B2BContractScreen';
 import { CreateBulkRfqScreen } from '@/screens/linkage/CreateBulkRfqScreen';
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator: React.FC = () => {
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      documentTitle={{
+        formatter: (options, route) => {
+          const role = useAuthStore.getState().user?.role;
+          const roleLabel =
+            role === 'ARTISAN' ? 'Artisans' :
+            role === 'BUYER' ? 'Buyer' :
+            role === 'FACILITATOR' ? 'Sahyogi' : '';
+          return roleLabel ? `Kalakar Setu ~ ${roleLabel}` : (options?.title ?? route?.name ?? 'Kalakar Setu');
+        },
+      }}
+    >
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{

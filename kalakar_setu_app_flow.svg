@@ -1,0 +1,513 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 1800" width="100%" height="100%" style="background-color: #0B1120; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B132B"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#090D1A"/>
+    </linearGradient>
+
+    <!-- Header Gradient -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="50%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+
+    <!-- Artisan Journey Gradient (Amber / Gold) -->
+    <linearGradient id="artisanCardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#172133"/>
+    </linearGradient>
+    <linearGradient id="artisanHeaderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+
+    <!-- Buyer Journey Gradient (Teal / Cyan) -->
+    <linearGradient id="buyerHeaderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <!-- Sahyogi Journey Gradient (Emerald / Jade) -->
+    <linearGradient id="sahyogiHeaderGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <!-- Settlement / Escrow Gradient (Purple / Indigo) -->
+    <linearGradient id="settlementGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="50%" stop-color="#EC4899"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+
+    <!-- Gateway Card Gradient -->
+    <linearGradient id="gatewayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1F2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+
+    <!-- Card Shadow Filter -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+
+    <!-- Arrow Markers -->
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#F59E0B"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38BDF8"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#34D399"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#A78BFA"/>
+    </marker>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1320" height="1800" fill="url(#bgGrad)"/>
+
+  <!-- Outer Architectural Framing Grid -->
+  <rect x="25" y="25" width="1270" height="1750" rx="20" fill="none" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- ========================================================================= -->
+  <!-- 1. MASTER HEADER SECTION                                                  -->
+  <!-- ========================================================================= -->
+  <g id="headerSection">
+    <!-- Header Banner Card -->
+    <rect x="55" y="55" width="1210" height="100" rx="14" fill="#0F172A" stroke="#334155" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="55" y="55" width="1210" height="5" rx="2" fill="url(#headerGrad)"/>
+
+    <rect x="75" y="75" width="46" height="46" rx="10" fill="#1E293B" stroke="#D97706" stroke-width="1.5"/>
+    <text x="98" y="105" font-size="24" text-anchor="middle">🎨</text>
+
+    <!-- Main Title & Tagline in Easy Everyday Words -->
+    <text x="135" y="93" font-size="22" font-weight="800" fill="#F8FAFC" letter-spacing="0.5">KALAKAR SETU  (कलाकार सेतु)</text>
+    <text x="135" y="116" font-size="13" font-weight="500" fill="#94A3B8">How the App Works • Simple Step-by-Step Flowchart for Everyone</text>
+
+    <!-- Right Metadata Pill Badges -->
+    <g transform="translate(930, 75)">
+      <rect x="0" y="0" width="140" height="30" rx="15" fill="#1E293B" stroke="#F59E0B" stroke-width="1"/>
+      <text x="70" y="19" font-size="11" font-weight="700" fill="#FBBF24" text-anchor="middle">🎙️ Voice Guide + Safe Pay</text>
+
+      <rect x="150" y="0" width="160" height="30" rx="15" fill="#1E293B" stroke="#10B981" stroke-width="1"/>
+      <text x="230" y="19" font-size="11" font-weight="700" fill="#34D399" text-anchor="middle">🇮🇳 Easy 3 Roles</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 2. PHASE 1: APP LAUNCH & AUTH GATEWAY                                    -->
+  <!-- ========================================================================= -->
+  <g id="authGateway">
+    <!-- Step 1: Splash Card -->
+    <g transform="translate(420, 180)">
+      <rect x="0" y="0" width="480" height="74" rx="12" fill="url(#gatewayGrad)" stroke="#F59E0B" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="15" y="14" width="46" height="46" rx="8" fill="#292524" stroke="#F59E0B" stroke-width="1"/>
+      <text x="38" y="44" font-size="22" text-anchor="middle">⚡</text>
+
+      <text x="75" y="34" font-size="14" font-weight="800" fill="#F8FAFC">01. OPEN APP &amp; START</text>
+      <text x="75" y="53" font-size="12" font-weight="400" fill="#CBD5E1">Tap [ 🎧 शुरू करें • Start ] to unlock audio &amp; hear voice helper</text>
+    </g>
+
+    <!-- Connector Down to Gateway -->
+    <path d="M 660 254 L 660 280" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Step 2: Auth Phone & Role Router Card -->
+    <g transform="translate(380, 285)">
+      <rect x="0" y="0" width="560" height="88" rx="12" fill="url(#gatewayGrad)" stroke="#38BDF8" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="15" y="20" width="48" height="48" rx="8" fill="#0C4A6E" stroke="#38BDF8" stroke-width="1"/>
+      <text x="39" y="52" font-size="24" text-anchor="middle">📱</text>
+
+      <text x="78" y="38" font-size="14" font-weight="800" fill="#F8FAFC">02. LOGIN WITH MOBILE NUMBER</text>
+      <text x="78" y="57" font-size="12" font-weight="500" fill="#94A3B8">Enter phone number &amp; 6-digit SMS code [🔊 Audio Guide] • ⚡ 1-Tap Demo</text>
+      <text x="78" y="74" font-size="11" font-weight="600" fill="#38BDF8">Choose who you are: [ 🎨 Maker / Artisan ] • [ 🛍️ Buyer ] • [ 🤝 Helper ]</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 3. THREE-WAY PERSONA BRANCHING LINES                                      -->
+  <!-- ========================================================================= -->
+  <circle cx="660" cy="395" r="5" fill="#38BDF8"/>
+  <path d="M 660 373 L 660 395" fill="none" stroke="#38BDF8" stroke-width="2"/>
+
+  <!-- Branch to Left (Artisan: x=245) -->
+  <path d="M 660 395 L 245 395 L 245 425" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- Branch to Center (Buyer: x=660) -->
+  <path d="M 660 395 L 660 425" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+  <!-- Branch to Right (Sahyogi: x=1075) -->
+  <path d="M 660 395 L 1075 395 L 1075 425" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 1: MASTER ARTISAN JOURNEY (LEFT, X=75 to 415, Width=340)          -->
+  <!-- ========================================================================= -->
+  <g id="artisanColumn">
+    <!-- Header -->
+    <rect x="75" y="430" width="340" height="48" rx="10" fill="url(#artisanHeaderGrad)" filter="url(#cardShadow)"/>
+    <text x="95" y="460" font-size="18">🎨</text>
+    <text x="125" y="455" font-size="14" font-weight="800" fill="#FFFFFF">ROLE A: MAKER / ARTISAN (कारीगर)</text>
+    <text x="125" y="470" font-size="10" font-weight="600" fill="#FEF3C7">Potters • Weavers • Wood Carvers • Painters</text>
+
+    <!-- Connector -->
+    <path d="M 245 478 L 245 498" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A1 -->
+    <g transform="translate(75, 502)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#B45309" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#451A03"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">📊</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FDE68A">03. Artisan Home Screen</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• See new customer orders waiting to be made</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• See your earnings &amp; safe bank balance (₹)</text>
+    </g>
+
+    <path d="M 245 584 L 245 604" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A2 -->
+    <g transform="translate(75, 608)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#B45309" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#451A03"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">📸</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FDE68A">04. Take Photo of Craft</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Phone camera guides you with simple outline</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Easily snap front and close-up pictures</text>
+    </g>
+
+    <path d="M 245 690 L 245 710" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A3 -->
+    <g transform="translate(75, 714)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#B45309" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#451A03"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">✨</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FDE68A">05. Clean Background (AI)</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Automatically removes messy room clutter</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Turns into a clean white studio photo</text>
+    </g>
+
+    <path d="M 245 796 L 245 816" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A4 -->
+    <g transform="translate(75, 820)">
+      <rect x="0" y="0" width="340" height="90" rx="10" fill="url(#artisanCardGrad)" stroke="#F59E0B" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="16" width="36" height="36" rx="6" fill="#78350F"/>
+      <text x="30" y="41" font-size="18" text-anchor="middle">🎙️</text>
+      <text x="58" y="27" font-size="13" font-weight="700" fill="#FBBF24">06. Speak in Your Mother Tongue</text>
+      <text x="58" y="45" font-size="11" fill="#CBD5E1">• Speak freely in Hindi or your village language</text>
+      <text x="58" y="61" font-size="11" fill="#CBD5E1">• Tell how many hours it took and clay/colors used</text>
+      <text x="58" y="77" font-size="11" fill="#CBD5E1">• App writes English and Hindi product details</text>
+    </g>
+
+    <path d="M 245 910 L 245 930" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A5 -->
+    <g transform="translate(75, 934)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#B45309" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#451A03"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">⚖️</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FDE68A">07. Fair Price Calculator</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Adds material cost + hours of hard work</text>
+      <text x="58" y="62" font-size="11" font-weight="700" fill="#34D399">• You get full ₹95 out of every ₹100 earned</text>
+    </g>
+
+    <path d="M 245 1016 L 245 1036" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A6 -->
+    <g transform="translate(75, 1040)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#B45309" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#451A03"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🏷️</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FDE68A">08. Original Craft Badge (GI Tag)</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Government badge proving it is 100% genuine</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Shows your name and village as the true maker</text>
+    </g>
+
+    <path d="M 245 1122 L 245 1142" fill="none" stroke="#F59E0B" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- A7 -->
+    <g transform="translate(75, 1146)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#F59E0B" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#78350F"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🚀</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#FBBF24">09. Put in Store with 1 Tap</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Product is now live for all buyers across India</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Bank linked to get paid directly</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 2: HERITAGE BUYER & B2B (CENTER, X=490 to 830, Width=340)          -->
+  <!-- ========================================================================= -->
+  <g id="buyerColumn">
+    <!-- Header -->
+    <rect x="490" y="430" width="340" height="48" rx="10" fill="url(#buyerHeaderGrad)" filter="url(#cardShadow)"/>
+    <text x="510" y="460" font-size="18">🛍️</text>
+    <text x="540" y="455" font-size="14" font-weight="800" fill="#FFFFFF">ROLE B: BUYER / CUSTOMER (खरीदार)</text>
+    <text x="540" y="470" font-size="10" font-weight="600" fill="#E0F2FE">Craft Lovers • Home Decor • Corporate Gifting</text>
+
+    <!-- Connector -->
+    <path d="M 660 478 L 660 498" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B1 -->
+    <g transform="translate(490, 502)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#0369A1" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0C4A6E"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🏛️</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#BAE6FD">03. Browse Indian Crafts</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Discover handmade pottery, silks &amp; brass art</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Find festive gift hampers &amp; unique village crafts</text>
+    </g>
+
+    <path d="M 660 584 L 660 604" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B2 -->
+    <g transform="translate(490, 608)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#38BDF8" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0369A1"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🎧</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#38BDF8">04. View Photos &amp; Hear Story</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Zoom into clear, high-resolution craft photos</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Press [ 🔊 Listen ] to hear the artisan's voice</text>
+    </g>
+
+    <path d="M 660 690 L 660 710" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B3 -->
+    <g transform="translate(490, 714)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#0369A1" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0C4A6E"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🔍</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#BAE6FD">05. Check Original Stamp</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Check government GI seal (No fake plastic items)</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• See maker photo, state and village name</text>
+    </g>
+
+    <path d="M 660 796 L 660 816" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B4 -->
+    <g transform="translate(490, 820)">
+      <rect x="0" y="0" width="340" height="90" rx="10" fill="url(#artisanCardGrad)" stroke="#0369A1" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="16" width="36" height="36" rx="6" fill="#0C4A6E"/>
+      <text x="30" y="41" font-size="18" text-anchor="middle">🛒</text>
+      <text x="58" y="27" font-size="13" font-weight="700" fill="#BAE6FD">06. Shopping Cart &amp; Fair Bill</text>
+      <text x="58" y="45" font-size="11" fill="#CBD5E1">• Select quantity and colors</text>
+      <text x="58" y="61" font-size="11" font-weight="700" fill="#34D399">• Fair Bill: ₹95 of ₹100 goes directly to maker</text>
+      <text x="58" y="77" font-size="11" fill="#CBD5E1">• Zero secret middleman commissions</text>
+    </g>
+
+    <path d="M 660 910 L 660 930" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B5 -->
+    <g transform="translate(490, 934)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#0369A1" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0C4A6E"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">📍</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#BAE6FD">07. Enter Delivery Address</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Delivers to any pincode across India by India Post</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Option to add company GST bill for bulk gifts</text>
+    </g>
+
+    <path d="M 660 1016 L 660 1036" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B6 -->
+    <g transform="translate(490, 1040)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#38BDF8" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0369A1"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🛡️</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#38BDF8">08. Pay Safely (Money Locked)</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Pay by Google Pay, PhonePe, Paytm or Card</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Money stays 100% safe until parcel arrives in hand</text>
+    </g>
+
+    <path d="M 660 1122 L 660 1142" fill="none" stroke="#38BDF8" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+    <!-- B7 -->
+    <g transform="translate(490, 1146)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#0369A1" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#0C4A6E"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">📦</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#BAE6FD">09. Track Parcel to Your Door</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• 4 Easy Steps: Packed ➔ Dispatched ➔ On Way ➔ Done</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Real-time India Post SpeedPost tracking updates</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 3: CLUSTER SAHYOGI / FACILITATOR (RIGHT, X=905 to 1245, Width=340) -->
+  <!-- ========================================================================= -->
+  <g id="sahyogiColumn">
+    <!-- Header -->
+    <rect x="905" y="430" width="340" height="48" rx="10" fill="url(#sahyogiHeaderGrad)" filter="url(#cardShadow)"/>
+    <text x="925" y="460" font-size="18">🤝</text>
+    <text x="955" y="455" font-size="14" font-weight="800" fill="#FFFFFF">ROLE C: VILLAGE HELPER (सहयोगी)</text>
+    <text x="955" y="470" font-size="10" font-weight="600" fill="#D1FAE5">SHG Group Leaders • Village Volunteers • Quality Helpers</text>
+
+    <!-- Connector -->
+    <path d="M 1075 478 L 1075 498" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C1 -->
+    <g transform="translate(905, 502)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#047857" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#064E3B"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">📡</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#A7F3D0">03. Village Work Monitor</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• See total crafts being made across the village</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Make sure orders are finished on time</text>
+    </g>
+
+    <path d="M 1075 584 L 1075 604" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C2 -->
+    <g transform="translate(905, 608)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#047857" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#064E3B"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">👥</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#A7F3D0">04. Help Elderly Artisans</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Help older weavers and potters use the app</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Link their bank account and take their voice story</text>
+    </g>
+
+    <path d="M 1075 690 L 1075 710" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C3 -->
+    <g transform="translate(905, 714)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#34D399" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#065F46"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🗂️</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#34D399">05. Share Big Orders</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Divide a big 1,000-piece order among 15 families</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• No single artisan is overworked; everyone earns</text>
+    </g>
+
+    <path d="M 1075 796 L 1075 816" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C4 -->
+    <g transform="translate(905, 820)">
+      <rect x="0" y="0" width="340" height="90" rx="10" fill="url(#artisanCardGrad)" stroke="#047857" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="16" width="36" height="36" rx="6" fill="#064E3B"/>
+      <text x="30" y="41" font-size="18" text-anchor="middle">🧵</text>
+      <text x="58" y="27" font-size="13" font-weight="700" fill="#A7F3D0">06. Advance Raw Materials</text>
+      <text x="58" y="45" font-size="11" fill="#CBD5E1">• Give clay, yarn or brass before work starts</text>
+      <text x="58" y="61" font-size="11" fill="#CBD5E1">• Artisans don't need to take expensive loans</text>
+      <text x="58" y="77" font-size="11" fill="#CBD5E1">• Settled cleanly once customer pays</text>
+    </g>
+
+    <path d="M 1075 910 L 1075 930" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C5 -->
+    <g transform="translate(905, 934)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#047857" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#064E3B"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🔬</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#A7F3D0">07. Quality &amp; Packing Check</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Check that size, paint and finish are perfect</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Pack safely in strong boxes so nothing breaks</text>
+    </g>
+
+    <path d="M 1075 1016 L 1075 1036" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C6 -->
+    <g transform="translate(905, 1040)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#34D399" stroke-width="1.5" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#065F46"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🔄</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#34D399">08. Share Work if Sick</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• If an artisan gets sick or bad weather stops work</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• 1-Tap pass remaining work to a nearby friend</text>
+    </g>
+
+    <path d="M 1075 1122 L 1075 1142" fill="none" stroke="#34D399" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <!-- C7 -->
+    <g transform="translate(905, 1146)">
+      <rect x="0" y="0" width="340" height="82" rx="10" fill="url(#artisanCardGrad)" stroke="#047857" stroke-width="1.2" filter="url(#cardShadow)"/>
+      <rect x="12" y="14" width="36" height="36" rx="6" fill="#064E3B"/>
+      <text x="30" y="39" font-size="18" text-anchor="middle">🚚</text>
+      <text x="58" y="28" font-size="13" font-weight="700" fill="#A7F3D0">09. Handover to India Post</text>
+      <text x="58" y="46" font-size="11" fill="#CBD5E1">• Give all packed boxes to post office together</text>
+      <text x="58" y="62" font-size="11" fill="#CBD5E1">• Scan postal barcode to begin live tracking</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 4. BOTTOM CONVERGENCE: SAFE PAYMENT & DELIVERY ENGINE                     -->
+  <!-- ========================================================================= -->
+  <path d="M 245 1228 L 245 1285 L 660 1315" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <path d="M 660 1228 L 660 1315" fill="none" stroke="#38BDF8" stroke-width="2.5" marker-end="url(#arrowPurple)"/>
+  <path d="M 1075 1228 L 1075 1285 L 660 1315" fill="none" stroke="#34D399" stroke-width="2.5" stroke-dasharray="6 4"/>
+
+  <!-- Master Settlement Card -->
+  <g id="convergenceMasterCard" transform="translate(110, 1325)">
+    <rect x="0" y="0" width="1100" height="240" rx="16" fill="#0F172A" stroke="#8B5CF6" stroke-width="2" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="1100" height="6" rx="3" fill="url(#settlementGrad)"/>
+
+    <rect x="30" y="24" width="48" height="48" rx="10" fill="#2E1065" stroke="#A78BFA" stroke-width="1.5"/>
+    <text x="54" y="56" font-size="24" text-anchor="middle">🏛️</text>
+
+    <text x="95" y="43" font-size="18" font-weight="800" fill="#F8FAFC">KALAKAR SETU • SAFE PAYMENT &amp; DELIVERY SYSTEM</text>
+    <text x="95" y="64" font-size="12" font-weight="500" fill="#CBD5E1">Buyer gets genuine handmade crafts • Maker gets paid fairly without middlemen</text>
+
+    <!-- 3 Sub-Pillars in Simple Everyday English -->
+    <!-- Pillar 1 -->
+    <g transform="translate(30, 95)">
+      <rect x="0" y="0" width="325" height="115" rx="10" fill="#1E293B" stroke="#B45309" stroke-width="1.2"/>
+      <text x="20" y="30" font-size="16">💸</text>
+      <text x="46" y="29" font-size="13" font-weight="700" fill="#FBBF24">1. Instant Money to Maker (₹95%)</text>
+      <text x="20" y="55" font-size="11" fill="#94A3B8">• Customer gets parcel &amp; enters delivery OTP</text>
+      <text x="20" y="73" font-size="11" fill="#94A3B8">• Money sends directly to artisan's bank in 5 sec</text>
+      <text x="20" y="91" font-size="11" font-weight="600" fill="#34D399">• No waiting for months to receive payment</text>
+    </g>
+
+    <!-- Pillar 2 -->
+    <g transform="translate(385, 95)">
+      <rect x="0" y="0" width="330" height="115" rx="10" fill="#1E293B" stroke="#0369A1" stroke-width="1.2"/>
+      <text x="20" y="30" font-size="16">📜</text>
+      <text x="46" y="29" font-size="13" font-weight="700" fill="#38BDF8">2. Real Handmade Certificate</text>
+      <text x="20" y="55" font-size="11" fill="#94A3B8">• Buyer gets a digital certificate with QR code</text>
+      <text x="20" y="73" font-size="11" fill="#94A3B8">• Scan to see maker's photo, village &amp; video</text>
+      <text x="20" y="91" font-size="11" font-weight="600" fill="#67E8F9">• 100% proof that it is genuine handmade</text>
+    </g>
+
+    <!-- Pillar 3 -->
+    <g transform="translate(745, 95)">
+      <rect x="0" y="0" width="325" height="115" rx="10" fill="#1E293B" stroke="#047857" stroke-width="1.2"/>
+      <text x="20" y="30" font-size="16">🌱</text>
+      <text x="46" y="29" font-size="13" font-weight="700" fill="#34D399">3. Good Reviews &amp; Bank Loans</text>
+      <text x="20" y="55" font-size="11" fill="#94A3B8">• Buyer leaves 5-star review and tips the artisan</text>
+      <text x="20" y="73" font-size="11" fill="#94A3B8">• Village helper gets small 3% support fee</text>
+      <text x="20" y="91" font-size="11" font-weight="600" fill="#A7F3D0">• Artisan builds credit to get easy bank loans</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 5. FOOTER & LEGEND                                                        -->
+  <!-- ========================================================================= -->
+  <g id="footerSection" transform="translate(55, 1600)">
+    <rect x="0" y="0" width="1210" height="90" rx="12" fill="#0B132B" stroke="#1E293B" stroke-width="1"/>
+
+    <g transform="translate(30, 25)">
+      <circle cx="10" cy="10" r="6" fill="#F59E0B"/>
+      <text x="26" y="14" font-size="12" font-weight="600" fill="#CBD5E1">Artisan / Maker Steps</text>
+
+      <circle cx="230" cy="10" r="6" fill="#38BDF8"/>
+      <text x="246" y="14" font-size="12" font-weight="600" fill="#CBD5E1">Buyer / Customer Steps</text>
+
+      <circle cx="510" cy="10" r="6" fill="#34D399"/>
+      <text x="526" y="14" font-size="12" font-weight="600" fill="#CBD5E1">Village Helper Steps</text>
+
+      <circle cx="780" cy="10" r="6" fill="#A78BFA"/>
+      <text x="796" y="14" font-size="12" font-weight="600" fill="#CBD5E1">Safe Delivery &amp; Money System</text>
+    </g>
+
+    <g transform="translate(30, 60)">
+      <text x="0" y="12" font-size="11" fill="#64748B">Made with simple words so everyone can easily understand how Kalakar Setu works.</text>
+      <text x="1150" y="12" font-size="13" font-weight="800" fill="#94A3B8" text-anchor="end">SIH 2025 • Kalakar Setu</text>
+    </g>
+  </g>
+</svg>

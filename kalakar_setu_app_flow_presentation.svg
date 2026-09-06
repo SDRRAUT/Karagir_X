@@ -1,0 +1,398 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 1820" width="100%" height="100%" style="background-color: #FFFFFF; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <!-- Soft Gradients for Boxes -->
+    <linearGradient id="pGoldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FEF3C7"/>
+      <stop offset="100%" stop-color="#FDE68A"/>
+    </linearGradient>
+
+    <linearGradient id="pBlueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="100%" stop-color="#BAE6FD"/>
+    </linearGradient>
+
+    <linearGradient id="pGreenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ECFDF5"/>
+      <stop offset="100%" stop-color="#A7F3D0"/>
+    </linearGradient>
+
+    <linearGradient id="pPurpleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F5F3FF"/>
+      <stop offset="100%" stop-color="#DDD6FE"/>
+    </linearGradient>
+
+    <linearGradient id="pHeaderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="100%" stop-color="#FEF3C7"/>
+    </linearGradient>
+
+    <!-- Arrow Markers -->
+    <marker id="pArrowBlack" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1E293B"/>
+    </marker>
+    <marker id="pArrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7C3AED"/>
+    </marker>
+
+    <!-- Drop Shadow Filter for Clean Print -->
+    <filter id="pShadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="1320" height="1820" fill="#F8FAFC"/>
+
+  <!-- Presentation Slide Outer Framing Box (Reference Matching Style) -->
+  <rect x="25" y="25" width="1270" height="1770" rx="14" fill="#FFFFFF" stroke="#0F172A" stroke-width="2.5" filter="url(#pShadow)"/>
+
+  <!-- ========================================================================= -->
+  <!-- 1. SLIDE HEADER BAR                                                       -->
+  <!-- ========================================================================= -->
+  <g id="slideHeader">
+    <!-- Top Cutout Banner -->
+    <path d="M 25 25 L 560 25 C 575 25 585 35 585 50 L 585 85 C 585 100 575 110 560 110 L 25 110 Z" fill="#F8FAFC" stroke="#0F172A" stroke-width="2.5"/>
+    <text x="55" y="65" font-size="22" font-weight="900" fill="#0F172A" letter-spacing="0.5">KALAKAR SETU</text>
+    <text x="55" y="90" font-size="13" font-weight="700" fill="#64748B">HOW THE APP WORKS • SIMPLE FLOWCHART</text>
+
+    <!-- Top Right SIH Logo / Badge -->
+    <g transform="translate(1080, 42)">
+      <rect x="0" y="0" width="185" height="52" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="24" y="32" font-size="18">🇮🇳</text>
+      <text x="54" y="26" font-size="12" font-weight="800" fill="#0F172A">SIH 2025</text>
+      <text x="54" y="42" font-size="10" font-weight="600" fill="#64748B">Ministry of Tribal Affairs</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 2. ROOT LAUNCH & ENTRY GATEWAY (TOP LEVEL)                                -->
+  <!-- ========================================================================= -->
+  <g id="rootGateway">
+    <!-- Box 1: Splash Screen -->
+    <g transform="translate(470, 140)">
+      <rect x="0" y="0" width="380" height="64" rx="8" fill="url(#pHeaderGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="190" y="28" font-size="14" font-weight="800" fill="#0F172A" text-anchor="middle">01. Open App &amp; Start</text>
+      <text x="190" y="48" font-size="11" font-weight="600" fill="#78350F" text-anchor="middle">Click [ 🎧 शुरू करें / Start ] to hear voice guide</text>
+    </g>
+
+    <!-- Arrow Down -->
+    <path d="M 660 204 L 660 236" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- Box 2: Unified Auth & Role Segmentation -->
+    <g transform="translate(420, 240)">
+      <rect x="0" y="0" width="480" height="74" rx="8" fill="url(#pHeaderGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="240" y="28" font-size="14" font-weight="800" fill="#0F172A" text-anchor="middle">02. Login with Mobile Number</text>
+      <text x="240" y="46" font-size="11" font-weight="500" fill="#334155" text-anchor="middle">Type phone number &amp; get 6-digit SMS code [🔊 Audio Guide]</text>
+      <text x="240" y="62" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">Choose: [ 🎨 Maker / Artisan ] • [ 🛍️ Buyer ] • [ 🤝 Helper ]</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 3. TRI-PERSONA SPLIT JUNCTION                                            -->
+  <!-- ========================================================================= -->
+  <path d="M 660 314 L 660 350" fill="none" stroke="#0F172A" stroke-width="2"/>
+  
+  <!-- Horizontal Fork Line -->
+  <path d="M 245 350 L 1075 350" fill="none" stroke="#0F172A" stroke-width="2"/>
+
+  <!-- Drops to Columns -->
+  <path d="M 245 350 L 245 385" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+  <path d="M 660 350 L 660 385" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+  <path d="M 1075 350 L 1075 385" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 1: ARTISAN FLOW (LEFT, X=75 to 415)                                -->
+  <!-- ========================================================================= -->
+  <g id="artisanColLight">
+    <!-- Header Capsule -->
+    <rect x="95" y="388" width="300" height="42" rx="21" fill="#FEF3C7" stroke="#0F172A" stroke-width="2"/>
+    <text x="245" y="414" font-size="13" font-weight="800" fill="#92400E" text-anchor="middle">🎨 ARTISAN / MAKER (कारीगर)</text>
+
+    <!-- Arrow -->
+    <path d="M 245 430 L 245 455" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A1 -->
+    <g transform="translate(80, 458)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">03. Artisan Home Screen</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">See new orders waiting to be made</text>
+      <text x="165" y="60" font-size="11" font-weight="600" fill="#92400E" text-anchor="middle">See your total earnings &amp; safe bank balance (₹)</text>
+    </g>
+
+    <path d="M 245 532 L 245 556" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A2 -->
+    <g transform="translate(80, 558)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">04. Take Photo of Craft</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Camera guides you with a simple on-screen frame</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Take front and close-up pictures easily</text>
+    </g>
+
+    <path d="M 245 632 L 245 656" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A3 -->
+    <g transform="translate(80, 658)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">05. Clean Background (AI)</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Phone automatically removes messy room background</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Makes it look like a clean studio shop photo</text>
+    </g>
+
+    <path d="M 245 732 L 245 756" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A4 -->
+    <g transform="translate(80, 758)">
+      <rect x="0" y="0" width="330" height="84" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="2.2" filter="url(#pShadow)"/>
+      <text x="165" y="24" font-size="13" font-weight="800" fill="#B45309" text-anchor="middle">06. Speak in Your Mother Tongue</text>
+      <text x="165" y="42" font-size="11" fill="#334155" text-anchor="middle">Speak in Hindi or your own local language</text>
+      <text x="165" y="58" font-size="11" fill="#334155" text-anchor="middle">Tell how many hours it took and what materials used</text>
+      <text x="165" y="74" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">App writes title &amp; description in English and Hindi</text>
+    </g>
+
+    <path d="M 245 842 L 245 866" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A5 -->
+    <g transform="translate(80, 868)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">07. Fair Price Calculator</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Adds cost of clay/cloth + hours of hard work</text>
+      <text x="165" y="60" font-size="11" font-weight="700" fill="#047857" text-anchor="middle">You get full ₹95 out of every ₹100 earned</text>
+    </g>
+
+    <path d="M 245 942 L 245 966" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A6 -->
+    <g transform="translate(80, 968)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">08. Original Craft Badge (GI Tag)</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Gives government badge proving it is 100% genuine</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Shows your name and village as the true maker</text>
+    </g>
+
+    <path d="M 245 1042 L 245 1066" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- A7 -->
+    <g transform="translate(80, 1068)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGoldGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">09. Publish to Store in 1 Tap</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Your craft is now visible to buyers all over India</text>
+      <text x="165" y="60" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">Ready to receive orders and get paid</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 2: BUYER FLOW (CENTER, X=495 to 825)                               -->
+  <!-- ========================================================================= -->
+  <g id="buyerColLight">
+    <!-- Header Capsule -->
+    <rect x="510" y="388" width="300" height="42" rx="21" fill="#E0F2FE" stroke="#0F172A" stroke-width="2"/>
+    <text x="660" y="414" font-size="13" font-weight="800" fill="#0369A1" text-anchor="middle">🛍️ BUYER / CUSTOMER (खरीदार)</text>
+
+    <!-- Arrow -->
+    <path d="M 660 430 L 660 455" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B1 -->
+    <g transform="translate(495, 458)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">03. Browse Indian Crafts</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Discover handmade pottery, sarees &amp; wood crafts</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Find festive gift boxes and special village items</text>
+    </g>
+
+    <path d="M 660 532 L 660 556" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B2 -->
+    <g transform="translate(495, 558)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0369A1" text-anchor="middle">04. See Details &amp; Hear Story</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Zoom into high-quality clear pictures</text>
+      <text x="165" y="60" font-size="11" font-weight="700" fill="#0284C7" text-anchor="middle">Tap [ 🔊 Listen ] to hear the artisan tell their story</text>
+    </g>
+
+    <path d="M 660 632 L 660 656" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B3 -->
+    <g transform="translate(495, 658)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">05. Check Original Stamp</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Check government GI badge (No fake plastic copies)</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">See artisan photo, state and village name</text>
+    </g>
+
+    <path d="M 660 732 L 660 756" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B4 -->
+    <g transform="translate(495, 758)">
+      <rect x="0" y="0" width="330" height="84" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="24" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">06. Shopping Cart &amp; Fair Bill</text>
+      <text x="165" y="42" font-size="11" fill="#334155" text-anchor="middle">Choose quantity and colors</text>
+      <text x="165" y="58" font-size="11" font-weight="700" fill="#047857" text-anchor="middle">Clear bill: ₹95 of ₹100 goes straight to the maker</text>
+      <text x="165" y="74" font-size="11" fill="#334155" text-anchor="middle">No secret middlemen commissions</text>
+    </g>
+
+    <path d="M 660 842 L 660 866" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B5 -->
+    <g transform="translate(495, 868)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">07. Enter Home Address</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Delivers to any pincode across India via India Post</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Option for company GST bill if buying in bulk</text>
+    </g>
+
+    <path d="M 660 942 L 660 966" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B6 -->
+    <g transform="translate(495, 968)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="2.2" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0369A1" text-anchor="middle">08. Pay Safely (Money Locked)</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Pay using Google Pay, PhonePe, Paytm or Card</text>
+      <text x="165" y="60" font-size="11" font-weight="700" fill="#7C3AED" text-anchor="middle">Money stays 100% safe until parcel arrives in hand</text>
+    </g>
+
+    <path d="M 660 1042 L 660 1066" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- B7 -->
+    <g transform="translate(495, 1068)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pBlueGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">09. Track Parcel to Your Door</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">See: Packed ➔ Dispatched ➔ On the Way ➔ Delivered</text>
+      <text x="165" y="60" font-size="11" font-weight="600" fill="#0284C7" text-anchor="middle">Real-time India Post SpeedPost tracking</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- COLUMN 3: SAHYOGI FLOW (RIGHT, X=910 to 1240)                             -->
+  <!-- ========================================================================= -->
+  <g id="sahyogiColLight">
+    <!-- Header Capsule -->
+    <rect x="925" y="388" width="300" height="42" rx="21" fill="#ECFDF5" stroke="#0F172A" stroke-width="2"/>
+    <text x="1075" y="414" font-size="13" font-weight="800" fill="#047857" text-anchor="middle">🤝 VILLAGE HELPER (सहयोगी)</text>
+
+    <!-- Arrow -->
+    <path d="M 1075 430 L 1075 455" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C1 -->
+    <g transform="translate(910, 458)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">03. Village Work Monitor</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">See total crafts being made across the village</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Make sure orders are finished on time</text>
+    </g>
+
+    <path d="M 1075 532 L 1075 556" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C2 -->
+    <g transform="translate(910, 558)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">04. Help Elderly Artisans</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Help older weavers and potters use the app</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Link their bank account and take their voice story</text>
+    </g>
+
+    <path d="M 1075 632 L 1075 656" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C3 -->
+    <g transform="translate(910, 658)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#047857" text-anchor="middle">05. Share Big Orders</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Divide a big 1,000-piece order among 15 families</text>
+      <text x="165" y="60" font-size="11" font-weight="600" fill="#065F46" text-anchor="middle">No single artisan is overworked; everyone earns</text>
+    </g>
+
+    <path d="M 1075 732 L 1075 756" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C4 -->
+    <g transform="translate(910, 758)">
+      <rect x="0" y="0" width="330" height="84" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="24" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">06. Advance Raw Materials</text>
+      <text x="165" y="42" font-size="11" fill="#334155" text-anchor="middle">Provide clay, thread or wood before work begins</text>
+      <text x="165" y="58" font-size="11" fill="#334155" text-anchor="middle">Artisans don't need to take expensive loans</text>
+      <text x="165" y="74" font-size="11" font-weight="600" fill="#047857" text-anchor="middle">Settled cleanly once customer pays</text>
+    </g>
+
+    <path d="M 1075 842 L 1075 866" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C5 -->
+    <g transform="translate(910, 868)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">07. Quality &amp; Packing Check</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Check that size, paint and finish are perfect</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Pack safely in strong boxes so nothing breaks</text>
+    </g>
+
+    <path d="M 1075 942 L 1075 966" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C6 -->
+    <g transform="translate(910, 968)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="2" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#047857" text-anchor="middle">08. Share Work if Someone is Sick</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">If an artisan falls ill or rain stops work</text>
+      <text x="165" y="60" font-size="11" font-weight="600" fill="#065F46" text-anchor="middle">1-Tap transfer pending items to a nearby neighbour</text>
+    </g>
+
+    <path d="M 1075 1042 L 1075 1066" fill="none" stroke="#0F172A" stroke-width="2" marker-end="url(#pArrowBlack)"/>
+
+    <!-- C7 -->
+    <g transform="translate(910, 1068)">
+      <rect x="0" y="0" width="330" height="74" rx="8" fill="url(#pGreenGrad)" stroke="#0F172A" stroke-width="1.8" filter="url(#pShadow)"/>
+      <text x="165" y="26" font-size="13" font-weight="800" fill="#0F172A" text-anchor="middle">09. Handover to India Post</text>
+      <text x="165" y="44" font-size="11" fill="#334155" text-anchor="middle">Give all packed boxes to postman together</text>
+      <text x="165" y="60" font-size="11" fill="#334155" text-anchor="middle">Scan postal barcode to start live tracking</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 4. BOTTOM CONVERGENCE: SAFE PAYMENT & DELIVERY ENGINE                     -->
+  <!-- ========================================================================= -->
+  <!-- Connecting Convergence Arrows from all 3 columns -->
+  <path d="M 245 1142 L 245 1205 L 660 1245" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-dasharray="6 4"/>
+  <path d="M 660 1142 L 660 1245" fill="none" stroke="#0F172A" stroke-width="2.2" marker-end="url(#pArrowPurple)"/>
+  <path d="M 1075 1142 L 1075 1205 L 660 1245" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-dasharray="6 4"/>
+
+  <!-- Master Settlement Card (Light Theme) -->
+  <g id="bottomConvergenceLight" transform="translate(100, 1255)">
+    <rect x="0" y="0" width="1120" height="230" rx="12" fill="url(#pPurpleGrad)" stroke="#0F172A" stroke-width="2.5" filter="url(#pShadow)"/>
+    
+    <text x="560" y="38" font-size="16" font-weight="900" fill="#4C1D95" text-anchor="middle">KALAKAR SETU • SAFE PAYMENT &amp; DELIVERY SYSTEM</text>
+    <text x="560" y="60" font-size="12" font-weight="600" fill="#6B21A8" text-anchor="middle">Customer gets genuine handmade crafts • Maker gets paid fairly without middlemen</text>
+
+    <!-- 3 Internal Sub-Boxes -->
+    <!-- Box 1 -->
+    <g transform="translate(30, 85)">
+      <rect x="0" y="0" width="330" height="115" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.8"/>
+      <text x="165" y="30" font-size="13" font-weight="800" fill="#B45309" text-anchor="middle">1. Instant Money to Maker (₹95%)</text>
+      <text x="165" y="55" font-size="11" fill="#334155" text-anchor="middle">Customer receives parcel &amp; enters OTP</text>
+      <text x="165" y="75" font-size="11" fill="#334155" text-anchor="middle">Money sends directly to artisan's bank in 5 sec</text>
+      <text x="165" y="95" font-size="11" font-weight="700" fill="#047857" text-anchor="middle">No waiting for months to get paid</text>
+    </g>
+
+    <!-- Box 2 -->
+    <g transform="translate(395, 85)">
+      <rect x="0" y="0" width="330" height="115" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.8"/>
+      <text x="165" y="30" font-size="13" font-weight="800" fill="#0369A1" text-anchor="middle">2. Real Handmade Certificate</text>
+      <text x="165" y="55" font-size="11" fill="#334155" text-anchor="middle">Buyer gets a digital certificate with QR code</text>
+      <text x="165" y="75" font-size="11" fill="#334155" text-anchor="middle">Scan to see the maker's photo, village &amp; video</text>
+      <text x="165" y="95" font-size="11" font-weight="700" fill="#0284C7" text-anchor="middle">100% proof that it's genuine craft</text>
+    </g>
+
+    <!-- Box 3 -->
+    <g transform="translate(760, 85)">
+      <rect x="0" y="0" width="330" height="115" rx="8" fill="#FFFFFF" stroke="#0F172A" stroke-width="1.8"/>
+      <text x="165" y="30" font-size="13" font-weight="800" fill="#047857" text-anchor="middle">3. Good Reviews &amp; Bank Loans</text>
+      <text x="165" y="55" font-size="11" fill="#334155" text-anchor="middle">Buyer leaves 5-star review and tips the artisan</text>
+      <text x="165" y="75" font-size="11" fill="#334155" text-anchor="middle">Village helper receives small 3% support fee</text>
+      <text x="165" y="95" font-size="11" font-weight="700" fill="#059669" text-anchor="middle">Artisan builds credit to get easy bank loans</text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- 5. SLIDE FOOTER & METADATA                                                -->
+  <!-- ========================================================================= -->
+  <g id="slideFooter" transform="translate(50, 1720)">
+    <line x1="0" y1="0" x2="1220" y2="0" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="10" y="30" font-size="12" font-weight="700" fill="#64748B">KALAKAR SETU • Easy App Flowchart • Explained in Simple Everyday Language</text>
+    <text x="1210" y="35" font-size="18" font-weight="900" fill="#0F172A" text-anchor="end">2</text>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -45,6 +46,12 @@ export const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.title = 'Kalakar Setu ~ Artisans';
+    }
+  }, []);
+
   const artisanName = user?.fullName || 'Ramesh';
 
   const handleVoiceGreeting = () => {
@@ -72,17 +79,22 @@ export const HomeScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Stitch Fixed Header Bar */}
+      {/* Fixed Header Bar */}
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
           <Image
-            source={require('../../assets/karigarx_logo.png')}
+            source={require('../../assets/kalakar_setu_logo.png')}
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <Text variant="headlineSmall" weight="bold" color="#2b2b2b" style={styles.headerTitle}>
-            Home
-          </Text>
+          <View>
+            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
+              Kalakar Setu
+            </Text>
+            <View style={styles.roleBadgePill}>
+              <Text style={styles.roleBadgeText}>🏺 ARTISAN STUDIO</Text>
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -91,46 +103,13 @@ export const HomeScreen: React.FC = () => {
           accessibilityLabel="Profile"
         >
           <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
-            }}
+            source={require('../../assets/artisan_3d_avatar.jpg')}
             style={styles.profileAvatarImg}
           />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Active Role Quick Persona Switcher Bar */}
-        <View style={styles.roleSwitcherContainer}>
-          <View style={styles.roleSwitcherPill}>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'BUYER' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🛍️ Buyer Desk
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.roleSwitchBtn, styles.roleSwitchBtnActive]}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="bold" color="#EA580C">
-                🎨 Seller Studio
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'FACILITATOR' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🤝 Sahyogi Desk
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
         {/* Welcome Greeting & Audio Button */}
         <View style={styles.greetingSection}>
@@ -588,8 +567,25 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  roleBadgePill: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    marginTop: 1,
+  },
+  roleBadgeText: {
+    color: '#EA580C',
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   profileAvatarButton: {
     width: 36,
@@ -605,34 +601,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 90, // Space for floating mic and bottom bar
-  },
-  roleSwitcherContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 4,
-  },
-  roleSwitcherPill: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 20,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  roleSwitchBtn: {
-    flex: 1,
-    paddingVertical: 6,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roleSwitchBtnActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   greetingSection: {
     flexDirection: 'row',

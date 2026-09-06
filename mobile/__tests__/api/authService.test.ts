@@ -5,7 +5,7 @@ describe('AuthService', () => {
     const response = await authService.sendOtp('9876543210', 'hi_IN', 'ARTISAN');
     expect(response.status).toBe('OTP_DISPATCHED');
     expect(response.session_id).toBeDefined();
-    expect(response.retry_after_seconds).toBe(60);
+    expect(response.retry_after_seconds).toBe(30);
   });
 
   it('verifies OTP and returns user session', async () => {

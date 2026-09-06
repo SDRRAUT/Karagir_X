@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
-import { Button } from '@/components/buttons/Button';
-import { TextInput } from '@/components/inputs/TextInput';
-import { Card } from '@/components/cards/Card';
-import { AppHeader } from '@/components/navigation/AppHeader';
+import { Icon, IconName } from '@/components/icons/Icon';
+import { LocationCascadeSelector } from '@/components';
 import { authService } from '@/api/authService';
 import { useAuthStore } from '@/store/useAuthStore';
-import { UserRole } from '@/api/types';
-import { VoiceCueButton } from '@/components/buttons/VoiceCueButton';
+import { useAppStore, SupportedLocale } from '@/store/useAppStore';
+import { UserRole, LocationHierarchyValue } from '@/api/types';
+import { voiceGuidance } from '@/utils/voiceGuidance';
+
+const ARTISAN_AVATAR = require('../../../assets/artisan_3d_avatar.jpg');
+const BUYER_AVATAR = require('../../../assets/buyer_3d_avatar.jpg');
+const SAHYOGI_AVATAR = require('../../../assets/sahyogi_3d_avatar.jpg');
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileSetup'>;
 
@@ -20,194 +31,124 @@ interface CraftCategory {
   code: string;
   nameHi: string;
   nameEn: string;
-  icon: string;
+  iconName: IconName;
 }
 
 const CRAFTS: CraftCategory[] = [
-  { code: 'TEXTILE_HANDLOOM', nameHi: 'हथकरघा एवं बुनाई', nameEn: 'Handloom & Weaving', icon: '🧵' },
-  { code: 'POTTERY_TERRACOTTA', nameHi: 'मिट्टी एवं टेराकोटा', nameEn: 'Clay & Terracotta', icon: '🏺' },
-  { code: 'PAINTING_FOLK', nameHi: 'पारंपरिक चित्रकला', nameEn: 'Folk Art (Madhubani)', icon: '🎨' },
-  { code: 'WOODCRAFT', nameHi: 'काष्ठ शिल्प', nameEn: 'Woodcraft & Carving', icon: '🪵' },
-  { code: 'METALLURGY_DHOKRA', nameHi: 'धातु शिल्प', nameEn: 'Metalcraft & Dhokra', icon: '💍' },
-  { code: 'BAMBOO_CANE', nameHi: 'बांस एवं जूट', nameEn: 'Bamboo & Jute', icon: '🧺' },
+  { code: 'POTTERY_TERRACOTTA', nameHi: 'मिट्टी एवं टेराकोटा', nameEn: 'Clay & Terracotta', iconName: 'palette' },
+  { code: 'TEXTILE_HANDLOOM', nameHi: 'हथकरघा एवं बुनाई', nameEn: 'Handloom & Weaving', iconName: 'tag' },
+  { code: 'PAINTING_FOLK', nameHi: 'पारंपरिक चित्रकला', nameEn: 'Folk Art (Madhubani)', iconName: 'palette' },
+  { code: 'WOODCRAFT', nameHi: 'काष्ठ शिल्प', nameEn: 'Woodcraft & Carving', iconName: 'tool' },
+  { code: 'METALLURGY_DHOKRA', nameHi: 'धातु शिल्प (ढोकरा)', nameEn: 'Metalcraft & Dhokra', iconName: 'sparkles' },
+  { code: 'BAMBOO_CANE', nameHi: 'बांस एवं जूट', nameEn: 'Bamboo & Cane', iconName: 'bagOutline' },
+];
+
+const LANGUAGES: { code: SupportedLocale; name: string; nativeName: string }[] = [
+  { code: 'hi_IN', name: 'Hindi', nativeName: 'हिन्दी' },
+  { code: 'en_IN', name: 'English', nativeName: 'English' },
+  { code: 'mr_IN', name: 'Marathi', nativeName: 'मराठी' },
+  { code: 'bn_IN', name: 'Bengali', nativeName: 'বাংলা' },
+  { code: 'gu_IN', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+  { code: 'ta_IN', name: 'Tamil', nativeName: 'தமிழ்' },
 ];
 
 interface OptionItem {
   code: string;
   nameEn: string;
   nameHi: string;
-  icon: string;
+  iconName: IconName;
   desc?: string;
 }
 
 const BUYER_TYPES: OptionItem[] = [
-  { code: 'COLLECTOR', nameEn: 'Individual Collector', nameHi: 'व्यक्तिगत खरीदार', icon: '🛍️', desc: 'Handcrafted authentic home & lifestyle' },
-  { code: 'CORPORATE', nameEn: 'Corporate Gifting', nameHi: 'कॉर्पोरेट उपहार', icon: '🎁', desc: 'Custom festive hampers & client gifts' },
-  { code: 'RETAIL', nameEn: 'Boutique / Store', nameHi: 'बुटीक व स्टोर', icon: '🏬', desc: 'Curated artisanal inventory for sale' },
-  { code: 'INSTITUTIONAL', nameEn: 'Institutional / Export', nameHi: 'संस्थागत व निर्यात', icon: '🏛️', desc: 'Govt. & high-volume bulk orders' },
+  { code: 'COLLECTOR', nameEn: 'Individual Collector', nameHi: 'व्यक्तिगत खरीदार', iconName: 'bagOutline', desc: 'Handcrafted authentic home & lifestyle' },
+  { code: 'CORPORATE', nameEn: 'Corporate Gifting', nameHi: 'कॉर्पोरेट उपहार', iconName: 'gift', desc: 'Custom festive hampers & client gifts' },
+  { code: 'RETAIL', nameEn: 'Boutique / Store', nameHi: 'बुटीक व स्टोर', iconName: 'building', desc: 'Curated artisanal inventory for sale' },
+  { code: 'INSTITUTIONAL', nameEn: 'Institutional / Export', nameHi: 'संस्थागत व निर्यात', iconName: 'briefcase', desc: 'Bulk procurement & heritage orders' },
+];
+
+const BUYER_CATEGORIES: OptionItem[] = [
+  { code: 'POTTERY', nameEn: 'Pottery & Ceramics', nameHi: 'मिट्टी के बर्तन', iconName: 'palette' },
+  { code: 'HANDLOOM', nameEn: 'Handloom Sarees & Shawls', nameHi: 'हथकरघा वस्त्र', iconName: 'tag' },
+  { code: 'PAINTINGS', nameEn: 'Traditional Paintings', nameHi: 'पारंपरिक चित्रकला', iconName: 'palette' },
+  { code: 'WOODWORK', nameEn: 'Wood & Stone Carving', nameHi: 'काष्ठ कला', iconName: 'tool' },
+  { code: 'JEWELRY', nameEn: 'Ethnic Jewelry & Brass', nameHi: 'पारंपरिक आभूषण', iconName: 'sparkles' },
+  { code: 'DECOR', nameEn: 'Home Decor & Rugs', nameHi: 'गृह सज्जा', iconName: 'home' },
 ];
 
 const SAHYOGI_TYPES: OptionItem[] = [
-  { code: 'SHG', nameEn: 'Self-Help Group (SHG)', nameHi: 'महिला बचत गट', icon: '🤝', desc: 'Village micro-enterprise & women makers' },
-  { code: 'NGO', nameEn: 'Craft Foundation / NGO', nameHi: 'हस्तशिल्प न्यास व एनजीओ', icon: '🏛️', desc: 'Cluster empowerment & social welfare' },
-  { code: 'COOP', nameEn: 'Producer Cooperative', nameHi: 'उत्पादक सहकारी समिति', icon: '💼', desc: 'Artisan-owned collective enterprise' },
-  { code: 'FIELD_LEAD', nameEn: 'Cluster Lead / Facilitator', nameHi: 'क्लस्टर लीड / मित्र', icon: '⚡', desc: 'Packaging, logistics & QC hub' },
+  { code: 'SHG', nameEn: 'Self-Help Group (SHG)', nameHi: 'महिला बचत गट', iconName: 'users', desc: 'Village micro-enterprise & women makers' },
+  { code: 'NGO', nameEn: 'Craft Foundation / NGO', nameHi: 'हस्तशिल्प न्यास व एनजीओ', iconName: 'building', desc: 'Cluster empowerment & social welfare' },
+  { code: 'COOP', nameEn: 'Producer Cooperative', nameHi: 'उत्पादक सहकारी समिति', iconName: 'briefcase', desc: 'Artisan-owned collective enterprise' },
+  { code: 'FIELD_LEAD', nameEn: 'Cluster Lead / Facilitator', nameHi: 'क्लस्टर लीड / मित्र', iconName: 'zap', desc: 'Packaging, logistics & QC hub' },
 ];
 
-interface ProfileRoleMeta {
-  tag: string;
-  headerTitle: string;
-  headerSub: string;
-  title: string;
-  subtitle: string;
-  voiceBanner: string;
-  section1Name: string;
-  section1Voice: string;
-  section2Title: string;
-  section2Voice: string;
-  section3Title: string;
-  section3Voice: string;
-  locationBadge: string;
-  section4Title: string;
-  section4Voice: string;
-  secondaryPlaceholder: string;
-  btnLabel: string;
-  trustBadge: string;
-  themeColor: string;
-  lightBg: string;
-}
-
-const ROLE_METAS: Record<UserRole, ProfileRoleMeta> = {
-  ARTISAN: {
-    tag: 'Artisan Account',
-    headerTitle: 'Artisan Profile',
-    headerSub: 'KALAKAR SETU',
-    title: 'Set Up Your Artisan Profile',
-    subtitle: 'Empower your craft with AI cataloguing and direct market linkages',
-    voiceBanner: 'Speak to fill profile details automatically',
-    section1Name: '1. Your Full Name',
-    section1Voice: 'यहाँ अपना पूरा नाम लिखें, जैसा आपके आधार कार्ड या बैंक खाते में दर्ज है।',
-    section2Title: '2. Primary Craft Specialization',
-    section2Voice: 'आप जिस हस्तशिल्प या कला में काम करते हैं, उसे यहाँ चुनें।',
-    section3Title: '3. Workshop Location',
-    section3Voice: 'यह आपकी कार्यशाला या गाँव का स्थान है, जहाँ शिल्प का निर्माण होता है।',
-    locationBadge: '✓ Linked to Authentic GI Tagged Cluster',
-    section4Title: '4. SHG / Facilitator Code (Optional)',
-    section4Voice: 'यदि आप किसी स्वयं सहायता समूह से जुड़े हैं, तो उनका कोड यहाँ दर्ज करें।',
-    secondaryPlaceholder: 'e.g. SHG-KOLHAPUR-402 (if applicable)',
-    btnLabel: 'Save & Complete Profile →',
-    trustBadge: '100% ONDC Protocol Enabled • Certified GI Authenticity Guarantee',
-    themeColor: '#EA580C',
-    lightBg: '#FFF7ED',
-  },
-  BUYER: {
-    tag: 'Buyer Account',
-    headerTitle: 'Buyer Profile',
-    headerSub: 'CUSTOMER SETU',
-    title: 'Set Up Your Buyer Account',
-    subtitle: 'Curate your preferences for certified handmade GI crafts & bulk orders',
-    voiceBanner: 'Speak to set preferences & delivery city',
-    section1Name: '1. Contact / Buyer Name',
-    section1Voice: 'यहाँ अपना नाम या कंपनी का नाम दर्ज करें।',
-    section2Title: '2. Buyer & Procurement Category',
-    section2Voice: 'आप किस प्रकार की हस्तकला खरीद में रुचि रखते हैं, यहाँ चुनें।',
-    section3Title: '3. Primary Delivery Location',
-    section3Voice: 'यहाँ अपना मुख्य डिलीवरी शहर या केंद्र दर्ज करें।',
-    locationBadge: '✓ Express Heritage Delivery & India Post Network',
-    section4Title: '4. Business GSTIN / Org Name (Optional)',
-    section4Voice: 'यदि आप व्यवसाय के नाम पर बिलिंग चाहते हैं तो विवरण दर्ज करें।',
-    secondaryPlaceholder: 'e.g. 07AAAAA0000A1Z5 or Company Name',
-    btnLabel: 'Save & Enter Marketplace →',
-    trustBadge: '100% Verified Artisans • Direct From Maker Guarantee • Secure UPI',
-    themeColor: '#4338CA',
-    lightBg: '#EEF2FF',
-  },
-  FACILITATOR: {
-    tag: 'Sahyogi Account',
-    headerTitle: 'Sahyogi Profile',
-    headerSub: 'CLUSTER SAHYOGI',
-    title: 'Set Up Your Sahyogi Desk',
-    subtitle: 'Register your cluster, SHG group, and local artisan support hub',
-    voiceBanner: 'Speak to register your SHG and cluster details',
-    section1Name: '1. Field Lead / Sahyogi Name',
-    section1Voice: 'यहाँ अपना नाम या स्वयं सहायता समूह प्रमुख का नाम दर्ज करें।',
-    section2Title: '2. Organization / Cluster Type',
-    section2Voice: 'अपने समूह या संस्था का प्रकार चुनें।',
-    section3Title: '3. Operating Cluster Hub',
-    section3Voice: 'यह आपका कार्यक्षेत्र और कारीगर क्लस्टर केंद्र है।',
-    locationBadge: '✓ 25+ Master Artisans Covered • Active Cluster Desk',
-    section4Title: '4. SHG / Facilitator Referral Code (Optional)',
-    section4Voice: 'यदि आपके पास सरकारी या संस्थागत कोड है तो दर्ज करें।',
-    secondaryPlaceholder: 'e.g. SAHYOGI-PUNE-8802 (if applicable)',
-    btnLabel: 'Save & Enter Sahyogi Desk →',
-    trustBadge: 'Cluster Supported • Packaging, QC & Digital Empowerment Desk',
-    themeColor: '#16A34A',
-    lightBg: '#F0FDF4',
-  },
-  ADMIN_STAFF: {
-    tag: 'Admin Account',
-    headerTitle: 'Operations Desk',
-    headerSub: 'KARAGIRX OPERATIONS',
-    title: 'Set Up Operations Desk',
-    subtitle: 'Internal administrative and quality audit operations',
-    voiceBanner: 'Speak to configure desk options',
-    section1Name: '1. Staff Name',
-    section1Voice: 'अपना नाम दर्ज करें।',
-    section2Title: '2. Desk Assignment',
-    section2Voice: 'अपना विभाग चुनें।',
-    section3Title: '3. Operating Hub',
-    section3Voice: 'अपना हब चुनें।',
-    locationBadge: '✓ Central Verified Operations Desk',
-    section4Title: '4. Staff ID',
-    section4Voice: 'अपना पहचान कोड दर्ज करें।',
-    secondaryPlaceholder: 'e.g. OPS-HQ-01',
-    btnLabel: 'Save & Enter Operations →',
-    trustBadge: 'KaragirX Internal Operations Desk',
-    themeColor: '#0F172A',
-    lightBg: '#F1F5F9',
-  },
-};
+const NETWORK_SIZES = [
+  { code: 'SMALL', label: '5 – 25 Artisans', desc: 'Local village cluster' },
+  { code: 'MEDIUM', label: '25 – 100 Artisans', desc: 'Regional craft society' },
+  { code: 'LARGE', label: '100+ Artisans', desc: 'District federation' },
+];
 
 export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
-  const theme = useTheme();
   const { user, updateProfile } = useAuthStore();
+  const { locale, setLocale } = useAppStore();
   const role: UserRole = route?.params?.role || user?.role || 'ARTISAN';
 
-  const defaultName =
-    user?.fullName ||
-    (role === 'BUYER'
-      ? 'Priya Sharma'
-      : role === 'FACILITATOR'
-      ? 'Pooja Verma'
-      : 'Ramesh Kumbhar');
+  // Form states - completely empty by default; only low-opacity placeholders are shown so user enters / chooses everything
+  const [fullName, setFullName] = useState('');
+  const [selectedCraft, setSelectedCraft] = useState<string>('');
+  const [district, setDistrict] = useState(user?.district || '');
+  const [state, setState] = useState(user?.state || '');
+  const [locationValue, setLocationValue] = useState<Partial<LocationHierarchyValue>>({
+    countryId: user?.countryId || 1,
+    countryName: 'India',
+    stateId: user?.stateId,
+    stateName: user?.state || '',
+    districtId: user?.districtId,
+    districtName: user?.district || '',
+    subDistrictId: user?.subDistrictId,
+    subDistrictName: user?.subDistrict || '',
+    villageId: user?.villageId,
+    villageName: user?.villageName || '',
+  });
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLocale>(locale || 'hi_IN');
 
-  const defaultDistrict =
-    role === 'BUYER' ? 'Delhi NCR' : role === 'FACILITATOR' ? 'Kolhapur Cluster' : 'Madhubani';
-  const defaultState =
-    role === 'BUYER' ? 'New Delhi' : role === 'FACILITATOR' ? 'Maharashtra' : 'Bihar';
+  // Buyer specific - nothing pre-selected
+  const [buyerType, setBuyerType] = useState<string>('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [purchasePreference, setPurchasePreference] = useState<'INDIVIDUAL' | 'BULK' | ''>('');
 
-  const [fullName, setFullName] = useState(defaultName);
-  const [selectedCraft, setSelectedCraft] = useState<string>('PAINTING_FOLK');
-  const [selectedType, setSelectedType] = useState<string>(
-    role === 'BUYER' ? 'COLLECTOR' : 'SHG'
-  );
-  const [district] = useState(defaultDistrict);
-  const [state] = useState(defaultState);
-  const [secondaryCode, setSecondaryCode] = useState('');
+  // Sahyogi specific - nothing pre-selected
+  const [sahyogiType, setSahyogiType] = useState<string>('');
+  const [clusterArea, setClusterArea] = useState('');
+  const [networkSize, setNetworkSize] = useState<string>('');
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const roleMeta = ROLE_METAS[role] || ROLE_METAS.ARTISAN;
+  const roleColor = role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C';
+  const roleLightBg = role === 'BUYER' ? '#EEF2FF' : role === 'FACILITATOR' ? '#F0FDF4' : '#FFF7ED';
+
+  const roleAvatar =
+    role === 'BUYER' ? BUYER_AVATAR : role === 'FACILITATOR' ? SAHYOGI_AVATAR : ARTISAN_AVATAR;
+  const roleTitle =
+    role === 'BUYER' ? 'Buyer' : role === 'FACILITATOR' ? 'Sahyogi' : 'Artisan';
 
   const handleVoiceDictateName = () => {
-    if (!fullName) {
-      setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'FACILITATOR' ? 'Pooja Verma' : 'Sunita Devi');
-    }
+    voiceGuidance.speakHindi(
+      'कृपया अपना पूरा नाम बोलिए।',
+      undefined,
+      () => {
+        if (!fullName) {
+          setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'FACILITATOR' ? 'Pooja Verma' : 'Ramesh Kumbhar');
+        }
+      }
+    );
   };
 
-  const handleSubmit = async () => {
+  const handleComplete = async (destination?: 'STUDIO' | 'HOME') => {
     if (!fullName.trim()) {
-      setErrorMessage('Please enter your full name');
+      setErrorMessage('कृपया अपना नाम दर्ज करें (Please enter your name)');
       return;
     }
 
@@ -215,296 +156,606 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
 
     try {
-      const updatedUser = await authService.setupProfile(user?.id || 'temp_id', {
+      const finalDistrict = locationValue.districtName || district || '';
+      const finalState = locationValue.stateName || state || '';
+      const finalSubDistrict = locationValue.subDistrictName || '';
+      const finalVillage = locationValue.villageName || '';
+
+      const updatedUser = await authService.setupProfile(user?.id || 'temp_user_id', {
         full_name: fullName.trim(),
-        craft_category_code: role === 'ARTISAN' ? selectedCraft : selectedType,
-        district,
-        state,
-        shg_or_facilitator_code: secondaryCode.trim() || undefined,
+        craft_category_code: role === 'ARTISAN' ? selectedCraft : buyerType,
+        country_id: locationValue.countryId || 1,
+        state_id: locationValue.stateId,
+        district_id: locationValue.districtId,
+        sub_district_id: locationValue.subDistrictId,
+        village_id: locationValue.villageId,
+        district: finalDistrict,
+        state: finalState,
+        sub_district: finalSubDistrict,
+        village_name: finalVillage,
       });
 
       await updateProfile({
         ...updatedUser,
         fullName: fullName.trim(),
         role,
-        district,
-        state,
+        countryId: locationValue.countryId || 1,
+        stateId: locationValue.stateId,
+        districtId: locationValue.districtId,
+        subDistrictId: locationValue.subDistrictId,
+        villageId: locationValue.villageId,
+        district: finalDistrict,
+        state: finalState,
+        subDistrict: finalSubDistrict,
+        villageName: finalVillage,
         isProfileComplete: true,
       });
 
+      await setLocale(selectedLanguage);
       setIsLoading(false);
-      navigation.replace('MainTabs', { screen: 'HomeTab' });
+
+      if (role === 'ARTISAN') {
+        if (destination === 'STUDIO') {
+          navigation.replace('CameraCapture');
+        } else {
+          navigation.replace('MainTabs', { screen: 'HomeTab' });
+        }
+      } else if (role === 'BUYER') {
+        navigation.replace('MarketplaceHome');
+      } else {
+        navigation.replace('Opportunities');
+      }
     } catch {
       setIsLoading(false);
-      setErrorMessage('Error saving profile — please try again.');
+      if (role === 'ARTISAN' && destination === 'STUDIO') {
+        navigation.replace('CameraCapture');
+      } else {
+        navigation.replace('MainTabs', { screen: 'HomeTab' });
+      }
     }
   };
 
+  const toggleCategory = (code: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]
+    );
+  };
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
-      <AppHeader
-        showBack
-        showBrand
-        title={roleMeta.headerTitle}
-        subtitle={roleMeta.headerSub}
-        rightAction={
-          <View style={[styles.helpPill, { backgroundColor: theme.colors.sand[100], borderColor: theme.colors.sand[300] }]}>
-            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
-              Help
-            </Text>
-          </View>
-        }
-      />
-
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Step Indicator & Tag */}
-        <View style={styles.stepMetaRow}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
-              Step 3/3
-            </Text>
-            <Text variant="caption" color={theme.colors.text.muted}>•</Text>
-            <View style={[styles.roleTagPill, { backgroundColor: roleMeta.lightBg }]}>
-              <Text style={[styles.roleTagText, { color: roleMeta.themeColor }]}>{roleMeta.tag}</Text>
-            </View>
-          </View>
-          <Text variant="caption" color={theme.colors.text.muted}>Final Step</Text>
-        </View>
-
-        {/* Stepper Progress Bar */}
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressBar, { backgroundColor: roleMeta.themeColor }]} />
-        </View>
-
-        {/* Screen Header */}
-        <View style={{ marginTop: 12, marginBottom: 8 }}>
-          <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]}>
-            {roleMeta.title}
-          </Text>
-          <Text variant="bodySmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-            {roleMeta.subtitle}
-          </Text>
-        </View>
-
-        {/* Voice Saathi Companion Hint Banner */}
-        <View style={[styles.voiceBanner, { backgroundColor: '#FFFFFF', borderColor: theme.colors.brand.container }]}>
-          <View style={styles.voiceBannerLeft}>
-            <View style={[styles.voiceBannerIcon, { backgroundColor: roleMeta.lightBg }]}>
-              <Text style={{ fontSize: 16 }}>🎙️</Text>
-            </View>
-            <View>
-              <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
-                Voice Saathi • AI Assistant
-              </Text>
-              <Text variant="caption" color={theme.colors.text.secondary}>
-                {roleMeta.voiceBanner}
-              </Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            onPress={handleVoiceDictateName}
-            style={[styles.voiceActionBtn, { backgroundColor: roleMeta.lightBg, borderColor: roleMeta.themeColor }]}
-          >
-            <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
-              🎙 Speak
-            </Text>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        {/* Top App Header */}
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Icon name="arrowLeft" size={18} color="#0F172A" />
           </TouchableOpacity>
-        </View>
 
-        {/* 1. Name Input with Voice Cue */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                {roleMeta.section1Name}
-              </Text>
-              <VoiceCueButton
-                textHi={roleMeta.section1Voice}
-                size="small"
-                testID="voice-cue-name"
-              />
-            </View>
-            <TouchableOpacity
-              onPress={handleVoiceDictateName}
-              style={[styles.micBtn, { backgroundColor: roleMeta.lightBg, borderColor: roleMeta.themeColor }]}
-              accessibilityRole="button"
-              accessibilityLabel="Voice dictate name"
-            >
-              <Text variant="caption" weight="bold" color={roleMeta.themeColor}>
-                🎙️ Speak Name
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <TextInput
-            value={fullName}
-            onChangeText={(text) => {
-              setFullName(text);
-              setErrorMessage(null);
-            }}
-            placeholder={
-              role === 'BUYER'
-                ? 'e.g. Priya Sharma / FabCraft India'
-                : role === 'FACILITATOR'
-                ? 'e.g. Pooja Verma / Mahila Vikas SHG'
-                : 'e.g. Ramesh Kumbhar / Sunita Devi'
-            }
-          />
-        </View>
-
-        {/* 2. Category / Specialization Selection */}
-        <View style={styles.section}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              {roleMeta.section2Title}
+          <View style={{ alignItems: 'center' }}>
+            <Text variant="bodyLarge" weight="bold" color="#0F172A">
+              Profile Setup
             </Text>
-            <VoiceCueButton
-              textHi={roleMeta.section2Voice}
-              size="small"
-              testID="voice-cue-craft"
-            />
+            <Text variant="caption" color="#64748B">
+              एक ही स्क्रीन पर पूरा सेटअप
+            </Text>
           </View>
 
-          {role === 'ARTISAN' ? (
-            <View style={styles.craftGrid}>
-              {CRAFTS.map((craft) => {
-                const isSelected = selectedCraft === craft.code;
-                return (
-                  <TouchableOpacity
-                    key={craft.code}
-                    activeOpacity={0.8}
-                    onPress={() => setSelectedCraft(craft.code)}
-                    style={[
-                      styles.craftTile,
-                      {
-                        backgroundColor: isSelected ? theme.colors.brand.light : theme.colors.surface.card,
-                        borderColor: isSelected ? theme.colors.brand.primary : theme.colors.sand[200],
-                        ...theme.shadows.level1,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.craftIcon}>{craft.icon}</Text>
-                    <Text
-                      variant="bodySmall"
-                      weight="bold"
-                      align="center"
-                      color={isSelected ? theme.colors.brand.primary : theme.colors.charcoal[900]}
-                    >
-                      {craft.nameEn}
-                    </Text>
-                    <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
-                      {craft.nameHi}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+          <View style={[styles.roleTagPill, { backgroundColor: roleLightBg }]}>
+            <Image source={roleAvatar} style={styles.miniRoleAvatar} />
+            <Text variant="caption" weight="bold" color={roleColor}>
+              {roleTitle}
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Hero Welcome Card */}
+          <View style={styles.heroCard}>
+            <View style={[styles.avatarRing, { borderColor: roleColor }]}>
+              <Image source={roleAvatar} style={styles.heroAvatarImg} resizeMode="cover" />
             </View>
-          ) : (
-            <View style={styles.craftGrid}>
-              {(role === 'BUYER' ? BUYER_TYPES : SAHYOGI_TYPES).map((opt) => {
-                const isSelected = selectedType === opt.code;
-                return (
-                  <TouchableOpacity
-                    key={opt.code}
-                    activeOpacity={0.8}
-                    onPress={() => setSelectedType(opt.code)}
-                    style={[
-                      styles.craftTile,
-                      {
-                        backgroundColor: isSelected ? roleMeta.lightBg : theme.colors.surface.card,
-                        borderColor: isSelected ? roleMeta.themeColor : theme.colors.sand[200],
-                        ...theme.shadows.level1,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.craftIcon}>{opt.icon}</Text>
-                    <Text
-                      variant="bodySmall"
-                      weight="bold"
-                      align="center"
-                      color={isSelected ? roleMeta.themeColor : theme.colors.charcoal[900]}
-                    >
-                      {opt.nameEn}
-                    </Text>
-                    <Text variant="caption" align="center" color={theme.colors.text.secondary} style={styles.craftEn}>
-                      {opt.nameHi}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+
+            <View style={{ flex: 1, marginLeft: 14 }}>
+              <Text variant="headlineMedium" weight="bold" color="#0F172A" style={{ letterSpacing: -0.3 }}>
+                {role === 'ARTISAN'
+                  ? 'Apna Shilp Workspace Banayein'
+                  : role === 'BUYER'
+                  ? 'Buyer Account Setup'
+                  : 'Sahyogi Desk Setup'}
+              </Text>
+              <Text variant="bodySmall" color="#64748B" style={{ marginTop: 2 }}>
+                Neeche di gayi jankari bharein aur Kalakar Setu par kaam shuru karein.
+              </Text>
+            </View>
+          </View>
+
+          {errorMessage && (
+            <View style={styles.errorBanner}>
+              <Icon name="alertCircle" size={18} color="#DC2626" />
+              <Text variant="bodySmall" weight="bold" color="#DC2626" style={{ flex: 1 }}>
+                {errorMessage}
+              </Text>
             </View>
           )}
-        </View>
 
-        {/* 3. Location Display */}
-        <View style={styles.section}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              {roleMeta.section3Title}
-            </Text>
-            <VoiceCueButton
-              textHi={roleMeta.section3Voice}
-              size="small"
-              testID="voice-cue-location"
-            />
-          </View>
-          <Card style={styles.locationCard}>
-            <View style={styles.locationRow}>
-              <Text style={styles.locationPin}>📍</Text>
-              <View>
-                <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                  {district}, {state}
+          {/* Section 1: Full Name */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                <Text variant="caption" weight="bold" color={roleColor}>
+                  1
                 </Text>
-                <Text variant="bodySmall" weight="bold" color={theme.colors.primary.emerald700}>
-                  {roleMeta.locationBadge}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                  Aapka Naam (Full Name)
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  Apna poora naam likhein ya bolkar batayein
                 </Text>
               </View>
             </View>
-          </Card>
-        </View>
 
-        {/* 4. Secondary Code / Registration */}
-        <View style={styles.section}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-              {roleMeta.section4Title}
-            </Text>
-            <VoiceCueButton
-              textHi={roleMeta.section4Voice}
-              size="small"
-              testID="voice-cue-shg"
-            />
+            <View style={styles.inputWithAction}>
+              <TextInput
+                style={styles.textInput}
+                value={fullName}
+                onChangeText={(val) => {
+                  setFullName(val);
+                  setErrorMessage(null);
+                }}
+                placeholder={
+                  role === 'BUYER'
+                    ? 'अपना पूरा नाम लिखें (e.g. Priya Sharma)'
+                    : role === 'FACILITATOR'
+                    ? 'अपना पूरा नाम लिखें (e.g. Pooja Verma)'
+                    : 'अपना पूरा नाम लिखें (e.g. Sunita Devi / Ramesh Kumbhar)'
+                }
+                placeholderTextColor="#94A3B8"
+              />
+              <TouchableOpacity
+                onPress={handleVoiceDictateName}
+                style={[styles.voiceInlineBtn, { backgroundColor: roleLightBg }]}
+                activeOpacity={0.8}
+              >
+                <Icon name="microphone" size={18} color={roleColor} />
+                <Text variant="caption" weight="bold" color={roleColor}>
+                  Bolkar
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <TextInput
-            value={secondaryCode}
-            onChangeText={setSecondaryCode}
-            placeholder={roleMeta.secondaryPlaceholder}
-          />
-        </View>
 
-        {errorMessage && (
-          <Text variant="bodySmall" weight="bold" color={theme.colors.status.danger} style={styles.errorText}>
-            ⚠️ {errorMessage}
-          </Text>
-        )}
+          {/* Section 2: Craft / Skill (Role Specific) */}
+          {role === 'ARTISAN' && (
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                  <Text variant="caption" weight="bold" color={roleColor}>
+                    2
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                    Aapki Kala / Hastashilp (Craft & Skill)
+                  </Text>
+                  <Text variant="caption" color="#64748B">
+                    Aap mukhya roop se kis kala mein utpaad banate hain?
+                  </Text>
+                </View>
+              </View>
 
-        <Button
-          label={roleMeta.btnLabel}
-          variant="primary"
-          size="decision"
-          isLoading={isLoading}
-          onPress={handleSubmit}
-          style={[styles.submitBtn, { backgroundColor: roleMeta.themeColor }]}
-        />
+              <View style={styles.craftGrid}>
+                {CRAFTS.map((craft) => {
+                  const isSelected = selectedCraft === craft.code;
+                  return (
+                    <TouchableOpacity
+                      key={craft.code}
+                      onPress={() => setSelectedCraft(craft.code)}
+                      style={[
+                        styles.craftTile,
+                        isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                      ]}
+                      activeOpacity={0.8}
+                    >
+                      <View
+                        style={[
+                          styles.craftTileIconWrap,
+                          { backgroundColor: isSelected ? roleColor : '#F1F5F9' },
+                        ]}
+                      >
+                        <Icon
+                          name={craft.iconName}
+                          size={20}
+                          color={isSelected ? '#FFFFFF' : '#475569'}
+                        />
+                      </View>
+                      <Text
+                        variant="bodySmall"
+                        weight="bold"
+                        color="#0F172A"
+                        style={{ textAlign: 'center' }}
+                      >
+                        {craft.nameEn}
+                      </Text>
+                      <Text
+                        variant="caption"
+                        color="#64748B"
+                        style={{ textAlign: 'center', marginTop: 2, fontSize: 11 }}
+                      >
+                        {craft.nameHi}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
 
-        {/* Trust Badge */}
-        <View style={styles.ondcBadge}>
-          <Text style={{ fontSize: 13 }}>🛡️</Text>
-          <Text variant="caption" color={theme.colors.text.secondary}>
-            {roleMeta.trustBadge}
-          </Text>
-        </View>
-      </ScrollView>
+          {/* Buyer Specific Section 2 */}
+          {role === 'BUYER' && (
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                  <Text variant="caption" weight="bold" color={roleColor}>
+                    2
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                    Buyer Type & Categories
+                  </Text>
+                  <Text variant="caption" color="#64748B">
+                    How do you curate or purchase craft collections?
+                  </Text>
+                </View>
+              </View>
+
+              {/* Buyer Types */}
+              <View style={styles.buyerTypeRow}>
+                {BUYER_TYPES.map((bt) => {
+                  const isSelected = buyerType === bt.code;
+                  return (
+                    <TouchableOpacity
+                      key={bt.code}
+                      onPress={() => setBuyerType(bt.code)}
+                      style={[
+                        styles.buyerTypeChip,
+                        isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                      ]}
+                    >
+                      <Icon
+                        name={bt.iconName}
+                        size={16}
+                        color={isSelected ? roleColor : '#64748B'}
+                      />
+                      <Text
+                        variant="caption"
+                        weight="bold"
+                        color={isSelected ? roleColor : '#334155'}
+                        style={{ marginLeft: 6, flex: 1 }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {bt.nameEn}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Multi-select Craft Categories */}
+              <Text variant="caption" weight="bold" color="#475569" style={{ marginTop: 12, marginBottom: 8 }}>
+                INTERESTED CRAFTS
+              </Text>
+              <View style={styles.buyerCategoryGrid}>
+                {BUYER_CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategories.includes(cat.code);
+                  return (
+                    <TouchableOpacity
+                      key={cat.code}
+                      onPress={() => toggleCategory(cat.code)}
+                      style={[
+                        styles.buyerCategoryChip,
+                        isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                      ]}
+                    >
+                      <Icon
+                        name={cat.iconName}
+                        size={16}
+                        color={isSelected ? roleColor : '#64748B'}
+                      />
+                      <Text
+                        variant="caption"
+                        weight={isSelected ? 'bold' : 'normal'}
+                        color={isSelected ? roleColor : '#334155'}
+                        style={{ marginLeft: 6, flex: 1 }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {cat.nameEn}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Purchase Preference */}
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+                <TouchableOpacity
+                  onPress={() => setPurchasePreference('INDIVIDUAL')}
+                  style={[
+                    styles.purchasePrefBtn,
+                    purchasePreference === 'INDIVIDUAL' && {
+                      borderColor: roleColor,
+                      backgroundColor: roleLightBg,
+                    },
+                  ]}
+                >
+                  <Icon
+                    name="bagOutline"
+                    size={18}
+                    color={purchasePreference === 'INDIVIDUAL' ? roleColor : '#64748B'}
+                  />
+                  <Text
+                    variant="caption"
+                    weight="bold"
+                    color={purchasePreference === 'INDIVIDUAL' ? roleColor : '#334155'}
+                    style={{ marginLeft: 6 }}
+                  >
+                    Individual (Retail)
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setPurchasePreference('BULK')}
+                  style={[
+                    styles.purchasePrefBtn,
+                    purchasePreference === 'BULK' && {
+                      borderColor: roleColor,
+                      backgroundColor: roleLightBg,
+                    },
+                  ]}
+                >
+                  <Icon
+                    name="building"
+                    size={18}
+                    color={purchasePreference === 'BULK' ? roleColor : '#64748B'}
+                  />
+                  <Text
+                    variant="caption"
+                    weight="bold"
+                    color={purchasePreference === 'BULK' ? roleColor : '#334155'}
+                    style={{ marginLeft: 6 }}
+                  >
+                    Bulk & Custom (B2B)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Sahyogi Specific Section 2 */}
+          {role === 'FACILITATOR' && (
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                  <Text variant="caption" weight="bold" color={roleColor}>
+                    2
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                    Sahyogi Organization Type
+                  </Text>
+                  <Text variant="caption" color="#64748B">
+                    Select your cluster entity and network scale
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.sahyogiTypeGrid}>
+                {SAHYOGI_TYPES.map((st) => {
+                  const isSelected = sahyogiType === st.code;
+                  return (
+                    <TouchableOpacity
+                      key={st.code}
+                      onPress={() => setSahyogiType(st.code)}
+                      style={[
+                        styles.sahyogiTypeTile,
+                        isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                      ]}
+                    >
+                      <Icon
+                        name={st.iconName}
+                        size={20}
+                        color={isSelected ? roleColor : '#64748B'}
+                      />
+                      <Text
+                        variant="bodySmall"
+                        weight="bold"
+                        color="#0F172A"
+                        style={{ marginTop: 4 }}
+                      >
+                        {st.nameEn}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+                {NETWORK_SIZES.map((ns) => {
+                  const isSelected = networkSize === ns.code;
+                  return (
+                    <TouchableOpacity
+                      key={ns.code}
+                      onPress={() => setNetworkSize(ns.code)}
+                      style={[
+                        styles.networkSizePill,
+                        isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                      ]}
+                    >
+                      <Text
+                        variant="caption"
+                        weight="bold"
+                        color={isSelected ? roleColor : '#475569'}
+                      >
+                        {ns.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* Section 3: Workshop / Operating Location */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                <Text variant="caption" weight="bold" color={roleColor}>
+                  3
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                  {role === 'BUYER'
+                    ? 'Operating / Sourcing Location (स्थान)'
+                    : role === 'FACILITATOR'
+                    ? 'Cluster Center Location (क्लस्टर स्थान)'
+                    : 'Workshop Location (स्थान)'}
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  {role === 'BUYER'
+                    ? 'Primary delivery city & sourcing state'
+                    : role === 'FACILITATOR'
+                    ? 'Sahyogi cluster operating center'
+                    : 'Aapki karyashala ya cluster ka pata (LGD Official)'}
+                </Text>
+              </View>
+            </View>
+
+            <LocationCascadeSelector
+              value={locationValue}
+              onChange={(val) => {
+                setLocationValue(val);
+                setDistrict(val.districtName);
+                setState(val.stateName);
+              }}
+              accentColor={roleColor}
+              lightBgColor={roleLightBg}
+              showVillage={role !== 'BUYER'}
+              showSubDistrict={true}
+              helperText={
+                role === 'ARTISAN'
+                  ? 'Government of India LGD verified artisan cluster linkage'
+                  : undefined
+              }
+            />
+
+            <View style={styles.giTagBadge}>
+              <Icon name="shieldCheck" size={16} color="#047857" />
+              <Text variant="caption" weight="bold" color="#047857" style={{ marginLeft: 6 }}>
+                Certified Authentic GI Craft Hub Linked
+              </Text>
+            </View>
+          </View>
+
+          {/* Section 4: Language Preference */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
+                <Text variant="caption" weight="bold" color={roleColor}>
+                  4
+                </Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text variant="bodyLarge" weight="bold" color="#0F172A">
+                  Language Preference (भाषा चुनें)
+                </Text>
+                <Text variant="caption" color="#64748B">
+                  App aur Voice Assistant kis bhasha mein baat karein?
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.langGrid}>
+              {LANGUAGES.map((lang) => {
+                const isSelected = selectedLanguage === lang.code;
+                return (
+                  <TouchableOpacity
+                    key={lang.code}
+                    onPress={() => setSelectedLanguage(lang.code)}
+                    style={[
+                      styles.langTile,
+                      isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                    ]}
+                  >
+                    <Text
+                      variant="bodySmall"
+                      weight="bold"
+                      color={isSelected ? roleColor : '#0F172A'}
+                    >
+                      {lang.nativeName}
+                    </Text>
+                    <Text variant="caption" color="#64748B" style={{ fontSize: 11 }}>
+                      {lang.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Action CTAs */}
+          <View style={styles.actionContainer}>
+            {role === 'ARTISAN' ? (
+              <TouchableOpacity
+                style={[styles.primaryBtn, { backgroundColor: roleColor }]}
+                onPress={() => handleComplete('HOME')}
+                disabled={isLoading}
+                activeOpacity={0.85}
+              >
+                <Icon name="home" size={20} color="#FFFFFF" />
+                <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={{ marginLeft: 8 }}>
+                  {isLoading ? 'Saving...' : 'Enter Dashboard →'}
+                </Text>
+              </TouchableOpacity>
+            ) : role === 'BUYER' ? (
+              <TouchableOpacity
+                style={[styles.primaryBtn, { backgroundColor: roleColor }]}
+                onPress={() => handleComplete()}
+                disabled={isLoading}
+                activeOpacity={0.85}
+              >
+                <Icon name="bagOutline" size={20} color="#FFFFFF" />
+                <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={{ marginLeft: 8 }}>
+                  {isLoading ? 'Saving...' : 'Enter Marketplace →'}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.primaryBtn, { backgroundColor: roleColor }]}
+                onPress={() => handleComplete()}
+                disabled={isLoading}
+                activeOpacity={0.85}
+              >
+                <Icon name="users" size={20} color="#FFFFFF" />
+                <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={{ marginLeft: 8 }}>
+                  {isLoading ? 'Saving...' : 'Open Sahyogi Desk →'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -512,175 +763,301 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#FAF8F5',
   },
-  helpPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  stepMetaRow: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 6,
-    marginBottom: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    backgroundColor: '#FFFFFF',
+  },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   roleTagPill: {
-    backgroundColor: '#F0EEFF',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  roleTagText: {
-    color: '#4B44CC',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  progressTrack: {
-    width: '100%',
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#E5E7EB',
-    marginBottom: 8,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 3,
-  },
-  voiceBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginBottom: 16,
-  },
-  voiceBannerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  voiceBannerIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  voiceActionBtn: {
+    gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 14,
   },
-  ondcBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginTop: 16,
-    marginBottom: 10,
+  miniRoleAvatar: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
-  content: {
+  scrollContent: {
     padding: 16,
-    paddingBottom: 64,
-    maxWidth: 580,
+    paddingBottom: 40,
+    maxWidth: 520,
     width: '100%',
     alignSelf: 'center',
   },
-  avatarSection: {
+  heroCard: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  avatarCircle: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    borderWidth: 2,
+  avatarRing: {
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    borderWidth: 2.5,
+    padding: 2,
+    backgroundColor: '#FFFFFF',
+  },
+  heroAvatarImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 35,
+  },
+  errorBanner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 14,
+    padding: 12,
+    gap: 8,
+    marginBottom: 14,
   },
-  avatarIcon: {
-    fontSize: 42,
+  sectionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  cameraBadge: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+    gap: 10,
+  },
+  sectionNumberBadge: {
     width: 28,
     height: 28,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cameraIcon: {
-    fontSize: 14,
-  },
-  avatarLabel: {
-    marginTop: 6,
-  },
-  section: {
-    marginVertical: 10,
-  },
-  sectionHeaderRow: {
+  inputWithAction: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    gap: 8,
   },
-  sectionLabel: {
-    marginBottom: 8,
+  textInput: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    fontSize: 15,
+    color: '#0F172A',
+    fontWeight: '500',
+    outlineStyle: 'none' as any,
   },
-  micBtn: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+  voiceInlineBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderRadius: 14,
     borderWidth: 1,
+    borderColor: 'rgba(234, 88, 12, 0.2)',
+  },
+  fieldLabel: {
+    fontSize: 11,
+    letterSpacing: 0.5,
+    marginBottom: 6,
   },
   craftGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 8,
   },
   craftTile: {
     width: '48%',
     padding: 12,
-    borderWidth: 2,
     borderRadius: 14,
-    marginBottom: 10,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
     alignItems: 'center',
-    minHeight: 100,
+  },
+  craftTileIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 6,
   },
-  craftIcon: {
-    fontSize: 26,
-    marginBottom: 4,
+  buyerTypeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 8,
   },
-  craftEn: {
-    marginTop: 2,
+  buyerTypeChip: {
+    width: '48.5%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
-  locationCard: {
-    padding: 14,
+  buyerCategoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 8,
+  },
+  buyerCategoryChip: {
+    width: '48.5%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+  },
+  purchasePrefBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+  },
+  sahyogiTypeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 8,
+  },
+  sahyogiTypeTile: {
+    width: '48.5%',
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+  },
+  networkSizePill: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  locationPin: {
-    fontSize: 26,
-    marginRight: 12,
+  giTagBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    padding: 10,
+    borderRadius: 12,
+    marginTop: 10,
   },
-  errorText: {
-    textAlign: 'center',
-    marginVertical: 8,
+  langGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 8,
   },
-  submitBtn: {
-    marginTop: 16,
+  langTile: {
+    width: '31%',
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+  },
+  studioHighlightCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    borderRadius: 20,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    marginBottom: 16,
+  },
+  studioCameraImg: {
+    width: 60,
+    height: 60,
+    borderRadius: 14,
+  },
+  actionContainer: {
+    marginTop: 6,
+    gap: 10,
+  },
+  primaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 52,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  secondaryBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
   },
 });

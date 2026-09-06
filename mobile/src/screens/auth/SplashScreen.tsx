@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,6 +12,10 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
+import { Audio } from 'expo-av';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useAppStore, SupportedLocale } from '@/store/useAppStore';
+import { UserProfile, UserRole, AuthTokens } from '@/api/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -25,9 +29,148 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const subtitleTranslateY = useRef(new Animated.Value(10)).current;
 
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  // Audio waveform pulse animation bars
+  const waveAnim1 = useRef(new Animated.Value(1)).current;
+  const waveAnim2 = useRef(new Animated.Value(1)).current;
+  const waveAnim3 = useRef(new Animated.Value(1)).current;
+
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audioFinished, setAudioFinished] = useState(false);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+
+  const doNavigate = () => {
+    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+    navigation.replace('Onboarding');
+  };
+
+  const { setSession } = useAuthStore();
+  const { setLocale } = useAppStore();
+
+  const handleDevJump = async (role: UserRole) => {
+    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+    if (soundRef.current) {
+      try {
+        await soundRef.current.stopAsync();
+      } catch {}
+    }
+
+    const demoProfiles: Partial<Record<UserRole, UserProfile>> = {
+      ARTISAN: {
+        id: 'demo_artisan_user',
+        phoneNumber: '9876543210',
+        fullName: 'Ramesh Kumbhar',
+        role: 'ARTISAN',
+        preferredLanguage: 'hi_IN',
+        craftCategoryCode: 'POTTERY_TERRACOTTA',
+        countryId: 1,
+        stateId: 26,
+        districtId: 101,
+        subDistrictId: 1001,
+        villageId: 10001,
+        state: 'Maharashtra',
+        district: 'Kolhapur',
+        subDistrict: 'Karveer',
+        villageName: 'Uchgaon Pottery Hub',
+        isProfileComplete: true,
+      },
+      BUYER: {
+        id: 'demo_buyer_user',
+        phoneNumber: '9811223344',
+        fullName: 'Priya Sharma',
+        role: 'BUYER',
+        preferredLanguage: 'en_IN',
+        craftCategoryCode: 'POTTERY',
+        countryId: 1,
+        stateId: 7,
+        districtId: 951,
+        state: 'Delhi',
+        district: 'Delhi NCR / New Delhi',
+        subDistrict: 'Connaught Place',
+        villageName: 'Central Market',
+        isProfileComplete: true,
+      },
+      FACILITATOR: {
+        id: 'demo_sahyogi_user',
+        phoneNumber: '9822334455',
+        fullName: 'Pooja Verma',
+        role: 'FACILITATOR',
+        preferredLanguage: 'hi_IN',
+        countryId: 1,
+        stateId: 26,
+        districtId: 101,
+        subDistrictId: 1002,
+        state: 'Maharashtra',
+        district: 'Kolhapur',
+        subDistrict: 'Hatkanangle',
+        villageName: 'Hupari Silver Hub',
+        shgOrFacilitatorCode: 'MAHALAXMI_SHG_01',
+        isProfileComplete: true,
+      },
+    };
+
+    const user = demoProfiles[role];
+    if (!user) return;
+    const tokens: AuthTokens = {
+      accessToken: `demo_token_${role.toLowerCase()}`,
+      refreshToken: `demo_refresh_${role.toLowerCase()}`,
+      expiresInSeconds: 86400,
+    };
+
+    await setSession(tokens, user);
+    await setLocale((user.preferredLanguage as SupportedLocale) || 'hi_IN');
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const roleLabel =
+        role === 'ARTISAN' ? 'Artisans' :
+        role === 'BUYER' ? 'Buyer' :
+        role === 'FACILITATOR' ? 'Sahyogi' : '';
+      document.title = `Kalakar Setu ~ ${roleLabel}`;
+    }
+    navigation.replace('MainTabs', { screen: 'HomeTab' });
+  };
+
+  const startWaveAnimation = () => {
+    const useNative = Platform.OS !== 'web';
+    const makeWave = (anim: Animated.Value, delay: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(anim, {
+            toValue: 1.8,
+            duration: 300,
+            easing: Easing.out(Easing.quad),
+            useNativeDriver: useNative,
+          }),
+          Animated.timing(anim, {
+            toValue: 0.5,
+            duration: 300,
+            easing: Easing.in(Easing.quad),
+            useNativeDriver: useNative,
+          }),
+        ])
+      );
+
+    waveLoopRef.current = Animated.parallel([
+      makeWave(waveAnim1, 0),
+      makeWave(waveAnim2, 130),
+      makeWave(waveAnim3, 260),
+    ]);
+    waveLoopRef.current.start();
+  };
+
+  const stopWaveAnimation = () => {
+    waveLoopRef.current?.stop();
+    waveAnim1.setValue(1);
+    waveAnim2.setValue(1);
+    waveAnim3.setValue(1);
+  };
 
   useEffect(() => {
     const useNative = Platform.OS !== 'web';
+    let isMounted = true;
 
     // 1. Elegant cinematic reveal: Artwork scales and eases in smoothly
     Animated.parallel([
@@ -70,33 +213,115 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       ]),
     ]).start();
 
-    // 3. Smooth 3-second progress indicator
-    Animated.timing(progressAnim, {
-      toValue: 1,
-      duration: 3000,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-      useNativeDriver: false,
-    }).start();
+    // 3. Gentle breathing glow animation for Start Button
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1200,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: useNative,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0,
+          duration: 1200,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: useNative,
+        }),
+      ])
+    );
+    pulseLoop.start();
 
-    // 4. Clean transition into Onboarding at 3.0s (React Navigation handles cross-fade)
-    const exitTimer = setTimeout(() => {
-      navigation.replace('Onboarding');
-    }, 3000);
+    // 4. Play splash.mp3
+    const playSplashAudio = async () => {
+      try {
+        if (Platform.OS !== 'web') {
+          await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+        }
 
-    return () => clearTimeout(exitTimer);
-  }, [
-    navigation,
-    logoScale,
-    logoOpacity,
-    logoTranslateY,
-    subtitleOpacity,
-    subtitleTranslateY,
-    progressAnim,
-  ]);
+        const { sound } = await Audio.Sound.createAsync(
+          require('../../../assets/audio/splash.mp3'),
+          { shouldPlay: false, volume: 1.0 }
+        );
+        soundRef.current = sound;
 
-  const handleSkip = () => {
-    navigation.replace('Onboarding');
-  };
+        if (!isMounted) {
+          sound.unloadAsync().catch(() => {});
+          return;
+        }
+
+        sound.setOnPlaybackStatusUpdate((s) => {
+          if (!isMounted) return;
+          if (!s.isLoaded) {
+            setIsAudioPlaying(false);
+            setAudioFinished(true);
+            stopWaveAnimation();
+            return;
+          }
+          if (s.isPlaying) {
+            setIsAudioPlaying(true);
+          }
+          if (s.didJustFinish) {
+            setIsAudioPlaying(false);
+            setAudioFinished(true);
+            stopWaveAnimation();
+            // Auto-navigate 500ms after audio finishes
+            navigationTimerRef.current = setTimeout(() => {
+              if (isMounted) doNavigate();
+            }, 500);
+          }
+        });
+
+        // Try playing
+        try {
+          await sound.playAsync();
+          setIsAudioPlaying(true);
+          startWaveAnimation();
+
+          // Progress bar tracks audio duration
+          Animated.timing(progressAnim, {
+            toValue: 1,
+            duration: 8000,
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+            useNativeDriver: false,
+          }).start();
+        } catch (_autoplayErr) {
+          // Autoplay blocked by browser policy without user gesture on web.
+          // Option A: User taps "शुरू करें / Get Started" to register user activation.
+          setIsAudioPlaying(false);
+          setAudioFinished(true);
+          // Long safety fallback (15s) in case unattended
+          navigationTimerRef.current = setTimeout(() => {
+            if (isMounted) doNavigate();
+          }, 15000);
+        }
+      } catch (_err) {
+        if (!isMounted) return;
+        setAudioFinished(true);
+        navigationTimerRef.current = setTimeout(() => {
+          if (isMounted) doNavigate();
+        }, 15000);
+      }
+    };
+
+    const audioDelay = setTimeout(() => playSplashAudio(), 100);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(audioDelay);
+      if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+      stopWaveAnimation();
+      pulseLoop.stop();
+      soundRef.current?.stopAsync().catch(() => {});
+      soundRef.current?.unloadAsync().catch(() => {});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const btnScale = pulseAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.03],
+  });
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
@@ -105,10 +330,49 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* ================================================================= */}
+      {/* [DEV ONLY] QUICK DASHBOARD JUMP - EASILY REMOVE FOR PRODUCTION */}
+      {/* ================================================================= */}
+      <View style={styles.devBarContainer}>
+        <View style={styles.devBarPill}>
+          <Text style={styles.devBarTitle}>⚡ DEV QUICK JUMP</Text>
+          <View style={styles.devButtonsRow}>
+            <TouchableOpacity
+              testID="dev-jump-artisan"
+              style={[styles.devRoleBtn, { backgroundColor: '#EA580C' }]}
+              onPress={() => handleDevJump('ARTISAN')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🏺 Artisan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="dev-jump-buyer"
+              style={[styles.devRoleBtn, { backgroundColor: '#4338CA' }]}
+              onPress={() => handleDevJump('BUYER')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🛍️ Buyer</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="dev-jump-sahyogi"
+              style={[styles.devRoleBtn, { backgroundColor: '#16A34A' }]}
+              onPress={() => handleDevJump('FACILITATOR')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🤝 Sahyogi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      {/* ================================================================= */}
+
       <TouchableOpacity
+        testID="splash-touchable"
         style={styles.touchContainer}
-        activeOpacity={1}
-        onPress={handleSkip}
+        activeOpacity={0.95}
+        onPress={doNavigate}
       >
         <View style={styles.mainWrapper}>
           {/* Centered Luxury Artwork Container */}
@@ -126,7 +390,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
               ]}
             >
               <Image
-                source={require('../../../assets/karigarx_logo.png')}
+                source={require('../../../assets/kalakar_setu_logo.png')}
                 style={styles.heroArtwork}
                 resizeMode="contain"
               />
@@ -146,21 +410,63 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
                 Direct from India's Master Artisans
               </Text>
             </Animated.View>
+
+            {/* Audio Playing Indicator (Only visible while audio is playing) */}
+            {isAudioPlaying && (
+              <Animated.View style={[styles.audioIndicator, { opacity: subtitleOpacity }]}>
+                <View style={styles.audioPlayingRow}>
+                  {/* Speaker icon */}
+                  <View style={styles.speakerIconWrap}>
+                    <Text style={styles.speakerEmoji}>🔊</Text>
+                  </View>
+                  {/* Animated wave bars */}
+                  <View style={styles.waveContainer}>
+                    {([waveAnim1, waveAnim2, waveAnim3] as Animated.Value[]).map((anim, i) => (
+                      <Animated.View
+                        key={i}
+                        style={[styles.waveBar, { transform: [{ scaleY: anim }] }]}
+                      />
+                    ))}
+                  </View>
+                  <Text style={styles.audioPlayingText}>Suniye...</Text>
+                </View>
+              </Animated.View>
+            )}
+
+            {/* Creative Modern Transparent Start Action with Glowing Breathing Pulse */}
+            <Animated.View
+              style={[
+                styles.startBtnContainer,
+                {
+                  opacity: subtitleOpacity,
+                  transform: [{ scale: btnScale }],
+                },
+              ]}
+            >
+              <TouchableOpacity
+                testID="splash-start-btn"
+                style={styles.startBtn}
+                onPress={doNavigate}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Get Started"
+              >
+                <View style={styles.startBtnIconWrap}>
+                  <Text style={styles.startBtnIcon}>🎧</Text>
+                </View>
+                <Text style={styles.startBtnText}>Get Started</Text>
+                <Text style={styles.startBtnArrow}>→</Text>
+              </TouchableOpacity>
+            </Animated.View>
           </View>
 
-          {/* Bottom Minimalist Progress Bar */}
+          {/* Bottom Progress Bar */}
           <View style={styles.bottomBarContainer}>
             <View style={styles.progressBarTrack}>
               <Animated.View
-                style={[
-                  styles.progressBarFill,
-                  { width: progressWidth },
-                ]}
+                style={[styles.progressBarFill, { width: progressWidth }]}
               />
             </View>
-            <Text variant="caption" color="#94A3B8" style={styles.skipHint}>
-              Tap to continue
-            </Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -217,6 +523,49 @@ const styles = StyleSheet.create({
     color: '#64748B',
     fontWeight: '500',
   },
+  audioIndicator: {
+    marginTop: 18,
+    alignItems: 'center',
+    minHeight: 38,
+  },
+  audioPlayingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(234, 88, 12, 0.08)',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(234, 88, 12, 0.22)',
+  },
+  speakerIconWrap: {
+    width: 22,
+    height: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  speakerEmoji: {
+    fontSize: 15,
+  },
+  waveContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    height: 18,
+  },
+  waveBar: {
+    width: 3,
+    height: 14,
+    borderRadius: 2,
+    backgroundColor: '#EA580C',
+  },
+  audioPlayingText: {
+    fontSize: 12,
+    color: '#EA580C',
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
   bottomBarContainer: {
     position: 'absolute',
     bottom: 44,
@@ -229,16 +578,106 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: '#E2E8F0',
     overflow: 'hidden',
-    marginBottom: 8,
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: '#EA580C',
     borderRadius: 2,
   },
-  skipHint: {
-    fontSize: 11,
-    letterSpacing: 0.4,
-    color: '#94A3B8',
+  startBtnContainer: {
+    marginTop: 22,
+    alignItems: 'center',
+  },
+  startBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.94)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 30,
+    borderWidth: 1.5,
+    borderColor: 'rgba(234, 88, 12, 0.45)',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  startBtnIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(234, 88, 12, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startBtnIcon: {
+    fontSize: 13,
+  },
+  startBtnText: {
+    color: '#0F172A',
+    fontSize: 13.5,
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  startBtnArrow: {
+    color: '#EA580C',
+    fontSize: 14,
+    fontWeight: '800',
+    marginLeft: 2,
+  },
+  // [DEV ONLY] Styles for quick jump switcher
+  devBarContainer: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 44 : 12,
+    left: 12,
+    right: 12,
+    zIndex: 9999,
+    elevation: 10,
+    alignItems: 'center',
+  },
+  devBarPill: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    maxWidth: 400,
+    width: '100%',
+  },
+  devBarTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.8,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  devButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
+    width: '100%',
+  },
+  devRoleBtn: {
+    flex: 1,
+    paddingVertical: 7,
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  devRoleBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

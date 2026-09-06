@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -79,6 +81,12 @@ export const SahyogiHomeScreen: React.FC = () => {
   const [artisans, setArtisans] = useState<ClusterArtisan[]>(CLUSTER_ARTISANS);
   const [qcChecked, setQcChecked] = useState(false);
 
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.title = 'Kalakar Setu ~ Sahyogi';
+    }
+  }, []);
+
   const sahyogiName = user?.fullName || 'Pooja Sharma';
 
   const totalQuota = artisans.reduce((acc, a) => acc + a.quota, 0);
@@ -144,59 +152,43 @@ export const SahyogiHomeScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       {/* Sahyogi Header Bar */}
       <View style={styles.headerBar}>
-        <View>
-          <View style={styles.roleBadgeRow}>
-            <Text style={styles.roleBadgeText}>🤝 HELPER / SAHYOGI FIELD DESK</Text>
+        <View style={styles.headerLeft}>
+          <Image
+            source={require('../../../assets/kalakar_setu_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <View>
+            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
+              Kalakar Setu
+            </Text>
+            <View style={styles.roleBadgePill}>
+              <Text style={styles.roleBadgeText}>🤝 SAHYOGI FIELD DESK</Text>
+            </View>
           </View>
-          <Text variant="headlineSmall" weight="bold" color="#0F172A">
-            Namaste, {sahyogiName}
-          </Text>
-          <Text variant="caption" color="#64748B">
-            Kolhapur Artisan Cluster #CLUST-MHB-01 • 5 Active Units
-          </Text>
         </View>
 
         <TouchableOpacity
-          style={styles.switchRoleBtn}
+          style={styles.profileAvatarButton}
           onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
+          accessibilityLabel="Profile"
         >
-          <Text variant="caption" weight="bold" color="#EA580C">
-            Profile ⚙️
-          </Text>
+          <Image
+            source={require('../../../assets/sahyogi_3d_avatar.jpg')}
+            style={styles.profileAvatarImg}
+          />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Active Role Quick Persona Switcher Bar */}
-        <View style={styles.roleSwitcherContainer}>
-          <View style={styles.roleSwitcherPill}>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'BUYER' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🛍️ Buyer Desk
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'ARTISAN' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🎨 Seller Studio
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.roleSwitchBtn, styles.roleSwitchBtnActive]}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="bold" color="#EA580C">
-                🤝 Sahyogi Desk
-              </Text>
-            </TouchableOpacity>
-          </View>
+        {/* Cluster Lead Greeting Section */}
+        <View style={styles.clusterGreetingSection}>
+          <Text variant="headlineMedium" weight="bold" color="#0F172A">
+            Namaste, {sahyogiName}!
+          </Text>
+          <Text variant="caption" color="#64748B" style={{ marginTop: 2 }}>
+            Kolhapur Artisan Cluster #CLUST-MHB-01 • 5 Active Units
+          </Text>
         </View>
 
         {/* Collective Batch Fulfillment Tracker */}
@@ -479,55 +471,50 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ECE8DC',
   },
-  roleSwitcherContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 4,
-  },
-  roleSwitcherPill: {
+  headerLeft: {
     flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 20,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  roleSwitchBtn: {
-    flex: 1,
-    paddingVertical: 6,
-    borderRadius: 16,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  roleSwitchBtnActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  logoImage: {
+    width: 32,
+    height: 32,
+    marginRight: 8,
   },
-  roleBadgeRow: {
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  roleBadgePill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
     borderRadius: 6,
-    marginBottom: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    marginTop: 1,
   },
   roleBadgeText: {
-    fontSize: 10,
+    color: '#16A34A',
+    fontSize: 9.5,
     fontWeight: '800',
-    color: '#B45309',
     letterSpacing: 0.5,
   },
-  switchRoleBtn: {
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+  profileAvatarButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#16A34A',
+  },
+  profileAvatarImg: {
+    width: '100%',
+    height: '100%',
+  },
+  clusterGreetingSection: {
+    marginBottom: 16,
   },
   scrollContent: {
     padding: 16,

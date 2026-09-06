@@ -1,0 +1,12 @@
+{
+  "name": "kalakar-setu-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run start:2882 --prefix mobile",
+    "dev": "npm run start:2882 --prefix mobile",
+    "web": "npm run web:2882 --prefix mobile",
+    "test": "npm test --prefix mobile",
+    "typecheck": "npm run typecheck --prefix mobile"
+  }
+}

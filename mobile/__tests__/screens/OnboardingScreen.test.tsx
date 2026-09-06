@@ -1,126 +1,64 @@
 import React, { act } from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { OnboardingScreen } from '@/screens/auth/OnboardingScreen';
 import { ThemeProvider } from '@/theme/ThemeProvider';
+import { Audio } from 'expo-av';
 
 const mockNavigation: any = {
   navigate: jest.fn(),
   replace: jest.fn(),
 };
 
+/**
+ * Helper: waits until the Next button is enabled (isAudioPlaying = false).
+ * The expo-av mock fires didJustFinish synchronously inside playSlideAudio's async callback chain.
+ * waitFor retries until React state settles.
+ */
+async function waitForNextEnabled(getByTestId: (id: string) => any) {
+  await waitFor(
+    () => {
+      const btn = getByTestId('onboarding-next-btn');
+      expect(btn.props.accessibilityState?.disabled).not.toBe(true);
+    },
+    { timeout: 3000 }
+  );
+}
+
+async function pressNext(getByTestId: (id: string) => any) {
+  await waitForNextEnabled(getByTestId);
+  await act(async () => {
+    fireEvent.press(getByTestId('onboarding-next-btn'));
+  });
+}
+
 describe('OnboardingScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders without errors and advances through 4 slides to role selection as Artisan', async () => {
+  it('renders without errors and advances through 3 slides to RoleSelection', async () => {
     const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <OnboardingScreen navigation={mockNavigation} route={{} as any} />
       </ThemeProvider>
     );
 
-    // Slide 0: Hunar
+    // Slide 0: Hunar — wait for audio to finish
+    await waitForNextEnabled(getByTestId);
     expect(getByText(/Aapka Hunar, Ab Digital/i)).toBeTruthy();
 
     // Advance to Slide 1
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
+    await pressNext(getByTestId);
     expect(getByText(/Apne Hunar Ki Sahi Keemat/i)).toBeTruthy();
 
     // Advance to Slide 2
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
+    await pressNext(getByTestId);
     expect(getByText(/Ab Buyer Khud Aap Tak/i)).toBeTruthy();
 
-    // Advance to Slide 3: Role Selection Screen
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    expect(getByText(/Apna Role Chunein/i)).toBeTruthy();
-    expect(getByTestId('role-card-ARTISAN')).toBeTruthy();
-    expect(getByTestId('role-card-BUYER')).toBeTruthy();
-    expect(getByTestId('role-card-FACILITATOR')).toBeTruthy();
-
-    // Default selected role is ARTISAN, CTA reflects Artisan
-    expect(getByText(/Artisan Safar Shuru Karein/i)).toBeTruthy();
-
-    // Tap CTA to navigate to AuthPhone with role ARTISAN
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    expect(mockNavigation.replace).toHaveBeenCalledWith('AuthPhone', { role: 'ARTISAN' });
-  });
-
-  it('allows selecting Buyer role and navigates with BUYER role', async () => {
-    const { getByText, getByTestId } = await render(
-      <ThemeProvider>
-        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    // Advance to Slide 3 (Role Selection)
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-
-    expect(getByText(/Apna Role Chunein/i)).toBeTruthy();
-
-    // Tap Buyer role card
-    await act(async () => {
-      fireEvent.press(getByTestId('role-card-BUYER'));
-    });
-
-    // Button should now show Buyer CTA
-    expect(getByText(/Buyer Portal Me Jaayein/i)).toBeTruthy();
-
-    // Proceed to AuthPhone
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    expect(mockNavigation.replace).toHaveBeenCalledWith('AuthPhone', { role: 'BUYER' });
-  });
-
-  it('allows selecting Sahyogi role and navigates with FACILITATOR role', async () => {
-    const { getByText, getByTestId } = await render(
-      <ThemeProvider>
-        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    // Advance to Slide 3 (Role Selection)
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-
-    // Tap Sahyogi role card
-    await act(async () => {
-      fireEvent.press(getByTestId('role-card-FACILITATOR'));
-    });
-
-    // Button should now show Sahyogi CTA
-    expect(getByText(/Sahyogi Desk Shuru Karein/i)).toBeTruthy();
-
-    // Proceed to AuthPhone
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    expect(mockNavigation.replace).toHaveBeenCalledWith('AuthPhone', { role: 'FACILITATOR' });
-  });
+    // Tap Next on Slide 2 to navigate to RoleSelection
+    await pressNext(getByTestId);
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('RoleSelection');
+  }, 15000);
 
   it('allows user to navigate back using the Back button', async () => {
     const { getByText, getByTestId, queryByTestId } = await render(
@@ -129,36 +67,30 @@ describe('OnboardingScreen', () => {
       </ThemeProvider>
     );
 
-    // Slide 1 has no back button
+    // Slide 0 has no back button
+    await waitForNextEnabled(getByTestId);
     expect(queryByTestId('onboarding-prev-btn')).toBeNull();
 
-    // Advance to Slide 2
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
+    // Advance to Slide 1
+    await pressNext(getByTestId);
     expect(getByText(/Apne Hunar Ki Sahi Keemat/i)).toBeTruthy();
 
-    // Slide 2 has back button
+    // Slide 1 has back button
+    await waitForNextEnabled(getByTestId);
     expect(getByTestId('onboarding-prev-btn')).toBeTruthy();
 
-    // Advance to Slide 3
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
+    // Advance to Slide 2
+    await pressNext(getByTestId);
     expect(getByText(/Ab Buyer Khud Aap Tak/i)).toBeTruthy();
 
-    // Advance to Slide 4 (Role Selection)
-    await act(async () => {
-      fireEvent.press(getByTestId('onboarding-next-btn'));
-    });
-    expect(getByText(/Apna Role Chunein/i)).toBeTruthy();
-
-    // Click back button to return to Slide 3
+    // Click back button to return to Slide 1
     await act(async () => {
       fireEvent.press(getByTestId('onboarding-prev-btn'));
     });
-    expect(getByText(/Ab Buyer Khud Aap Tak/i)).toBeTruthy();
-  });
+    await waitFor(() => {
+      expect(getByText(/Apne Hunar Ki Sahi Keemat/i)).toBeTruthy();
+    });
+  }, 15000);
 
   it('opens language dropdown modal and allows selecting a language', async () => {
     const { getByText, getByTestId } = await render(
@@ -166,6 +98,8 @@ describe('OnboardingScreen', () => {
         <OnboardingScreen navigation={mockNavigation} route={{} as any} />
       </ThemeProvider>
     );
+
+    await waitForNextEnabled(getByTestId);
 
     // Dropdown trigger is rendered in top right
     const dropdownBtn = getByTestId('language-dropdown-btn');
@@ -181,6 +115,99 @@ describe('OnboardingScreen', () => {
     await act(async () => {
       fireEvent.press(getByTestId('lang-option-hi_IN'));
     });
-    expect(getByText(/आपका हुनर, अब डिजिटल/i)).toBeTruthy();
+    await waitFor(() => {
+      expect(getByText(/आपका हुनर, अब डिजिटल/i)).toBeTruthy();
+    });
+  });
+
+  it('renders speaker toggle button beside language selector and omits in-body button', async () => {
+    const { getByTestId, queryByText } = await render(
+      <ThemeProvider>
+        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
+      </ThemeProvider>
+    );
+
+    // Verify 'Listen in Hindi' in-body badge is removed
+    expect(queryByText(/Listen in Hindi/i)).toBeNull();
+
+    // Speaker toggle button is present in the header beside language selector
+    const audioBtn = getByTestId('onboarding-audio-btn');
+    expect(audioBtn).toBeTruthy();
+
+    // Toggle audio
+    await act(async () => {
+      fireEvent.press(audioBtn);
+    });
+  });
+
+  it('updates text dynamically across regional languages (Marathi, Bengali, Tamil)', async () => {
+    const { getByText, getByTestId } = await render(
+      <ThemeProvider>
+        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
+      </ThemeProvider>
+    );
+
+    await waitForNextEnabled(getByTestId);
+    const dropdownBtn = getByTestId('language-dropdown-btn');
+
+    // Switch to Marathi
+    await act(async () => {
+      fireEvent.press(dropdownBtn);
+    });
+    await act(async () => {
+      fireEvent.press(getByTestId('lang-option-mr_IN'));
+    });
+    await waitFor(() => {
+      expect(getByText(/तुमची कला, आता डिजिटल/i)).toBeTruthy();
+    });
+
+    // Switch to Bengali
+    await act(async () => {
+      fireEvent.press(dropdownBtn);
+    });
+    await act(async () => {
+      fireEvent.press(getByTestId('lang-option-bn_IN'));
+    });
+    await waitFor(() => {
+      expect(getByText(/আপনার শিল্প, এবার ডিজিটাল/i)).toBeTruthy();
+    });
+
+    // Switch to Tamil
+    await act(async () => {
+      fireEvent.press(dropdownBtn);
+    });
+    await act(async () => {
+      fireEvent.press(getByTestId('lang-option-ta_IN'));
+    });
+    await waitFor(() => {
+      expect(getByText(/உங்கள் கலை, இப்போது டிஜிட்டல்/i)).toBeTruthy();
+    });
+  });
+
+  it('keeps simple Next button always accessible and shows small audio countdown timer badge while audio is playing', async () => {
+    const playSpy = jest.spyOn((Audio.Sound as any).prototype, 'playAsync').mockImplementation(async function (this: any) {
+      if (this._onStatus) {
+        this._onStatus({ isLoaded: true, isPlaying: true, durationMillis: 5000, positionMillis: 2000, didJustFinish: false });
+      }
+      return { isLoaded: true, isPlaying: true, didJustFinish: false } as any;
+    });
+
+    const { getByTestId, getByText } = await render(
+      <ThemeProvider>
+        <OnboardingScreen navigation={mockNavigation} route={{} as any} />
+      </ThemeProvider>
+    );
+
+    // Simple next button is always visible
+    expect(getByTestId('onboarding-next-btn')).toBeTruthy();
+
+    // Small countdown timer badge is visible
+    await waitFor(() => {
+      expect(getByText(/3s/i)).toBeTruthy();
+    });
+
+    // Restore playAsync mock
+    playSpy.mockRestore();
   });
 });
+

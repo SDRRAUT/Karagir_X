@@ -7,6 +7,7 @@ import {
   Image,
   TextInput,
   Modal,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -122,6 +123,9 @@ export const MarketplaceHomeScreen: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 14 });
 
   useEffect(() => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      document.title = 'Kalakar Setu ~ Buyer';
+    }
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev.seconds > 0) {
@@ -161,16 +165,26 @@ export const MarketplaceHomeScreen: React.FC = () => {
       {/* 1. Header Bar matching UI Mockup */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.appTitle}>
-            Kalakar Setu
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Image
+              source={require('../../../assets/kalakar_setu_logo.png')}
+              style={{ width: 28, height: 28 }}
+              resizeMode="contain"
+            />
+            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.appTitle}>
+              Kalakar Setu
+            </Text>
+            <View style={styles.buyerBadgePill}>
+              <Text style={styles.buyerBadgeText}>🛍️ BUYER</Text>
+            </View>
+          </View>
           <TouchableOpacity
             style={styles.locationSelector}
             onPress={() => setShowLocationModal(true)}
             activeOpacity={0.7}
           >
             <Text variant="bodySmall" weight="medium" color="#64748B">
-              {selectedAddress}
+              📍 {selectedAddress}
             </Text>
             <Text style={styles.chevronIcon}> ⌵</Text>
           </TouchableOpacity>
@@ -198,13 +212,16 @@ export const MarketplaceHomeScreen: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          {/* Pastel Yellow Avatar Circle */}
+          {/* Buyer Avatar */}
           <TouchableOpacity
             style={styles.avatarCircle}
             onPress={() => navigation.navigate('MainTabs', { screen: 'ProfileTab' })}
             accessibilityLabel="Profile Account"
           >
-            <Text style={styles.avatarEmoji}>👤</Text>
+            <Image
+              source={require('../../../assets/buyer_3d_avatar.jpg')}
+              style={{ width: '100%', height: '100%', borderRadius: 18 }}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -214,38 +231,6 @@ export const MarketplaceHomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Active Role Quick Persona Switcher Bar */}
-        <View style={styles.roleSwitcherContainer}>
-          <View style={styles.roleSwitcherPill}>
-            <TouchableOpacity
-              style={[styles.roleSwitchBtn, styles.roleSwitchBtnActive]}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="bold" color="#EA580C">
-                🛍️ Buyer Desk
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'ARTISAN' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🎨 Seller Studio
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.roleSwitchBtn}
-              onPress={() => useAuthStore.getState().updateProfile({ role: 'FACILITATOR' })}
-              activeOpacity={0.85}
-            >
-              <Text variant="caption" weight="medium" color="#64748B">
-                🤝 Sahyogi Desk
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* 2. Modern Rounded Search Bar with Voice & Visual Search */}
         <View style={styles.searchContainer}>
           <Text style={styles.searchMagnifier}>🔍</Text>
@@ -758,34 +743,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  roleSwitcherContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 4,
-    paddingBottom: 8,
-  },
-  roleSwitcherPill: {
-    flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
-    borderRadius: 20,
-    padding: 3,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  roleSwitchBtn: {
-    flex: 1,
-    paddingVertical: 6,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roleSwitchBtnActive: {
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -850,14 +807,24 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FEF08A', // Warm pastel yellow matching mockup
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#FDE047',
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#4338CA',
   },
-  avatarEmoji: {
-    fontSize: 18,
+  buyerBadgePill: {
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    marginLeft: 4,
+  },
+  buyerBadgeText: {
+    color: '#4338CA',
+    fontSize: 9.5,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   scrollContent: {
     paddingBottom: 24,

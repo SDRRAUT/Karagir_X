@@ -3,6 +3,50 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
+// expo-av mock: Sound immediately finishes synchronously to avoid blocking tests
+jest.mock('expo-av', () => {
+  class Sound {
+    constructor() {
+      this._onStatus = null;
+    }
+    async loadAsync() { return { isLoaded: true }; }
+    async playAsync() {
+      if (this._onStatus) {
+        this._onStatus({ isLoaded: true, isPlaying: false, didJustFinish: true });
+      }
+      return { isLoaded: true, isPlaying: false, didJustFinish: true };
+    }
+    async stopAsync() { return { isLoaded: true }; }
+    async unloadAsync() { return { isLoaded: false }; }
+    async getStatusAsync() { return { isLoaded: true, isPlaying: false, didJustFinish: true }; }
+    setOnPlaybackStatusUpdate(fn) {
+      this._onStatus = fn;
+      // Immediately signal audio finished so isAudioPlaying becomes false synchronously in tests
+      fn({ isLoaded: true, isPlaying: false, didJustFinish: true });
+    }
+    static async createAsync(_source, _status) {
+      const sound = new Sound();
+      return { sound, status: { isLoaded: true } };
+    }
+  }
+  return {
+    Audio: {
+      Sound,
+      setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+    },
+  };
+});
+
+jest.mock('expo-linear-gradient', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    LinearGradient: ({ children, style, ...rest }) =>
+      React.createElement(View, { style, ...rest }, children),
+  };
+});
+
+
 jest.mock('expo-camera', () => {
   const React = require('react');
   const { View } = require('react-native');
@@ -171,6 +215,10 @@ jest.mock('@/api/supabaseClient', () => {
       is: jest.fn().mockReturnThis(),
       order: jest.fn().mockReturnThis(),
       single: jest.fn().mockImplementation(() => {
+        const d = currentData || (Array.isArray(result.data) ? result.data[0] : result.data);
+        return Promise.resolve({ data: d, error: result.error });
+      }),
+      maybeSingle: jest.fn().mockImplementation(() => {
         const d = currentData || (Array.isArray(result.data) ? result.data[0] : result.data);
         return Promise.resolve({ data: d, error: result.error });
       }),

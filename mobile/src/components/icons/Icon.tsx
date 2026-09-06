@@ -54,6 +54,23 @@ export type IconName =
   | 'eye'
   | 'eyeOff'
   | 'phone'
+  | 'mail'
+  | 'mailOutline'
+  | 'lock'
+  | 'lockOutline'
+  | 'zap'
+  | 'keypad'
+  | 'keyboard'
+  | 'palette'
+  | 'compass'
+  | 'users'
+  | 'mapPin'
+  | 'briefcase'
+  | 'building'
+  | 'gift'
+  | 'creditCard'
+  | 'tool'
+  | 'package'
   | 'helpCircle';
 
 export interface IconProps {
@@ -141,6 +158,40 @@ export const Icon: React.FC<IconProps> = ({
       return <Feather name="eye-off" size={size} color={iconColor} style={style} />;
     case 'phone':
       return <Feather name="phone" size={size} color={iconColor} style={style} />;
+    case 'mail':
+      return <Feather name="mail" size={size} color={iconColor} style={style} />;
+    case 'mailOutline':
+      return <Ionicons name="mail-outline" size={size} color={iconColor} style={style} />;
+    case 'lock':
+      return <Feather name="lock" size={size} color={iconColor} style={style} />;
+    case 'lockOutline':
+      return <Ionicons name="lock-closed-outline" size={size} color={iconColor} style={style} />;
+    case 'zap':
+      return <Feather name="zap" size={size} color={iconColor} style={style} />;
+    case 'keypad':
+      return <MaterialCommunityIcons name="dialpad" size={size} color={iconColor} style={style} />;
+    case 'keyboard':
+      return <MaterialCommunityIcons name="keyboard-outline" size={size} color={iconColor} style={style} />;
+    case 'palette':
+      return <Ionicons name="color-palette-outline" size={size} color={iconColor} style={style} />;
+    case 'compass':
+      return <Feather name="compass" size={size} color={iconColor} style={style} />;
+    case 'users':
+      return <Feather name="users" size={size} color={iconColor} style={style} />;
+    case 'mapPin':
+      return <Feather name="map-pin" size={size} color={iconColor} style={style} />;
+    case 'briefcase':
+      return <Feather name="briefcase" size={size} color={iconColor} style={style} />;
+    case 'building':
+      return <Ionicons name="business-outline" size={size} color={iconColor} style={style} />;
+    case 'gift':
+      return <Feather name="gift" size={size} color={iconColor} style={style} />;
+    case 'creditCard':
+      return <Feather name="credit-card" size={size} color={iconColor} style={style} />;
+    case 'tool':
+      return <Feather name="tool" size={size} color={iconColor} style={style} />;
+    case 'package':
+      return <Feather name="package" size={size} color={iconColor} style={style} />;
 
     // Status & Trust
     case 'check':

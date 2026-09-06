@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalakar Setu — App Flow & Architecture Diagram Viewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0B1120;
+      color: #F1F5F9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      transition: background 0.3s ease;
+    }
+    body.light-mode {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+    header {
+      width: 100%;
+      max-width: 1320px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 16px 24px;
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    body.light-mode header {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #F8FAFC;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    body.light-mode .brand-title {
+      color: #0F172A;
+    }
+    .brand-subtitle {
+      font-size: 13px;
+      color: #94A3B8;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    body.light-mode .brand-subtitle {
+      color: #64748B;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid #334155;
+      background: #1E293B;
+      color: #F8FAFC;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    body.light-mode .btn {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+      color: #0F172A;
+    }
+    .btn:hover {
+      background: #334155;
+      border-color: #64748B;
+    }
+    body.light-mode .btn:hover {
+      background: #E2E8F0;
+    }
+    .btn-active {
+      background: #D97706 !important;
+      border-color: #F59E0B !important;
+      color: #FFFFFF !important;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      border: none;
+      color: #FFFFFF !important;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #3B82F6, #2563EB);
+    }
+    .diagram-container {
+      width: 100%;
+      max-width: 1320px;
+      background: #0F172A;
+      border-radius: 16px;
+      border: 1px solid #1E293B;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.6);
+      overflow: auto;
+      padding: 16px;
+      transition: all 0.3s ease;
+    }
+    body.light-mode .diagram-container {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+    }
+    .diagram-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      min-width: 900px;
+    }
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        padding: 0;
+      }
+      header {
+        display: none;
+      }
+      .diagram-container {
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body class="light-mode">
+
+  <header>
+    <div>
+      <div class="brand-title">
+        <span>🎨</span>
+        <span>Kalakar Setu — App Flow &amp; Architecture Map</span>
+      </div>
+      <div class="brand-subtitle">Simple 3 Roles: Maker (कारीगर) • Customer (खरीदार) • Village Helper (सहयोगी) • Safe Payment</div>
+    </div>
+    <div class="actions">
+      <!-- Toggle Buttons -->
+      <button id="btnArch" class="btn btn-active" onclick="switchTheme('architecture')">
+        🏛️ Multi-Modal &amp; AI Engine Architecture
+      </button>
+      <button id="btnPresentation" class="btn" onclick="switchTheme('presentation')">
+        📄 Simple User Flow (Presentation)
+      </button>
+      <button id="btnDark" class="btn" onclick="switchTheme('dark')">
+        🌌 Dark Cockpit View
+      </button>
+      <a id="downloadLink" href="kalakar_setu_architecture_diagram.svg" download="kalakar_setu_architecture_diagram.svg" class="btn btn-primary">
+        ⬇️ Download SVG
+      </a>
+      <button onclick="window.print()" class="btn">
+        🖨️ Print / PDF
+      </button>
+    </div>
+  </header>
+
+  <main class="diagram-container">
+    <img id="diagramImage" src="kalakar_setu_architecture_diagram.svg" alt="Kalakar Setu Architecture Diagram">
+  </main>
+
+  <script>
+    function switchTheme(theme) {
+      const img = document.getElementById('diagramImage');
+      const downloadBtn = document.getElementById('downloadLink');
+      const btnArch = document.getElementById('btnArch');
+      const btnPresentation = document.getElementById('btnPresentation');
+      const btnDark = document.getElementById('btnDark');
+
+      btnArch.classList.remove('btn-active');
+      btnPresentation.classList.remove('btn-active');
+      btnDark.classList.remove('btn-active');
+
+      if (theme === 'architecture') {
+        document.body.classList.remove('light-mode');
+        img.src = 'kalakar_setu_architecture_diagram.svg';
+        downloadBtn.href = 'kalakar_setu_architecture_diagram.svg';
+        downloadBtn.download = 'kalakar_setu_architecture_diagram.svg';
+        btnArch.classList.add('btn-active');
+      } else if (theme === 'presentation') {
+        document.body.classList.add('light-mode');
+        img.src = 'kalakar_setu_app_flow_presentation.svg';
+        downloadBtn.href = 'kalakar_setu_app_flow_presentation.svg';
+        downloadBtn.download = 'kalakar_setu_app_flow_presentation.svg';
+        btnPresentation.classList.add('btn-active');
+      } else {
+        document.body.classList.remove('light-mode');
+        img.src = 'kalakar_setu_app_flow.svg';
+        downloadBtn.href = 'kalakar_setu_app_flow.svg';
+        downloadBtn.download = 'kalakar_setu_app_flow.svg';
+        btnDark.classList.add('btn-active');
+      }
+    }
+  </script>
+
+</body>
+</html>
