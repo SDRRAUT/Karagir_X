@@ -31,16 +31,18 @@ import { ProductPreviewScreen } from '@/screens/product/ProductPreviewScreen';
 import { PublishSuccessScreen } from '@/screens/product/PublishSuccessScreen';
 
 // Buyer Marketplace & Commerce Screens
-import { MarketplaceHomeScreen } from '@/screens/marketplace/MarketplaceHomeScreen';
-import { CategoriesScreen } from '@/screens/marketplace/CategoriesScreen';
-import { SearchScreen } from '@/screens/marketplace/SearchScreen';
-import { ProductDetailScreen } from '@/screens/marketplace/ProductDetailScreen';
-import { WishlistScreen } from '@/screens/marketplace/WishlistScreen';
-import { CartScreen } from '@/screens/marketplace/CartScreen';
-import { CheckoutScreen } from '@/screens/marketplace/CheckoutScreen';
-import { PaymentScreen } from '@/screens/marketplace/PaymentScreen';
-import { OrderConfirmationScreen } from '@/screens/marketplace/OrderConfirmationScreen';
-import { OrderTrackingScreen } from '@/screens/marketplace/OrderTrackingScreen';
+import {
+  BuyerHomeScreen as MarketplaceHomeScreen,
+  CategoriesScreen,
+  SearchScreen,
+  ProductDetailScreen,
+  WishlistScreen,
+  CartScreen,
+  CheckoutScreen,
+  PaymentScreen,
+  OrderConfirmationScreen,
+  OrderTrackingScreen,
+} from '@/screens/buyer';
 
 // AI Market Linkage & B2B Cluster Opportunity Screens
 import { OpportunitiesScreen } from '@/screens/linkage/OpportunitiesScreen';
