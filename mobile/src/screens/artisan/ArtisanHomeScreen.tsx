@@ -83,7 +83,7 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
           <Image
-            source={require('../../assets/kalakar_setu_logo.png')}
+            source={require('../../../assets/kalakar_setu_logo.png')}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -103,7 +103,7 @@ export const HomeScreen: React.FC = () => {
           accessibilityLabel="Profile"
         >
           <Image
-            source={require('../../assets/artisan_3d_avatar.jpg')}
+            source={require('../../../assets/artisan_3d_avatar.jpg')}
             style={styles.profileAvatarImg}
           />
         </TouchableOpacity>
