@@ -315,9 +315,6 @@ export const MarketplaceHomeScreen: React.FC = () => {
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.appTitle}>
               {t.common.appName}
             </Text>
-            <View style={styles.buyerBadgePill}>
-              <Text style={styles.buyerBadgeText}>🛍️ {t.buyer.badge}</Text>
-            </View>
           </View>
           <TouchableOpacity
             style={styles.locationSelector}
