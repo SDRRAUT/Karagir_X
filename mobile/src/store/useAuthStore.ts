@@ -117,11 +117,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
+        const isAuth =
+          !!parsed.tokens?.accessToken ||
+          !!parsed.user?.isProfileComplete ||
+          !!parsed.user?.fullName;
+
         set({
           user: parsed.user,
-          activeRole: parsed.user?.role || null,
+          activeRole: parsed.user?.role || parsed.activeRole || get().activeRole || 'ARTISAN',
           tokens: parsed.tokens,
-          isAuthenticated: !!parsed.tokens?.accessToken,
+          isAuthenticated: isAuth,
           activeProfileId: parsed.user?.id || null,
           profilesOnDevice: parsed.profilesOnDevice || (parsed.user ? [parsed.user] : []),
           isLoading: false,
@@ -145,6 +150,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const sessionData = {
       tokens,
       user,
+      activeRole: user.role,
       profilesOnDevice: updatedProfiles,
     };
 
@@ -182,9 +188,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       p.id === updatedUser.id ? updatedUser : p
     );
 
+    const sessionTokens: AuthTokens = get().tokens || {
+      accessToken: `token_${updatedUser.id}`,
+      refreshToken: `refresh_${updatedUser.id}`,
+      expiresInSeconds: 86400 * 365,
+    };
+
     const sessionData = {
-      tokens: get().tokens,
+      tokens: sessionTokens,
       user: updatedUser,
+      activeRole: updatedUser.role,
       profilesOnDevice: updatedProfiles,
     };
 
@@ -196,6 +209,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     set({
       user: updatedUser,
+      tokens: sessionTokens,
+      isAuthenticated: true,
       activeRole: updatedUser.role,
       profilesOnDevice: updatedProfiles,
     });

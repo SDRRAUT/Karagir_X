@@ -50,27 +50,37 @@ import { OpportunityDetailScreen } from '@/screens/linkage/OpportunityDetailScre
 import { QuoteNegotiationScreen } from '@/screens/linkage/QuoteNegotiationScreen';
 import { B2BContractScreen } from '@/screens/linkage/B2BContractScreen';
 import { CreateBulkRfqScreen } from '@/screens/linkage/CreateBulkRfqScreen';
+import {
+  AdminDashboardScreen,
+  AdminKycScreen,
+  AdminModerationScreen,
+  AdminEscrowScreen,
+} from '@/screens/admin';
 
 import { useAuthStore } from '@/store/useAuthStore';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const RootNavigator: React.FC = () => {
+  const { isAuthenticated, user, isLoading } = useAuthStore();
+  const hasCompletedProfile = !isLoading && (isAuthenticated || !!user?.isProfileComplete);
+
   return (
     <NavigationContainer
       documentTitle={{
         formatter: (options, route) => {
-          const role = useAuthStore.getState().user?.role;
+          const role = useAuthStore.getState().user?.role || useAuthStore.getState().activeRole;
           const roleLabel =
             role === 'ARTISAN' ? 'Artisans' :
             role === 'BUYER' ? 'Buyer' :
-            role === 'FACILITATOR' ? 'Sahyogi' : '';
+            role === 'ADMIN' ? 'Command Center' : '';
           return roleLabel ? `Kalakar Setu ~ ${roleLabel}` : (options?.title ?? route?.name ?? 'Kalakar Setu');
         },
       }}
     >
       <Stack.Navigator
-        initialRouteName="Splash"
+        key={hasCompletedProfile ? 'auth_stack' : 'guest_stack'}
+        initialRouteName={hasCompletedProfile ? 'MainTabs' : 'Splash'}
         screenOptions={{
           headerShown: false,
           animation: 'fade',
@@ -123,6 +133,12 @@ export const RootNavigator: React.FC = () => {
         <Stack.Screen name="QuoteNegotiation" component={QuoteNegotiationScreen} />
         <Stack.Screen name="B2BContract" component={B2BContractScreen} />
         <Stack.Screen name="CreateBulkRfq" component={CreateBulkRfqScreen} />
+
+        {/* Platform Admin & Governance Screens */}
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        <Stack.Screen name="AdminKyc" component={AdminKycScreen} />
+        <Stack.Screen name="AdminModeration" component={AdminModerationScreen} />
+        <Stack.Screen name="AdminEscrow" component={AdminEscrowScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

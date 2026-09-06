@@ -66,12 +66,12 @@ export const ProfileScreen: React.FC = () => {
 
   const role = activeRole || user?.role || 'ARTISAN';
   const isBuyer = role === 'BUYER';
-  const isFacilitator = role === 'FACILITATOR';
+  const isAdmin = role === 'ADMIN';
   const isArtisan = role === 'ARTISAN';
 
-  const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isFacilitator ? 'Pooja Verma' : 'Ramesh Kumbhar');
-  const roleThemeColor = isBuyer ? '#4338CA' : isFacilitator ? '#16A34A' : theme.colors.terracotta.primary;
-  const roleLightBg = isBuyer ? '#EEF2FF' : isFacilitator ? '#F0FDF4' : 'rgba(234, 88, 12, 0.1)';
+  const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isAdmin ? 'Rajesh Sharma (Admin)' : 'Ramesh Kumbhar');
+  const roleThemeColor = isBuyer ? '#4338CA' : isAdmin ? '#6366F1' : theme.colors.terracotta.primary;
+  const roleLightBg = isBuyer ? '#EEF2FF' : isAdmin ? '#EEF2FF' : 'rgba(234, 88, 12, 0.1)';
 
   const locationParts = [
     user?.villageName,
@@ -81,25 +81,25 @@ export const ProfileScreen: React.FC = () => {
   ].filter(Boolean);
   const roleLocation = locationParts.length > 0
     ? locationParts.join(', ')
-    : (isBuyer ? 'Delhi NCR, New Delhi' : isFacilitator ? 'Kolhapur Cluster, Maharashtra' : 'Kolhapur, Maharashtra');
+    : (isBuyer ? 'Delhi NCR, New Delhi' : isAdmin ? 'National Operations Center, New Delhi' : 'Kolhapur, Maharashtra');
 
   const roleTagline = isBuyer
     ? t.profile.buyerSubtitle
-    : isFacilitator
-    ? t.profile.sahyogiSubtitle
+    : isAdmin
+    ? 'National Platform Governance & Escrow'
     : t.profile.artisanSubtitle;
 
   const avatarSource = isBuyer
     ? require('../../../assets/buyer_3d_avatar.jpg')
-    : isFacilitator
+    : isAdmin
     ? require('../../../assets/sahyogi_3d_avatar.jpg')
     : require('../../../assets/artisan_3d_avatar.jpg');
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title={isBuyer ? t.profile.buyerTitle : isFacilitator ? t.profile.sahyogiTitle : t.profile.artisanTitle}
-        subtitle={isBuyer ? t.profile.buyerSubtitle : isFacilitator ? t.profile.sahyogiSubtitle : t.profile.artisanSubtitle}
+        title={isBuyer ? t.profile.buyerTitle : isAdmin ? 'Admin Operations' : t.profile.artisanTitle}
+        subtitle={isBuyer ? t.profile.buyerSubtitle : isAdmin ? 'Governance, Compliance & Escrow' : t.profile.artisanSubtitle}
         showDevanagariLogo={true}
         onVoicePress={() => {}}
       />
@@ -143,13 +143,13 @@ export const ProfileScreen: React.FC = () => {
             <View style={[styles.trustBadge, { backgroundColor: roleLightBg }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>⭐</Text>
               <Text variant="labelSmall" weight="bold" color={roleThemeColor}>
-                {isBuyer ? t.profile.verifiedBuyer : isFacilitator ? t.profile.clusterLead : t.profile.verifiedArtisan}
+                {isBuyer ? t.profile.verifiedBuyer : isAdmin ? 'Platform Administrator' : t.profile.verifiedArtisan}
               </Text>
             </View>
             <View style={[styles.trustBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>📍</Text>
               <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                {isBuyer ? t.profile.giPatron : isFacilitator ? t.profile.shgCovered : t.profile.giArtisan}
+                {isBuyer ? t.profile.giPatron : isAdmin ? 'National Operations Hub' : t.profile.giArtisan}
               </Text>
             </View>
           </View>
@@ -160,11 +160,11 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.clubTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 4 }}>✨</Text>
                 <Text variant="labelMedium" weight="bold" color="#FFFFFF">
-                  {isBuyer ? t.profile.buyerClubTitle : isFacilitator ? t.profile.sahyogiClubTitle : t.profile.artisanClubTitle}
+                  {isBuyer ? t.profile.buyerClubTitle : isAdmin ? 'Operations Command' : t.profile.artisanClubTitle}
                 </Text>
               </View>
               <Text variant="labelSmall" color="#E0DCFF" style={{ marginTop: 2 }}>
-                {isBuyer ? t.profile.buyerClubDesc : isFacilitator ? t.profile.sahyogiClubDesc : t.profile.artisanClubDesc}
+                {isBuyer ? t.profile.buyerClubDesc : isAdmin ? 'Real-time KYC approvals • AI moderation • Escrow balancing' : t.profile.artisanClubDesc}
               </Text>
             </View>
 
@@ -537,72 +537,77 @@ export const ProfileScreen: React.FC = () => {
           </>
         )}
 
-        {/* ROLE SPECIFIC BODY: SAHYOGI VIEW */}
-        {isFacilitator && (
+        {/* ROLE SPECIFIC BODY: ADMIN VIEW */}
+        {isAdmin && (
           <>
             <View style={styles.utilityGrid}>
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'KycTab' })}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
-                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(22, 163, 74, 0.15)' }]}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(99, 102, 241, 0.15)' }]}>
                     <Text style={{ fontSize: 18 }}>📋</Text>
                   </View>
-                  <View style={[styles.tilePill, { backgroundColor: '#16A34A' }]}>
+                  <View style={[styles.tilePill, { backgroundColor: '#6366F1' }]}>
                     <Text variant="labelSmall" weight="bold" color="#FFFFFF">
-                      {isHindi ? '5 इकाइयां' : '5 Units'}
+                      KYC Queue
                     </Text>
                   </View>
                 </View>
                 <View>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                    {t.sahyogi.artisanListTitle}
+                    Artisan Approvals
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    {isHindi ? 'कोल्हापुर क्लस्टर' : 'Kolhapur Cluster'}
+                    Pehchan & Aadhaar verification
                   </Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('Fulfillment' as any)}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'ModerationTab' })}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
-                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(67, 56, 202, 0.15)' }]}>
-                    <Text style={{ fontSize: 18 }}>📦</Text>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>🛡️</Text>
+                  </View>
+                  <View style={[styles.tilePill, { backgroundColor: '#EF4444' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#FFFFFF">
+                      AI Flags
+                    </Text>
                   </View>
                 </View>
                 <View>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                    {t.sahyogi.dispatchBatch}
+                    Catalog Moderation
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    {isHindi ? '5,000 इकाइयां' : '5,000 Units'}
+                    Audit AI risk scores
                   </Text>
                 </View>
               </TouchableOpacity>
             </View>
 
-            {/* Sahyogi Lead Desk Operations Card */}
+            {/* Admin Operations Card */}
             <Card style={styles.financeCard}>
               <TouchableOpacity
                 style={styles.financeItem}
                 onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
                 activeOpacity={0.8}
               >
-                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(22, 163, 74, 0.15)' }]}>
-                  <Text style={{ fontSize: 20 }}>📋</Text>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(99, 102, 241, 0.15)' }]}>
+                  <Text style={{ fontSize: 20 }}>📊</Text>
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 12 }}>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                    {isHindi ? 'सहयोगी लीड डेस्क एवं क्लस्टर नियंत्रण' : 'Sahyogi Lead Desk & Operations'}
+                    National Command Center
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    {isHindi ? 'डिजिटल ऑनबोर्डिंग, क्यूसी ऑडिट और प्रेषण प्रबंधन' : 'Digital onboarding, QC audits & dispatch coordination'}
+                    Live platform GMV, active cluster metrics & growth
                   </Text>
                 </View>
                 <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
@@ -610,19 +615,24 @@ export const ProfileScreen: React.FC = () => {
 
               <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
 
-              <View style={styles.financeItem}>
-                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(22, 163, 74, 0.12)' }]}>
-                  <Text style={{ fontSize: 20 }}>🏛️</Text>
+              <TouchableOpacity
+                style={styles.financeItem}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'EscrowTab' })}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🏦</Text>
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 12 }}>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                    {t.profile.clusterHub}
+                    Nodal Escrow & Disputes
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    {isHindi ? 'पंचगंगा पॉटरी क्लस्टर #CLUST-MHB-01' : 'Panchganga Pottery Cluster #CLUST-MHB-01'}
+                    Speed Post parcel sync & 48h dispute adjudication
                   </Text>
                 </View>
-              </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </TouchableOpacity>
 
               <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
 
@@ -632,10 +642,10 @@ export const ProfileScreen: React.FC = () => {
                 </View>
                 <View style={{ flex: 1, paddingHorizontal: 12 }}>
                   <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                    {t.profile.staffId}
+                    Staff Governance Clearance
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                    SHG-MHB-KOL-88421
+                    ADMIN-GOV-DEL-2026
                   </Text>
                 </View>
               </View>
@@ -657,7 +667,7 @@ export const ProfileScreen: React.FC = () => {
             {[
               { role: 'BUYER', label: `🛍️ ${t.profile.buyerRole}`, title: t.profile.buyerTitle },
               { role: 'ARTISAN', label: `🎨 ${t.profile.artisanRole}`, title: t.profile.artisanTitle },
-              { role: 'FACILITATOR', label: `🤝 ${t.profile.sahyogiRole}`, title: t.profile.sahyogiTitle },
+              { role: 'ADMIN', label: '🛡️ Admin', title: 'Command Center' },
             ].map((r) => {
               const isCurrent = role === r.role;
               return (

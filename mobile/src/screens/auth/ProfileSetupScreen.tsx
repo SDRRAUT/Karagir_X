@@ -76,17 +76,17 @@ const BUYER_CATEGORIES: OptionItem[] = [
   { code: 'DECOR', nameEn: 'Home Decor & Rugs', nameHi: 'गृह सज्जा', iconName: 'home' },
 ];
 
-const SAHYOGI_TYPES: OptionItem[] = [
-  { code: 'SHG', nameEn: 'Self-Help Group (SHG)', nameHi: 'महिला बचत गट', iconName: 'users', desc: 'Village micro-enterprise & women makers' },
-  { code: 'NGO', nameEn: 'Craft Foundation / NGO', nameHi: 'हस्तशिल्प न्यास व एनजीओ', iconName: 'building', desc: 'Cluster empowerment & social welfare' },
-  { code: 'COOP', nameEn: 'Producer Cooperative', nameHi: 'उत्पादक सहकारी समिति', iconName: 'briefcase', desc: 'Artisan-owned collective enterprise' },
-  { code: 'FIELD_LEAD', nameEn: 'Cluster Lead / Facilitator', nameHi: 'क्लस्टर लीड / मित्र', iconName: 'zap', desc: 'Packaging, logistics & QC hub' },
+const ADMIN_DEPARTMENTS: OptionItem[] = [
+  { code: 'OPERATIONS', nameEn: 'Operations Command', nameHi: 'संचालन नियंत्रण', iconName: 'shieldCheck', desc: 'Platform supervision & governance' },
+  { code: 'KYC_VETTING', nameEn: 'Artisan KYC & Trust', nameHi: 'शिल्पकार सत्यापन', iconName: 'checkCircle', desc: 'LGD identity & artisan onboarding' },
+  { code: 'CATALOG_MODERATION', nameEn: 'AI Catalog Review', nameHi: 'कैटलॉग मॉडरेशन', iconName: 'sparkles', desc: 'Listing quality, pricing & vision guard' },
+  { code: 'ESCROW_DISPUTES', nameEn: 'Escrow & Reconciliation', nameHi: 'एस्क्रो व विवाद', iconName: 'wallet', desc: 'India Post cod & 48h settlement' },
 ];
 
-const NETWORK_SIZES = [
-  { code: 'SMALL', label: '5 – 25 Artisans', desc: 'Local village cluster' },
-  { code: 'MEDIUM', label: '25 – 100 Artisans', desc: 'Regional craft society' },
-  { code: 'LARGE', label: '100+ Artisans', desc: 'District federation' },
+const ADMIN_CLEARANCE_LEVELS = [
+  { code: 'L1', label: 'Operations Lead', desc: 'Cluster supervisor' },
+  { code: 'L2', label: 'Senior Moderator', desc: 'State catalog officer' },
+  { code: 'L3', label: 'Platform Admin', desc: 'National command center' },
 ];
 
 export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
@@ -118,21 +118,20 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [purchasePreference, setPurchasePreference] = useState<'INDIVIDUAL' | 'BULK' | ''>('');
 
-  // Sahyogi specific - nothing pre-selected
-  const [sahyogiType, setSahyogiType] = useState<string>('');
-  const [clusterArea, setClusterArea] = useState('');
-  const [networkSize, setNetworkSize] = useState<string>('');
+  // Admin specific - defaults for demo readiness
+  const [adminDept, setAdminDept] = useState<string>('OPERATIONS');
+  const [clearanceLevel, setClearanceLevel] = useState<string>('L3');
 
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const roleColor = role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C';
-  const roleLightBg = role === 'BUYER' ? '#EEF2FF' : role === 'FACILITATOR' ? '#F0FDF4' : '#FFF7ED';
+  const roleColor = role === 'BUYER' ? '#4338CA' : role === 'ADMIN' ? '#6366F1' : '#EA580C';
+  const roleLightBg = role === 'BUYER' ? '#EEF2FF' : role === 'ADMIN' ? '#EEF2FF' : '#FFF7ED';
 
   const roleAvatar =
-    role === 'BUYER' ? BUYER_AVATAR : role === 'FACILITATOR' ? SAHYOGI_AVATAR : ARTISAN_AVATAR;
+    role === 'BUYER' ? BUYER_AVATAR : role === 'ADMIN' ? SAHYOGI_AVATAR : ARTISAN_AVATAR;
   const roleTitle =
-    role === 'BUYER' ? 'Buyer' : role === 'FACILITATOR' ? 'Sahyogi' : 'Artisan';
+    role === 'BUYER' ? 'Buyer' : role === 'ADMIN' ? 'Admin' : 'Artisan';
 
   const handleVoiceDictateName = () => {
     voiceGuidance.speakHindi(
@@ -140,7 +139,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
       undefined,
       () => {
         if (!fullName) {
-          setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'FACILITATOR' ? 'Pooja Verma' : 'Ramesh Kumbhar');
+          setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'ADMIN' ? 'Rajesh Sharma (Admin)' : 'Ramesh Kumbhar');
         }
       }
     );
@@ -205,7 +204,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
       } else if (role === 'BUYER') {
         navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'BUYER' } });
       } else {
-        navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'FACILITATOR' } });
+        navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'ADMIN' } });
       }
     } catch {
       setIsLoading(false);
@@ -316,8 +315,8 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                 placeholder={
                   role === 'BUYER'
                     ? 'अपना पूरा नाम लिखें (e.g. Priya Sharma)'
-                    : role === 'FACILITATOR'
-                    ? 'अपना पूरा नाम लिखें (e.g. Pooja Verma)'
+                    : role === 'ADMIN'
+                    ? 'अपना पूरा नाम लिखें (e.g. Rajesh Sharma)'
                     : 'अपना पूरा नाम लिखें (e.g. Sunita Devi / Ramesh Kumbhar)'
                 }
                 placeholderTextColor="#94A3B8"
@@ -544,8 +543,8 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           )}
 
-          {/* Sahyogi Specific Section 2 */}
-          {role === 'FACILITATOR' && (
+          {/* Admin Specific Section 2 */}
+          {role === 'ADMIN' && (
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <View style={[styles.sectionNumberBadge, { backgroundColor: roleLightBg }]}>
@@ -555,28 +554,28 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyLarge" weight="bold" color="#0F172A">
-                    Sahyogi Organization Type
+                    Admin Operations Department
                   </Text>
                   <Text variant="caption" color="#64748B">
-                    Select your cluster entity and network scale
+                    Select your operational focus and supervisory role
                   </Text>
                 </View>
               </View>
 
               <View style={styles.sahyogiTypeGrid}>
-                {SAHYOGI_TYPES.map((st) => {
-                  const isSelected = sahyogiType === st.code;
+                {ADMIN_DEPARTMENTS.map((dept) => {
+                  const isSelected = adminDept === dept.code;
                   return (
                     <TouchableOpacity
-                      key={st.code}
-                      onPress={() => setSahyogiType(st.code)}
+                      key={dept.code}
+                      onPress={() => setAdminDept(dept.code)}
                       style={[
                         styles.sahyogiTypeTile,
                         isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
                       ]}
                     >
                       <Icon
-                        name={st.iconName}
+                        name={dept.iconName}
                         size={20}
                         color={isSelected ? roleColor : '#64748B'}
                       />
@@ -586,7 +585,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                         color="#0F172A"
                         style={{ marginTop: 4 }}
                       >
-                        {st.nameEn}
+                        {dept.nameEn}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -594,12 +593,12 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
 
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
-                {NETWORK_SIZES.map((ns) => {
-                  const isSelected = networkSize === ns.code;
+                {ADMIN_CLEARANCE_LEVELS.map((cl) => {
+                  const isSelected = clearanceLevel === cl.code;
                   return (
                     <TouchableOpacity
-                      key={ns.code}
-                      onPress={() => setNetworkSize(ns.code)}
+                      key={cl.code}
+                      onPress={() => setClearanceLevel(cl.code)}
                       style={[
                         styles.networkSizePill,
                         isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
@@ -610,7 +609,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                         weight="bold"
                         color={isSelected ? roleColor : '#475569'}
                       >
-                        {ns.label}
+                        {cl.label}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -631,15 +630,15 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                 <Text variant="bodyLarge" weight="bold" color="#0F172A">
                   {role === 'BUYER'
                     ? 'Operating / Sourcing Location (स्थान)'
-                    : role === 'FACILITATOR'
-                    ? 'Cluster Center Location (क्लस्टर स्थान)'
+                    : role === 'ADMIN'
+                    ? 'Operations HQ Location (मुख्यालय स्थान)'
                     : 'Workshop Location (स्थान)'}
                 </Text>
                 <Text variant="caption" color="#64748B">
                   {role === 'BUYER'
                     ? 'Primary delivery city & sourcing state'
-                    : role === 'FACILITATOR'
-                    ? 'Sahyogi cluster operating center'
+                    : role === 'ADMIN'
+                    ? 'National operations and compliance center'
                     : 'Aapki karyashala ya cluster ka pata (LGD Official)'}
                 </Text>
               </View>

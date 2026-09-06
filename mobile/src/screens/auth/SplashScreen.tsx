@@ -42,13 +42,30 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
 
+  const { isAuthenticated, user, activeRole, isLoading, setSession } = useAuthStore();
+  const { setLocale } = useAppStore();
+  const hasCompletedProfile = !isLoading && (isAuthenticated || !!user?.isProfileComplete);
+
   const doNavigate = () => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    navigation.replace('Onboarding');
+    if (hasCompletedProfile) {
+      const role = activeRole || user?.role || 'ARTISAN';
+      navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
+    } else {
+      navigation.replace('Onboarding');
+    }
   };
 
-  const { setSession } = useAuthStore();
-  const { setLocale } = useAppStore();
+  useEffect(() => {
+    if (hasCompletedProfile) {
+      if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+      if (soundRef.current) {
+        soundRef.current.stopAsync().catch(() => {});
+      }
+      const role = activeRole || user?.role || 'ARTISAN';
+      navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
+    }
+  }, [hasCompletedProfile, activeRole, user?.role, navigation]);
 
   const handleDevJump = async (role: UserRole) => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
@@ -93,21 +110,17 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         villageName: 'Central Market',
         isProfileComplete: true,
       },
-      FACILITATOR: {
-        id: 'demo_sahyogi_user',
-        phoneNumber: '9822334455',
-        fullName: 'Pooja Verma',
-        role: 'FACILITATOR',
-        preferredLanguage: 'hi_IN',
+      ADMIN: {
+        id: 'demo_admin_user',
+        phoneNumber: '9800011223',
+        fullName: 'Rajesh Sharma (Admin)',
+        role: 'ADMIN',
+        preferredLanguage: 'en_IN',
         countryId: 1,
-        stateId: 26,
-        districtId: 101,
-        subDistrictId: 1002,
-        state: 'Maharashtra',
-        district: 'Kolhapur',
-        subDistrict: 'Hatkanangle',
-        villageName: 'Hupari Silver Hub',
-        shgOrFacilitatorCode: 'MAHALAXMI_SHG_01',
+        stateId: 7,
+        districtId: 1,
+        state: 'Delhi',
+        district: 'New Delhi',
         isProfileComplete: true,
       },
     };
@@ -127,7 +140,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       const roleLabel =
         role === 'ARTISAN' ? 'Artisans' :
         role === 'BUYER' ? 'Buyer' :
-        role === 'FACILITATOR' ? 'Sahyogi' : '';
+        role === 'ADMIN' ? 'Command Center' : '';
       document.title = `Kalakar Setu ~ ${roleLabel}`;
     }
     navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
@@ -357,12 +370,12 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              testID="dev-jump-sahyogi"
-              style={[styles.devRoleBtn, { backgroundColor: '#16A34A' }]}
-              onPress={() => handleDevJump('FACILITATOR')}
+              testID="dev-jump-admin"
+              style={[styles.devRoleBtn, { backgroundColor: '#6366F1' }]}
+              onPress={() => handleDevJump('ADMIN')}
               activeOpacity={0.8}
             >
-              <Text style={styles.devRoleBtnText}>🤝 Sahyogi</Text>
+              <Text style={styles.devRoleBtnText}>🛡️ Admin</Text>
             </TouchableOpacity>
           </View>
         </View>
