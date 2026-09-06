@@ -15,6 +15,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { Text } from '@/components/typography/Text';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ProductTile {
   id: string;
@@ -23,42 +24,43 @@ interface ProductTile {
   imageUrl: string;
 }
 
-const ARTISAN_PRODUCTS: ProductTile[] = [
-  {
-    id: 'prod_1',
-    name: 'Terracotta Diya',
-    price: '₹145 / piece',
-    imageUrl:
-      'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
-  },
-  {
-    id: 'prod_2',
-    name: 'Handmade Pot',
-    price: '₹350 / piece',
-    imageUrl:
-      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
-  },
-];
-
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isOnline } = useAppStore();
   const { user } = useAuthStore();
+  const { t, isHindi } = useTranslation();
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  const artisanProducts: ProductTile[] = [
+    {
+      id: 'prod_1',
+      name: t.artisan.terracottaDiya,
+      price: `₹145 ${t.artisan.perPiece}`,
+      imageUrl:
+        'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+    },
+    {
+      id: 'prod_2',
+      name: t.artisan.handmadePot,
+      price: `₹350 ${t.artisan.perPiece}`,
+      imageUrl:
+        'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+    },
+  ];
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.title = 'Kalakar Setu ~ Artisans';
+      document.title = isHindi ? 'कलाकार सेतु ~ कारीगर' : 'Kalakar Setu ~ Artisans';
     }
-  }, []);
+  }, [isHindi]);
 
-  const artisanName = user?.fullName || 'Ramesh';
+  const artisanName = user?.fullName || (isHindi ? 'रमेश कुंभार' : 'Ramesh Kumbhar');
 
   const handleVoiceGreeting = () => {
     setIsPlayingAudio(true);
     Alert.alert(
-      '🗣️ Voice Saathi Greeting',
-      `"Namaste, ${artisanName}! Welcome back to your workshop. You have 1,114k rupees in earnings, 3 active orders, and 2 new bulk opportunities."`,
+      '🗣️ Voice Saathi',
+      t.artisan.voiceGreetingText,
       [{ text: 'OK', onPress: () => setIsPlayingAudio(false) }]
     );
   };
@@ -74,7 +76,7 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.offlineBanner}>
           <Text style={{ fontSize: 14, marginRight: 6 }}>☁️</Text>
           <Text variant="caption" weight="bold" color="#FFFFFF">
-            No internet connection
+            {t.profile.offlineMode}
           </Text>
         </View>
       )}
@@ -89,10 +91,10 @@ export const HomeScreen: React.FC = () => {
           />
           <View>
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
-              Kalakar Setu
+              {t.common.appName}
             </Text>
             <View style={styles.roleBadgePill}>
-              <Text style={styles.roleBadgeText}>🏺 ARTISAN STUDIO</Text>
+              <Text style={styles.roleBadgeText}>🏺 {t.artisan.badge}</Text>
             </View>
           </View>
         </View>
@@ -115,10 +117,10 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.greetingSection}>
           <View style={styles.greetingTextContainer}>
             <Text variant="headlineMedium" weight="bold" color="#2b2b2b" style={styles.namasteTitle}>
-              Namaste, {artisanName}!
+              {t.artisan.namaste}, {artisanName}!
             </Text>
             <Text variant="bodySmall" color="#737373" style={styles.workshopSubtitle}>
-              Welcome back to your workshop.
+              {t.artisan.welcomeBack}
             </Text>
           </View>
 
@@ -136,7 +138,7 @@ export const HomeScreen: React.FC = () => {
           {/* Earnings Tile */}
           <View style={styles.kpiCard}>
             <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              EARNINGS
+              {t.artisan.earningsLabel}
             </Text>
             <Text variant="headlineSmall" weight="bold" color="#e85d2a" style={styles.kpiValue}>
               ₹1,114k
@@ -146,7 +148,7 @@ export const HomeScreen: React.FC = () => {
           {/* Orders Tile */}
           <View style={styles.kpiCard}>
             <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              ORDERS
+              {t.artisan.ordersLabel}
             </Text>
             <Text variant="headlineSmall" weight="bold" color="#1b9aaa" style={styles.kpiValue}>
               3
@@ -156,7 +158,7 @@ export const HomeScreen: React.FC = () => {
           {/* Opps Tile */}
           <View style={styles.kpiCard}>
             <Text variant="caption" weight="bold" color="#737373" style={styles.kpiLabel}>
-              OPPS
+              {t.artisan.oppsLabel}
             </Text>
             <Text variant="headlineSmall" weight="bold" color="#f4b942" style={styles.kpiValue}>
               2
@@ -179,10 +181,10 @@ export const HomeScreen: React.FC = () => {
             </View>
           </View>
           <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={styles.createProductTitle}>
-            Create New Product
+            {t.artisan.createProductHero}
           </Text>
           <Text variant="caption" color="rgba(255, 255, 255, 0.85)">
-            Tap to start with a photo or voice
+            {t.artisan.createProductHeroSub}
           </Text>
         </TouchableOpacity>
 
@@ -191,16 +193,16 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.sectionHeaderRow}>
             <View style={{ flex: 1 }}>
               <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-                ⚡ 6 Core Killer Features
+                ⚡ {t.artisan.coreFeaturesTitle}
               </Text>
               <Text variant="caption" color="#737373">
-                Tap any feature to experience the live working flow
+                {t.artisan.coreFeaturesSub}
               </Text>
             </View>
             <View style={styles.liveBadgePill}>
               <Text style={styles.liveBadgeDot}>●</Text>
               <Text variant="caption" weight="bold" color="#16A34A">
-                LIVE DEMO
+                {t.artisan.liveDemo}
               </Text>
             </View>
           </View>
@@ -218,14 +220,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
-                    KILLER #1
+                    {isHindi ? 'विशेष सुविधा #1' : 'KILLER #1'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Smart Catalogue
+                  {t.artisan.aiCatalogue}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Photo + Voice → Auto-clean background & craft recognition
+                  {t.artisan.aiCatalogueDesc}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -243,14 +245,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
-                    KILLER #2
+                    {isHindi ? 'विशेष सुविधा #2' : 'KILLER #2'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Voice Saathi Interview
+                  {t.artisan.voiceSaathiInterview}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Conversational AI Q&A in vernacular language (Zero typing)
+                  {t.artisan.voiceSaathiInterviewDesc}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -268,14 +270,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
-                    KILLER #3
+                    {isHindi ? 'विशेष सुविधा #3' : 'KILLER #3'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Explainable Fair Price Advisor
+                  {t.artisan.fairPriceAdvisor}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Shows WHY: Materials + Labour + Complexity = Suggested Price
+                  {t.artisan.fairPriceAdvisorDesc}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -293,14 +295,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
-                    KILLER #4
+                    {isHindi ? 'विशेष सुविधा #4' : 'KILLER #4'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Digital Craft Passport
+                  {t.artisan.qrPassport}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  QR-linked provenance, artisan audio story & batch traceability
+                  {t.artisan.qrPassportDesc}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -320,14 +322,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
-                    KILLER #5
+                    {isHindi ? 'विशेष सुविधा #5' : 'KILLER #5'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Bulk Order → Smart Cluster
+                  {isHindi ? 'एआई थोक ऑर्डर एवं क्लस्टर' : 'AI Bulk Order → Smart Cluster'}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  5,000 Diya order pooled across 5 local artisans automatically
+                  {isHindi ? '5,000 दीयों का ऑर्डर 5 स्थानीय कारीगरों में स्वचालित रूप से विभाजित' : '5,000 Diya order pooled across 5 local artisans automatically'}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -347,14 +349,14 @@ export const HomeScreen: React.FC = () => {
               <View style={{ flex: 1 }}>
                 <View style={styles.killerBadgeRow}>
                   <Text style={[styles.killerPill, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
-                    KILLER #6
+                    {isHindi ? 'विशेष सुविधा #6' : 'KILLER #6'}
                   </Text>
                 </View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Digital Production Brief & Tracking
+                  {isHindi ? 'डिजिटल उत्पादन विवरण पत्र' : 'Digital Production Brief & Tracking'}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Standardized specs (dimensions, clay) + live collective progress
+                  {isHindi ? 'मानकीकृत विनिर्देश एवं सामूहिक लाइव प्रगति' : 'Standardized specs (dimensions, clay) + live collective progress'}
                 </Text>
               </View>
               <Text style={styles.arrowIcon}>›</Text>
@@ -372,13 +374,15 @@ export const HomeScreen: React.FC = () => {
         {/* My Products Reel Section */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            My Products
+            {t.artisan.myProducts}
           </Text>
           <TouchableOpacity
             style={styles.audioSpeakerBtn}
             onPress={() =>
               handleSpeakText(
-                'Your Products. Terracotta Diya selling at 45 rupees per piece, and Handmade Pot at 350 rupees per piece.'
+                isHindi
+                  ? 'आपके उत्पाद। टेराकोटा दीया 145 रुपये प्रति नग, और हस्तनिर्मित मिट्टी का पात्र 350 रुपये प्रति नग।'
+                  : 'Your Products. Terracotta Diya selling at 145 rupees per piece, and Handmade Pot at 350 rupees per piece.'
               )
             }
             accessibilityLabel="Read products section aloud"
@@ -393,7 +397,7 @@ export const HomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.productsReel}
         >
-          {ARTISAN_PRODUCTS.map((item) => (
+          {artisanProducts.map((item) => (
             <View key={item.id} style={styles.productTileCard}>
               <Image source={{ uri: item.imageUrl }} style={styles.tileImg} resizeMode="cover" />
               <View style={styles.tileInfo}>
@@ -413,7 +417,7 @@ export const HomeScreen: React.FC = () => {
           >
             <Text style={{ fontSize: 28, color: '#737373', marginBottom: 4 }}>⊕</Text>
             <Text variant="caption" weight="bold" color="#737373">
-              View All
+              {t.artisan.viewAllProducts}
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -428,13 +432,15 @@ export const HomeScreen: React.FC = () => {
         {/* New Opportunities Section (Stitch Exact Card) */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            New Opportunities
+            {t.artisan.newOpportunities}
           </Text>
           <TouchableOpacity
             style={styles.audioSpeakerBtn}
             onPress={() =>
               handleSpeakText(
-                'New Opportunities. Bulk order request from corporate gifting client for 500 hand-painted clay items. Estimated value 25 thousand rupees.'
+                isHindi
+                  ? 'नए अवसर। 500 हस्तनिर्मित मिट्टी के उत्पादों के लिए कॉर्पोरेट उपहार का थोक ऑर्डर अनुरोध। अनुमानित मूल्य 25 हजार रुपये।'
+                  : 'New Opportunities. Bulk order request from corporate gifting client for 500 hand-painted clay items. Estimated value 25 thousand rupees.'
               )
             }
             accessibilityLabel="Read opportunities section aloud"
@@ -447,10 +453,10 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.oppTopRow}>
             <View style={{ flex: 1 }}>
               <Text variant="headlineSmall" weight="bold" color="#0E535C">
-                Bulk Order Request
+                {t.artisan.bulkOrderRequest}
               </Text>
               <Text variant="bodySmall" color="#147582" style={{ marginTop: 2 }}>
-                Corporate gifting client seeking 500 hand-painted clay items.
+                {t.artisan.bulkOrderDesc}
               </Text>
             </View>
           </View>
@@ -459,12 +465,12 @@ export const HomeScreen: React.FC = () => {
             <View style={styles.matchTag}>
               <Text style={{ fontSize: 11, marginRight: 4, color: '#FFFFFF' }}>✓</Text>
               <Text variant="caption" weight="bold" color="#FFFFFF">
-                Match: Pottery
+                {t.artisan.matchPottery}
               </Text>
             </View>
             <View style={styles.estTag}>
               <Text variant="caption" weight="bold" color="#0E535C">
-                Est: ₹25k
+                {t.artisan.estValue}
               </Text>
             </View>
           </View>
@@ -474,7 +480,7 @@ export const HomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('MainTabs', { screen: 'BulkDealsTab' })}
           >
             <Text variant="bodySmall" weight="bold" color="#FFFFFF">
-              Review Details
+              {t.artisan.reviewDetails}
             </Text>
           </TouchableOpacity>
         </View>
@@ -482,13 +488,15 @@ export const HomeScreen: React.FC = () => {
         {/* Schemes & Support Section (Stitch Exact Card) */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
-            Schemes & Support
+            {t.artisan.schemesAndSupport}
           </Text>
           <TouchableOpacity
             style={styles.audioSpeakerBtn}
             onPress={() =>
               handleSpeakText(
-                'Schemes and Support. Artisan Credit Card. Apply for low interest loans designed specifically for craftspeople.'
+                isHindi
+                  ? 'सरकारी योजनाएं एवं सहायता। कारीगर क्रेडिट कार्ड। शिल्पकारों के लिए विशेष रियायती ब्याज दर पर ऋण सुविधा।'
+                  : 'Schemes and Support. Artisan Credit Card. Apply for low interest loans designed specifically for craftspeople.'
               )
             }
             accessibilityLabel="Read schemes section aloud"
@@ -501,8 +509,10 @@ export const HomeScreen: React.FC = () => {
           style={styles.schemeCard}
           onPress={() =>
             Alert.alert(
-              '💳 Artisan Credit Card Scheme',
-              'Apply for Mudra / PM Vishwakarma low-interest loans (5% subsidised) designed specifically for verified traditional artisans.'
+              isHindi ? '💳 कारीगर क्रेडिट कार्ड योजना' : '💳 Artisan Credit Card Scheme',
+              isHindi
+                ? 'सत्यापित पारंपरिक शिल्पकारों के लिए मुद्रा / पीएम विश्वकर्मा 5% रियायती ऋण के लिए आवेदन करें।'
+                : 'Apply for Mudra / PM Vishwakarma low-interest loans (5% subsidised) designed specifically for verified traditional artisans.'
             )
           }
           activeOpacity={0.88}
@@ -512,10 +522,10 @@ export const HomeScreen: React.FC = () => {
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text variant="bodyMedium" weight="bold" color="#2b2b2b">
-              Artisan Credit Card
+              {t.artisan.artisanCreditCard}
             </Text>
             <Text variant="bodySmall" color="#737373" numberOfLines={2} style={{ marginTop: 2 }}>
-              Apply for low-interest loans designed specifically for craftspeople.
+              {t.artisan.artisanCreditCardDesc}
             </Text>
           </View>
           <Text style={{ fontSize: 18, color: '#A3A3A3' }}>›</Text>

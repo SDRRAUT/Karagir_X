@@ -17,6 +17,7 @@ import { Text } from '@/components/typography/Text';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FlashProduct {
   id: string;
@@ -32,8 +33,8 @@ interface FlashProduct {
 const FLASH_PRODUCTS: FlashProduct[] = [
   {
     id: 'prod_flash_1',
-    title: 'Terracotta Diya (Set o...',
-    artisan: 'Ramesh Kumbhar, Kolhap...',
+    title: 'Terracotta Diya (Set of 4)',
+    artisan: 'Ramesh Kumbhar, Kolhapur',
     price: 149,
     originalPrice: 299,
     discountBadge: '50% OFF',
@@ -43,7 +44,7 @@ const FLASH_PRODUCTS: FlashProduct[] = [
   },
   {
     id: 'prod_flash_2',
-    title: 'Handwoven Chande...',
+    title: 'Handwoven Chanderi Saree',
     artisan: 'GI Tagged Chanderi',
     price: 799,
     originalPrice: 1599,
@@ -98,20 +99,13 @@ const FLASH_PRODUCTS: FlashProduct[] = [
   },
 ];
 
-const CATEGORIES = [
-  { id: 'all', label: 'Top Deals', icon: '🔥', activeColor: '#EA580C', bgColor: '#FFF7ED' },
-  { id: 'POTTERY', label: 'Terracotta', icon: '🏺', activeColor: '#7C2D12', bgColor: '#F8FAFC' },
-  { id: 'TEXTILE', label: 'Handloom Silk', icon: '🧵', activeColor: '#0369A1', bgColor: '#F8FAFC' },
-  { id: 'METAL', label: 'Brass & Metal', icon: '🔔', activeColor: '#B45309', bgColor: '#F8FAFC' },
-  { id: 'WOOD', label: 'Wood', icon: '🪵', activeColor: '#4D7C0F', bgColor: '#F8FAFC' },
-];
-
 export const MarketplaceHomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
   const addItemToCart = useCartStore((s) => s.addItem);
   const isInWishlist = useWishlistStore((s) => s.isInWishlist);
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const { t, isHindi } = useTranslation();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -119,12 +113,20 @@ export const MarketplaceHomeScreen: React.FC = () => {
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('Home');
 
+  const categories = [
+    { id: 'all', label: t.buyer.topDeals, icon: '🔥', activeColor: '#EA580C', bgColor: '#FFF7ED' },
+    { id: 'POTTERY', label: t.buyer.pottery, icon: '🏺', activeColor: '#7C2D12', bgColor: '#F8FAFC' },
+    { id: 'TEXTILE', label: t.buyer.handloom, icon: '🧵', activeColor: '#0369A1', bgColor: '#F8FAFC' },
+    { id: 'METAL', label: t.buyer.metal, icon: '🔔', activeColor: '#B45309', bgColor: '#F8FAFC' },
+    { id: 'WOOD', label: t.buyer.wood, icon: '🪵', activeColor: '#4D7C0F', bgColor: '#F8FAFC' },
+  ];
+
   // Live Flash Deals Countdown Timer (04h 18m 14s)
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 14 });
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.title = 'Kalakar Setu ~ Buyer';
+      document.title = isHindi ? 'कलाकार सेतु ~ खरीदार' : 'Kalakar Setu ~ Buyer';
     }
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -142,13 +144,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isHindi]);
 
   const formatTimer = () => {
     const h = String(timeLeft.hours).padStart(2, '0');
     const m = String(timeLeft.minutes).padStart(2, '0');
     const s = String(timeLeft.seconds).padStart(2, '0');
-    return `${h}h ${m}m ${s}s`;
+    return isHindi ? `${h}घं ${m}मि ${s}से` : `${h}h ${m}m ${s}s`;
   };
 
   const filteredProducts = FLASH_PRODUCTS.filter((p) => {
@@ -172,10 +174,10 @@ export const MarketplaceHomeScreen: React.FC = () => {
               resizeMode="contain"
             />
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.appTitle}>
-              Kalakar Setu
+              {t.common.appName}
             </Text>
             <View style={styles.buyerBadgePill}>
-              <Text style={styles.buyerBadgeText}>🛍️ BUYER</Text>
+              <Text style={styles.buyerBadgeText}>🛍️ {t.buyer.badge}</Text>
             </View>
           </View>
           <TouchableOpacity
@@ -184,7 +186,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             activeOpacity={0.7}
           >
             <Text variant="bodySmall" weight="medium" color="#64748B">
-              📍 {selectedAddress}
+              📍 {selectedAddress === 'Home' ? t.buyer.home : selectedAddress}
             </Text>
             <Text style={styles.chevronIcon}> ⌵</Text>
           </TouchableOpacity>
@@ -236,7 +238,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <Text style={styles.searchMagnifier}>🔍</Text>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search artisan sarees, blue po..."
+            placeholder={t.buyer.searchPlaceholder}
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -267,7 +269,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryScroll}
         >
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
               <TouchableOpacity
@@ -301,6 +303,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           })}
         </ScrollView>
 
+
         {/* 4. Diwali Craft Utsav Hero Feature Card */}
         <View style={styles.heroCard}>
           {/* Subtle Craft Star Watermark in Background */}
@@ -312,24 +315,24 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <View style={styles.heroBadgeRow}>
             <View style={styles.diwaliPill}>
               <Text variant="caption" weight="bold" color="#FFFFFF">
-                DIWALI CRAFT UTSAV
+                {t.buyer.diwaliHeroBadge}
               </Text>
             </View>
             <View style={styles.festiveHubPill}>
               <Text variant="caption" weight="bold" color="#FFFFFF">
-                ✨ Festive Hub
+                ✨ {t.buyer.festiveHub}
               </Text>
             </View>
           </View>
 
           {/* Headline */}
           <Text variant="headlineMedium" weight="bold" color="#FFFFFF" style={styles.heroTitle}>
-            100% Direct from Rural Master Artisans
+            {t.buyer.heroDirectTitle}
           </Text>
 
           {/* Subtitle */}
           <Text variant="bodySmall" color="#FDE68A" style={styles.heroSubtitle}>
-            Zero commission markup. Pure handloom & handcraft with authentic GI pedigree.
+            {t.buyer.heroDirectSub}
           </Text>
 
           {/* CTA Button */}
@@ -339,7 +342,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             activeOpacity={0.88}
           >
             <Text variant="bodyMedium" weight="bold" color="#7C2D12">
-              Shop Direct →
+              {t.buyer.shopDirect}
             </Text>
           </TouchableOpacity>
         </View>
@@ -349,16 +352,16 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <View style={styles.killerHubHeader}>
             <View style={{ flex: 1 }}>
               <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                ⚡ 6 Core Killer Features
+                ⚡ {t.artisan.coreFeaturesTitle}
               </Text>
               <Text variant="caption" color="#64748B">
-                Tap any feature to launch the live working experience
+                {t.artisan.coreFeaturesSub}
               </Text>
             </View>
             <View style={styles.livePill}>
               <Text style={styles.liveDot}>●</Text>
               <Text variant="caption" weight="bold" color="#16A34A">
-                INTERACTIVE
+                {t.buyer.coreFeaturesInteractive}
               </Text>
             </View>
           </View>
@@ -375,13 +378,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
-                  KILLER #1 • CATALOGUE
+                  {isHindi ? 'विशेष #1 • कैटलॉग' : 'KILLER #1 • CATALOGUE'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Smart Catalogue
+                  {t.artisan.aiCatalogue}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Photo + Voice → Auto-clean background & craft categorization
+                  {t.artisan.aiCatalogueDesc}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -398,13 +401,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
-                  KILLER #2 • VOICE SAATHI
+                  {isHindi ? 'विशेष #2 • आवाज़ साथी' : 'KILLER #2 • VOICE SAATHI'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Interview / Voice Saathi
+                  {t.artisan.voiceSaathiInterview}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Conversational Q&A in artisan's language (Zero typing)
+                  {t.artisan.voiceSaathiInterviewDesc}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -421,13 +424,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
-                  KILLER #3 • FAIR PRICING
+                  {isHindi ? 'विशेष #3 • उचित मूल्य' : 'KILLER #3 • FAIR PRICING'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Explainable Fair Price Advisor
+                  {t.artisan.fairPriceAdvisor}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Shows WHY: Material + Time + Complexity = Suggested Price
+                  {t.artisan.fairPriceAdvisorDesc}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -444,13 +447,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
-                  KILLER #4 • CRAFT PASSPORT
+                  {isHindi ? 'विशेष #4 • शिल्प पासपोर्ट' : 'KILLER #4 • CRAFT PASSPORT'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  GI & Digital Craft Passport
+                  {t.artisan.qrPassport}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  QR-linked provenance, audio story, and batch verification
+                  {t.artisan.qrPassportDesc}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -469,13 +472,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
-                  KILLER #5 • SMART CLUSTER
+                  {isHindi ? 'विशेष #5 • क्लस्टर ऑर्डर' : 'KILLER #5 • SMART CLUSTER'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Bulk Order → Smart Cluster
+                  {isHindi ? 'एआई थोक ऑर्डर एवं क्लस्टर' : 'AI Bulk Order → Smart Cluster'}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  5,000 Units order pooled across 5 local artisans automatically
+                  {isHindi ? '5,000 इकाइयों का ऑर्डर 5 स्थानीय कारीगरों में स्वचालित रूप से विभाजित' : '5,000 Units order pooled across 5 local artisans automatically'}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -494,13 +497,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.killerTag, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
-                  KILLER #6 • BRIEF & TRACKING
+                  {isHindi ? 'विशेष #6 • उत्पादन विवरण' : 'KILLER #6 • BRIEF & TRACKING'}
                 </Text>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Production Brief & Collective Tracking
+                  {isHindi ? 'डिजिटल उत्पादन विवरण पत्र' : 'Production Brief & Collective Tracking'}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  Shared specs (dimensions, clay) + unified live progress view
+                  {isHindi ? 'मानकीकृत विनिर्देश एवं सामूहिक लाइव प्रगति' : 'Shared specs (dimensions, clay) + unified live progress view'}
                 </Text>
               </View>
               <Text style={styles.killerArrow}>›</Text>
@@ -514,11 +517,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
             <View style={styles.flashTitleRow}>
               <Text style={styles.lightningIcon}>⚡</Text>
               <Text variant="bodyLarge" weight="bold" color="#0F172A" style={styles.sectionTitle}>
-                Artisan Flash Deals
+                {t.buyer.flashDealsTitle}
               </Text>
             </View>
             <Text variant="caption" color="#64748B" style={styles.sectionSubtitle}>
-              Limited batch studio clearances
+              {t.buyer.flashDealsSubtitle}
             </Text>
           </View>
 
@@ -604,7 +607,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                     }}
                   >
                     <Text variant="caption" weight="bold" color="#EA580C">
-                      + Add to Cart
+                      + {t.buyer.addToCart}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -619,10 +622,10 @@ export const MarketplaceHomeScreen: React.FC = () => {
             <Text style={{ fontSize: 24, marginRight: 12 }}>🛡️</Text>
             <View style={{ flex: 1 }}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                Kalakar Setu Direct Escrow Guarantee
+                {t.buyer.escrowGuaranteeTitle}
               </Text>
               <Text variant="caption" color="#64748B">
-                0% Middleman Commission • 100% Direct Payout to Rural SHG Artisans • Authentic GI Certified
+                {t.buyer.escrowGuaranteeSub}
               </Text>
             </View>
           </View>
@@ -630,12 +633,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
           {/* Quick Switch to Artisan Studio */}
           <TouchableOpacity
             style={styles.artisanStudioBtn}
-            onPress={() => {
-              useAuthStore.getState().updateProfile({ role: 'ARTISAN' });
+            onPress={async () => {
+              useAuthStore.getState().setActiveRole('ARTISAN');
+              await useAuthStore.getState().updateProfile({ role: 'ARTISAN' });
             }}
           >
             <Text variant="caption" weight="bold" color="#4338CA">
-              🎨 Are you an Artisan? Switch to Seller Studio & Ledger →
+              🎨 {t.buyer.switchToArtisanPrompt}
             </Text>
           </TouchableOpacity>
         </View>
@@ -650,7 +654,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
         >
           <View style={styles.modalContent}>
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.modalTitle}>
-              Select Location & Role
+              {t.buyer.locationModalTitle}
             </Text>
 
             <TouchableOpacity
@@ -663,7 +667,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
               <Text style={{ fontSize: 20, marginRight: 10 }}>🏠</Text>
               <View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Home (Primary Delivery)
+                  {t.buyer.primaryHomeAddress}
                 </Text>
                 <Text variant="caption" color="#64748B">
                   Sector 14, New Delhi - 110001
@@ -681,7 +685,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
               <Text style={{ fontSize: 20, marginRight: 10 }}>🎨</Text>
               <View>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Artisan Studio (Sunita Devi)
+                  {t.buyer.artisanStudioAddress}
                 </Text>
                 <Text variant="caption" color="#64748B">
                   Ranti Village, Madhubani, Bihar - 847211
@@ -694,7 +698,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
               onPress={() => setShowLocationModal(false)}
             >
               <Text variant="bodyMedium" weight="bold" color="#64748B">
-                Close
+                {t.common.cancel}
               </Text>
             </TouchableOpacity>
           </View>
@@ -710,16 +714,16 @@ export const MarketplaceHomeScreen: React.FC = () => {
         >
           <View style={styles.modalContent}>
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.modalTitle}>
-              🔔 Notifications
+              🔔 {t.buyer.notificationsTitle}
             </Text>
             <View style={styles.notificationItem}>
               <Text style={{ fontSize: 18, marginRight: 10 }}>✨</Text>
               <View style={{ flex: 1 }}>
                 <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Diwali Flash Deals Live
+                  {t.buyer.notificationDiwaliTitle}
                 </Text>
                 <Text variant="caption" color="#64748B">
-                  50% off on handloom silk & authentic terracotta diyas direct from artisans.
+                  {t.buyer.notificationDiwaliDesc}
                 </Text>
               </View>
             </View>
@@ -728,7 +732,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
               onPress={() => setShowNotificationModal(false)}
             >
               <Text variant="bodyMedium" weight="bold" color="#64748B">
-                Dismiss
+                {t.buyer.dismiss}
               </Text>
             </TouchableOpacity>
           </View>

@@ -61,7 +61,10 @@ describe('SplashScreen', () => {
       fireEvent.press(getByTestId('dev-jump-artisan'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', { screen: 'HomeTab' });
+    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
+      screen: 'HomeTab',
+      params: { role: 'ARTISAN' },
+    });
   });
 
   it('allows dev quick jump directly to Buyer Dashboard with prefilled demo account', async () => {
@@ -75,7 +78,10 @@ describe('SplashScreen', () => {
       fireEvent.press(getByTestId('dev-jump-buyer'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', { screen: 'HomeTab' });
+    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
+      screen: 'HomeTab',
+      params: { role: 'BUYER' },
+    });
   });
 
   it('allows dev quick jump directly to Sahyogi Dashboard with prefilled demo account', async () => {
@@ -89,7 +95,10 @@ describe('SplashScreen', () => {
       fireEvent.press(getByTestId('dev-jump-sahyogi'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', { screen: 'HomeTab' });
+    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
+      screen: 'HomeTab',
+      params: { role: 'FACILITATOR' },
+    });
   });
 });
 

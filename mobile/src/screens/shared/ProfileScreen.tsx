@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
@@ -9,6 +9,7 @@ import { TactileKeypad } from '@/components/inputs/TactileKeypad';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -17,59 +18,61 @@ export const ProfileScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { locale, setLocale, isOnline, setOnlineStatus } = useAppStore();
-  const { user, logout } = useAuthStore();
+  const { user, activeRole, setActiveRole, updateProfile, logout } = useAuthStore();
+  const { t, isHindi } = useTranslation();
   const [showPinPad, setShowPinPad] = useState(false);
   const [pinDigits, setPinDigits] = useState('');
   const [joinedClub, setJoinedClub] = useState(false);
 
   const languages: { code: SupportedLocale; name: string; native: string }[] = [
-    { code: 'hi_IN', name: 'Hindi', native: '🇮🇳 हिन्दी' },
-    { code: 'en_IN', name: 'English', native: 'English' },
-    { code: 'bn_IN', name: 'Bengali', native: 'বাংলা' },
-    { code: 'ta_IN', name: 'Tamil', native: 'தமிழ்' },
+    { code: 'hi_IN', name: 'हिन्दी', native: '🇮🇳 हिन्दी' },
+    { code: 'en_IN', name: 'English', native: '🇬🇧 English' },
   ];
 
   const showcaseCrafts = [
     {
       id: 'sc-1',
-      title: 'Terracotta Diyas',
+      title: isHindi ? 'टेराकोटा दीया' : 'Terracotta Diyas',
       price: '₹45',
-      pack: 'pack of 4',
-      badge: 'Active',
+      pack: isHindi ? '4 का सेट' : 'pack of 4',
+      badge: isHindi ? 'सक्रिय' : 'Active',
       image: 'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=400&q=80',
     },
     {
       id: 'sc-2',
-      title: 'Traditional Clay Handi',
+      title: isHindi ? 'पारंपरिक मिट्टी की हांडी' : 'Traditional Clay Handi',
       price: '₹350',
       pack: '2.5 L',
-      badge: 'Bestseller',
+      badge: isHindi ? 'सर्वश्रेष्ठ बिक्री' : 'Bestseller',
       image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=400&q=80',
     },
     {
       id: 'sc-3',
-      title: 'Sculpted Planters',
+      title: isHindi ? 'नक्काशीदार गमले' : 'Sculpted Planters',
       price: '₹280',
-      pack: 'Medium',
-      badge: 'Popular',
+      pack: isHindi ? 'मध्यम आकार' : 'Medium',
+      badge: isHindi ? 'लोकप्रिय' : 'Popular',
       image: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=400&q=80',
     },
     {
       id: 'sc-4',
-      title: 'Terracotta Bells',
+      title: isHindi ? 'टेराकोटा घंटियां' : 'Terracotta Bells',
       price: '₹210',
-      pack: 'Trio set',
-      badge: 'Festive',
+      pack: isHindi ? '3 का सेट' : 'Trio set',
+      badge: isHindi ? 'त्योहारी' : 'Festive',
       image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80',
     },
   ];
 
-  const role = user?.role || 'ARTISAN';
+  const role = activeRole || user?.role || 'ARTISAN';
   const isBuyer = role === 'BUYER';
   const isFacilitator = role === 'FACILITATOR';
+  const isArtisan = role === 'ARTISAN';
+
   const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isFacilitator ? 'Pooja Verma' : 'Ramesh Kumbhar');
   const roleThemeColor = isBuyer ? '#4338CA' : isFacilitator ? '#16A34A' : theme.colors.terracotta.primary;
-  const roleLightBg = isBuyer ? '#EEF2FF' : isFacilitator ? '#F0FDF4' : 'rgba(108, 99, 255, 0.12)';
+  const roleLightBg = isBuyer ? '#EEF2FF' : isFacilitator ? '#F0FDF4' : 'rgba(234, 88, 12, 0.1)';
+
   const locationParts = [
     user?.villageName,
     user?.subDistrict,
@@ -79,17 +82,24 @@ export const ProfileScreen: React.FC = () => {
   const roleLocation = locationParts.length > 0
     ? locationParts.join(', ')
     : (isBuyer ? 'Delhi NCR, New Delhi' : isFacilitator ? 'Kolhapur Cluster, Maharashtra' : 'Kolhapur, Maharashtra');
+
   const roleTagline = isBuyer
-    ? 'Verified Buyer & Collector • Patron Member'
+    ? t.profile.buyerSubtitle
     : isFacilitator
-    ? 'Cluster Field Lead • SHG Desk Head'
-    : 'Terracotta & Pottery Craftsman • Level 3';
+    ? t.profile.sahyogiSubtitle
+    : t.profile.artisanSubtitle;
+
+  const avatarSource = isBuyer
+    ? require('../../../assets/buyer_3d_avatar.jpg')
+    : isFacilitator
+    ? require('../../../assets/sahyogi_3d_avatar.jpg')
+    : require('../../../assets/artisan_3d_avatar.jpg');
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title={isBuyer ? "Buyer Hub" : isFacilitator ? "Sahyogi Desk" : "Kalakar Setu"}
-        subtitle={isBuyer ? "Buyer Account & Orders" : isFacilitator ? "Cluster Lead Hub" : "Artisan Account & Hub"}
+        title={isBuyer ? t.profile.buyerTitle : isFacilitator ? t.profile.sahyogiTitle : t.profile.artisanTitle}
+        subtitle={isBuyer ? t.profile.buyerSubtitle : isFacilitator ? t.profile.sahyogiSubtitle : t.profile.artisanSubtitle}
         showDevanagariLogo={true}
         onVoicePress={() => {}}
       />
@@ -99,16 +109,7 @@ export const ProfileScreen: React.FC = () => {
         <Card style={styles.profileCard}>
           <View style={styles.profileHeaderRow}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{
-                  uri: isBuyer
-                    ? 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80'
-                    : isFacilitator
-                    ? 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80'
-                    : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-                }}
-                style={styles.avatar}
-              />
+              <Image source={avatarSource} style={styles.avatar} />
               <View style={[styles.verifiedBadge, { backgroundColor: roleThemeColor }]}>
                 <Text style={styles.verifiedIcon}>✓</Text>
               </View>
@@ -142,13 +143,13 @@ export const ProfileScreen: React.FC = () => {
             <View style={[styles.trustBadge, { backgroundColor: roleLightBg }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>⭐</Text>
               <Text variant="labelSmall" weight="bold" color={roleThemeColor}>
-                {isBuyer ? 'Verified Buyer' : isFacilitator ? 'Cluster Lead' : 'Kalakar Setu Verified'}
+                {isBuyer ? t.profile.verifiedBuyer : isFacilitator ? t.profile.clusterLead : t.profile.verifiedArtisan}
               </Text>
             </View>
             <View style={[styles.trustBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
               <Text style={{ fontSize: 13, marginRight: 4 }}>📍</Text>
               <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                {isBuyer ? 'GI Certified Patron' : isFacilitator ? '25+ Artisans Covered' : 'GI Region Artisan'}
+                {isBuyer ? t.profile.giPatron : isFacilitator ? t.profile.shgCovered : t.profile.giArtisan}
               </Text>
             </View>
           </View>
@@ -159,20 +160,16 @@ export const ProfileScreen: React.FC = () => {
               <View style={styles.clubTitleRow}>
                 <Text style={{ fontSize: 16, marginRight: 4 }}>✨</Text>
                 <Text variant="labelMedium" weight="bold" color="#FFFFFF">
-                  {isBuyer ? 'Kalakar Setu Buyer Club' : isFacilitator ? 'Sahyogi Field Lead Desk' : 'Kalakar Artisan Club'}
+                  {isBuyer ? t.profile.buyerClubTitle : isFacilitator ? t.profile.sahyogiClubTitle : t.profile.artisanClubTitle}
                 </Text>
               </View>
               <Text variant="labelSmall" color="#E0DCFF" style={{ marginTop: 2 }}>
-                {isBuyer
-                  ? 'Curated artisan drops • express courier dispatch'
-                  : isFacilitator
-                  ? 'Bulk RFQ facilitation • QC audit desk'
-                  : '0% commission orders • 24h fast payouts'}
+                {isBuyer ? t.profile.buyerClubDesc : isFacilitator ? t.profile.sahyogiClubDesc : t.profile.artisanClubDesc}
               </Text>
             </View>
 
             <TouchableOpacity
-              style={[styles.clubJoinBtn, { backgroundColor: joinedClub ? '#6C63FF' : '#FFFFFF' }]}
+              style={[styles.clubJoinBtn, { backgroundColor: joinedClub ? '#4338CA' : '#FFFFFF' }]}
               onPress={() => setJoinedClub(!joinedClub)}
               activeOpacity={0.85}
             >
@@ -181,273 +178,488 @@ export const ProfileScreen: React.FC = () => {
                 weight="bold"
                 color={joinedClub ? '#FFFFFF' : roleThemeColor}
               >
-                {joinedClub ? 'Joined ✓' : 'Join >'}
+                {joinedClub ? t.profile.joined : t.profile.join}
               </Text>
             </TouchableOpacity>
           </View>
         </Card>
 
-        {/* Quick Utility Grid (2x2) */}
-        <View style={styles.utilityGrid}>
-          {/* Orders */}
-          <TouchableOpacity
-            style={styles.utilityTile}
-            onPress={() => navigation.navigate('Orders' as any)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(108, 99, 255, 0.15)' }]}>
-                <Text style={{ fontSize: 18 }}>🚚</Text>
-              </View>
-              <View style={[styles.tilePill, { backgroundColor: theme.colors.terracotta.primary }]}>
-                <Text variant="labelSmall" weight="bold" color="#FFFFFF">
-                  3 Active
-                </Text>
-              </View>
-            </View>
-            <View>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                My Orders
-              </Text>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                1 in production
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Wishlist */}
-          <TouchableOpacity
-            style={styles.utilityTile}
-            onPress={() => navigation.navigate('Wishlist')}
-            activeOpacity={0.8}
-          >
-            <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(0, 104, 116, 0.15)' }]}>
-                <Text style={{ fontSize: 18 }}>❤️</Text>
-              </View>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                14 Items
-              </Text>
-            </View>
-            <View>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                Wishlist & Saved
-              </Text>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                Curated ideas
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Schemes & Grants */}
-          <View style={styles.utilityTile}>
-            <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(244, 185, 66, 0.2)' }]}>
-                <Text style={{ fontSize: 18 }}>🏛️</Text>
-              </View>
-              <View style={[styles.tilePill, { backgroundColor: '#FFBF42' }]}>
-                <Text variant="labelSmall" weight="bold" color="#3B2600">
-                  Active
-                </Text>
-              </View>
-            </View>
-            <View>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                Schemes & Grants
-              </Text>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                PM Vishwakarma
-              </Text>
-            </View>
-          </View>
-
-          {/* Voice Saathi */}
-          <View style={styles.utilityTile}>
-            <View style={styles.tileTop}>
-              <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(108, 99, 255, 0.15)' }]}>
-                <Text style={{ fontSize: 18 }}>🎙️</Text>
-              </View>
-              <View style={[styles.tilePill, { backgroundColor: theme.colors.surface.card }]}>
-                <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                  24/7
-                </Text>
-              </View>
-            </View>
-            <View>
-              <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                Voice Saathi
-              </Text>
-              <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                Hindi & Marathi
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Artisan Finance & Growth */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionHeaderTitle}>
-            <Text style={{ fontSize: 18, marginRight: 6 }}>💰</Text>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-              Artisan Finance & Growth
-            </Text>
-          </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Khata' as any)}>
-            <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary}>
-              View All ›
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <Card style={styles.financeCard}>
-          {/* Item 1 */}
-          <View style={styles.financeItem}>
-            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-              <Text style={{ fontSize: 20 }}>💳</Text>
-            </View>
-            <View style={{ flex: 1, paddingHorizontal: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                  Artisan Mudra Credit
-                </Text>
-                <View style={[styles.inlineBadge, { backgroundColor: 'rgba(0, 104, 116, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.secondary.teal}>
-                    Instant
-                  </Text>
+        {/* ROLE SPECIFIC BODY: BUYER VIEW */}
+        {isBuyer && (
+          <>
+            {/* Buyer Quick Utility Grid (2x2) */}
+            <View style={styles.utilityGrid}>
+              {/* Orders */}
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('Orders' as any)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(67, 56, 202, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>🚚</Text>
+                  </View>
+                  <View style={[styles.tilePill, { backgroundColor: '#4338CA' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#FFFFFF">
+                      3 {t.common.active}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                Up to ₹2,00,000 • 0 paperwork via Digital Passport
-              </Text>
-            </View>
-            <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
-
-          {/* Item 2 */}
-          <View style={styles.financeItem}>
-            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(244, 185, 66, 0.15)' }]}>
-              <Text style={{ fontSize: 20 }}>🛠️</Text>
-            </View>
-            <View style={{ flex: 1, paddingHorizontal: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                  PM Vishwakarma Toolkit
-                </Text>
-                <View style={[styles.inlineBadge, { backgroundColor: 'rgba(244, 185, 66, 0.25)' }]}>
-                  <Text variant="labelSmall" weight="bold" color="#795600">
-                    Govt
-                  </Text>
-                </View>
-              </View>
-              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                ₹15,000 grant + 5% subsidized interest loan
-              </Text>
-            </View>
-            <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
-
-          {/* Item 3 */}
-          <TouchableOpacity
-            style={styles.financeItem}
-            onPress={() => navigation.navigate('Opportunities')}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.financeIconBox, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-              <Text style={{ fontSize: 20 }}>📦</Text>
-            </View>
-            <View style={{ flex: 1, paddingHorizontal: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                  Bulk Order Cluster Advance
-                </Text>
-                <View style={[styles.inlineBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.terracotta.primary}>
-                    Pre-Fund
-                  </Text>
-                </View>
-              </View>
-              <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
-                40% upfront deposit on corporate & festive bulk orders
-              </Text>
-            </View>
-            <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
-          </TouchableOpacity>
-        </Card>
-
-        {/* Showcase & Catalog Carousel */}
-        <View style={styles.sectionHeader}>
-          <View>
-            <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-              Showcase & Catalog
-            </Text>
-            <Text variant="labelSmall" color={theme.colors.text.secondary}>
-              Your listed handcrafts receiving buyer inquiries
-            </Text>
-          </View>
-          <TouchableOpacity onPress={() => navigation.navigate('MarketplaceHome')}>
-            <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary}>
-              Manage ›
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.showcaseScroll}>
-          {showcaseCrafts.map((craft) => (
-            <Card key={craft.id} style={styles.craftCard}>
-              <View style={styles.craftImgContainer}>
-                <Image source={{ uri: craft.image }} style={styles.craftImg} />
-                <View style={styles.craftBadge}>
-                  <Text variant="labelSmall" weight="bold" color={theme.colors.text.primary}>
-                    {craft.badge}
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.craftBody}>
-                <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
-                  {craft.title}
-                </Text>
-                <View style={styles.craftPriceRow}>
-                  <Text variant="labelLarge" weight="bold" color={theme.colors.terracotta.primary}>
-                    {craft.price}
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.myOrders}
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    {craft.pack}
+                    {isHindi ? '1 प्रेषण मार्ग में' : '1 in transit'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Wishlist */}
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('Wishlist')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>❤️</Text>
+                  </View>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? '14 शिल्प वस्तुएं' : '14 Items'}
+                  </Text>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.wishlist}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? 'पसंदीदा शिल्प' : 'Curated crafts'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Delivery Addresses */}
+              <TouchableOpacity style={styles.utilityTile} activeOpacity={0.8}>
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>📍</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.savedAddresses}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {t.profile.savedAddressesSub}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Payment Methods */}
+              <TouchableOpacity style={styles.utilityTile} activeOpacity={0.8}>
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>💳</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.paymentMethods}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {t.profile.paymentUpiSub}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Buyer Patronage Impact Card */}
+            <Card style={styles.financeCard}>
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(67, 56, 202, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🤝</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.artisanImpact}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {t.profile.artisanImpactSub}
+                  </Text>
+                </View>
+                <View style={[styles.inlineBadge, { backgroundColor: '#EEF2FF' }]}>
+                  <Text variant="labelSmall" weight="bold" color="#4338CA">
+                    {isHindi ? 'संरक्षक' : 'Patron'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              <TouchableOpacity
+                style={styles.financeItem}
+                onPress={() => navigation.navigate('BulkInquiry' as any)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(244, 185, 66, 0.15)' }]}>
+                  <Text style={{ fontSize: 20 }}>📦</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.activeRfq}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {t.profile.activeRfqSub}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </TouchableOpacity>
+            </Card>
+          </>
+        )}
+
+        {/* ROLE SPECIFIC BODY: ARTISAN VIEW */}
+        {isArtisan && (
+          <>
+            {/* Quick Utility Grid */}
+            <View style={styles.utilityGrid}>
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('Orders' as any)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(234, 88, 12, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>🚚</Text>
+                  </View>
+                  <View style={[styles.tilePill, { backgroundColor: theme.colors.terracotta.primary }]}>
+                    <Text variant="labelSmall" weight="bold" color="#FFFFFF">
+                      3 {t.common.active}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.myOrders}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? '1 उत्पादन प्रगति पर' : '1 in production'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('Khata' as any)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>📒</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.nav.khata}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {t.artisan.todayEarnings}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Workshop Studio Tile */}
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => Alert.alert(t.profile.workshopAddress, isHindi ? 'कुंभार गली, पंचगंगा नदी के पास, कोल्हापुर, महाराष्ट्र - 416012' : 'Kumbhar Galli, Near Panchganga, Kolhapur, Maharashtra - 416012')}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(234, 88, 12, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>🏺</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.workshopAddress}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? 'कोल्हापुर कार्यशाला' : 'Kolhapur Studio'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* PM Vishwakarma Govt Grant */}
+              <View style={styles.utilityTile}>
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(244, 185, 66, 0.2)' }]}>
+                    <Text style={{ fontSize: 18 }}>🏛️</Text>
+                  </View>
+                  <View style={[styles.tilePill, { backgroundColor: '#FFBF42' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#3B2600">
+                      {isHindi ? 'सक्रिय' : 'Active'}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {isHindi ? 'पीएम विश्वकर्मा' : 'PM Vishwakarma'}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? 'सरकारी अनुदान' : 'Govt Grant'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Artisan Finance & Growth */}
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionHeaderTitle}>
+                <Text style={{ fontSize: 18, marginRight: 6 }}>💰</Text>
+                <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+                  {t.profile.artisanFinanceTitle}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('Khata' as any)}>
+                <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary}>
+                  {t.common.viewAll} ›
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Card style={styles.financeCard}>
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(234, 88, 12, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>💳</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.mudraCredit}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {t.profile.mudraCreditSub}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🛠️</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.pmVishwakarma}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {t.profile.pmVishwakarmaSub}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              <TouchableOpacity
+                style={styles.financeItem}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'BulkDealsTab' })}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(244, 185, 66, 0.15)' }]}>
+                  <Text style={{ fontSize: 20 }}>🤝</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.clusterAdvance}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {t.profile.clusterAdvanceSub}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </TouchableOpacity>
+            </Card>
+
+            {/* Showcase & Catalog Carousel */}
+            <View style={styles.sectionHeader}>
+              <View>
+                <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+                  {t.profile.showcaseTitle}
+                </Text>
+                <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                  {t.profile.showcaseSub}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}>
+                <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary}>
+                  {t.common.manage} ›
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.showcaseScroll}>
+              {showcaseCrafts.map((craft) => (
+                <Card key={craft.id} style={styles.craftCard}>
+                  <View style={styles.craftImgContainer}>
+                    <Image source={{ uri: craft.image }} style={styles.craftImg} />
+                    <View style={styles.craftBadge}>
+                      <Text variant="labelSmall" weight="bold" color={theme.colors.text.primary}>
+                        {craft.badge}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.craftBody}>
+                    <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
+                      {craft.title}
+                    </Text>
+                    <View style={styles.craftPriceRow}>
+                      <Text variant="labelLarge" weight="bold" color={theme.colors.terracotta.primary}>
+                        {craft.price}
+                      </Text>
+                      <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                        {craft.pack}
+                      </Text>
+                    </View>
+                  </View>
+                </Card>
+              ))}
+            </ScrollView>
+
+            <Button
+              label={t.profile.addNewCraft}
+              variant="primary"
+              onPress={() => navigation.navigate('CameraCapture')}
+              style={styles.addCraftBtn}
+            />
+          </>
+        )}
+
+        {/* ROLE SPECIFIC BODY: SAHYOGI VIEW */}
+        {isFacilitator && (
+          <>
+            <View style={styles.utilityGrid}>
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(22, 163, 74, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>📋</Text>
+                  </View>
+                  <View style={[styles.tilePill, { backgroundColor: '#16A34A' }]}>
+                    <Text variant="labelSmall" weight="bold" color="#FFFFFF">
+                      {isHindi ? '5 इकाइयां' : '5 Units'}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.sahyogi.artisanListTitle}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? 'कोल्हापुर क्लस्टर' : 'Kolhapur Cluster'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.utilityTile}
+                onPress={() => navigation.navigate('Fulfillment' as any)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.tileTop}>
+                  <View style={[styles.tileIconCircle, { backgroundColor: 'rgba(67, 56, 202, 0.15)' }]}>
+                    <Text style={{ fontSize: 18 }}>📦</Text>
+                  </View>
+                </View>
+                <View>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.sahyogi.dispatchBatch}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary}>
+                    {isHindi ? '5,000 इकाइयां' : '5,000 Units'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Sahyogi Lead Desk Operations Card */}
+            <Card style={styles.financeCard}>
+              <TouchableOpacity
+                style={styles.financeItem}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(22, 163, 74, 0.15)' }]}>
+                  <Text style={{ fontSize: 20 }}>📋</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {isHindi ? 'सहयोगी लीड डेस्क एवं क्लस्टर नियंत्रण' : 'Sahyogi Lead Desk & Operations'}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {isHindi ? 'डिजिटल ऑनबोर्डिंग, क्यूसी ऑडिट और प्रेषण प्रबंधन' : 'Digital onboarding, QC audits & dispatch coordination'}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 18, color: theme.colors.text.tertiary }}>›</Text>
+              </TouchableOpacity>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(22, 163, 74, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🏛️</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.clusterHub}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    {isHindi ? 'पंचगंगा पॉटरी क्लस्टर #CLUST-MHB-01' : 'Panchganga Pottery Cluster #CLUST-MHB-01'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle }]} />
+
+              <View style={styles.financeItem}>
+                <View style={[styles.financeIconBox, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
+                  <Text style={{ fontSize: 20 }}>🆔</Text>
+                </View>
+                <View style={{ flex: 1, paddingHorizontal: 12 }}>
+                  <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
+                    {t.profile.staffId}
+                  </Text>
+                  <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginTop: 2 }}>
+                    SHG-MHB-KOL-88421
                   </Text>
                 </View>
               </View>
             </Card>
-          ))}
-        </ScrollView>
+          </>
+        )}
 
-        {/* Add New Craft CTA Button */}
-        <Button
-          label="+ Add New Craft Listing"
-          variant="primary"
-          onPress={() => navigation.navigate('CameraCapture')}
-          style={styles.addCraftBtn}
-        />
-
-        {/* App Settings & Language */}
+        {/* Preferences & Settings Section */}
         <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} style={styles.settingsTitle}>
-          Preferences & Diagnostics
+          {t.profile.preferencesTitle}
         </Text>
 
         <Card style={styles.settingsCard}>
-          {/* Active Persona / Role Switcher */}
+          {/* Active Role Switcher */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            Switch Active Role (Experience Different Interfaces)
+            {t.profile.switchRoleTitle}
           </Text>
           <View style={{ flexDirection: 'row', gap: 6, marginBottom: 16 }}>
             {[
-              { role: 'BUYER', label: '🛍️ Buyer', title: 'Buyer Hub' },
-              { role: 'ARTISAN', label: '🎨 Seller', title: 'Artisan Studio' },
-              { role: 'FACILITATOR', label: '🤝 Helper', title: 'Sahyogi Desk' },
+              { role: 'BUYER', label: `🛍️ ${t.profile.buyerRole}`, title: t.profile.buyerTitle },
+              { role: 'ARTISAN', label: `🎨 ${t.profile.artisanRole}`, title: t.profile.artisanTitle },
+              { role: 'FACILITATOR', label: `🤝 ${t.profile.sahyogiRole}`, title: t.profile.sahyogiTitle },
             ].map((r) => {
-              const isCurrent = (user?.role || 'BUYER') === r.role;
+              const isCurrent = role === r.role;
               return (
                 <TouchableOpacity
                   key={r.role}
@@ -462,7 +674,8 @@ export const ProfileScreen: React.FC = () => {
                     backgroundColor: isCurrent ? 'rgba(234, 88, 12, 0.08)' : '#FFFFFF',
                   }}
                   onPress={async () => {
-                    await useAuthStore.getState().updateProfile({ role: r.role as any });
+                    setActiveRole(r.role as any);
+                    await updateProfile({ role: r.role as any });
                     navigation.navigate('MainTabs', { screen: 'HomeTab' });
                   }}
                 >
@@ -474,7 +687,7 @@ export const ProfileScreen: React.FC = () => {
                     {r.label}
                   </Text>
                   <Text variant="caption" color={isCurrent ? theme.colors.terracotta.primary : '#94A3B8'} style={{ fontSize: 9 }}>
-                    {isCurrent ? '● Active' : r.title}
+                    {isCurrent ? (isHindi ? '● सक्रिय' : '● Active') : r.title}
                   </Text>
                 </TouchableOpacity>
               );
@@ -483,8 +696,9 @@ export const ProfileScreen: React.FC = () => {
 
           <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 10 }]} />
 
+          {/* App Language Switcher */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            App Language
+            {t.profile.appLanguage}
           </Text>
           <View style={styles.langGrid}>
             {languages.map((lang) => {
@@ -496,7 +710,7 @@ export const ProfileScreen: React.FC = () => {
                     styles.langChip,
                     {
                       borderColor: isSelected ? theme.colors.terracotta.primary : theme.colors.border.subtle,
-                      backgroundColor: isSelected ? 'rgba(108, 99, 255, 0.08)' : theme.colors.surface.card,
+                      backgroundColor: isSelected ? 'rgba(234, 88, 12, 0.1)' : theme.colors.surface.card,
                     },
                   ]}
                   onPress={() => setLocale(lang.code)}
@@ -507,7 +721,7 @@ export const ProfileScreen: React.FC = () => {
                     weight={isSelected ? 'bold' : 'normal'}
                     color={isSelected ? theme.colors.terracotta.primary : theme.colors.text.primary}
                   >
-                    {lang.name}
+                    {lang.native}
                   </Text>
                 </TouchableOpacity>
               );
@@ -516,23 +730,23 @@ export const ProfileScreen: React.FC = () => {
 
           <View style={[styles.divider, { backgroundColor: theme.colors.border.subtle, marginVertical: 14 }]} />
 
-          {/* Offline Toggle Simulation */}
+          {/* Network Mode Simulation */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            Network Mode Simulation
+            {t.profile.networkMode}
           </Text>
           <Button
-            label={isOnline ? '🟢 Online Mode (Tap to test offline)' : '🔴 Offline Cache Mode (Tap to restore)'}
+            label={isOnline ? `🟢 ${t.profile.onlineMode}` : `🔴 ${t.profile.offlineMode}`}
             variant={isOnline ? 'outline' : 'secondary'}
             onPress={() => setOnlineStatus(!isOnline)}
             style={{ marginBottom: 12 }}
           />
 
-          {/* Shared Device PIN Pad Switch */}
+          {/* Shared Device PIN Switcher */}
           <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary} style={{ marginBottom: 8 }}>
-            Multi-Profile PIN Switcher (Shared Device)
+            {t.profile.multiProfilePin}
           </Text>
           <Button
-            label={showPinPad ? 'Hide Keypad' : 'Show Tactile Keypad'}
+            label={showPinPad ? t.profile.hideKeypad : t.profile.showKeypad}
             variant="outline"
             onPress={() => setShowPinPad(!showPinPad)}
             style={{ marginBottom: 8 }}
@@ -541,7 +755,7 @@ export const ProfileScreen: React.FC = () => {
           {showPinPad && (
             <View style={styles.keypadWrapper}>
               <Text variant="labelLarge" weight="bold" align="center" style={{ marginBottom: 12 }}>
-                PIN: {pinDigits ? pinDigits.split('').map(() => '●').join(' ') : 'Enter 4 Digits'}
+                PIN: {pinDigits ? pinDigits.split('').map(() => '●').join(' ') : t.profile.enterPin}
               </Text>
               <TactileKeypad
                 onPressDigit={(d) => setPinDigits((prev) => (prev.length < 4 ? prev + d : prev))}
@@ -555,13 +769,13 @@ export const ProfileScreen: React.FC = () => {
 
           {/* Logout Button */}
           <Button
-            label="Sign Out"
+            label={t.profile.signOut}
             variant="danger"
             onPress={async () => {
               await logout();
               navigation.reset({
                 index: 0,
-                routes: [{ name: 'AuthPhone', params: { role: 'BUYER' } }],
+                routes: [{ name: 'AuthPhone', params: { role } }],
               });
             }}
           />
@@ -630,7 +844,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E0DCFF',
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -755,7 +969,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 120,
-    backgroundColor: '#E0DCFF',
+    backgroundColor: '#F1F5F9',
   },
   craftImg: {
     width: '100%',
@@ -810,3 +1024,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+

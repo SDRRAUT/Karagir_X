@@ -120,6 +120,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       expiresInSeconds: 86400,
     };
 
+    useAuthStore.getState().setActiveRole(role);
     await setSession(tokens, user);
     await setLocale((user.preferredLanguage as SupportedLocale) || 'hi_IN');
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -129,7 +130,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         role === 'FACILITATOR' ? 'Sahyogi' : '';
       document.title = `Kalakar Setu ~ ${roleLabel}`;
     }
-    navigation.replace('MainTabs', { screen: 'HomeTab' });
+    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
   };
 
   const startWaveAnimation = () => {

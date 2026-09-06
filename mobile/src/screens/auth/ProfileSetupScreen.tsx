@@ -194,23 +194,26 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
       await setLocale(selectedLanguage);
       setIsLoading(false);
 
+      useAuthStore.getState().setActiveRole(role);
+
       if (role === 'ARTISAN') {
         if (destination === 'STUDIO') {
           navigation.replace('CameraCapture');
         } else {
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
+          navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'ARTISAN' } });
         }
       } else if (role === 'BUYER') {
-        navigation.replace('MarketplaceHome');
+        navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'BUYER' } });
       } else {
-        navigation.replace('Opportunities');
+        navigation.replace('MainTabs', { screen: 'HomeTab', params: { role: 'FACILITATOR' } });
       }
     } catch {
       setIsLoading(false);
+      useAuthStore.getState().setActiveRole(role);
       if (role === 'ARTISAN' && destination === 'STUDIO') {
         navigation.replace('CameraCapture');
       } else {
-        navigation.replace('MainTabs', { screen: 'HomeTab' });
+        navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
       }
     }
   };

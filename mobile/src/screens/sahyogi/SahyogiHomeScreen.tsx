@@ -16,11 +16,14 @@ import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
 import { Button } from '@/components/buttons/Button';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ClusterArtisan {
   id: string;
-  name: string;
-  craft: string;
+  nameEn: string;
+  nameHi: string;
+  craftEn: string;
+  craftHi: string;
   quota: number;
   completed: number;
   status: 'ON_TRACK' | 'NEEDS_HELP' | 'COMPLETED';
@@ -30,8 +33,10 @@ interface ClusterArtisan {
 const CLUSTER_ARTISANS: ClusterArtisan[] = [
   {
     id: 'art_1',
-    name: 'Ramesh Kumbhar (Kolhapur)',
-    craft: 'Terracotta Wheel Throwing',
+    nameEn: 'Ramesh Kumbhar (Kolhapur)',
+    nameHi: 'रमेश कुंभार (कोल्हापुर)',
+    craftEn: 'Terracotta Wheel Throwing',
+    craftHi: 'मिट्टी का चाक शिल्प',
     quota: 600,
     completed: 540,
     status: 'ON_TRACK',
@@ -39,8 +44,10 @@ const CLUSTER_ARTISANS: ClusterArtisan[] = [
   },
   {
     id: 'art_2',
-    name: 'Sunita Devi (Kolhapur Cluster Lead)',
-    craft: 'Hand Carving & Embossing',
+    nameEn: 'Sunita Devi (Kolhapur Cluster Lead)',
+    nameHi: 'सुनीता देवी (क्लस्टर लीड)',
+    craftEn: 'Hand Carving & Embossing',
+    craftHi: 'हस्त नक्काशी एवं उभरी कला',
     quota: 500,
     completed: 480,
     status: 'ON_TRACK',
@@ -48,8 +55,10 @@ const CLUSTER_ARTISANS: ClusterArtisan[] = [
   },
   {
     id: 'art_3',
-    name: 'Ganesh Kumbhar (Panchganga Unit)',
-    craft: 'Master Wheel Craftsman',
+    nameEn: 'Ganesh Kumbhar (Panchganga Unit)',
+    nameHi: 'गणेश कुंभार (पंचगंगा केंद्र)',
+    craftEn: 'Master Wheel Craftsman',
+    craftHi: 'वरिष्ठ चाक शिल्पकार',
     quota: 700,
     completed: 620,
     status: 'ON_TRACK',
@@ -57,8 +66,10 @@ const CLUSTER_ARTISANS: ClusterArtisan[] = [
   },
   {
     id: 'art_4',
-    name: 'Savita Kumbhar (Kolhapur Guild)',
-    craft: 'Specialized Floral Motifs',
+    nameEn: 'Savita Kumbhar (Kolhapur Guild)',
+    nameHi: 'सविता कुंभार (कोल्हापुर गिल्ड)',
+    craftEn: 'Specialized Floral Motifs',
+    craftHi: 'पारंपरिक पुष्प रूपांकन',
     quota: 650,
     completed: 420,
     status: 'NEEDS_HELP',
@@ -66,8 +77,10 @@ const CLUSTER_ARTISANS: ClusterArtisan[] = [
   },
   {
     id: 'art_5',
-    name: 'Tukaram Clay Potter SHG (5 Artisans)',
-    craft: 'Kiln Firing & Packaging Hub',
+    nameEn: 'Tukaram Clay Potter SHG (5 Artisans)',
+    nameHi: 'तुकाराम स्वयं सहायता समूह (5 कारीगर)',
+    craftEn: 'Kiln Firing & Packaging Hub',
+    craftHi: 'भट्टी पकाई एवं पैकेजिंग केंद्र',
     quota: 2550,
     completed: 2040,
     status: 'ON_TRACK',
@@ -78,16 +91,17 @@ const CLUSTER_ARTISANS: ClusterArtisan[] = [
 export const SahyogiHomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useAuthStore();
+  const { t, isHindi } = useTranslation();
   const [artisans, setArtisans] = useState<ClusterArtisan[]>(CLUSTER_ARTISANS);
   const [qcChecked, setQcChecked] = useState(false);
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      document.title = 'Kalakar Setu ~ Sahyogi';
+      document.title = isHindi ? 'कलाकार सेतु ~ सहयोगी' : 'Kalakar Setu ~ Sahyogi';
     }
-  }, []);
+  }, [isHindi]);
 
-  const sahyogiName = user?.fullName || 'Pooja Sharma';
+  const sahyogiName = user?.fullName || (isHindi ? 'पूजा वर्मा' : 'Pooja Verma');
 
   const totalQuota = artisans.reduce((acc, a) => acc + a.quota, 0);
   const totalCompleted = artisans.reduce((acc, a) => acc + a.completed, 0);
@@ -95,12 +109,12 @@ export const SahyogiHomeScreen: React.FC = () => {
 
   const handleSosReallocate = (artisanId: string) => {
     Alert.alert(
-      '🚨 SOS Quota Reallocation (Cluster Support)',
-      'Savita Kumbhar reported illness. Reallocate 150 pieces from her quota to Tukaram Clay Potter SHG to ensure the Diwali corporate deadline is met?',
+      t.sahyogi.sosTitle,
+      t.sahyogi.sosMessage,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t.sahyogi.cancel, style: 'cancel' },
         {
-          text: 'Confirm Reallocation',
+          text: t.sahyogi.confirmRealloc,
           style: 'destructive',
           onPress: () => {
             setArtisans((prev) =>
@@ -115,8 +129,8 @@ export const SahyogiHomeScreen: React.FC = () => {
               })
             );
             Alert.alert(
-              '✅ Quota Reallocated!',
-              '150 pieces successfully assigned to Tukaram SHG. Cluster delivery deadline protected.'
+              t.sahyogi.sosSuccessTitle,
+              t.sahyogi.sosSuccessMsg
             );
           },
         },
@@ -127,20 +141,20 @@ export const SahyogiHomeScreen: React.FC = () => {
   const handleAuditSpec = () => {
     setQcChecked(true);
     Alert.alert(
-      '✅ QC Inspection Logged',
-      '50 random units tested for terracotta kiln density and GI certification seal. Quality spec approved.'
+      t.sahyogi.qcLoggedTitle,
+      t.sahyogi.qcLoggedMsg
     );
   };
   const handleQualityAudit = handleAuditSpec;
 
   const handleVoiceOnboard = () => {
     Alert.alert(
-      '🎙️ Voice-Assisted Artisan Onboarding',
-      'The app will guide the new artisan in their local dialect without paperwork.',
+      t.sahyogi.voiceOnboardTitle,
+      t.sahyogi.voiceOnboardMsg,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t.sahyogi.cancel, style: 'cancel' },
         {
-          text: 'Start Voice Onboarding →',
+          text: `${t.sahyogi.voiceOnboardStart} →`,
           onPress: () => navigation.navigate('MicPermission'),
         },
       ]
@@ -160,10 +174,10 @@ export const SahyogiHomeScreen: React.FC = () => {
           />
           <View>
             <Text variant="headlineSmall" weight="bold" color="#0F172A" style={styles.headerTitle}>
-              Kalakar Setu
+              {t.common.appName}
             </Text>
             <View style={styles.roleBadgePill}>
-              <Text style={styles.roleBadgeText}>🤝 SAHYOGI FIELD DESK</Text>
+              <Text style={styles.roleBadgeText}>🤝 {t.sahyogi.badge}</Text>
             </View>
           </View>
         </View>
@@ -184,10 +198,10 @@ export const SahyogiHomeScreen: React.FC = () => {
         {/* Cluster Lead Greeting Section */}
         <View style={styles.clusterGreetingSection}>
           <Text variant="headlineMedium" weight="bold" color="#0F172A">
-            Namaste, {sahyogiName}!
+            {t.artisan.namaste}, {sahyogiName}!
           </Text>
           <Text variant="caption" color="#64748B" style={{ marginTop: 2 }}>
-            Kolhapur Artisan Cluster #CLUST-MHB-01 • 5 Active Units
+            {isHindi ? 'कोल्हापुर कारीगर क्लस्टर #CLUST-MHB-01 • 5 सक्रिय इकाइयां' : 'Kolhapur Artisan Cluster #CLUST-MHB-01 • 5 Active Units'}
           </Text>
         </View>
 
@@ -196,20 +210,20 @@ export const SahyogiHomeScreen: React.FC = () => {
           <View style={styles.summaryTopRow}>
             <View>
               <Text variant="caption" weight="bold" color="#EA580C">
-                ACTIVE B2B CLUSTER ORDER
+                {t.sahyogi.activeB2bOrder}
               </Text>
               <Text variant="headlineSmall" weight="bold" color="#0F172A">
                 Tata Consultancy Services (TCS)
               </Text>
               <Text variant="bodySmall" color="#64748B">
-                5,000 Diwali Terracotta Diyas • Due in 12 Days
+                {isHindi ? '5,000 दिवाली मिट्टी के दीये' : '5,000 Diwali Terracotta Diyas'} • {t.sahyogi.dueInDays}
               </Text>
             </View>
             <View style={styles.payoutPill}>
               <Text variant="bodyMedium" weight="bold" color="#16A34A">
                 ₹1,25,000
               </Text>
-              <Text style={{ fontSize: 10, color: '#16A34A', fontWeight: '600' }}>30% ADVANCE PAID</Text>
+              <Text style={{ fontSize: 10, color: '#16A34A', fontWeight: '600' }}>{t.sahyogi.advancePaid}</Text>
             </View>
           </View>
 
@@ -217,10 +231,10 @@ export const SahyogiHomeScreen: React.FC = () => {
           <View style={styles.progressSection}>
             <View style={styles.progressLabelRow}>
               <Text variant="caption" weight="bold" color="#0F172A">
-                Cluster Collective Production Progress
+                {t.sahyogi.collectiveProgress}
               </Text>
               <Text variant="caption" weight="bold" color="#16A34A">
-                {progressPercent}% ({totalCompleted.toLocaleString('en-IN')} / {totalQuota.toLocaleString('en-IN')} Pcs)
+                {progressPercent}% ({totalCompleted.toLocaleString(isHindi ? 'hi-IN' : 'en-IN')} / {totalQuota.toLocaleString(isHindi ? 'hi-IN' : 'en-IN')} {t.sahyogi.pieces})
               </Text>
             </View>
             <View style={styles.progressBarTrack}>
@@ -236,7 +250,7 @@ export const SahyogiHomeScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Text variant="caption" weight="bold" color={qcChecked ? '#16A34A' : '#4338CA'}>
-                {qcChecked ? '✓ QC Spec Audit Passed' : '🔍 Run QC Spec Audit'}
+                {qcChecked ? `✓ ${t.sahyogi.qcPassed}` : `🔍 ${t.sahyogi.qcAuditBtn}`}
               </Text>
             </TouchableOpacity>
 
@@ -248,19 +262,19 @@ export const SahyogiHomeScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Text variant="caption" weight="bold" color="#EA580C">
-                View Production Brief 📋
+                {t.sahyogi.viewBrief} 📋
               </Text>
             </TouchableOpacity>
           </View>
         </Card>
 
-        {/* 6 Sahyogi Field Tools Grid */}
+        {/* 4 Sahyogi Field Tools Grid */}
         <View style={styles.sectionTitleRow}>
           <Text variant="headlineSmall" weight="bold" color="#0F172A">
-            ⚡ Sahyogi Field Assistance Tools
+            ⚡ {t.sahyogi.fieldToolsTitle}
           </Text>
           <Text variant="caption" color="#64748B">
-            Helping rural artisans succeed with zero barriers
+            {t.sahyogi.fieldToolsSub}
           </Text>
         </View>
 
@@ -276,10 +290,10 @@ export const SahyogiHomeScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                Artisan Voice Onboarding
+                {t.sahyogi.voiceOnboarding}
               </Text>
               <Text variant="caption" color="#64748B">
-                Onboard illiterate artists via voice & Aadhaar KYC
+                {t.sahyogi.voiceOnboardingSub}
               </Text>
             </View>
             <Text style={styles.chevron}>›</Text>
@@ -296,10 +310,10 @@ export const SahyogiHomeScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                Catalogue Studio Assistant
+                {t.sahyogi.catalogueStudio}
               </Text>
               <Text variant="caption" color="#64748B">
-                Clean workshop lighting & detect authentic craft category
+                {t.sahyogi.catalogueStudioSub}
               </Text>
             </View>
             <Text style={styles.chevron}>›</Text>
@@ -316,10 +330,10 @@ export const SahyogiHomeScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                Fair Price & Advance Tracker
+                {t.sahyogi.fairPriceTracker}
               </Text>
               <Text variant="caption" color="#64748B">
-                Verify 30% upfront capital credited to artisan bank accounts
+                {t.sahyogi.fairPriceTrackerSub}
               </Text>
             </View>
             <Text style={styles.chevron}>›</Text>
@@ -336,10 +350,10 @@ export const SahyogiHomeScreen: React.FC = () => {
             </View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                QR Craft Passport Generator
+                {t.sahyogi.qrPassportGen}
               </Text>
               <Text variant="caption" color="#64748B">
-                Print batch QR codes for packaging & traceability
+                {t.sahyogi.qrPassportGenSub}
               </Text>
             </View>
             <Text style={styles.chevron}>›</Text>
@@ -349,10 +363,10 @@ export const SahyogiHomeScreen: React.FC = () => {
         {/* Cluster Member Workload & Health Monitor */}
         <View style={styles.sectionTitleRow}>
           <Text variant="headlineSmall" weight="bold" color="#0F172A">
-            👥 Cluster Member Units (Workload & Quota)
+            👥 {t.sahyogi.clusterUnitsTitle}
           </Text>
           <Text variant="caption" color="#64748B">
-            Live progress monitoring across 5 pooled workshops
+            {t.sahyogi.clusterUnitsSub}
           </Text>
         </View>
 
@@ -362,10 +376,10 @@ export const SahyogiHomeScreen: React.FC = () => {
               <View style={styles.artisanCardHeader}>
                 <View style={{ flex: 1 }}>
                   <Text variant="bodyLarge" weight="bold" color="#0F172A">
-                    {artisan.name}
+                    {isHindi ? artisan.nameHi : artisan.nameEn}
                   </Text>
                   <Text variant="caption" color="#64748B">
-                    {artisan.craft} • {artisan.phone}
+                    {isHindi ? artisan.craftHi : artisan.craftEn} • {artisan.phone}
                   </Text>
                 </View>
                 <View
@@ -382,7 +396,7 @@ export const SahyogiHomeScreen: React.FC = () => {
                       artisan.status === 'NEEDS_HELP' ? { color: '#B91C1C' } : { color: '#16A34A' },
                     ]}
                   >
-                    {artisan.status === 'NEEDS_HELP' ? '⚠️ Delayed / Sick' : '✓ On Schedule'}
+                    {artisan.status === 'NEEDS_HELP' ? `⚠️ ${t.sahyogi.delayedSick}` : `✓ ${t.sahyogi.onSchedule}`}
                   </Text>
                 </View>
               </View>
@@ -402,7 +416,7 @@ export const SahyogiHomeScreen: React.FC = () => {
 
               <View style={styles.artisanFooter}>
                 <Text variant="caption" weight="bold" color="#475569">
-                  {artisan.completed} / {artisan.quota} Pieces Done ({Math.round((artisan.completed / artisan.quota) * 100)}%)
+                  {artisan.completed} / {artisan.quota} {t.sahyogi.pieces} ({Math.round((artisan.completed / artisan.quota) * 100)}%)
                 </Text>
 
                 {artisan.status === 'NEEDS_HELP' ? (
@@ -412,16 +426,16 @@ export const SahyogiHomeScreen: React.FC = () => {
                     activeOpacity={0.85}
                   >
                     <Text variant="caption" weight="bold" color="#FFFFFF">
-                      🚨 Reallocate Quota
+                      🚨 {t.sahyogi.reallocateQuota}
                     </Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
                     style={styles.callBtn}
-                    onPress={() => Alert.alert('📞 Calling Artisan', `Calling ${artisan.name} at ${artisan.phone}`)}
+                    onPress={() => Alert.alert(t.common.call, `${t.sahyogi.callArtisan}: ${isHindi ? artisan.nameHi : artisan.nameEn} (${artisan.phone})`)}
                   >
                     <Text variant="caption" weight="bold" color="#4338CA">
-                      📞 Call Artisan
+                      📞 {t.sahyogi.callArtisan}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -434,18 +448,18 @@ export const SahyogiHomeScreen: React.FC = () => {
         <Card style={styles.dispatchCard}>
           <Text style={{ fontSize: 24, marginBottom: 8 }}>📦</Text>
           <Text variant="headlineSmall" weight="bold" color="#0F172A">
-            Collective Logistics & Batch Dispatch
+            {t.sahyogi.batchDispatchTitle}
           </Text>
           <Text variant="bodySmall" color="#64748B" style={{ marginTop: 4, textAlign: 'center' }}>
-            All 5,000 units packed in 12-pack straw cartons. Blue Dart Logistics pickup scheduled for tomorrow at Panchganga Hub.
+            {t.sahyogi.batchDispatchSub}
           </Text>
           <Button
-            label="Generate Master Consignment Bill 📄"
+            label={t.sahyogi.generateConsignment}
             variant="primary"
             onPress={() =>
               Alert.alert(
-                '📄 Consignment Note Ready',
-                'Master Waybill #BLUEDART-DIWALI-5000 generated. All 5 artisan quotas bundled into 1 institutional invoice.'
+                t.sahyogi.consignmentTitle,
+                t.sahyogi.consignmentMsg
               )
             }
             style={{ marginTop: 12, width: '100%' }}

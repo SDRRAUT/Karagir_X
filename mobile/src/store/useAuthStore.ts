@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { UserProfile, AuthTokens } from '@/api/types';
+import { UserProfile, AuthTokens, UserRole } from '@/api/types';
 import { supabase } from '@/api/supabaseClient';
 import { authService } from '@/api/authService';
 import { logger } from '@/utils/logger';
@@ -11,6 +11,7 @@ export interface AuthState {
   user: UserProfile | null;
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
+  activeRole: UserRole | null;
   activeProfileId: string | null;
   profilesOnDevice: UserProfile[];
   isLoading: boolean;
@@ -19,6 +20,7 @@ export interface AuthState {
 
   // Actions
   initialize: () => Promise<void>;
+  setActiveRole: (role: UserRole) => void;
   setSession: (tokens: AuthTokens, user: UserProfile) => Promise<void>;
   updateProfile: (patch: Partial<UserProfile>) => Promise<void>;
   switchProfile: (profileId: string) => Promise<void>;
@@ -33,11 +35,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   tokens: null,
   isAuthenticated: false,
+  activeRole: null,
   activeProfileId: null,
   profilesOnDevice: [],
   isLoading: true,
   isSessionExpired: false,
   sessionExpiryReason: null,
+
+  setActiveRole: (role: UserRole) => {
+    const currentUser = get().user;
+    const updatedUser = currentUser ? { ...currentUser, role } : null;
+    set({
+      activeRole: role,
+      user: updatedUser,
+    });
+  },
 
   initialize: async () => {
     try {
@@ -47,7 +59,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         supabase.auth.onAuthStateChange(async (event, session) => {
           logger.info('AUTH_STORE', `Supabase auth event: ${event}`);
           if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED')) {
-            const profile = await authService.getProfile(session.user.id);
+            const currentActiveRole = get().activeRole || get().user?.role || 'ARTISAN';
+            const profile = await authService.getProfile(session.user.id, currentActiveRole);
+            if (currentActiveRole) {
+              profile.role = currentActiveRole;
+            }
             set({
               tokens: {
                 accessToken: session.access_token,
@@ -55,6 +71,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 expiresInSeconds: session.expires_in || 3600,
               },
               user: profile,
+              activeRole: profile.role,
               isAuthenticated: true,
               activeProfileId: profile.id,
               isLoading: false,
@@ -63,6 +80,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({
               tokens: null,
               user: null,
+              activeRole: null,
               isAuthenticated: false,
               activeProfileId: null,
               isLoading: false,
@@ -84,6 +102,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         set({
           user: profile,
+          activeRole: profile.role,
           tokens,
           isAuthenticated: true,
           activeProfileId: profile.id,
@@ -100,6 +119,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({
           user: parsed.user,
+          activeRole: parsed.user?.role || null,
           tokens: parsed.tokens,
           isAuthenticated: !!parsed.tokens?.accessToken,
           activeProfileId: parsed.user?.id || null,
@@ -137,6 +157,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({
       tokens,
       user,
+      activeRole: user.role,
       isAuthenticated: true,
       activeProfileId: user.id,
       profilesOnDevice: updatedProfiles,
@@ -147,8 +168,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   updateProfile: async (patch: Partial<UserProfile>) => {
-    const currentUser = get().user;
-    if (!currentUser) return;
+    const currentUser = get().user || {
+      id: get().activeProfileId || `user_${Date.now()}`,
+      phoneNumber: '',
+      fullName: '',
+      role: patch.role || get().activeRole || 'ARTISAN',
+      preferredLanguage: 'hi_IN',
+      isProfileComplete: false,
+    };
 
     const updatedUser: UserProfile = { ...currentUser, ...patch };
     const updatedProfiles = get().profilesOnDevice.map((p) =>
@@ -169,6 +196,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     set({
       user: updatedUser,
+      activeRole: updatedUser.role,
       profilesOnDevice: updatedProfiles,
     });
     logger.info('AUTH_STORE', `Profile updated for user ${updatedUser.id}`);
@@ -183,6 +211,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     set({
       user: target,
+      activeRole: target.role,
       activeProfileId: target.id,
     });
     logger.info('AUTH_STORE', `Switched active profile to ${target.id}`);

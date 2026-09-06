@@ -140,6 +140,7 @@ export interface VerifyOtpResponse {
 
 export interface ProfileSetupRequest {
   full_name: string;
+  role?: UserRole;
   craft_category_code: string;
   country_id?: number;
   state_id?: number;

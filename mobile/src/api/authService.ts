@@ -167,7 +167,7 @@ export class AuthService {
 
     const userId = session?.user?.id || '00000000-0000-0000-0000-000000000001';
 
-    // 4. Ensure public.profiles has the record in Supabase Database
+    // 4. Ensure public.profiles has the record in Supabase Database with user's selected role
     try {
       await supabase.from('profiles').upsert({
         id: userId,
@@ -176,12 +176,17 @@ export class AuthService {
         preferred_language: preferredLanguage,
         is_active: true,
       }, { onConflict: 'id' });
+
+      // Guarantee role in profiles matches the user's explicit selection
+      await supabase.from('profiles').update({ role, preferred_language: preferredLanguage }).eq('id', userId);
     } catch {
-      // Row might already exist
+      // Offline / network fallback
     }
 
     // 5. Fetch user profile from Supabase Database
     const userProfile = await this.getProfile(userId, role, preferredLanguage, phoneNumber);
+    // Explicitly enforce chosen role on returned profile object
+    userProfile.role = role;
 
     return {
       access_token: session?.access_token || `token_${Date.now()}`,
@@ -392,11 +397,14 @@ export class AuthService {
     data: ProfileSetupRequest
   ): Promise<UserProfile> {
     try {
-      // 1. Update public.profiles in Supabase Database
+      const role = data.role || 'ARTISAN';
+
+      // 1. Update public.profiles in Supabase Database with role and name
       const { error: profileErr } = await supabase
         .from('profiles')
         .update({
           full_name: data.full_name,
+          role,
           is_profile_complete: true,
         })
         .eq('id', userId);
@@ -404,15 +412,6 @@ export class AuthService {
       if (profileErr) {
         logger.warn('AUTH_SERVICE', 'Update profiles row returned', { error: profileErr.message });
       }
-
-      // 2. Fetch role from profile or assume ARTISAN
-      const { data: userRecord } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      const role = userRecord?.role || 'ARTISAN';
 
       // 3. Upsert specific role profile in Supabase Database with official LGD location linkage
       if (role === 'ARTISAN') {

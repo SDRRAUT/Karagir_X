@@ -72,12 +72,19 @@ const KhataTabScreen = (props: any) => <KhataScreen {...props} />;
 const AccountTabScreen = (props: any) => <ProfileScreen {...props} />;
 const ArtisanHomeTabScreen = (props: any) => <ArtisanHomeScreen {...props} />;
 const SahyogiHomeTabScreen = (props: any) => <SahyogiHomeScreen {...props} />;
+import { UserRole } from '@/api/types';
+import { useTranslation } from '@/hooks/useTranslation';
+
 const BuyerHomeTabScreen = (props: any) => <BuyerHomeScreen {...props} />;
 
-export const AppNavigator: React.FC = () => {
+export const AppNavigator: React.FC<any> = ({ route }) => {
   const insets = useSafeAreaInsets();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
-  const role = useAuthStore((s) => s.user?.role) || 'ARTISAN';
+  const activeRole = useAuthStore((s) => s.activeRole);
+  const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
+  const routeRole = route?.params?.role as UserRole | undefined;
+  const role: UserRole = routeRole || activeRole || user?.role || 'ARTISAN';
 
   const bottomInset = Math.max(insets.bottom, 10);
   const tabHeight = 60 + bottomInset;
@@ -135,7 +142,7 @@ export const AppNavigator: React.FC = () => {
             component={ArtisanHomeTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: 'Studio',
+              tabBarLabel: t.nav.studio,
               tabBarIcon: ({ color, focused }) => <TabIcons.Studio focused={focused} color={color} />,
             }}
           />
@@ -144,7 +151,7 @@ export const AppNavigator: React.FC = () => {
             component={OrdersTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: 'Orders',
+              tabBarLabel: t.nav.orders,
               tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
             }}
           />
@@ -153,7 +160,7 @@ export const AppNavigator: React.FC = () => {
             component={KhataTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: 'Khata',
+              tabBarLabel: t.nav.khata,
               tabBarIcon: ({ color, focused }) => <TabIcons.Khata focused={focused} color={color} />,
             }}
           />
@@ -162,7 +169,7 @@ export const AppNavigator: React.FC = () => {
             component={AccountTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: 'Account',
+              tabBarLabel: t.nav.account,
               tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
             }}
           />
@@ -177,7 +184,7 @@ export const AppNavigator: React.FC = () => {
             component={SahyogiHomeTabScreen}
             options={{
               title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: 'Sahyogi Desk',
+              tabBarLabel: t.nav.sahyogiDesk,
               tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
             }}
           />
@@ -186,7 +193,7 @@ export const AppNavigator: React.FC = () => {
             component={BulkDealsTabScreen}
             options={{
               title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: 'B2B Deals',
+              tabBarLabel: t.nav.bulkDeals,
               tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
             }}
           />
@@ -195,7 +202,7 @@ export const AppNavigator: React.FC = () => {
             component={OrdersTabScreen}
             options={{
               title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: 'Fulfillment',
+              tabBarLabel: t.nav.fulfillment,
               tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
             }}
           />
@@ -204,7 +211,7 @@ export const AppNavigator: React.FC = () => {
             component={AccountTabScreen}
             options={{
               title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: 'Account',
+              tabBarLabel: t.nav.account,
               tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
             }}
           />
@@ -219,7 +226,7 @@ export const AppNavigator: React.FC = () => {
             component={BuyerHomeTabScreen}
             options={{
               title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: 'Discover',
+              tabBarLabel: t.nav.discover,
               tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
             }}
           />
@@ -228,7 +235,7 @@ export const AppNavigator: React.FC = () => {
             component={ExploreTabScreen}
             options={{
               title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: 'Explore',
+              tabBarLabel: t.nav.explore,
               tabBarIcon: ({ color }) => <TabIcons.Explore color={color} />,
             }}
           />
@@ -237,7 +244,7 @@ export const AppNavigator: React.FC = () => {
             component={BulkDealsTabScreen}
             options={{
               title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: 'Bulk Deals',
+              tabBarLabel: t.nav.bulkDeals,
               tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
             }}
           />
@@ -246,7 +253,7 @@ export const AppNavigator: React.FC = () => {
             component={CartTabScreen}
             options={{
               title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: 'Cart',
+              tabBarLabel: t.nav.cart,
               tabBarIcon: ({ color }) => <TabIcons.Cart color={color} count={totalCartCount} />,
             }}
           />
@@ -255,7 +262,7 @@ export const AppNavigator: React.FC = () => {
             component={AccountTabScreen}
             options={{
               title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: 'Account',
+              tabBarLabel: t.nav.account,
               tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
             }}
           />

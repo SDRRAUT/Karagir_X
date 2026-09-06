@@ -23,7 +23,7 @@ export type RootStackParamList = {
     role: UserRole;
   };
   ProfileSetup: { role: UserRole };
-  MainTabs: NavigatorScreenParams<MainTabParamList>;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | { screen?: keyof MainTabParamList; role?: UserRole; params?: any } | undefined;
 
   // Product Creation & Image Capture Journey
   CameraPermission: undefined;

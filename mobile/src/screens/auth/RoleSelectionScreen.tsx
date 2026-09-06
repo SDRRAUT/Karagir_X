@@ -62,10 +62,18 @@ const ROLES: RoleOption[] = [
   },
 ];
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole>('ARTISAN');
 
+  const handleSelectRole = (role: UserRole) => {
+    setSelectedRole(role);
+    useAuthStore.getState().setActiveRole(role);
+  };
+
   const handleContinue = () => {
+    useAuthStore.getState().setActiveRole(selectedRole);
     navigation.navigate('AuthPhone', { role: selectedRole });
   };
 
@@ -131,7 +139,7 @@ export const RoleSelectionScreen: React.FC<Props> = ({ navigation }) => {
                 <TouchableOpacity
                   key={item.role}
                   activeOpacity={0.85}
-                  onPress={() => setSelectedRole(item.role)}
+                  onPress={() => handleSelectRole(item.role)}
                   testID={`role-card-${item.role}`}
                   accessibilityRole="radio"
                   accessibilityLabel={`${item.title}, ${item.subtitle}`}
