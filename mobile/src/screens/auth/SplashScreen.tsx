@@ -48,24 +48,19 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   const doNavigate = () => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    if (hasCompletedProfile) {
-      const role = activeRole || user?.role || 'ARTISAN';
-      navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
-    } else {
-      navigation.replace('Onboarding');
-    }
+    const role = activeRole || user?.role || 'ARTISAN';
+    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
   };
 
   useEffect(() => {
-    if (hasCompletedProfile) {
-      if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-      if (soundRef.current) {
-        soundRef.current.stopAsync().catch(() => {});
-      }
-      const role = activeRole || user?.role || 'ARTISAN';
-      navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
+    // Direct redirect on screens
+    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+    if (soundRef.current) {
+      soundRef.current.stopAsync().catch(() => {});
     }
-  }, [hasCompletedProfile, activeRole, user?.role, navigation]);
+    const role = activeRole || user?.role || 'ARTISAN';
+    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
+  }, [activeRole, user?.role, navigation]);
 
   const handleDevJump = async (role: UserRole) => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
@@ -344,44 +339,6 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* ================================================================= */}
-      {/* [DEV ONLY] QUICK DASHBOARD JUMP - EASILY REMOVE FOR PRODUCTION */}
-      {/* ================================================================= */}
-      <View style={styles.devBarContainer}>
-        <View style={styles.devBarPill}>
-          <Text style={styles.devBarTitle}>⚡ DEV QUICK JUMP</Text>
-          <View style={styles.devButtonsRow}>
-            <TouchableOpacity
-              testID="dev-jump-artisan"
-              style={[styles.devRoleBtn, { backgroundColor: '#EA580C' }]}
-              onPress={() => handleDevJump('ARTISAN')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🏺 Artisan</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="dev-jump-buyer"
-              style={[styles.devRoleBtn, { backgroundColor: '#4338CA' }]}
-              onPress={() => handleDevJump('BUYER')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🛍️ Buyer</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="dev-jump-admin"
-              style={[styles.devRoleBtn, { backgroundColor: '#6366F1' }]}
-              onPress={() => handleDevJump('ADMIN')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🛡️ Admin</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      {/* ================================================================= */}
-
       <TouchableOpacity
         testID="splash-touchable"
         style={styles.touchContainer}
@@ -447,32 +404,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
               </Animated.View>
             )}
 
-            {/* Creative Modern Transparent Start Action with Glowing Breathing Pulse */}
-            <Animated.View
-              style={[
-                styles.startBtnContainer,
-                {
-                  opacity: subtitleOpacity,
-                  transform: [{ scale: btnScale }],
-                },
-              ]}
-            >
-              <TouchableOpacity
-                testID="splash-start-btn"
-                style={styles.startBtn}
-                onPress={doNavigate}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel="Get Started"
-              >
-                <View style={styles.startBtnIconWrap}>
-                  <Text style={styles.startBtnIcon}>🎧</Text>
-                </View>
-                <Text style={styles.startBtnText}>Get Started</Text>
-                <Text style={styles.startBtnArrow}>→</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
+            </View>
 
           {/* Bottom Progress Bar */}
           <View style={styles.bottomBarContainer}>

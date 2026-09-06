@@ -79,8 +79,7 @@ export const RootNavigator: React.FC = () => {
       }}
     >
       <Stack.Navigator
-        key={hasCompletedProfile ? 'auth_stack' : 'guest_stack'}
-        initialRouteName={hasCompletedProfile ? 'MainTabs' : 'Splash'}
+        initialRouteName="MainTabs"
         screenOptions={{
           headerShown: false,
           animation: 'fade',

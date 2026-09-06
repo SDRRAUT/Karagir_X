@@ -13,7 +13,7 @@ describe('SplashScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders brand subtitle and auto-navigates to Onboarding after audio finishes', async () => {
+  it('renders brand subtitle and auto-redirects directly to MainTabs', async () => {
     const { getByText } = await render(
       <ThemeProvider>
         <SplashScreen navigation={mockNavigation} route={{} as any} />
@@ -22,17 +22,18 @@ describe('SplashScreen', () => {
 
     expect(getByText(/Direct from India's Master Artisans/i)).toBeTruthy();
 
-    // With the expo-av mock, audio fires didJustFinish synchronously.
-    // Navigation happens after 600ms delay. Use waitFor to catch it.
     await waitFor(
       () => {
-        expect(mockNavigation.replace).toHaveBeenCalledWith('Onboarding');
+        expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
+          screen: 'HomeTab',
+          params: { role: 'ARTISAN' },
+        });
       },
       { timeout: 5000 }
     );
   });
 
-  it('allows user to tap anywhere to navigate immediately to Onboarding without any prompt', async () => {
+  it('allows user to tap anywhere to navigate immediately to MainTabs', async () => {
     const { getByTestId, queryByText } = await render(
       <ThemeProvider>
         <SplashScreen navigation={mockNavigation} route={{} as any} />
@@ -47,58 +48,23 @@ describe('SplashScreen', () => {
       fireEvent.press(getByTestId('splash-touchable'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalledWith('Onboarding');
-  });
-
-  it('allows dev quick jump directly to Artisan Dashboard with prefilled demo account', async () => {
-    const { getByTestId } = await render(
-      <ThemeProvider>
-        <SplashScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-artisan'));
-    });
-
     expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
       screen: 'HomeTab',
       params: { role: 'ARTISAN' },
     });
   });
 
-  it('allows dev quick jump directly to Buyer Dashboard with prefilled demo account', async () => {
-    const { getByTestId } = await render(
+  it('does not render dev buttons or start buttons', async () => {
+    const { queryByTestId } = await render(
       <ThemeProvider>
         <SplashScreen navigation={mockNavigation} route={{} as any} />
       </ThemeProvider>
     );
 
-    await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-buyer'));
-    });
-
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
-      screen: 'HomeTab',
-      params: { role: 'BUYER' },
-    });
-  });
-
-  it('allows dev quick jump directly to Admin Command Center with prefilled demo account', async () => {
-    const { getByTestId } = await render(
-      <ThemeProvider>
-        <SplashScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-admin'));
-    });
-
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
-      screen: 'HomeTab',
-      params: { role: 'ADMIN' },
-    });
+    expect(queryByTestId('dev-jump-artisan')).toBeNull();
+    expect(queryByTestId('dev-jump-buyer')).toBeNull();
+    expect(queryByTestId('dev-jump-admin')).toBeNull();
+    expect(queryByTestId('splash-start-btn')).toBeNull();
   });
 });
 
