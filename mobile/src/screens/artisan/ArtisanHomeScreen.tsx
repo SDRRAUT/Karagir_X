@@ -33,6 +33,8 @@ export const HomeScreen: React.FC = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showNotifModal, setShowNotifModal] = useState(false);
+  const [showMelaModal, setShowMelaModal] = useState(false);
+  const [melaAmount, setMelaAmount] = useState('150');
 
   const artisanProducts: ProductTile[] = [
     {
@@ -471,6 +473,59 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.motifDot} />
         </View>
 
+        {/* 🌟 ARTISAN MUST-BUILD #4: "Kya Banayein" (क्या बनाएं?) Demand Advisory */}
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+            {isHindi ? '💡 क्या बनाएं? • एआई मांग सलाह' : '💡 Kya Banayein? • AI Demand Advisory'}
+          </Text>
+          <TouchableOpacity
+            style={styles.audioSpeakerBtn}
+            onPress={() =>
+              handleSpeakText(
+                isHindi
+                  ? 'क्या बनाएं सलाह। दीपावली उत्सव हेतु हस्तनिर्मित मिट्टी के दीये और कलश की भारी मांग है। अनुशंसित उत्पादन 250 नग।'
+                  : 'What to craft advice. High buyer demand for festive terracotta diyas and pots. Recommended batch 250 units.'
+              )
+            }
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.demandAdvisoryCard}>
+          <View style={styles.demandBadgeRow}>
+            <View style={styles.demandSurgePill}>
+              <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}>🔥 +320% DEMAND SURGE</Text>
+            </View>
+            <Text style={{ fontSize: 11, color: '#92400E', fontWeight: 'bold' }}>
+              {isHindi ? 'दीपावली एवं विवाह उत्सव' : 'Diwali & Festive Season'}
+            </Text>
+          </View>
+          <Text variant="bodyLarge" weight="bold" color="#0F172A">
+            {isHindi ? 'हस्तनिर्मित नक्काशीदार दीये एवं सुराही पात्र' : 'Hand-carved Terracotta Diyas & Surahi Pots'}
+          </Text>
+          <Text variant="caption" color="#64748B" style={{ marginVertical: 6 }}>
+            {isHindi
+              ? '3,400+ ऑनलाइन खरीदार इस सप्ताह यह खोज रहे हैं। यदि आप 250 नग बनाते हैं तो अनुमानित लाभ ₹18,750 होगा।'
+              : '3,400+ active buyers searched for this item this week. Creating 250 units will yield an estimated ₹18,750 profit.'}
+          </Text>
+          <TouchableOpacity
+            style={styles.startCraftingBtn}
+            onPress={() => navigation.navigate('CameraPermission')}
+          >
+            <Text style={styles.startCraftingBtnText}>
+              ✨ {isHindi ? 'यह उत्पाद बनाना शुरू करें' : 'Start Crafting Batch'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Triple Dot Divider Motif */}
+        <View style={styles.motifDivider}>
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+          <View style={styles.motifDot} />
+        </View>
+
         {/* New Opportunities Section (Stitch Exact Card) */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
@@ -526,6 +581,47 @@ export const HomeScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* 🌟 ARTISAN MUST-BUILD #6: Mela Mode Quick-Billing with Instant UPI QR */}
+        <View style={styles.sectionHeader}>
+          <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
+            {isHindi ? '🎪 मेला मोड • त्वरित क्यूआर बिलिंग' : '🎪 Mela Mode • Quick QR Billing'}
+          </Text>
+          <TouchableOpacity
+            style={styles.audioSpeakerBtn}
+            onPress={() =>
+              handleSpeakText(
+                isHindi
+                  ? 'मेला मोड। प्रदर्शनी अथवा हाट बाजार में ग्राहकों से तुरंत यूपीआई क्यूआर कोड स्कैन करवाकर सीधे भुगतान लें।'
+                  : 'Mela Mode. Accept instant digital payments at exhibitions and fairs directly into your bank via QR.'
+              )
+            }
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          style={styles.melaModeCard}
+          onPress={() => setShowMelaModal(true)}
+          activeOpacity={0.9}
+        >
+          <View style={styles.melaModeLeft}>
+            <View style={styles.melaPillBadge}>
+              <Text style={styles.melaPillBadgeText}>🎪 HIGH-SPEED POS</Text>
+            </View>
+            <Text variant="bodyLarge" weight="bold" color="#FFFFFF" style={{ marginTop: 4 }}>
+              {isHindi ? 'हाट/प्रदर्शनी त्वरित बिलिंग' : 'Instant Exhibition Counter QR'}
+            </Text>
+            <Text variant="caption" color="#FFEDD5">
+              {isHindi ? '2-टैप ऑफलाइन बिलिंग • सीधे कारीगर के बैंक खाते में 100%' : '2-Tap offline billing • 100% direct to artisan bank'}
+            </Text>
+          </View>
+          <View style={styles.melaQrBox}>
+            <Text style={{ fontSize: 28 }}>📱</Text>
+            <Text style={{ fontSize: 9, color: '#EA580C', fontWeight: 'bold' }}>SCAN QR</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Schemes & Support Section (Stitch Exact Card) */}
         <View style={styles.sectionHeader}>
@@ -734,6 +830,72 @@ export const HomeScreen: React.FC = () => {
             >
               <Text variant="bodyMedium" weight="bold" color="#64748B">
                 {t.common.cancel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* 🌟 ARTISAN MUST-BUILD #6: Mela Quick Billing UPI QR Modal */}
+      <Modal visible={showMelaModal} transparent animationType="slide">
+        <TouchableOpacity
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowMelaModal(false)}
+        >
+          <View style={styles.melaModalBox}>
+            <View style={styles.melaModalTop}>
+              <Text variant="headlineSmall" weight="bold" color="#0F172A">
+                {isHindi ? '🎪 मेला त्वरित क्यूआर' : '🎪 Mela Instant QR'}
+              </Text>
+              <TouchableOpacity onPress={() => setShowMelaModal(false)}>
+                <Text style={{ fontSize: 18, color: '#64748B', fontWeight: 'bold' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <Text variant="caption" color="#64748B" style={{ marginBottom: 12 }}>
+              {isHindi ? 'ग्राहक से यह क्यूआर स्कैन करवाएं (गूगल पे / फोनपे / पेटीएम)' : 'Ask buyer to scan via any UPI app (GPay / PhonePe / Paytm)'}
+            </Text>
+
+            {/* QR Simulation Card */}
+            <View style={styles.qrVisualContainer}>
+              <View style={styles.qrBoxSim}>
+                <Text style={{ fontSize: 72 }}>🏁</Text>
+                <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0F172A', marginTop: 4 }}>
+                  UPI: kalakar.ramesh@sbi
+                </Text>
+              </View>
+              <Text variant="headlineMedium" weight="bold" color="#EA580C" style={{ marginTop: 8 }}>
+                ₹{melaAmount}
+              </Text>
+            </View>
+
+            {/* Amount Presets */}
+            <View style={styles.amountPresetsRow}>
+              {['100', '150', '250', '500'].map((amt) => (
+                <TouchableOpacity
+                  key={amt}
+                  style={[styles.presetBtn, melaAmount === amt && styles.presetBtnActive]}
+                  onPress={() => setMelaAmount(amt)}
+                >
+                  <Text style={[styles.presetBtnText, melaAmount === amt && styles.presetBtnTextActive]}>
+                    ₹{amt}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.confirmCashBtn}
+              onPress={() => {
+                setShowMelaModal(false);
+                Alert.alert(
+                  '✅ Payment Recorded',
+                  isHindi ? `₹${melaAmount} का भुगतान प्राप्त हुआ! खाता बही में दर्ज किया गया।` : `Payment of ₹${melaAmount} received! Added to Bahi Khata.`
+                );
+              }}
+            >
+              <Text variant="bodyMedium" weight="bold" color="#FFFFFF">
+                ✓ {isHindi ? 'भुगतान प्राप्त हुआ (खाते में दर्ज)' : 'Confirm Payment Received'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -1267,5 +1429,143 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     zIndex: 50,
+  },
+  // Demand Advisory Styles
+  demandAdvisoryCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#FFFBEB',
+    borderRadius: 18,
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    padding: 16,
+    marginBottom: 16,
+  },
+  demandBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  demandSurgePill: {
+    backgroundColor: '#EA580C',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  startCraftingBtn: {
+    backgroundColor: '#0F172A',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  startCraftingBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: 'bold',
+  },
+  // Mela Mode Styles
+  melaModeCard: {
+    marginHorizontal: 16,
+    backgroundColor: '#EA580C',
+    borderRadius: 18,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  melaModeLeft: {
+    flex: 1,
+    marginRight: 10,
+  },
+  melaPillBadge: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  melaPillBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  melaQrBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  melaModalBox: {
+    width: '90%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 20,
+    alignItems: 'center',
+  },
+  melaModalTop: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  qrVisualContainer: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+  },
+  qrBoxSim: {
+    alignItems: 'center',
+  },
+  amountPresetsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+    width: '100%',
+  },
+  presetBtn: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingVertical: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  presetBtnActive: {
+    backgroundColor: '#FFF7ED',
+    borderColor: '#EA580C',
+    borderWidth: 1.5,
+  },
+  presetBtnText: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  presetBtnTextActive: {
+    color: '#EA580C',
+  },
+  confirmCashBtn: {
+    width: '100%',
+    backgroundColor: '#16A34A',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
   },
 });
