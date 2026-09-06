@@ -8,7 +8,7 @@ const mockNavigation: any = {
 };
 
 describe('RoleSelectionScreen', () => {
-  it('renders Artisan, Buyer, and Facilitator roles and passes selection to AuthPhone', async () => {
+  it('renders Artisan, Buyer, and Admin roles and passes selection to AuthPhone', async () => {
     const { getByText, getByTestId } = await render(
       <ThemeProvider>
         <RoleSelectionScreen navigation={mockNavigation} route={{} as any} />

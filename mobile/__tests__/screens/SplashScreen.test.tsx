@@ -84,7 +84,7 @@ describe('SplashScreen', () => {
     });
   });
 
-  it('allows dev quick jump directly to Sahyogi Dashboard with prefilled demo account', async () => {
+  it('allows dev quick jump directly to Admin Command Center with prefilled demo account', async () => {
     const { getByTestId } = await render(
       <ThemeProvider>
         <SplashScreen navigation={mockNavigation} route={{} as any} />
@@ -92,12 +92,12 @@ describe('SplashScreen', () => {
     );
 
     await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-sahyogi'));
+      fireEvent.press(getByTestId('dev-jump-admin'));
     });
 
     expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
       screen: 'HomeTab',
-      params: { role: 'FACILITATOR' },
+      params: { role: 'ADMIN' },
     });
   });
 });

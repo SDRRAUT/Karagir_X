@@ -453,23 +453,8 @@ export class AuthService {
         if (buyerErr) {
           logger.warn('AUTH_SERVICE', 'Notice updating buyer_profiles', { error: buyerErr.message });
         }
-      } else if (role === 'FACILITATOR') {
-        const { error: facErr } = await supabase
-          .from('facilitators')
-          .upsert({
-            id: userId,
-            organization_name: data.full_name,
-            country_id: data.country_id || 1,
-            state_id: data.state_id || null,
-            district_id: data.district_id || null,
-            operating_district: data.district || '',
-            operating_state: data.state || '',
-            accreditation_code: data.shg_or_facilitator_code || `SAHYOGI-${userId.slice(0, 6)}`,
-          }, { onConflict: 'id' });
-
-        if (facErr) {
-          logger.warn('AUTH_SERVICE', 'Notice updating facilitators', { error: facErr.message });
-        }
+      } else if (role === 'ADMIN') {
+        logger.info('AUTH_SERVICE', 'Admin profile initialized', { userId, name: data.full_name });
       }
 
       return await this.getProfile(userId, role as UserRole);

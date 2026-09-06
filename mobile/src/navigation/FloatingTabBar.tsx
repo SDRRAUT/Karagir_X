@@ -126,6 +126,8 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
                     <Text style={styles.centerEmojiIcon}>🎙️</Text>
                   ) : route.name === 'BulkDealsTab' ? (
                     <Text style={styles.centerEmojiIcon}>✨</Text>
+                  ) : route.name === 'ModerationTab' ? (
+                    <Text style={styles.centerEmojiIcon}>🛡️</Text>
                   ) : (
                     <Text style={styles.centerPlusIcon}>+</Text>
                   )}

@@ -40,15 +40,10 @@ const ROLE_THEMES: Record<UserRole, RoleTheme> = {
     lightBg: '#EEF2FF',
     borderAccent: '#C7D2FE',
   },
-  FACILITATOR: {
-    themeColor: '#16A34A',
-    lightBg: '#F0FDF4',
-    borderAccent: '#BBF7D0',
-  },
-  ADMIN_STAFF: {
-    themeColor: '#0F172A',
-    lightBg: '#F1F5F9',
-    borderAccent: '#CBD5E1',
+  ADMIN: {
+    themeColor: '#6366F1',
+    lightBg: '#EEF2FF',
+    borderAccent: '#C7D2FE',
   },
 };
 

@@ -11,6 +11,9 @@ export type MainTabParamList = {
   KhataTab?: undefined;
   CreateTab?: undefined;
   OnboardTab?: undefined;
+  KycTab?: undefined;
+  ModerationTab?: undefined;
+  EscrowTab?: undefined;
 };
 
 export type RootStackParamList = {
@@ -62,4 +65,10 @@ export type RootStackParamList = {
   QuoteNegotiation: { opportunityId: string };
   B2BContract: { contractId: string };
   CreateBulkRfq: undefined;
+
+  // Platform Admin Governance & Operations
+  AdminDashboard: undefined;
+  AdminKyc: undefined;
+  AdminModeration: undefined;
+  AdminEscrow: undefined;
 };

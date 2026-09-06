@@ -106,7 +106,7 @@ describe('OtpVerificationScreen', () => {
             params: {
               phoneNumber: '9876543210',
               sessionId: 'test_sess_123',
-              role: 'FACILITATOR',
+              role: 'ADMIN',
             },
           } as any}
         />

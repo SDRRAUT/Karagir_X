@@ -1,4 +1,4 @@
-export type UserRole = 'ARTISAN' | 'BUYER' | 'FACILITATOR' | 'ADMIN_STAFF';
+export type UserRole = 'ARTISAN' | 'BUYER' | 'ADMIN';
 
 export interface ApiResponse<T> {
   data: T;
@@ -153,3 +153,64 @@ export interface ProfileSetupRequest {
   village_name?: string;
   shg_or_facilitator_code?: string;
 }
+
+export interface AdminPlatformMetrics {
+  totalGmv: number;
+  activeArtisansCount: number;
+  activeBuyersCount: number;
+  totalProductsCount: number;
+  totalEscrowLocked: number;
+  platformCommissionRevenue: number;
+  pendingKycCount: number;
+  flaggedListingsCount: number;
+  activeDisputesCount: number;
+}
+
+export interface AdminKycApplication {
+  id: string;
+  artisanId: string;
+  artisanName: string;
+  phone: string;
+  craftSpecialty: string;
+  craftCategory: string;
+  state: string;
+  district: string;
+  aadhaarLast4: string;
+  pehchanCardId?: string;
+  verificationStatus: 'PENDING' | 'APPROVED' | 'REJECTED';
+  submittedAt: string;
+  reliabilityScore: number;
+  notes?: string;
+}
+
+export interface AdminFlaggedListing {
+  id: string;
+  productId: string;
+  title: string;
+  artisanName: string;
+  craftCategory: string;
+  price: number;
+  fairPriceSuggested: number;
+  imageUrl: string;
+  flagReason: string;
+  aiRiskScore: number; // 0 to 100
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+export interface AdminEscrowTransaction {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  buyerName: string;
+  artisanName: string;
+  craftTitle: string;
+  amount: number;
+  escrowStatus: 'HELD_IN_NODAL_VAULT' | 'RELEASE_PENDING' | 'RELEASED_TO_ARTISAN' | 'DISPUTED' | 'REFUNDED_TO_BUYER';
+  trackingNumber: string;
+  deliveryMilestone: string;
+  hoursRemaining: number;
+  hasDispute: boolean;
+  disputeReason?: string;
+}
+

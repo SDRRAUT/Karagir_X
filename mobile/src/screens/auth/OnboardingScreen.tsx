@@ -137,33 +137,33 @@ export const ONBOARDING_ROLES: OnboardingRoleOption[] = [
     ctaMr: 'खरेदीदार सुरू करा 🛍️',
   },
   {
-    role: 'FACILITATOR',
-    titleEn: 'Sahyogi / SHG Lead',
-    titleHi: 'सहयोगी / क्लस्टर मित्र',
-    titleMr: 'सहयोगी / बचत गट प्रमुख',
-    subtitleEn: 'Support artisan clusters, bulk orders, QC audits & digital onboarding',
-    subtitleHi: 'कारीगर समूहों, बचत गट, पैकेजिंग और बड़े ऑर्डर में सहायता करें',
-    subtitleMr: 'बचत गट, पॅकेजिंग आणि मोठ्या ऑर्डर्समध्ये कारागिरांना मदत करा',
-    tagEn: '🤝 Cluster Support',
-    tagHi: '🤝 क्लस्टर साथी',
-    tagMr: '🤝 बचत गट साथी',
-    icon: '🤝',
-    themeColor: '#059669',
-    cardGradientSelected: ['#FFFFFF', '#ECFDF5', '#D1FAE5'] as const,
+    role: 'ADMIN',
+    titleEn: 'Platform Admin & Ops',
+    titleHi: 'एडमिन एवं संचालन',
+    titleMr: 'अॅडमिन व ऑपरेशन्स',
+    subtitleEn: 'Platform command center, artisan KYC, AI listing review & escrow settlement',
+    subtitleHi: 'कमांड सेंटर, कारीगर सत्यापन, कैटलॉग मॉडरेशन एवं एस्क्रो निपटान',
+    subtitleMr: 'कमांड सेंटर, कारागीर पडताळणी, कॅटलॉग पुनरावलोकन व एस्क्रो सेटलमेंट',
+    tagEn: '🛡️ Operations Hub',
+    tagHi: '🛡️ संचालन केंद्र',
+    tagMr: '🛡️ ऑपरेशन्स हब',
+    icon: '🛡️',
+    themeColor: '#6366F1',
+    cardGradientSelected: ['#FFFFFF', '#EEF2FF', '#E0E7FF'] as const,
     cardGradientUnselected: ['#FFFFFF', '#F8FAFC'] as const,
-    iconGradient: ['#10B981', '#059669', '#047857'] as const,
-    tagGradient: ['#ECFDF5', '#A7F3D0'] as const,
-    tagTextColor: '#047857',
-    borderSelected: '#059669',
+    iconGradient: ['#6366F1', '#4F46E5', '#4338CA'] as const,
+    tagGradient: ['#EEF2FF', '#C7D2FE'] as const,
+    tagTextColor: '#4338CA',
+    borderSelected: '#6366F1',
     borderUnselected: '#E2E8F0',
-    perkEn: '📦 Bulk RFQs • Cluster Groups • Quality Audits',
-    perkHi: '📦 बड़े ऑर्डर्स • क्लस्टर समूह • गुणवत्ता जांच',
-    perkMr: '📦 मोठ्या ऑर्डर्स • बचत गट • गुणवत्ता तपासणी',
-    lightBg: '#F0FDF4',
-    borderColor: '#BBF7D0',
-    ctaEn: 'Start as Sahyogi 🤝',
-    ctaHi: 'सहयोगी शुरू करें 🤝',
-    ctaMr: 'सहयोगी सुरू करा 🤝',
+    perkEn: '🛡️ Live Command • KYC Vetting • AI Moderation • Escrow',
+    perkHi: '🛡️ लाइव कमांड • सत्यापन • कैटलॉग मॉडरेशन • एस्क्रो',
+    perkMr: '🛡️ लाइव कमांड • पडताळणी • कॅटलॉग मॉडरेशन • एस्क्रो',
+    lightBg: '#EEF2FF',
+    borderColor: '#C7D2FE',
+    ctaEn: 'Enter as Admin 🛡️',
+    ctaHi: 'एडमिन शुरू करें 🛡️',
+    ctaMr: 'अॅडमिन सुरू करा 🛡️',
   },
 ];
 
@@ -526,10 +526,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'असली प्रमाणित जीआई हस्तशिल्प सीधे कारीगरों से खरीदें',
       cta: 'खरीदार शुरू करें 🛍️',
     },
-    FACILITATOR: {
-      title: 'सहयोगी / क्लस्टर मित्र',
-      subtitle: 'कारीगर समूहों, बचत गट, पैकेजिंग और बड़े ऑर्डर में सहायता करें',
-      cta: 'सहयोगी शुरू करें 🤝',
+    ADMIN: {
+      title: 'एडमिन एवं संचालन',
+      subtitle: 'कमांड सेंटर, कारीगर सत्यापन, कैटलॉग मॉडरेशन एवं एस्क्रो निपटान',
+      cta: 'एडमिन शुरू करें 🛡️',
     },
   },
   mr_IN: {
@@ -543,10 +543,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'प्रमाणित जीआय हस्तकला थेट कारागिरांकडून खरेदी करा',
       cta: 'खरेदीदार सुरू करा 🛍️',
     },
-    FACILITATOR: {
-      title: 'सहयोगी / बचत गट प्रमुख',
-      subtitle: 'बचत गट, पॅकेजिंग आणि मोठ्या ऑर्डर्समध्ये कारागिरांना मदत करा',
-      cta: 'सहयोगी सुरू करा 🤝',
+    ADMIN: {
+      title: 'अॅडमिन व ऑपरेशन्स',
+      subtitle: 'कमांड सेंटर, कारागीर पडताळणी, कॅटलॉग पुनरावलोकन व एस्क्रो सेटलमेंट',
+      cta: 'अॅडमिन सुरू करा 🛡️',
     },
   },
   bn_IN: {
@@ -560,10 +560,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'আসল হস্তশিল্প সরাসরি কারিগরদের কাছ থেকে কিনুন',
       cta: 'ক্রেতা শুরু করুন 🛍️',
     },
-    FACILITATOR: {
-      title: 'সহযোগী / ক্লাস্টার সহায়ক',
-      subtitle: 'স্বনির্ভর দল, গুণমান পরীক্ষা ও প্যাকেজিংয়ে সাহায্য করুন',
-      cta: 'সহযোগী শুরু করুন 🤝',
+    ADMIN: {
+      title: 'অ্যাডমিন ও পরিচালনা',
+      subtitle: 'প্ল্যাটফর্ম কমান্ড সেন্টার, কারিগর যাচাই ও এসক্রো নিষ্পত্তি',
+      cta: 'অ্যাডমিন শুরু করুন 🛡️',
     },
   },
   ta_IN: {
@@ -577,10 +577,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'உண்மையான கைவினைப் பொருட்களை நேரடியாகப் பெறுங்கள்',
       cta: 'வாங்குபவர் தொடங்கு 🛍️',
     },
-    FACILITATOR: {
-      title: 'உதவியாளர் / ஒருங்கிணைப்பாளர்',
-      subtitle: 'சுயஉதவிக் குழுக்கள், தர ஆய்வு மற்றும் மொத்த ஆர்டர்களுக்கு உதவுங்கள்',
-      cta: 'உதவியாளர் தொடங்கு 🤝',
+    ADMIN: {
+      title: 'நிர்வாகம் மற்றும் செயல்பாடுகள்',
+      subtitle: 'கட்டளை மையம், சரிபார்ப்பு மற்றும் எஸ்க்ரோ தீர்வு',
+      cta: 'நிர்வாகம் தொடங்கு 🛡️',
     },
   },
   te_IN: {
@@ -594,10 +594,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'అసలైన కళాఖండాలను నేరుగా కొనుగోలు చేయండి',
       cta: 'కొనుగోలుదారుడు ప్రారంభించు 🛍️',
     },
-    FACILITATOR: {
-      title: 'సహయోగి / క్లస్టర్ మిత్రుడు',
-      subtitle: 'స్వయం సహాయక బృందాలు మరియు బల్క్ ఆర్డర్లకు సహాయం చేయండి',
-      cta: 'సహయోగి ప్రారంభించు 🤝',
+    ADMIN: {
+      title: 'అడ్మిన్ మరియు ఆపరేషన్స్',
+      subtitle: 'కమాండ్ సెంటర్, కళాకారుల పరిశీలన మరియు ఎస్క్రో సెటిల్మెంట్',
+      cta: 'అడ్మిన్ ప్రారంభించు 🛡️',
     },
   },
   gu_IN: {
@@ -611,10 +611,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'અસલી હસ્તકલા સીધી કારીગરો પાસેથી ખરીદો',
       cta: 'ગ્રાહક શરૂ કરો 🛍️',
     },
-    FACILITATOR: {
-      title: 'સહયોગી / ક્લસ્ટર મિત્ર',
-      subtitle: 'સ્વસહાય જૂથો અને પેકિંગમાં કારીગરોને મદદ કરો',
-      cta: 'સહયોગી શરૂ કરો 🤝',
+    ADMIN: {
+      title: 'એડમિન અને સંચાલન',
+      subtitle: 'કમાન્ડ સેન્ટર, કારીગર ચકાસણી અને એસ્ક્રો સેટલમેન્ટ',
+      cta: 'એડમિન શરૂ કરો 🛡️',
     },
   },
   od_IN: {
@@ -628,10 +628,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'ଅସଲି ହସ୍ତଶିଳ୍ପ ସିଧାସଳଖ କାରିଗରଙ୍କଠାରୁ କିଣନ୍ତୁ',
       cta: 'କ୍ରେତା ଆରମ୍ଭ କରନ୍ତୁ 🛍️',
     },
-    FACILITATOR: {
-      title: 'ସହଯୋଗୀ / କ୍ଲଷ୍ଟର ସାଥୀ',
-      subtitle: 'ମହିଳା ମଣ୍ଡଳ ଓ ପ୍ୟାକିଂ କାର୍ଯ୍ୟରେ କାରିଗରଙ୍କୁ ସାହାଯ୍ୟ କରନ୍ତୁ',
-      cta: 'ସହଯୋଗୀ ଆରମ୍ଭ କରନ୍ତୁ 🤝',
+    ADMIN: {
+      title: 'ଆଡମିନ ଓ ପରିଚାଳନା',
+      subtitle: 'କମାଣ୍ଡ ସେଣ୍ଟର, କାରିଗର ଯାଞ୍ଚ ଏବଂ ଏସ୍କ୍ରୋ ସମାଧାନ',
+      cta: 'ଆଡମିନ ଆରମ୍ଭ କରନ୍ତୁ 🛡️',
     },
   },
   en_IN: {
@@ -645,10 +645,10 @@ const ROLE_TRANSLATIONS: Record<
       subtitle: 'Discover verified GI-tagged crafts, retail & bulk direct from makers',
       cta: 'Start as Buyer 🛍️',
     },
-    FACILITATOR: {
-      title: 'Sahyogi / SHG Lead',
-      subtitle: 'Support artisan clusters, bulk orders, QC audits & digital onboarding',
-      cta: 'Start as Sahyogi 🤝',
+    ADMIN: {
+      title: 'Platform Admin & Ops',
+      subtitle: 'Platform command center, artisan KYC, AI listing review & escrow settlement',
+      cta: 'Enter as Admin 🛡️',
     },
   },
 };

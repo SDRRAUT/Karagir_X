@@ -5,7 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MainTabParamList } from './types';
 import { ArtisanHomeScreen, KhataScreen, OrdersScreen } from '@/screens/artisan';
 import { BuyerHomeScreen, CategoriesScreen, CartScreen } from '@/screens/buyer';
-import { SahyogiHomeScreen } from '@/screens/sahyogi';
+import {
+  AdminDashboardScreen,
+  AdminKycScreen,
+  AdminModerationScreen,
+  AdminEscrowScreen,
+} from '@/screens/admin';
 import { ProfileScreen } from '@/screens/shared';
 import { OpportunitiesScreen } from '@/screens/linkage/OpportunitiesScreen';
 import { Text } from '@/components/typography/Text';
@@ -20,6 +25,26 @@ const TabIcons = {
   Home: ({ focused, color }: { focused?: boolean; color: string }) => (
     <View style={styles.iconBox}>
       <Icon name={focused ? 'home' : 'homeOutline'} size={22} color={color} />
+    </View>
+  ),
+  Governance: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name="shieldCheck" size={22} color={color} />
+    </View>
+  ),
+  KycQueue: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name="users" size={22} color={color} />
+    </View>
+  ),
+  Moderation: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name="alertCircle" size={22} color={color} />
+    </View>
+  ),
+  Escrow: ({ focused, color }: { focused?: boolean; color: string }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'wallet' : 'walletOutline'} size={22} color={color} />
     </View>
   ),
   Studio: ({ focused, color }: { focused?: boolean; color: string }) => (
@@ -71,7 +96,10 @@ const OrdersTabScreen = (props: any) => <OrdersScreen {...props} />;
 const KhataTabScreen = (props: any) => <KhataScreen {...props} />;
 const AccountTabScreen = (props: any) => <ProfileScreen {...props} />;
 const ArtisanHomeTabScreen = (props: any) => <ArtisanHomeScreen {...props} />;
-const SahyogiHomeTabScreen = (props: any) => <SahyogiHomeScreen {...props} />;
+const AdminDashboardTabScreen = (props: any) => <AdminDashboardScreen {...props} />;
+const AdminKycTabScreen = (props: any) => <AdminKycScreen {...props} />;
+const AdminModerationTabScreen = (props: any) => <AdminModerationScreen {...props} />;
+const AdminEscrowTabScreen = (props: any) => <AdminEscrowScreen {...props} />;
 import { UserRole } from '@/api/types';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -93,12 +121,12 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
   const tabHeight = 60 + bottomInset;
 
   const activeTintColor =
-    role === 'BUYER' ? '#4338CA' : role === 'FACILITATOR' ? '#16A34A' : '#EA580C';
+    role === 'BUYER' ? '#4338CA' : role === 'ADMIN' ? '#6366F1' : '#EA580C';
 
   const roleLabel =
     role === 'ARTISAN' ? 'Artisans' :
     role === 'BUYER' ? 'Buyer' :
-    role === 'FACILITATOR' ? 'Sahyogi' : '';
+    role === 'ADMIN' ? 'Command Center' : '';
 
   const appTitle = roleLabel ? `Kalakar Setu ~ ${roleLabel}` : 'Kalakar Setu';
 
@@ -182,55 +210,49 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         </>
       )}
 
-      {/* 2. FACILITATOR / SAHYOGI TABS (Desk, B2B Deals, [Onboard 🎙️], Fulfillment, Profile) */}
-      {role === 'FACILITATOR' && (
+      {/* 2. ADMIN & OPERATIONS TABS (Dashboard, KYC Queue, [Moderation 🛡️], Escrow, Profile) */}
+      {role === 'ADMIN' && (
         <>
           <Tab.Screen
             name="HomeTab"
-            component={SahyogiHomeTabScreen}
+            component={AdminDashboardTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: t.nav.sahyogiDesk,
-              tabBarIcon: ({ color, focused }) => <TabIcons.Home focused={focused} color={color} />,
+              title: 'Kalakar Setu ~ Command Center',
+              tabBarLabel: 'Command',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Governance focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
-            name="BulkDealsTab"
-            component={BulkDealsTabScreen}
+            name="KycTab"
+            component={AdminKycTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: t.nav.bulkDeals,
-              tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
+              title: 'Kalakar Setu ~ KYC Queue',
+              tabBarLabel: 'KYC Queue',
+              tabBarIcon: ({ color, focused }) => <TabIcons.KycQueue focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
-            name="OnboardTab"
-            component={PlaceholderScreen}
+            name="ModerationTab"
+            component={AdminModerationTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: t.nav.onboard,
+              title: 'Kalakar Setu ~ AI Moderation',
+              tabBarLabel: 'AI Mod 🛡️',
             }}
-            listeners={({ navigation }) => ({
-              tabPress: (e) => {
-                e.preventDefault();
-                (navigation as any)?.navigate('MicPermission');
-              },
-            })}
           />
           <Tab.Screen
-            name="OrdersTab"
-            component={OrdersTabScreen}
+            name="EscrowTab"
+            component={AdminEscrowTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Sahyogi',
-              tabBarLabel: t.nav.fulfillment,
-              tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
+              title: 'Kalakar Setu ~ Escrow Reconciliation',
+              tabBarLabel: 'Escrow',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Escrow focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
             name="ProfileTab"
             component={AccountTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Sahyogi',
+              title: 'Kalakar Setu ~ Admin Settings',
               tabBarLabel: t.nav.account,
               tabBarIcon: ({ color, focused }) => <TabIcons.Account color={color} focused={focused} />,
             }}
