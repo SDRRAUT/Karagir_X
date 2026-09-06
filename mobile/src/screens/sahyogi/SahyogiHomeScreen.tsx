@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 95,
   },
   summaryCard: {
     borderRadius: 18,

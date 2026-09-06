@@ -9,6 +9,8 @@ export type MainTabParamList = {
   ProfileTab: undefined; // Account
   OrdersTab?: undefined;
   KhataTab?: undefined;
+  CreateTab?: undefined;
+  OnboardTab?: undefined;
 };
 
 export type RootStackParamList = {

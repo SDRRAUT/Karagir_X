@@ -28,6 +28,8 @@ export interface TranslationsDictionary {
     cart: string;
     sahyogiDesk: string;
     fulfillment: string;
+    create: string;
+    onboard: string;
   };
   artisan: {
     badge: string;
@@ -285,6 +287,8 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       cart: 'Cart',
       sahyogiDesk: 'Sahyogi Desk',
       fulfillment: 'Fulfillment',
+      create: 'Create',
+      onboard: 'Onboard',
     },
     artisan: {
       badge: 'ARTISAN STUDIO',
@@ -540,6 +544,8 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       cart: 'कार्ट',
       sahyogiDesk: 'सहयोगी डेस्क',
       fulfillment: 'पूर्ति केंद्र',
+      create: 'शिल्प जोड़ें',
+      onboard: 'कारीगर जोड़ें',
     },
     artisan: {
       badge: 'कारीगर कार्यशाला',

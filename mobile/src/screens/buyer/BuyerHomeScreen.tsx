@@ -831,7 +831,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 95,
   },
   searchContainer: {
     flexDirection: 'row',

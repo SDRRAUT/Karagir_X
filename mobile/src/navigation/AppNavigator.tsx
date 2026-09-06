@@ -75,7 +75,10 @@ const SahyogiHomeTabScreen = (props: any) => <SahyogiHomeScreen {...props} />;
 import { UserRole } from '@/api/types';
 import { useTranslation } from '@/hooks/useTranslation';
 
+import { FloatingTabBar } from './FloatingTabBar';
+
 const BuyerHomeTabScreen = (props: any) => <BuyerHomeScreen {...props} />;
+const PlaceholderScreen = () => null;
 
 export const AppNavigator: React.FC<any> = ({ route }) => {
   const insets = useSafeAreaInsets();
@@ -109,32 +112,21 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
     <Tab.Navigator
       key={`tabs_${role}`}
       initialRouteName="HomeTab"
+      tabBar={(props) => (
+        <FloatingTabBar
+          {...props}
+          role={role}
+          activeTintColor={activeTintColor}
+        />
+      )}
       screenOptions={{
         headerShown: false,
         title: appTitle,
         tabBarActiveTintColor: activeTintColor,
         tabBarInactiveTintColor: '#94A3B8',
-        tabBarStyle: {
-          height: tabHeight,
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#F1F5F9',
-          paddingBottom: bottomInset,
-          paddingTop: 6,
-          elevation: 12,
-          shadowColor: '#000000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.06,
-          shadowRadius: 10,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-          marginBottom: 2,
-        },
       }}
     >
-      {/* 1. ARTISAN TABS (Studio, Orders, Khata, Profile) */}
+      {/* 1. ARTISAN TABS (Studio, Orders, [Create +], Khata, Profile) */}
       {role === 'ARTISAN' && (
         <>
           <Tab.Screen
@@ -154,6 +146,20 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
               tabBarLabel: t.nav.orders,
               tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
             }}
+          />
+          <Tab.Screen
+            name="CreateTab"
+            component={PlaceholderScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: t.nav.create,
+            }}
+            listeners={({ navigation }) => ({
+              tabPress: (e) => {
+                e.preventDefault();
+                (navigation as any)?.navigate('CameraPermission');
+              },
+            })}
           />
           <Tab.Screen
             name="KhataTab"
@@ -176,7 +182,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         </>
       )}
 
-      {/* 2. FACILITATOR / SAHYOGI TABS (Desk, B2B Deals, Fulfillment, Profile) */}
+      {/* 2. FACILITATOR / SAHYOGI TABS (Desk, B2B Deals, [Onboard 🎙️], Fulfillment, Profile) */}
       {role === 'FACILITATOR' && (
         <>
           <Tab.Screen
@@ -196,6 +202,20 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
               tabBarLabel: t.nav.bulkDeals,
               tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
             }}
+          />
+          <Tab.Screen
+            name="OnboardTab"
+            component={PlaceholderScreen}
+            options={{
+              title: 'Kalakar Setu ~ Sahyogi',
+              tabBarLabel: t.nav.onboard,
+            }}
+            listeners={({ navigation }) => ({
+              tabPress: (e) => {
+                e.preventDefault();
+                (navigation as any)?.navigate('MicPermission');
+              },
+            })}
           />
           <Tab.Screen
             name="OrdersTab"
@@ -218,7 +238,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         </>
       )}
 
-      {/* 3. BUYER TABS (Discover, Explore, Bulk Deals, Cart, Profile) */}
+      {/* 3. BUYER TABS (Discover, Explore, [Bulk Deals ✨], Cart, Profile) */}
       {role === 'BUYER' && (
         <>
           <Tab.Screen
