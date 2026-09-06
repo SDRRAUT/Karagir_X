@@ -210,13 +210,14 @@ const styles = StyleSheet.create({
     right: 16,
     alignItems: 'center',
     zIndex: 999,
+    overflow: 'visible',
   },
   centerArchContainer: {
     position: 'absolute',
     top: -21,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 998,
+    zIndex: 1, // Behind the floating bar and button
   },
   centerArchSvg: {
     ...Platform.select({
@@ -244,6 +245,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.06)',
+    zIndex: 10,
+    overflow: 'visible',
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
@@ -271,6 +274,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     position: 'relative',
     marginTop: -16,
+    zIndex: 20,
+    overflow: 'visible',
   },
   centerCircleButton: {
     width: 48,
@@ -280,6 +285,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2.5,
     borderColor: '#FFFFFF',
+    zIndex: 30,
+    overflow: 'visible',
     ...Platform.select({
       ios: {
         shadowOffset: { width: 0, height: 6 },
