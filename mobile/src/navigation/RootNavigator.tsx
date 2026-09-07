@@ -79,7 +79,7 @@ export const RootNavigator: React.FC = () => {
       }}
     >
       <Stack.Navigator
-        initialRouteName="MainTabs"
+        initialRouteName="Splash"
         screenOptions={{
           headerShown: false,
           animation: 'fade',

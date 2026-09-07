@@ -52,13 +52,13 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       soundRef.current.stopAsync().catch(() => {});
     }
     const currentAuth = useAuthStore.getState();
-    if (currentAuth.isAuthenticated && currentAuth.user?.role) {
+    if (currentAuth.isAuthenticated && (currentAuth.user?.role || currentAuth.activeRole)) {
       navigation.replace('MainTabs', {
         screen: 'HomeTab',
-        params: { role: currentAuth.activeRole || currentAuth.user.role },
+        params: { role: currentAuth.activeRole || currentAuth.user?.role || 'ARTISAN' },
       });
     } else {
-      navigation.replace('RoleSelection');
+      navigation.replace('Onboarding');
     }
   };
 
@@ -339,6 +339,44 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* ================================================================= */}
+      {/* [DEV ONLY] QUICK DASHBOARD JUMP - EASILY REMOVE FOR PRODUCTION */}
+      {/* ================================================================= */}
+      <View style={styles.devBarContainer}>
+        <View style={styles.devBarPill}>
+          <Text style={styles.devBarTitle}>⚡ DEV QUICK JUMP</Text>
+          <View style={styles.devButtonsRow}>
+            <TouchableOpacity
+              testID="dev-jump-artisan"
+              style={[styles.devRoleBtn, { backgroundColor: '#EA580C' }]}
+              onPress={() => handleDevJump('ARTISAN')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🏺 Artisan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="dev-jump-buyer"
+              style={[styles.devRoleBtn, { backgroundColor: '#4338CA' }]}
+              onPress={() => handleDevJump('BUYER')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🛍️ Buyer</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              testID="dev-jump-admin"
+              style={[styles.devRoleBtn, { backgroundColor: '#6366F1' }]}
+              onPress={() => handleDevJump('ADMIN')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.devRoleBtnText}>🛡️ Admin</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      {/* ================================================================= */}
+
       <TouchableOpacity
         testID="splash-touchable"
         style={styles.touchContainer}
@@ -404,7 +442,33 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
               </Animated.View>
             )}
 
-            </View>
+            {/* Creative Modern Transparent Start Action with Glowing Breathing Pulse */}
+            <Animated.View
+              style={[
+                styles.startBtnContainer,
+                {
+                  opacity: subtitleOpacity,
+                  transform: [{ scale: btnScale }],
+                },
+              ]}
+            >
+              <TouchableOpacity
+                testID="splash-start-btn"
+                style={styles.startBtn}
+                onPress={doNavigate}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="Get Started"
+              >
+                <View style={styles.startBtnIconWrap}>
+                  <Text style={styles.startBtnIcon}>🎧</Text>
+                </View>
+                <Text style={styles.startBtnText}>Get Started</Text>
+                <Text style={styles.startBtnArrow}>→</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+          </View>
 
           {/* Bottom Progress Bar */}
           <View style={styles.bottomBarContainer}>

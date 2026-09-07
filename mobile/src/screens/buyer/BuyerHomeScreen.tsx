@@ -20,6 +20,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import Svg, { Path } from 'react-native-svg';
 
 interface FlashProduct {
   id: string;
@@ -113,7 +114,7 @@ const FLASH_PRODUCTS: FlashProduct[] = [
     originalPrice: 299,
     discountBadge: '50% OFF',
     imageUrl:
-      'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80',
     category: 'POTTERY',
     state: 'WEST_BENGAL',
     giCertified: true,
@@ -143,7 +144,7 @@ const FLASH_PRODUCTS: FlashProduct[] = [
     originalPrice: 1499,
     discountBadge: '40% OFF',
     imageUrl:
-      'https://images.unsplash.com/photo-1584286595398-a59f21d313f5?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=600&q=80',
     category: 'METAL',
     state: 'CHHATTISGARH',
     giCertified: true,
@@ -241,11 +242,53 @@ export const MarketplaceHomeScreen: React.FC = () => {
   ]);
 
   const categories = [
-    { id: 'all', label: t.buyer.topDeals, icon: '🔥', activeColor: '#EA580C', bgColor: '#FFF7ED' },
-    { id: 'POTTERY', label: t.buyer.pottery, icon: '🏺', activeColor: '#7C2D12', bgColor: '#F8FAFC' },
-    { id: 'TEXTILE', label: t.buyer.handloom, icon: '🧵', activeColor: '#0369A1', bgColor: '#F8FAFC' },
-    { id: 'METAL', label: t.buyer.metal, icon: '🔔', activeColor: '#B45309', bgColor: '#F8FAFC' },
-    { id: 'WOOD', label: t.buyer.wood, icon: '🪵', activeColor: '#4D7C0F', bgColor: '#F8FAFC' },
+    {
+      id: 'all',
+      label: 'Top Deals',
+      type: 'emoji',
+      icon: '🔥',
+    },
+    {
+      id: 'POTTERY',
+      label: 'Terracotta',
+      type: 'svg',
+      renderIcon: (color: string) => (
+        <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M9 3h6M10 3v2a4 4 0 0 1-2 3.46A6 6 0 0 0 5 13.5c0 4.5 3 7.5 7 7.5s7-3 7-7.5a6 6 0 0 0-3-5.04A4 4 0 0 1 14 5V3" />
+        </Svg>
+      ),
+    },
+    {
+      id: 'TEXTILE',
+      label: 'Handloom Silk',
+      type: 'svg',
+      renderIcon: (color: string) => (
+        <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M4 9h16M4 15h16M9 4v16M15 4v16" />
+        </Svg>
+      ),
+    },
+    {
+      id: 'METAL',
+      label: 'Brass & Metal',
+      type: 'svg',
+      renderIcon: (color: string) => (
+        <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+        </Svg>
+      ),
+    },
+    {
+      id: 'WOOD',
+      label: 'Wood',
+      type: 'svg',
+      renderIcon: (color: string) => (
+        <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <Path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          <Path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" />
+        </Svg>
+      ),
+    },
   ];
 
   // Live Flash Deals Countdown Timer (04h 18m 14s)
@@ -277,7 +320,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
     const h = String(timeLeft.hours).padStart(2, '0');
     const m = String(timeLeft.minutes).padStart(2, '0');
     const s = String(timeLeft.seconds).padStart(2, '0');
-    return isHindi ? `${h}घं ${m}मि ${s}से` : `${h}h ${m}m ${s}s`;
+    return `${h}h ${m}m ${s}s`;
   };
 
   const filteredProducts = FLASH_PRODUCTS.filter((p) => {
@@ -304,36 +347,18 @@ export const MarketplaceHomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* 1. Minimalist Luxury Header Bar */}
+      {/* 1. Header Bar matching reference mockup */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Image
-            source={require('../../../assets/kalakar_setu_logo.png')}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-          <View style={styles.brandTitleContainer}>
-            <View style={styles.brandTitleRow}>
-              <Text style={styles.brandTitleMain}>KALAKAR SETU</Text>
-              <View style={styles.buyerRolePill}>
-                <Text style={styles.buyerRolePillText}>{isHindi ? 'खरीदार' : 'BUYER'}</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.locationSelector}
-              onPress={() => setShowLocationModal(true)}
-              activeOpacity={0.8}
-            >
-              <Icon name="mapPin" size={11} color="#64748B" />
-              <Text variant="caption" color="#64748B" style={styles.deliverToText}>
-                {isHindi ? '110001 • ' : '110001 • '}
-              </Text>
-              <Text variant="caption" weight="bold" color="#0F172A" numberOfLines={1}>
-                {selectedAddress}
-              </Text>
-              <Icon name="chevronDown" size={11} color="#64748B" style={{ marginLeft: 2 }} />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.brandTitleMain}>Kalakar Setu</Text>
+          <TouchableOpacity
+            style={styles.locationSelector}
+            onPress={() => setShowLocationModal(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.deliverToText}>{selectedAddress}</Text>
+            <Icon name="chevronDown" size={13} color="#64748B" style={{ marginLeft: 3 }} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.headerRight}>
@@ -344,7 +369,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             activeOpacity={0.7}
             accessibilityLabel="Notifications"
           >
-            <Icon name="bellOutline" size={17} color="#64748B" />
+            <Icon name="bellOutline" size={20} color="#0F172A" />
           </TouchableOpacity>
 
           {/* Cart Icon with Red Counter Badge */}
@@ -354,12 +379,10 @@ export const MarketplaceHomeScreen: React.FC = () => {
             activeOpacity={0.7}
             accessibilityLabel="Shopping Cart"
           >
-            <Icon name="cartOutline" size={18} color="#64748B" />
-            {totalCartCount > 0 && (
-              <View style={styles.cartBadgeCircle}>
-                <Text style={styles.cartBadgeNumber}>{totalCartCount}</Text>
-              </View>
-            )}
+            <Icon name="cartOutline" size={20} color="#0F172A" />
+            <View style={styles.cartBadgeCircle}>
+              <Text style={styles.cartBadgeNumber}>{totalCartCount}</Text>
+            </View>
           </TouchableOpacity>
 
           {/* Buyer Avatar */}
@@ -369,11 +392,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             activeOpacity={0.8}
             accessibilityLabel="Profile Account"
           >
-            <Image
-              source={require('../../../assets/buyer_3d_avatar.jpg')}
-              style={styles.avatarImage}
-            />
-            <View style={styles.avatarOnlineBadge} />
+            <Icon name="profileOutline" size={20} color="#0F172A" />
           </TouchableOpacity>
         </View>
       </View>
@@ -385,10 +404,10 @@ export const MarketplaceHomeScreen: React.FC = () => {
       >
         {/* 2. Modern Rounded Search Bar with Voice & Visual Search */}
         <View style={styles.searchContainer}>
-          <Text style={styles.searchMagnifier}>🔍</Text>
+          <Icon name="search" size={18} color="#94A3B8" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
-            placeholder={t.buyer.searchPlaceholder}
+            placeholder="Search artisan sarees, blue po..."
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -400,7 +419,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('Search')}
             accessibilityLabel="Voice Search"
           >
-            <Text style={styles.searchActionEmoji}>🎙️</Text>
+            <Icon name="microphone" size={18} color="#64748B" />
           </TouchableOpacity>
 
           {/* Visual Search (Camera) */}
@@ -409,10 +428,169 @@ export const MarketplaceHomeScreen: React.FC = () => {
             onPress={() => navigation.navigate('CameraPermission')}
             accessibilityLabel="Visual Camera Search"
           >
-            <Text style={styles.searchActionEmoji}>📷</Text>
+            <Icon name="camera" size={18} color="#64748B" />
           </TouchableOpacity>
         </View>
 
+        {/* 3. Horizontal Category Circular Icons matching reference */}
+        <View style={styles.categoryRow}>
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
+            const isTopDeals = cat.id === 'all';
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                style={styles.categoryItem}
+                onPress={() => setSelectedCategory(cat.id)}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.categoryCircle,
+                    isTopDeals
+                      ? styles.categoryCircleTopDeals
+                      : isSelected
+                      ? styles.categoryCircleSelected
+                      : styles.categoryCircleUnselected,
+                  ]}
+                >
+                  {cat.type === 'emoji' ? (
+                    <Text style={styles.categoryEmoji}>{cat.icon}</Text>
+                  ) : (
+                    cat.renderIcon?.(isSelected ? '#EA580C' : '#475569')
+                  )}
+                </View>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.categoryLabel,
+                    isSelected ? styles.categoryLabelSelected : styles.categoryLabelUnselected,
+                  ]}
+                >
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* 4. Diwali Craft Utsav Hero Feature Card */}
+        <View style={styles.heroCard}>
+          <View style={styles.watermarkStarContainer}>
+            <Text style={styles.watermarkStar}>★</Text>
+          </View>
+          <View style={styles.heroBadgeRow}>
+            <View style={styles.diwaliPill}>
+              <Text style={styles.diwaliPillText}>
+                DIWALI CRAFT UTSAV
+              </Text>
+            </View>
+            <View style={styles.festiveHubPill}>
+              <Text style={styles.festiveHubPillText}>
+                ✨ Festive Hub
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.heroTitle}>
+            100% Direct from Rural Master Artisans
+          </Text>
+          <Text style={styles.heroSubtitle}>
+            Zero commission markup. Pure handloom & handcraft with authentic GI pedigree.
+          </Text>
+          <TouchableOpacity
+            style={styles.shopDirectBtn}
+            onPress={() => setSelectedCategory('all')}
+            activeOpacity={0.88}
+          >
+            <Text style={styles.shopDirectBtnText}>
+              Shop Direct →
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 5. Artisan Flash Deals Section Header with Timer */}
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionHeaderLeft}>
+            <View style={styles.flashTitleRow}>
+              <Text style={styles.lightningIcon}>⚡</Text>
+              <Text style={styles.sectionTitle}>
+                Artisan Flash Deals
+              </Text>
+            </View>
+            <Text style={styles.sectionSubtitle}>
+              Limited batch studio clearances
+            </Text>
+          </View>
+
+          {/* Live Timer Pill */}
+          <View style={styles.timerPill}>
+            <Icon name="clock" size={13} color="#475569" style={{ marginRight: 5 }} />
+            <Text style={styles.timerText}>
+              {formatTimer()}
+            </Text>
+          </View>
+        </View>
+
+        {/* 6. Product Deal Cards Grid (2-Columns) matching reference mockup */}
+        <View style={styles.productGrid}>
+          {filteredProducts.map((prod) => {
+            const wishlisted = isInWishlist(prod.id);
+            return (
+              <TouchableOpacity
+                key={prod.id}
+                style={styles.productCard}
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate('ProductDetail', { productId: prod.id })}
+              >
+                {/* Product Image Container */}
+                <View style={styles.cardImageContainer}>
+                  <Image source={{ uri: prod.imageUrl }} style={styles.cardImage} resizeMode="cover" />
+
+                  {/* Top-Left Discount Badge */}
+                  <View style={styles.discountBadge}>
+                    <Text style={styles.discountBadgeText}>{prod.discountBadge}</Text>
+                  </View>
+
+                  {/* Wishlist Heart Overlay */}
+                  <TouchableOpacity
+                    style={styles.heartBtn}
+                    onPress={() =>
+                      toggleWishlist({
+                        productId: prod.id,
+                        title: prod.title,
+                        price: prod.price,
+                        craftCategoryName: prod.category,
+                        artisanName: prod.artisan,
+                        artisanState: 'India',
+                        imageUri: prod.imageUrl,
+                      })
+                    }
+                  >
+                    <Text style={{ fontSize: 13 }}>{wishlisted ? '❤️' : '🤍'}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Card Information */}
+                <View style={styles.cardInfo}>
+                  <Text numberOfLines={1} style={styles.cardArtisan}>
+                    {prod.artisan}
+                  </Text>
+                  <Text numberOfLines={1} style={styles.cardTitle}>
+                    {prod.title}
+                  </Text>
+                  <View style={styles.priceRow}>
+                    <Text style={styles.currentPrice}>
+                      ₹{prod.price}
+                    </Text>
+                    <Text style={styles.originalPrice}>
+                      ₹{prod.originalPrice}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
         {/* 🌟 BUYER MUST-BUILD #2: "Kahaani" Story-First Browsing (15s Craft Reels) */}
         <View style={styles.kahaaniSection}>
           <View style={styles.kahaaniHeaderRow}>
@@ -456,80 +634,6 @@ export const MarketplaceHomeScreen: React.FC = () => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
-
-        {/* 3. Horizontal Category Circular Story Icons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryScroll}
-        >
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.categoryItem}
-                onPress={() => setSelectedCategory(cat.id)}
-                activeOpacity={0.8}
-              >
-                <View
-                  style={[
-                    styles.categoryCircle,
-                    {
-                      backgroundColor: isSelected ? '#FFF7ED' : '#F8FAFC',
-                      borderColor: isSelected ? '#EA580C' : '#E2E8F0',
-                      borderWidth: isSelected ? 1.5 : 1,
-                    },
-                  ]}
-                >
-                  <Text style={styles.categoryEmoji}>{cat.icon}</Text>
-                </View>
-                <Text
-                  variant="caption"
-                  weight={isSelected ? 'bold' : 'normal'}
-                  color={isSelected ? '#0F172A' : '#475569'}
-                  style={styles.categoryLabel}
-                >
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        {/* 4. Diwali Craft Utsav Hero Feature Card */}
-        <View style={styles.heroCard}>
-          <View style={styles.watermarkStarContainer}>
-            <Text style={styles.watermarkStar}>★</Text>
-          </View>
-          <View style={styles.heroBadgeRow}>
-            <View style={styles.diwaliPill}>
-              <Text variant="caption" weight="bold" color="#FFFFFF">
-                {t.buyer.diwaliHeroBadge}
-              </Text>
-            </View>
-            <View style={styles.festiveHubPill}>
-              <Text variant="caption" weight="bold" color="#FFFFFF">
-                ✨ {t.buyer.festiveHub}
-              </Text>
-            </View>
-          </View>
-          <Text variant="headlineMedium" weight="bold" color="#FFFFFF" style={styles.heroTitle}>
-            {t.buyer.heroDirectTitle}
-          </Text>
-          <Text variant="bodySmall" color="#FDE68A" style={styles.heroSubtitle}>
-            {t.buyer.heroDirectSub}
-          </Text>
-          <TouchableOpacity
-            style={styles.shopDirectBtn}
-            onPress={() => setSelectedCategory('all')}
-            activeOpacity={0.88}
-          >
-            <Text variant="bodyMedium" weight="bold" color="#7C2D12">
-              {t.buyer.shopDirect}
-            </Text>
-          </TouchableOpacity>
         </View>
 
         {/* 🌟 BUYER MUST-BUILD #1: AR "Apne Ghar Mein Dekho" (3D Augmented Reality Preview) */}
@@ -845,117 +949,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* 5. Artisan Flash Deals Section Header with Timer */}
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionHeaderLeft}>
-            <View style={styles.flashTitleRow}>
-              <Text style={styles.lightningIcon}>⚡</Text>
-              <Text variant="bodyLarge" weight="bold" color="#0F172A" style={styles.sectionTitle}>
-                {t.buyer.flashDealsTitle}
-              </Text>
-            </View>
-            <Text variant="caption" color="#64748B" style={styles.sectionSubtitle}>
-              {t.buyer.flashDealsSubtitle}
-            </Text>
-          </View>
 
-          {/* Live Timer Pill */}
-          <View style={styles.timerPill}>
-            <Text style={styles.clockIcon}>🕒</Text>
-            <Text variant="caption" weight="bold" color="#334155" style={styles.timerText}>
-              {formatTimer()}
-            </Text>
-          </View>
-        </View>
-
-        {/* 6. Product Deal Cards Grid (2-Columns) with Craft DNA Badges */}
-        <View style={styles.productGrid}>
-          {filteredProducts.map((prod) => {
-            const wishlisted = isInWishlist(prod.id);
-            return (
-              <TouchableOpacity
-                key={prod.id}
-                style={styles.productCard}
-                activeOpacity={0.9}
-                onPress={() => navigation.navigate('ProductDetail', { productId: prod.id })}
-              >
-                {/* Product Image Container */}
-                <View style={styles.cardImageContainer}>
-                  <Image source={{ uri: prod.imageUrl }} style={styles.cardImage} resizeMode="cover" />
-
-                  {/* Top-Left Discount Badge */}
-                  <View style={styles.discountBadge}>
-                    <Text style={styles.discountBadgeText}>{prod.discountBadge}</Text>
-                  </View>
-
-                  {/* Wishlist Heart Overlay */}
-                  <TouchableOpacity
-                    style={styles.heartBtn}
-                    onPress={() =>
-                      toggleWishlist({
-                        productId: prod.id,
-                        title: prod.title,
-                        price: prod.price,
-                        craftCategoryName: prod.category,
-                        artisanName: prod.artisan,
-                        artisanState: 'India',
-                        imageUri: prod.imageUrl,
-                      })
-                    }
-                  >
-                    <Text style={{ fontSize: 13 }}>{wishlisted ? '❤️' : '🤍'}</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Card Information */}
-                <View style={styles.cardInfo}>
-                  {/* Craft DNA GI Tag Badge */}
-                  <View style={styles.craftDnaPill}>
-                    <Text style={{ fontSize: 9.5, color: '#0369A1', fontWeight: '800' }}>
-                      🛡️ {prod.giNumber} • {isHindi ? 'जीआई प्रमाणित' : 'GI Tagged'}
-                    </Text>
-                  </View>
-
-                  <Text variant="caption" color="#64748B" numberOfLines={1} style={styles.cardArtisan}>
-                    {prod.artisan}
-                  </Text>
-                  <Text variant="bodyMedium" weight="bold" color="#0F172A" numberOfLines={1} style={styles.cardTitle}>
-                    {prod.title}
-                  </Text>
-                  <View style={styles.priceRow}>
-                    <Text variant="bodyLarge" weight="bold" color="#0F172A">
-                      ₹{prod.price}
-                    </Text>
-                    <Text variant="bodySmall" color="#94A3B8" style={styles.originalPrice}>
-                      ₹{prod.originalPrice}
-                    </Text>
-                  </View>
-
-                  {/* Quick Add Button */}
-                  <TouchableOpacity
-                    style={styles.quickAddBtn}
-                    onPress={() => {
-                      addItemToCart({
-                        productId: prod.id,
-                        title: prod.title,
-                        price: prod.price,
-                        imageUri: prod.imageUrl,
-                        craftCategoryName: prod.category,
-                        artisanName: prod.artisan,
-                        artisanCluster: prod.cluster,
-                        stockType: 'READY_STOCK',
-                      });
-                    }}
-                  >
-                    <Text variant="caption" weight="bold" color="#EA580C">
-                      + {t.buyer.addToCart}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
 
         {/* 7. Artisan Portal & Direct Guarantee Banner + Direct Artisan Chat */}
         <View style={styles.guaranteeCard}>
@@ -1349,6 +1343,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginRight: 10,
+    gap: 8,
   },
   logoImage: {
     width: 34,
@@ -1365,9 +1360,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   brandTitleMain: {
-    fontSize: 14,
+    fontSize: 20,
     fontWeight: '800',
-    letterSpacing: 0.3,
+    letterSpacing: -0.3,
     color: '#0F172A',
   },
   buyerRolePill: {
@@ -1391,8 +1386,8 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   deliverToText: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
     color: '#64748B',
   },
   headerRight: {
@@ -1401,12 +1396,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerIconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#ECE8E1',
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -1432,9 +1427,14 @@ const styles = StyleSheet.create({
     lineHeight: 11,
   },
   avatarCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderColor: '#FDE68A',
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
   },
   avatarImage: {
@@ -1573,6 +1573,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   // Categories
+  categoryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    marginBottom: 16,
+  },
   categoryScroll: {
     paddingHorizontal: 16,
     gap: 16,
@@ -1580,7 +1586,7 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
-    width: 62,
+    flex: 1,
   },
   categoryCircle: {
     width: 52,
@@ -1590,22 +1596,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 6,
   },
+  categoryCircleTopDeals: {
+    backgroundColor: '#FFEDD5',
+    borderWidth: 1.5,
+    borderColor: '#EA580C',
+  },
+  categoryCircleSelected: {
+    backgroundColor: '#FFEDD5',
+    borderWidth: 1.5,
+    borderColor: '#EA580C',
+  },
+  categoryCircleUnselected: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
   categoryEmoji: {
     fontSize: 22,
   },
   categoryLabel: {
-    fontSize: 11,
+    fontSize: 10.5,
     textAlign: 'center',
+  },
+  categoryLabelSelected: {
+    color: '#EA580C',
+    fontWeight: '700',
+  },
+  categoryLabelUnselected: {
+    color: '#475569',
+    fontWeight: '500',
   },
   // Hero
   heroCard: {
     marginHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: '#9A3412',
+    borderRadius: 22,
+    backgroundColor: '#8C320E',
     padding: 20,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#9A3412',
+    shadowColor: '#8C320E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 10,
@@ -1629,39 +1658,58 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   diwaliPill: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundColor: 'rgba(0, 0, 0, 0.28)',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
+  diwaliPillText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
   festiveHubPill: {
-    backgroundColor: 'rgba(245, 158, 11, 0.45)',
+    backgroundColor: 'rgba(245, 158, 11, 0.35)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
+  festiveHubPillText: {
+    color: '#FEF08A',
+    fontSize: 10.5,
+    fontWeight: '700',
+  },
   heroTitle: {
-    fontSize: 23,
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#FFFFFF',
     lineHeight: 28,
     marginBottom: 8,
   },
   heroSubtitle: {
-    fontSize: 13,
+    fontSize: 12.5,
+    color: '#FED7AA',
     lineHeight: 18,
     marginBottom: 16,
-    maxWidth: '90%',
+    maxWidth: '92%',
   },
   shopDirectBtn: {
     backgroundColor: '#FFFFFF',
     alignSelf: 'flex-start',
-    paddingHorizontal: 18,
-    paddingVertical: 9,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 22,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  shopDirectBtnText: {
+    color: '#8C320E',
+    fontSize: 12.5,
+    fontWeight: '800',
   },
   // AR Banner
   arBannerCard: {
@@ -1997,9 +2045,15 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 8,
   },
+  currentPrice: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
   originalPrice: {
     textDecorationLine: 'line-through',
     fontSize: 12,
+    color: '#94A3B8',
   },
   quickAddBtn: {
     backgroundColor: '#FFF7ED',
