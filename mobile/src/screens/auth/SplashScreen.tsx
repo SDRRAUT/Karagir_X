@@ -69,8 +69,8 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       const targetRole = activeRole || user?.role || 'ARTISAN';
       const quickTimer = setTimeout(() => {
         if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-        if (soundRef.current) {
-          soundRef.current.stopAsync().catch(() => {});
+        if (audioPlayerRef.current) {
+          audioPlayerRef.current.stopAsync().catch(() => {});
         }
         navigation.replace('MainTabs', {
           screen: 'HomeTab',
@@ -263,8 +263,8 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
       stopWaveAnimation();
       pulseLoop.stop();
-      soundRef.current?.stopAsync().catch(() => {});
-      soundRef.current?.unloadAsync().catch(() => {});
+      audioPlayerRef.current?.stopAsync().catch(() => {});
+      audioPlayerRef.current?.unloadAsync().catch(() => {});
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

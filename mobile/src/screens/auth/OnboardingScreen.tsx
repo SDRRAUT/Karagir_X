@@ -20,6 +20,7 @@ import { UserRole } from '@/api/types';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { INDIC_DISPLAY_FONT } from '@/theme/typography';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -744,7 +745,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       );
       soundRef.current = sound;
 
-      sound.setOnPlaybackStatusUpdate((s) => {
+      sound.setOnPlaybackStatusUpdate((s: any) => {
         if (!s.isLoaded) {
           setIsAudioPlaying(false);
           setAudioRemainingSec(null);

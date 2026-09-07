@@ -34,7 +34,8 @@ export class AiVoiceModifierService {
    */
   public async modifyWithAi(
     rawTranscript: string,
-    context: 'product_story' | 'search' | 'saathi' | 'general' = 'product_story'
+    context: 'product_story' | 'search' | 'saathi' | 'general' = 'product_story',
+    language: string = 'hi-IN'
   ): Promise<AiVoiceModificationResult> {
     const trimmed = (rawTranscript || '').trim();
     if (!trimmed) {
@@ -52,14 +53,14 @@ export class AiVoiceModifierService {
     if (apiKey && apiKey.length > 10) {
       try {
         logger.info('AI_VOICE_MODIFIER', 'Calling Gemini 3.6 Flash to polish voice transcript...');
-        return await this.callGeminiModifier(trimmed, context, apiKey);
+        return await this.callGeminiModifier(trimmed, context, apiKey, language);
       } catch (err) {
         logger.warn('AI_VOICE_MODIFIER', 'Gemini polishing failed, using Indic NLP engine', { err });
       }
     }
 
     // High-fidelity Indic Craft NLP Fallback Engine
-    return this.generateIndicNlpPolish(trimmed, context);
+    return this.generateIndicNlpPolish(trimmed, context, language);
   }
 
   /**
@@ -68,21 +69,25 @@ export class AiVoiceModifierService {
   private async callGeminiModifier(
     transcript: string,
     context: string,
-    apiKey: string
+    apiKey: string,
+    language: string = 'hi-IN'
   ): Promise<AiVoiceModificationResult> {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
+    const langName = language.startsWith('mr') ? 'Marathi' : language.startsWith('en') ? 'English' : 'Hindi';
+
     const prompt = `
-You are Kalakar Setu's Artisan Voice Assistant and Indic Craft Editor.
-The user spoke the following text using voice input:
+You are Kalakar Setu's Artisan Voice Assistant and Master Indic Craft Catalog Editor.
+The artisan spoke the following description using voice input:
 "${transcript}"
 
 Context: "${context}"
+Target Language: "${langName}" (${language})
 
 Tasks:
-1. Polish the spoken text: remove filler words (e.g. um, uh, arre, matlab), correct transcription typos, maintain the original language (Hindi/Marathi/English/Hinglish), and present a clear, professional, poetic craft description or concise search query.
-2. Extract any craft attributes (craft category, materials used, technique, motif, labor time, suggested price).
-3. Provide a brief explanation of what was improved.
+1. Polish the spoken text: remove filler words (e.g. um, uh, arre, matlab, basically, like), correct transcription typos, maintain the authentic language style in ${langName}, and write a clear, poetic, e-commerce ready product description highlighting artisan heritage and craftsmanship.
+2. Extract all craft attributes (craft category, materials used, technique, motif, labor time in hours, dimensions, suggested fair price in INR).
+3. Provide a clear, encouraging explanation in ${langName} of what was improved (e.g., filler words removed, craft heritage highlighted, materials specified).
 
 Return JSON in this exact structure:
 {
@@ -126,7 +131,7 @@ Return JSON in this exact structure:
     return {
       originalText: transcript,
       modifiedText: parsed.modifiedText || transcript,
-      explanation: parsed.explanation || 'Polished grammar, clarity, and craft vocabulary.',
+      explanation: parsed.explanation || (langName === 'Marathi' ? 'व्याकरण आणि हस्तकला वर्णनात सुधारणा केली.' : langName === 'English' ? 'Polished grammar, clarity, and craft vocabulary.' : 'व्याकरण और शिल्प शब्दावली में सुधार किया गया।'),
       extractedAttributes: parsed.extractedAttributes || {},
     };
   }
@@ -136,7 +141,8 @@ Return JSON in this exact structure:
    */
   public generateIndicNlpPolish(
     rawText: string,
-    context: 'product_story' | 'search' | 'saathi' | 'general'
+    context: 'product_story' | 'search' | 'saathi' | 'general',
+    language: string = 'hi-IN'
   ): AiVoiceModificationResult {
     const lower = rawText.toLowerCase();
 
@@ -157,7 +163,7 @@ Return JSON in this exact structure:
     const extracted: AiVoiceModificationResult['extractedAttributes'] = {};
 
     // 2. Material Extraction
-    if (lower.includes('clay') || lower.includes('mitti') || lower.includes('terracotta') || lower.includes('mitti se')) {
+    if (lower.includes('clay') || lower.includes('mitti') || lower.includes('terracotta') || lower.includes('mitti se') || lower.includes('maati') || lower.includes('mati') || lower.includes('diya') || lower.includes('dive')) {
       extracted.material = 'शुद्ध नदी की प्राकृतिक मिट्टी (Natural Riverbed Clay)';
       extracted.craftCategory = 'POTTERY_TERRACOTTA';
     } else if (lower.includes('silk') || lower.includes('resham') || lower.includes('saree') || lower.includes('saadi')) {
@@ -219,12 +225,20 @@ Return JSON in this exact structure:
     let explanation = 'Filler words removed, sentences structured, and craft entities highlighted.';
 
     if (context === 'product_story') {
-      aiPolishedText = `अस्सल हस्तशिल्प: ${polished} यह उत्पाद ${extracted.material} से निर्मित है और इसमें ${extracted.technique} का उपयोग किया गया है।`;
-      explanation = 'AI ne aawaz ko formal e-commerce craft narrative me badla aur material/technique jode.';
+      if (language.startsWith('mr')) {
+        aiPolishedText = `अस्सल हस्तकला: ${polished} हे कलात्मक उत्पादन ${extracted.material} वापरून पारंपरिक पद्धतीने घडवले असून यामध्ये ${extracted.technique} चे अप्रतिम काम केले आहे.`;
+        explanation = 'AI ने बोलण्यातील अनावश्यक शब्द काढून औपचारिक ई-कॉमर्स हस्तकला विवरण तयार केले व कच्चा माल/तंत्र जोडले.';
+      } else if (language.startsWith('en')) {
+        aiPolishedText = `Authentic Handcrafted Masterpiece: ${polished} Skillfully created using ${extracted.material} and masterfully finished through ${extracted.technique}.`;
+        explanation = 'AI removed vocal fillers, structured the story into a professional e-commerce craft narrative, and highlighted artisan technique.';
+      } else {
+        aiPolishedText = `अस्सल हस्तशिल्प: ${polished} यह पारंपरिक उत्पाद ${extracted.material} से निर्मित है और इसमें ${extracted.technique} का सुंदर उपयोग किया गया है।`;
+        explanation = 'AI ने आवाज़ से अनावश्यक शब्द हटाकर औपचारिक ई-कॉमर्स विवरण में बदला और कच्चा माल व शिल्प तकनीक के विवरण जोड़े।';
+      }
     } else if (context === 'search') {
       // For search, make it a clean, optimized craft query
       aiPolishedText = rawText
-        .replace(/\b(mujhe|chahiye|dikhao|batao|search|karo|plz|please)\b/gi, '')
+        .replace(/\b(mujhe|chahiye|dikhao|batao|search|karo|plz|please|mala|pahije)\b/gi, '')
         .replace(/\s+/g, ' ')
         .trim();
       explanation = 'Search intent optimized for artisan catalog.';
