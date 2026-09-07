@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -88,6 +88,22 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <View style={styles.topNavRow}>
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation?.canGoBack?.()) {
+              navigation.goBack();
+            } else {
+              navigation?.navigate?.('MainTabs', { screen: 'HomeTab' });
+            }
+          }}
+          style={styles.topBackButton}
+          activeOpacity={0.7}
+          accessibilityLabel="Back"
+        >
+          <Text style={styles.topBackIcon}>‹</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.container}>
         {/* Animated Loom Icon */}
         <View style={styles.animCircle}>
@@ -162,6 +178,28 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  topNavRow: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  topBackButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   container: {
     flex: 1,

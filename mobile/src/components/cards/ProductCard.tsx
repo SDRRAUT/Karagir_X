@@ -159,6 +159,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {title}
           </Text>
 
+          {/* Rating Pill */}
+          <View style={styles.ratingRow}>
+            <View style={styles.ratingPill}>
+              <Text style={styles.ratingPillText}>4.8 ★</Text>
+            </View>
+            <Text style={styles.ratingCountText}>(124)</Text>
+          </View>
+
           <View style={styles.priceRow}>
             <Text
               variant="numeral"
@@ -169,13 +177,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ₹{price.toLocaleString('en-IN')}
             </Text>
             {originalPrice && originalPrice > price && (
-              <Text
-                variant="bodySmall"
-                color={theme.colors.text.tertiary}
-                style={styles.originalPrice}
-              >
-                ₹{originalPrice.toLocaleString('en-IN')}
-              </Text>
+              <>
+                <Text
+                  variant="bodySmall"
+                  color={theme.colors.text.tertiary}
+                  style={styles.originalPrice}
+                >
+                  ₹{originalPrice.toLocaleString('en-IN')}
+                </Text>
+                <Text style={styles.discountPercentText}>
+                  {Math.round(((originalPrice - price) / originalPrice) * 100)}% off
+                </Text>
+              </>
             )}
           </View>
         </View>
@@ -242,5 +255,33 @@ const styles = StyleSheet.create({
   },
   originalPrice: {
     textDecorationLine: 'line-through',
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+    marginBottom: 2,
+  },
+  ratingPill: {
+    backgroundColor: '#16A34A',
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  ratingPillText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
+  ratingCountText: {
+    fontSize: 10.5,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  discountPercentText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#16A34A',
   },
 });

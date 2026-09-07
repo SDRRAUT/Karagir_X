@@ -5,9 +5,10 @@ export type MainTabParamList = {
   HomeTab: undefined; // Discover
   ExploreTab: undefined; // Explore
   BulkDealsTab: undefined; // Bulk Deals
+  WishlistTab: undefined; // Wishlist
   CartTab: undefined; // Cart
   ProfileTab: undefined; // Account
-  OrdersTab?: undefined;
+  OrdersTab?: { section?: 'orders' | 'khata' } | undefined;
   KhataTab?: undefined;
   CreateTab?: undefined;
   SaathiTab?: undefined;

@@ -5,7 +5,107 @@ import { supabase } from '@/api/supabaseClient';
 import { authService } from '@/api/authService';
 import { logger } from '@/utils/logger';
 
-const AUTH_STORAGE_KEY = '@kalakar_auth_session';
+import { Platform } from 'react-native';
+
+const getEffectiveRole = (fallback?: UserRole | null): UserRole => {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    // 1. URL search query parameter (e.g. ?role=buyer or ?role=artisan)
+    try {
+      const search = (window.location.search || '').toLowerCase();
+      if (search.includes('role=buyer') || search.includes('buyer')) return 'BUYER';
+      if (
+        search.includes('role=artisan') ||
+        search.includes('role=seller') ||
+        search.includes('artisan') ||
+        search.includes('seller')
+      ) {
+        return 'ARTISAN';
+      }
+      if (search.includes('role=admin') || search.includes('admin')) return 'ADMIN';
+    } catch {}
+
+    // 2. Tab-isolated role in sessionStorage (persists across refresh in this specific tab)
+    try {
+      const tabRole = window.sessionStorage.getItem('@kalakar_tab_role') as UserRole;
+      if (tabRole === 'BUYER' || tabRole === 'ARTISAN' || tabRole === 'ADMIN') {
+        return tabRole;
+      }
+    } catch {}
+
+    // 3. Tab-isolated session in sessionStorage
+    try {
+      const rawTabSession = window.sessionStorage.getItem('@kalakar_tab_session');
+      if (rawTabSession) {
+        const parsed = JSON.parse(rawTabSession);
+        const r = parsed.activeRole || parsed.user?.role;
+        if (r === 'BUYER' || r === 'ARTISAN' || r === 'ADMIN') return r;
+      }
+    } catch {}
+
+    // 4. Role-specific localStorage fallback
+    try {
+      const savedRole = window.localStorage.getItem('@kalakar_active_role') as UserRole;
+      if (savedRole === 'BUYER' || savedRole === 'ARTISAN' || savedRole === 'ADMIN') {
+        return savedRole;
+      }
+    } catch {}
+
+    // 5. Port-based fallback only for separate dedicated ports
+    try {
+      const port = window.location.port;
+      if (port === '2883') return 'BUYER';
+      if (port === '3000') return 'ADMIN';
+    } catch {}
+  }
+  return fallback || 'ARTISAN';
+};
+
+const getRoleScopedStorageKey = (role?: UserRole | null) => {
+  const effectiveRole = role || getEffectiveRole();
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return `@kalakar_auth_session_${effectiveRole.toLowerCase()}`;
+  }
+  return '@kalakar_auth_session';
+};
+
+const persistTabSession = (
+  tokens: AuthTokens | null,
+  user: UserProfile | null,
+  activeRole: UserRole,
+  profilesOnDevice?: UserProfile[]
+) => {
+  const sessionData = {
+    tokens,
+    user,
+    activeRole,
+    profilesOnDevice: profilesOnDevice || (user ? [user] : []),
+  };
+  const jsonStr = JSON.stringify(sessionData);
+
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    try {
+      // Tab-isolated storage (never collides with other tabs in same browser)
+      window.sessionStorage.setItem('@kalakar_tab_session', jsonStr);
+      window.sessionStorage.setItem('@kalakar_tab_role', activeRole);
+
+      // Keep URL search param synchronized without triggering page reload
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('role') !== activeRole.toLowerCase()) {
+        url.searchParams.set('role', activeRole.toLowerCase());
+        window.history.replaceState(null, '', url.toString());
+      }
+    } catch {}
+
+    // Also persist to role-specific key in localStorage
+    try {
+      window.localStorage.setItem(`@kalakar_auth_session_${activeRole.toLowerCase()}`, jsonStr);
+      window.localStorage.setItem('@kalakar_active_role', activeRole);
+    } catch {}
+  }
+
+  // AsyncStorage for React Native / mobile fallback
+  AsyncStorage.setItem(getRoleScopedStorageKey(activeRole), jsonStr).catch(() => {});
+};
 
 export interface AuthState {
   user: UserProfile | null;
@@ -35,7 +135,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   tokens: null,
   isAuthenticated: false,
-  activeRole: null,
+  activeRole: getEffectiveRole(),
   activeProfileId: null,
   profilesOnDevice: [],
   isLoading: true,
@@ -43,15 +143,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   sessionExpiryReason: null,
 
   setActiveRole: (role: UserRole) => {
+    const currentRole = role;
     const currentUser = get().user;
-    const updatedUser = currentUser ? { ...currentUser, role } : null;
+    const updatedUser = currentUser
+      ? { ...currentUser, role: currentRole }
+      : {
+          id: `user_${role.toLowerCase()}_demo`,
+          phoneNumber: '9876543210',
+          fullName: role === 'BUYER' ? 'प्रिया शर्मा' : 'रामेश्वर शर्मा',
+          role: currentRole,
+          preferredLanguage: 'hi_IN',
+          isProfileComplete: true,
+        };
+
+    persistTabSession(get().tokens, updatedUser, currentRole, get().profilesOnDevice);
+
     set({
-      activeRole: role,
+      activeRole: currentRole,
       user: updatedUser,
     });
   },
 
   initialize: async () => {
+    const effectiveRole = getEffectiveRole(get().activeRole);
+
     try {
       // 1. Set up Supabase auth listener once
       if (!authSubscriptionSetup) {
@@ -59,19 +174,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         supabase.auth.onAuthStateChange(async (event, session) => {
           logger.info('AUTH_STORE', `Supabase auth event: ${event}`);
           if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED')) {
-            const currentActiveRole = get().activeRole || get().user?.role || 'ARTISAN';
-            const profile = await authService.getProfile(session.user.id, currentActiveRole);
-            if (currentActiveRole) {
-              profile.role = currentActiveRole;
-            }
+            const currentTabRole = getEffectiveRole(get().activeRole || get().user?.role);
+            const profile = await authService.getProfile(session.user.id, currentTabRole);
+            // Strict role lock: NEVER let Supabase DB or background token refresh overwrite the tab's active role
+            profile.role = currentTabRole;
+
+            const tokens: AuthTokens = {
+              accessToken: session.access_token,
+              refreshToken: session.refresh_token,
+              expiresInSeconds: session.expires_in || 3600,
+            };
+
+            persistTabSession(tokens, profile, currentTabRole, [profile]);
+
             set({
-              tokens: {
-                accessToken: session.access_token,
-                refreshToken: session.refresh_token,
-                expiresInSeconds: session.expires_in || 3600,
-              },
+              tokens,
               user: profile,
-              activeRole: profile.role,
+              activeRole: currentTabRole,
               isAuthenticated: true,
               activeProfileId: profile.id,
               isLoading: false,
@@ -80,7 +199,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({
               tokens: null,
               user: null,
-              activeRole: null,
+              activeRole: effectiveRole,
               isAuthenticated: false,
               activeProfileId: null,
               isLoading: false,
@@ -89,101 +208,133 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
       }
 
-      // 2. Check Supabase active session
+      // 2. Check tab-isolated sessionStorage first on Web
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        try {
+          const rawTabSession = window.sessionStorage.getItem('@kalakar_tab_session');
+          if (rawTabSession) {
+            const parsed = JSON.parse(rawTabSession);
+            if (parsed && (parsed.user || parsed.tokens)) {
+              const tabRole = effectiveRole || parsed.activeRole || parsed.user?.role || 'ARTISAN';
+              const restoredUser = parsed.user ? { ...parsed.user, role: tabRole } : null;
+              const isAuth = !!restoredUser?.isProfileComplete || !!parsed.tokens?.accessToken;
+
+              set({
+                user: restoredUser,
+                activeRole: tabRole,
+                tokens: parsed.tokens || null,
+                isAuthenticated: isAuth,
+                activeProfileId: restoredUser?.id || null,
+                profilesOnDevice: parsed.profilesOnDevice || (restoredUser ? [restoredUser] : []),
+                isLoading: false,
+              });
+              logger.info('AUTH_STORE', `Restored tab-isolated session for role ${tabRole}`);
+              return;
+            }
+          }
+        } catch {}
+      }
+
+      // 3. Check role-scoped AsyncStorage / localStorage
+      const storageKey = getRoleScopedStorageKey(effectiveRole);
+      const stored = await AsyncStorage.getItem(storageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        const tabRole = effectiveRole || parsed.activeRole || parsed.user?.role || 'ARTISAN';
+        const restoredUser = parsed.user ? { ...parsed.user, role: tabRole } : null;
+        const isAuth =
+          !!parsed.tokens?.accessToken ||
+          !!restoredUser?.isProfileComplete ||
+          !!restoredUser?.fullName;
+
+        // Sync to tab sessionStorage
+        persistTabSession(parsed.tokens || null, restoredUser, tabRole, parsed.profilesOnDevice);
+
+        set({
+          user: restoredUser,
+          activeRole: tabRole,
+          tokens: parsed.tokens || null,
+          isAuthenticated: isAuth,
+          activeProfileId: restoredUser?.id || null,
+          profilesOnDevice: parsed.profilesOnDevice || (restoredUser ? [restoredUser] : []),
+          isLoading: false,
+        });
+        logger.info('AUTH_STORE', `Cached session restored for user ${restoredUser?.id} on ${storageKey}`);
+        return;
+      }
+
+      // 4. Check Supabase active session
       const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
       if (!sessionErr && sessionData.session) {
         const session = sessionData.session;
-        const profile = await authService.getProfile(session.user.id);
+        const profile = await authService.getProfile(session.user.id, effectiveRole);
+        profile.role = effectiveRole;
         const tokens: AuthTokens = {
           accessToken: session.access_token,
           refreshToken: session.refresh_token,
           expiresInSeconds: session.expires_in || 3600,
         };
 
+        persistTabSession(tokens, profile, effectiveRole, [profile]);
+
         set({
           user: profile,
-          activeRole: profile.role,
+          activeRole: effectiveRole,
           tokens,
           isAuthenticated: true,
           activeProfileId: profile.id,
           profilesOnDevice: [profile],
           isLoading: false,
         });
-        logger.info('AUTH_STORE', `Supabase session active for user ${profile.id}`);
-        return;
-      }
-
-      // 3. Fallback to cached local session if offline
-      const stored = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const isAuth =
-          !!parsed.tokens?.accessToken ||
-          !!parsed.user?.isProfileComplete ||
-          !!parsed.user?.fullName;
-
-        set({
-          user: parsed.user,
-          activeRole: parsed.user?.role || parsed.activeRole || get().activeRole || 'ARTISAN',
-          tokens: parsed.tokens,
-          isAuthenticated: isAuth,
-          activeProfileId: parsed.user?.id || null,
-          profilesOnDevice: parsed.profilesOnDevice || (parsed.user ? [parsed.user] : []),
-          isLoading: false,
-        });
-        logger.info('AUTH_STORE', `Cached session restored for user ${parsed.user?.id}`);
+        logger.info('AUTH_STORE', `Supabase session active for user ${profile.id} with role ${effectiveRole}`);
         return;
       }
     } catch (error) {
       logger.error('AUTH_STORE', 'Failed to restore auth session', error);
     }
-    set({ isLoading: false });
+
+    // Default fallback state
+    set({
+      activeRole: effectiveRole,
+      isLoading: false,
+    });
   },
 
   setSession: async (tokens: AuthTokens, user: UserProfile) => {
+    const tabRole = getEffectiveRole(user.role || get().activeRole);
+    const enforcedUser = { ...user, role: tabRole };
     const currentProfiles = get().profilesOnDevice;
-    const exists = currentProfiles.some((p) => p.id === user.id);
+    const exists = currentProfiles.some((p) => p.id === enforcedUser.id);
     const updatedProfiles = exists
-      ? currentProfiles.map((p) => (p.id === user.id ? { ...p, ...user } : p))
-      : [...currentProfiles, user];
+      ? currentProfiles.map((p) => (p.id === enforcedUser.id ? { ...p, ...enforcedUser } : p))
+      : [...currentProfiles, enforcedUser];
 
-    const sessionData = {
-      tokens,
-      user,
-      activeRole: user.role,
-      profilesOnDevice: updatedProfiles,
-    };
-
-    try {
-      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionData));
-    } catch (error) {
-      logger.error('AUTH_STORE', 'Failed to persist session to storage', error);
-    }
+    persistTabSession(tokens, enforcedUser, tabRole, updatedProfiles);
 
     set({
       tokens,
-      user,
-      activeRole: user.role,
+      user: enforcedUser,
+      activeRole: tabRole,
       isAuthenticated: true,
-      activeProfileId: user.id,
+      activeProfileId: enforcedUser.id,
       profilesOnDevice: updatedProfiles,
       isSessionExpired: false,
       sessionExpiryReason: null,
     });
-    logger.info('AUTH_STORE', `Session initialized for user ${user.id}`);
+    logger.info('AUTH_STORE', `Session initialized for user ${enforcedUser.id} with role ${tabRole}`);
   },
-
   updateProfile: async (patch: Partial<UserProfile>) => {
+    const targetRole = patch.role || get().activeRole || getEffectiveRole();
     const currentUser = get().user || {
-      id: get().activeProfileId || `user_${Date.now()}`,
-      phoneNumber: '',
-      fullName: '',
-      role: patch.role || get().activeRole || 'ARTISAN',
+      id: get().activeProfileId || `user_${targetRole.toLowerCase()}_demo`,
+      phoneNumber: '9876543210',
+      fullName: targetRole === 'BUYER' ? 'प्रिया शर्मा' : 'रामेश्वर शर्मा',
+      role: targetRole,
       preferredLanguage: 'hi_IN',
-      isProfileComplete: false,
+      isProfileComplete: true,
     };
 
-    const updatedUser: UserProfile = { ...currentUser, ...patch };
+    const updatedUser: UserProfile = { ...currentUser, ...patch, role: targetRole };
     const updatedProfiles = get().profilesOnDevice.map((p) =>
       p.id === updatedUser.id ? updatedUser : p
     );
@@ -194,27 +345,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       expiresInSeconds: 86400 * 365,
     };
 
-    const sessionData = {
-      tokens: sessionTokens,
-      user: updatedUser,
-      activeRole: updatedUser.role,
-      profilesOnDevice: updatedProfiles,
-    };
-
-    try {
-      await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionData));
-    } catch (error) {
-      logger.error('AUTH_STORE', 'Failed to update persisted profile', error);
-    }
+    persistTabSession(sessionTokens, updatedUser, targetRole, updatedProfiles);
 
     set({
       user: updatedUser,
       tokens: sessionTokens,
       isAuthenticated: true,
-      activeRole: updatedUser.role,
+      activeRole: targetRole,
       profilesOnDevice: updatedProfiles,
     });
-    logger.info('AUTH_STORE', `Profile updated for user ${updatedUser.id}`);
+    logger.info('AUTH_STORE', `Profile updated for user ${updatedUser.id} with role ${targetRole}`);
   },
 
   switchProfile: async (profileId: string) => {
@@ -223,6 +363,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       logger.warn('AUTH_STORE', `Target profile not found on device: ${profileId}`);
       return;
     }
+
+    persistTabSession(get().tokens, target, target.role, get().profilesOnDevice);
 
     set({
       user: target,
@@ -233,9 +375,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   handleSessionExpired: async (reason: string = 'Session expired. Please log in again.') => {
+    const activeRole = get().activeRole;
     try {
       await authService.logout();
-      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+      if (activeRole) {
+        await AsyncStorage.removeItem(getRoleScopedStorageKey(activeRole));
+      }
+      await AsyncStorage.removeItem('@kalakar_auth_session');
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        try {
+          window.sessionStorage.removeItem('@kalakar_tab_session');
+          window.sessionStorage.removeItem('@kalakar_tab_role');
+        } catch {}
+      }
     } catch (error) {
       logger.error('AUTH_STORE', 'Failed to clear storage on expiry', error);
     }
@@ -256,9 +408,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    const activeRole = get().activeRole;
     try {
       await authService.logout();
-      await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+      if (activeRole) {
+        await AsyncStorage.removeItem(getRoleScopedStorageKey(activeRole));
+      }
+      await AsyncStorage.removeItem('@kalakar_auth_session');
+
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        try {
+          window.sessionStorage.removeItem('@kalakar_tab_session');
+          window.sessionStorage.removeItem('@kalakar_tab_role');
+        } catch {}
+      }
     } catch (error) {
       logger.error('AUTH_STORE', 'Failed to clear session storage', error);
     }

@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
+import { useTranslation } from '@/hooks/useTranslation';
 import Svg, { Rect } from 'react-native-svg';
 
 interface MelaModeModalProps {
@@ -31,6 +32,7 @@ const QUICK_PRODUCTS: QuickProduct[] = [
 ];
 
 export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }) => {
+  const { isHindi } = useTranslation();
   const [selectedProducts, setSelectedProducts] = useState<{ [id: string]: number }>({
     '1': 1,
     '2': 1,
@@ -66,6 +68,18 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
     setSalesCount((prev) => prev + 1);
     setFollowersCount((prev) => prev + 1);
 
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(
+        isHindi
+          ? `${totalAmount} रुपये का भुगतान प्राप्त हुआ। बिल सफलतापूर्वक सहेजा गया।`
+          : `Payment of ${totalAmount} rupees received. Bill saved successfully.`
+      );
+      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+
     setTimeout(() => {
       setShowSuccess(false);
       setSelectedProducts({});
@@ -78,16 +92,21 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+              <Text style={styles.modalBackIcon}>‹</Text>
+            </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.livePill}>
                 <View style={styles.liveDot} />
-                <Text style={styles.liveText}>🔴 LIVE MELA</Text>
+                <Text style={styles.liveText}>{isHindi ? '🔴 लाइव मेला' : '🔴 LIVE MELA'}</Text>
               </View>
-              <Text style={styles.melaTitle}>🎪 Mela Mode - Live!</Text>
-              <Text style={styles.locationSubText}>📍 Surajkund Mela, Faridabad</Text>
+              <Text style={styles.melaTitle}>{isHindi ? '🎪 मेला मोड - लाइव' : '🎪 Mela Mode - Live!'}</Text>
+              <Text style={styles.locationSubText}>
+                {isHindi ? '📍 सूरजकुंड मेला, फरीदाबाद' : '📍 Surajkund Mela, Faridabad'}
+              </Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
-              <Text style={styles.closeButtonText}>✕ Exit</Text>
+              <Text style={styles.closeButtonText}>{isHindi ? '✕ बंद करें' : '✕ Exit'}</Text>
             </TouchableOpacity>
           </View>
 
@@ -95,17 +114,17 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
             {/* Live Stats Bar */}
             <View style={styles.statsStrip}>
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>💰 आज की बिक्री</Text>
+                <Text style={styles.statLabel}>{isHindi ? '💰 आज की बिक्री' : "💰 Today's Sales"}</Text>
                 <Text style={styles.statValue}>₹{todaySales.toLocaleString('en-IN')}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>🛒 कुल बिक्री</Text>
-                <Text style={styles.statValue}>{salesCount} orders</Text>
+                <Text style={styles.statLabel}>{isHindi ? '🛒 कुल ऑर्डर' : '🛒 Total Orders'}</Text>
+                <Text style={styles.statValue}>{salesCount} {isHindi ? 'ऑर्डर' : 'orders'}</Text>
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statBox}>
-                <Text style={styles.statLabel}>📱 नए फॉलोअर्स</Text>
+                <Text style={styles.statLabel}>{isHindi ? '📱 नए फॉलोअर्स' : '📱 New Followers'}</Text>
                 <Text style={[styles.statValue, { color: '#059669' }]}>+{followersCount}</Text>
               </View>
             </View>
@@ -113,8 +132,12 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
             {/* Quick Bill Product Selector */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>💳 QUICK BILL (Fast Checkout)</Text>
-                <Text style={styles.sectionHelper}>Tap to add/remove</Text>
+                <Text style={styles.sectionTitle}>
+                  {isHindi ? '💳 त्वरित बिलिंग (फास्ट चेकआउट)' : '💳 QUICK BILL (Fast Checkout)'}
+                </Text>
+                <Text style={styles.sectionHelper}>
+                  {isHindi ? 'जोड़ने / हटाने के लिए टैप करें' : 'Tap to add/remove'}
+                </Text>
               </View>
 
               <View style={styles.productGrid}>
@@ -129,7 +152,7 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
                     >
                       <Text style={styles.productEmoji}>{prod.emoji}</Text>
                       <Text style={[styles.productChipName, isSelected && styles.productChipNameActive]}>
-                        {prod.name}
+                        {isHindi ? prod.hindiName : prod.name}
                       </Text>
                       <Text style={[styles.productChipPrice, isSelected && styles.productChipPriceActive]}>
                         ₹{prod.price}
@@ -141,14 +164,18 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
 
               {/* Total Row */}
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>कुल राशि (Total Amount):</Text>
+                <Text style={styles.totalLabel}>
+                  {isHindi ? 'कुल राशि:' : 'Total Amount:'}
+                </Text>
                 <Text style={styles.totalValue}>₹{totalAmount.toLocaleString('en-IN')}</Text>
               </View>
             </View>
 
             {/* QR Code Container */}
             <View style={styles.qrCard}>
-              <Text style={styles.qrTitle}>⚡ UPI QR Code (Scan to Pay)</Text>
+              <Text style={styles.qrTitle}>
+                {isHindi ? '⚡ यूपीआई क्यूआर कोड (भुगतान करें)' : '⚡ UPI QR Code (Scan to Pay)'}
+              </Text>
               <Text style={styles.qrSubtitle}>GPay, PhonePe, Paytm, BHIM</Text>
 
               {/* Dynamic Simulated UPI QR */}
@@ -198,7 +225,9 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
                 activeOpacity={0.8}
               >
                 <Text style={styles.payDoneButtonText}>
-                  {showSuccess ? '✓ Payment Received & Saved!' : '✓ Payment Mila — Bill Save Karein'}
+                  {showSuccess
+                    ? (isHindi ? '✓ भुगतान प्राप्त और सुरक्षित!' : '✓ Payment Received & Saved!')
+                    : (isHindi ? '✓ भुगतान मिला — बिल सहेजें' : '✓ Mark Paid & Save Bill')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -208,18 +237,33 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
               <View style={styles.bridgeHeaderRow}>
                 <Text style={styles.bridgeEmoji}>✨</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.bridgeTitle}>MELA-TO-DIGITAL BRIDGE (USP)</Text>
-                  <Text style={styles.bridgeSubTitle}>Physical mela ko permanent online business banayein</Text>
+                  <Text style={styles.bridgeTitle}>
+                    {isHindi ? 'मेला से डिजिटल सेतु (विशेष सुविधा)' : 'MELA-TO-DIGITAL BRIDGE (USP)'}
+                  </Text>
+                  <Text style={styles.bridgeSubTitle}>
+                    {isHindi ? 'मेले के आगंतुकों को ऑनलाइन स्थायी खरीदार बनाएं' : 'Turn physical fair visitors into lifelong online buyers'}
+                  </Text>
                 </View>
               </View>
 
               <View style={styles.bridgeContentBox}>
                 <Text style={styles.bridgeDesc}>
-                  📱 <Text style={{ fontWeight: '700' }}>Buyer QR scan karke "Follow Ramesh" bhi kar sakta hai.</Text> Mela khatam hone ke baad bhi woh aapse online kharid sakta hai!
+                  📱 <Text style={{ fontWeight: '700' }}>
+                    {isHindi
+                      ? 'खरीदार क्यूआर स्कैन करके आपको फॉलो कर सकते हैं।'
+                      : 'Buyers scan your QR code to follow your studio.'}
+                  </Text>{' '}
+                  {isHindi
+                    ? 'मेला समाप्त होने के बाद भी वे आपसे ऑनलाइन प्रामाणिक उत्पाद खरीद सकेंगे!'
+                    : 'They can continue ordering your authentic handmade crafts online year-round!'}
                 </Text>
                 <View style={styles.bridgeFollowersRow}>
-                  <Text style={styles.bridgeFollowersBadge}>📊 Aaj ke Mela Followers: +{followersCount}</Text>
-                  <Text style={styles.bridgeRepeatBadge}>🔁 3 Repeat Orders received</Text>
+                  <Text style={styles.bridgeFollowersBadge}>
+                    {isHindi ? `📊 आज के नए फॉलोअर्स: +${followersCount}` : `📊 Today's Fair Followers: +${followersCount}`}
+                  </Text>
+                  <Text style={styles.bridgeRepeatBadge}>
+                    {isHindi ? '🔁 3 दोहराए गए ऑर्डर' : '🔁 3 Repeat Orders received'}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -256,6 +300,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
+  },
+  modalBackButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  modalBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   headerLeft: {
     flex: 1,

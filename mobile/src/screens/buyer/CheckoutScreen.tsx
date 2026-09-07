@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { VoiceTextInput as TextInput } from '@/components/inputs/VoiceTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -9,19 +10,23 @@ import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { useCartStore } from '@/store/useCartStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Checkout'>;
 
 export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { isHindi } = useTranslation();
   const total = useCartStore((s) => s.getTotalPayable());
 
-  const [fullName, setFullName] = useState('रोहन शर्मा (Rohan Sharma)');
+  const [fullName, setFullName] = useState(isHindi ? 'रोहन शर्मा' : 'Rohan Sharma');
   const [phone, setPhone] = useState('9876543210');
   const [pincode, setPincode] = useState('110001');
   const [city, setCity] = useState('New Delhi');
   const [state, setState] = useState('Delhi');
-  const [addressLine, setAddressLine] = useState('मकान नं. 42, बाराखंभा रोड, कनाट प्लेस');
+  const [addressLine, setAddressLine] = useState(
+    isHindi ? 'मकान नं. 42, बाराखंभा रोड, कनाट प्लेस' : 'House No. 42, Barakhamba Road, Connaught Place'
+  );
 
   const handlePincodeChange = (text: string) => {
     setPincode(text);
@@ -44,7 +49,10 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleProceedToPayment = () => {
     if (!fullName || !phone || !pincode || !addressLine) {
-      Alert.alert('अपूर्ण पता', 'कृपया पूरा डिलीवरी पता और पिनकोड दर्ज करें।');
+      Alert.alert(
+        isHindi ? 'अपूर्ण पता' : 'Incomplete Address',
+        isHindi ? 'कृपया पूरा डिलीवरी पता और पिनकोड दर्ज करें।' : 'Please enter your complete delivery address and PIN code.'
+      );
       return;
     }
     navigation.navigate('Payment');
@@ -53,8 +61,8 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="डिलीवरी पता"
-        subtitle="Shipping & Postal Delivery"
+        title={isHindi ? 'डिलीवरी पता' : 'Delivery Address'}
+        subtitle={isHindi ? 'डाक व शिपिंग विवरण' : 'Shipping & Postal Delivery'}
         onBackPress={() => navigation.goBack()}
         showDevanagariLogo
       />
@@ -70,10 +78,12 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
               <Text style={styles.postalTagText}>INDIA POST CONNECT</Text>
             </View>
             <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
-              स्पीड पोस्ट सुरक्षित डिलीवरी
+              {isHindi ? 'स्पीड पोस्ट सुरक्षित डिलीवरी' : 'India Post Express Delivery'}
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={{ marginTop: 2 }}>
-              देश के 1,55,000+ शाखा डाकघरों और दूरदराज गांवों तक सीधी पहुंच।
+              {isHindi
+                ? 'देश के 1,55,000+ शाखा डाकघरों और दूरदराज गांवों तक सीधी पहुंच।'
+                : 'Direct reach to 1,55,000+ post offices and remote craft villages nationwide.'}
             </Text>
           </View>
         </View>
@@ -82,40 +92,40 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         <Card style={styles.formCard} variant="elevated">
           <View style={styles.cardHeaderRow}>
             <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-              पता विवरण (Address Details)
+              {isHindi ? 'पता विवरण' : 'Address Details'}
             </Text>
             <View style={styles.badgeStep}>
-              <Text style={styles.badgeStepText}>चरण 1 / 2</Text>
+              <Text style={styles.badgeStepText}>{isHindi ? 'चरण 1 / 2' : 'Step 1 / 2'}</Text>
             </View>
           </View>
 
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[700]} style={styles.fieldLabel}>
-            पूरा नाम (Full Name) *
+            {isHindi ? 'पूरा नाम *' : 'Full Name *'}
           </Text>
           <TextInput
             style={[styles.input, { borderColor: theme.colors.sand[300], color: theme.colors.charcoal[900] }]}
             value={fullName}
             onChangeText={setFullName}
-            placeholder="नाम दर्ज करें"
+            placeholder={isHindi ? 'नाम दर्ज करें' : 'Enter full name'}
             placeholderTextColor={theme.colors.charcoal[400]}
           />
 
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[700]} style={styles.fieldLabel}>
-            मोबाइल नंबर (Phone Number) *
+            {isHindi ? 'मोबाइल नंबर *' : 'Mobile Number *'}
           </Text>
           <TextInput
             style={[styles.input, { borderColor: theme.colors.sand[300], color: theme.colors.charcoal[900] }]}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
-            placeholder="10 अंकों का मोबाइल नंबर"
+            placeholder={isHindi ? '10 अंकों का मोबाइल नंबर' : '10-digit phone number'}
             placeholderTextColor={theme.colors.charcoal[400]}
           />
 
           <View style={styles.row}>
             <View style={{ flex: 1, marginRight: 8 }}>
               <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[700]} style={styles.fieldLabel}>
-                पिनकोड (6-Digit PIN) *
+                {isHindi ? 'पिनकोड *' : 'PIN Code (6-Digit) *'}
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.sand[300], color: theme.colors.charcoal[900] }]}
@@ -123,14 +133,14 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
                 onChangeText={handlePincodeChange}
                 keyboardType="numeric"
                 maxLength={6}
-                placeholder="उदा. 110001"
+                placeholder={isHindi ? 'उदा. 110001' : 'e.g. 110001'}
                 placeholderTextColor={theme.colors.charcoal[400]}
               />
             </View>
 
             <View style={{ flex: 1, marginLeft: 8 }}>
               <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[700]} style={styles.fieldLabel}>
-                शहर व राज्य (City, State)
+                {isHindi ? 'शहर व राज्य' : 'City, State'}
               </Text>
               <TextInput
                 style={[styles.input, { borderColor: theme.colors.sand[200], backgroundColor: theme.colors.sand[100], color: theme.colors.charcoal[700] }]}
@@ -141,7 +151,7 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
           </View>
 
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[700]} style={styles.fieldLabel}>
-            मकान नंबर, गली व लैंडमार्क (Full Address) *
+            {isHindi ? 'मकान नंबर, गली व लैंडमार्क *' : 'Full Street Address & Landmark *'}
           </Text>
           <TextInput
             style={[styles.input, styles.textArea, { borderColor: theme.colors.sand[300], color: theme.colors.charcoal[900] }]}
@@ -149,7 +159,7 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             onChangeText={setAddressLine}
             multiline
             numberOfLines={3}
-            placeholder="मकान संख्या, कॉलोनी, लैंडमार्क..."
+            placeholder={isHindi ? 'मकान संख्या, कॉलोनी, लैंडमार्क...' : 'House no., building, street, landmark...'}
             placeholderTextColor={theme.colors.charcoal[400]}
           />
         </Card>
@@ -162,14 +172,14 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
             </View>
             <View style={{ flex: 1 }}>
               <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]}>
-                स्पीड पोस्ट एक्सप्रेस (Speed Post)
+                {isHindi ? 'स्पीड पोस्ट एक्सप्रेस' : 'Speed Post Express'}
               </Text>
               <Text variant="bodySmall" color={theme.colors.charcoal[600]} style={{ marginTop: 2 }}>
-                अनुमानित डिलीवरी: 3-5 कार्य दिवस • बारकोड ट्रैकिंग उपलब्ध
+                {isHindi ? 'अनुमानित डिलीवरी: 3-5 कार्य दिवस • ट्रैकिंग उपलब्ध' : 'Estimated Delivery: 3-5 business days • Live tracking'}
               </Text>
             </View>
             <View style={styles.freeBadge}>
-              <Text style={styles.freeBadgeText}>शामिल</Text>
+              <Text style={styles.freeBadgeText}>{isHindi ? 'शामिल' : 'INCLUDED'}</Text>
             </View>
           </View>
         </Card>
@@ -179,7 +189,7 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
         <View style={styles.bottomPriceInfo}>
           <Text variant="bodySmall" color={theme.colors.charcoal[500]} weight="medium">
-            कुल देय (Total)
+            {isHindi ? 'कुल देय:' : 'Total Payable:'}
           </Text>
           <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
             ₹{total.toLocaleString('en-IN')}
@@ -187,7 +197,7 @@ export const CheckoutScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <Button
-          label="भुगतान करें (Payment) →"
+          label={isHindi ? 'भुगतान करें →' : 'Proceed to Payment →'}
           variant="primary"
           size="default"
           onPress={handleProceedToPayment}

@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface B2BBulkModalProps {
   visible: boolean;
@@ -15,6 +16,7 @@ interface B2BBulkModalProps {
 }
 
 export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) => {
+  const { isHindi } = useTranslation();
   const [accepted, setAccepted] = useState(false);
 
   const handleAcceptCluster = () => {
@@ -25,9 +27,11 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(
-        'Tata Capital se paanch sau terracotta diya ka bulk order aaya hai. Budget ek lakh pachhees hazaar rupaye hai. Aapke cluster ke paanch karigar milkar yeh order poora karenge. Aapko pachhees hazaar rupaye milenge.'
+        isHindi
+          ? 'टाटा कैपिटल से 500 टेराकोटा दीया का बल्क ऑर्डर प्राप्त हुआ है। कुल बजट 1 लाख 25 हज़ार रुपये है। आपके क्लस्टर के 5 कारीगर मिलकर यह ऑर्डर पूरा करेंगे। आपकी हिस्सेदारी 25 हज़ार रुपये है।'
+          : 'Bulk inquiry received from TATA Capital for 500 terracotta diya sets with a budget of 1 lakh 25 thousand rupees. Your local 5-artisan cooperative cluster will fulfill this order together, yielding 25 thousand rupees for your share.'
       );
-      utterance.lang = 'hi-IN';
+      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
@@ -39,19 +43,24 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+              <Text style={styles.modalBackIcon}>‹</Text>
+            </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.hotPill}>
-                <Text style={styles.hotText}>🔥 2 NEW RFQ MATCH</Text>
+                <Text style={styles.hotText}>{isHindi ? '🔥 2 नए RFQ मैच' : '🔥 2 NEW RFQ MATCH'}</Text>
               </View>
-              <Text style={styles.modalTitle}>🏢 B2B Bulk Opportunities</Text>
-              <Text style={styles.subtitle}>Direct enterprise corporate gifting orders</Text>
+              <Text style={styles.modalTitle}>{isHindi ? '🏢 B2B थोक अवसर' : '🏢 B2B Bulk Opportunities'}</Text>
+              <Text style={styles.subtitle}>
+                {isHindi ? 'सीधे कॉर्पोरेट उपहार एवं थोक ऑर्डर' : 'Direct enterprise corporate gifting orders'}
+              </Text>
             </View>
             <View style={styles.headerRightActions}>
               <TouchableOpacity onPress={handleSpeak} style={styles.audioButton} activeOpacity={0.7}>
                 <Text style={styles.audioIcon}>🔊</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
-                <Text style={styles.closeButtonText}>✕ Close</Text>
+                <Text style={styles.closeButtonText}>{isHindi ? '✕ बंद करें' : '✕ Close'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -65,25 +74,29 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.companyName}>TATA Capital</Text>
-                  <Text style={styles.campaignName}>Diwali Corporate Gifting Campaign</Text>
+                  <Text style={styles.campaignName}>
+                    {isHindi ? 'दीपावली कॉर्पोरेट उपहार अभियान' : 'Diwali Corporate Gifting Campaign'}
+                  </Text>
                 </View>
                 <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedText}>Verified Buyer ✓</Text>
+                  <Text style={styles.verifiedText}>
+                    {isHindi ? 'सत्यापित खरीदार ✓' : 'Verified Buyer ✓'}
+                  </Text>
                 </View>
               </View>
 
               {/* Order Specs */}
               <View style={styles.specsGrid}>
                 <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>📦 कुल मात्रा (Quantity)</Text>
+                  <Text style={styles.specLabel}>{isHindi ? '📦 कुल मात्रा' : '📦 Total Quantity'}</Text>
                   <Text style={styles.specValue}>500 Sets</Text>
                 </View>
                 <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>💰 कुल बजट (Budget)</Text>
+                  <Text style={styles.specLabel}>{isHindi ? '💰 कुल बजट' : '💰 Total Budget'}</Text>
                   <Text style={[styles.specValue, { color: '#059669' }]}>₹1,25,000</Text>
                 </View>
                 <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>📅 डिलीवरी अंतिम तिथि</Text>
+                  <Text style={styles.specLabel}>{isHindi ? '📅 डिलीवरी अंतिम तिथि' : '📅 Delivery Deadline'}</Text>
                   <Text style={styles.specValue}>15 Oct 2026</Text>
                 </View>
               </View>
@@ -91,7 +104,12 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
               {/* Warning/Opportunity Notice */}
               <View style={styles.capacityNotice}>
                 <Text style={styles.capacityNoticeText}>
-                  ⚠️ <Text style={{ fontWeight: '700' }}>अकेले कारीगर की क्षमता:</Text> 500 सेट बनाना 15 दिन में कठिन है।
+                  ⚠️ <Text style={{ fontWeight: '700' }}>
+                    {isHindi ? 'अकेले कारीगर की क्षमता:' : 'Single Artisan Capacity Limit:'}
+                  </Text>{' '}
+                  {isHindi
+                    ? '500 सेट बनाना 15 दिन में कठिन है।'
+                    : 'Crafting 500 sets alone in 15 days is challenging.'}
                 </Text>
               </View>
 
@@ -100,47 +118,73 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
                 <View style={styles.clusterHeaderRow}>
                   <Text style={styles.clusterSparkle}>✨</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.clusterTitle}>SMART CLUSTER FULFILLMENT (USP)</Text>
-                    <Text style={styles.clusterSub}>AI Virtual Cooperative ने 5 पास के कारीगरों को जोड़ा है:</Text>
+                    <Text style={styles.clusterTitle}>
+                      {isHindi ? 'स्मार्ट क्लस्टर पूर्ति (सहकारी मॉडल)' : 'SMART CLUSTER FULFILLMENT (USP)'}
+                    </Text>
+                    <Text style={styles.clusterSub}>
+                      {isHindi
+                        ? 'AI वर्चुअल कोऑपरेटिव ने 5 पास के कारीगरों को जोड़ा है:'
+                        : 'AI Virtual Cooperative connected 5 nearby artisans:'}
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.artisanList}>
                   <View style={[styles.artisanRow, styles.artisanRowYou]}>
-                    <Text style={styles.artisanName}>• रमेश कुंभार (आप - Ramesh / You)</Text>
-                    <Text style={styles.artisanShare}>100 units → <Text style={styles.greenText}>₹25,000</Text></Text>
+                    <Text style={styles.artisanName}>
+                      {isHindi ? '• रमेश कुंभार (आप)' : '• Ramesh Kumbhar (You)'}
+                    </Text>
+                    <Text style={styles.artisanShare}>
+                      100 units → <Text style={styles.greenText}>₹25,000</Text>
+                    </Text>
                   </View>
                   <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>• सुरेश पाटिल (Kolhapur Cluster)</Text>
+                    <Text style={styles.artisanName}>
+                      {isHindi ? '• सुरेश पाटिल (कोल्हापुर क्लस्टर)' : '• Suresh Patil (Kolhapur Cluster)'}
+                    </Text>
                     <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
                   </View>
                   <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>• गणेश लोहार (Hupari Cluster)</Text>
+                    <Text style={styles.artisanName}>
+                      {isHindi ? '• गणेश लोहार (हुपरी क्लस्टर)' : '• Ganesh Lohar (Hupari Cluster)'}
+                    </Text>
                     <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
                   </View>
                   <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>• महेश कुंभार (Gokul Shirgaon)</Text>
+                    <Text style={styles.artisanName}>
+                      {isHindi ? '• महेश कुंभार (गोकुल शिरगांव)' : '• Mahesh Kumbhar (Gokul Shirgaon)'}
+                    </Text>
                     <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
                   </View>
                   <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>• राकेश सुतार (Uchgaon)</Text>
+                    <Text style={styles.artisanName}>
+                      {isHindi ? '• राकेश सुतार (उचगांव)' : '• Rakesh Sutar (Uchgaon)'}
+                    </Text>
                     <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
                   </View>
                 </View>
 
                 {/* Direct Benefit */}
                 <View style={styles.earningsSummaryBox}>
-                  <Text style={styles.earningsSummaryLabel}>आपकी हिस्सेदारी की पक्की कमाई:</Text>
-                  <Text style={styles.earningsSummaryValue}>₹25,000 (Advance Protected in Escrow 🔒)</Text>
+                  <Text style={styles.earningsSummaryLabel}>
+                    {isHindi ? 'आपकी हिस्सेदारी की पक्की कमाई:' : 'Guaranteed Payout for Your Share:'}
+                  </Text>
+                  <Text style={styles.earningsSummaryValue}>
+                    ₹25,000 {isHindi ? '(एस्क्रो में एडवांस सुरक्षित 🔒)' : '(Advance Protected in Escrow 🔒)'}
+                  </Text>
                 </View>
               </View>
 
               {/* Accept Cluster CTA */}
               {accepted ? (
                 <View style={styles.acceptedSuccessBox}>
-                  <Text style={styles.acceptedSuccessTitle}>🎉 Cluster Order Accepted!</Text>
+                  <Text style={styles.acceptedSuccessTitle}>
+                    {isHindi ? '🎉 क्लस्टर ऑर्डर स्वीकार किया गया!' : '🎉 Cluster Order Accepted!'}
+                  </Text>
                   <Text style={styles.acceptedSuccessText}>
-                    5 कारीगरों का वर्चुअल समूह तैयार है। ₹5,000 एडवांस आपके खाते में क्रेडिट कर दिया गया है।
+                    {isHindi
+                      ? '5 कारीगरों का समूह तैयार है। ₹5,000 अग्रिम आपके खाते में एस्क्रो द्वारा सुरक्षित कर दिया गया है।'
+                      : '5-artisan cooperative group is ready. ₹5,000 advance has been secured in escrow for your account.'}
                   </Text>
                 </View>
               ) : (
@@ -149,7 +193,9 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
                   style={styles.acceptClusterButton}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.acceptClusterButtonText}>✓ Cluster Ke Saath Accept Karein (स्वीकार करें)</Text>
+                  <Text style={styles.acceptClusterButtonText}>
+                    {isHindi ? '✓ क्लस्टर के साथ स्वीकार करें' : '✓ Accept with Cluster Cooperative'}
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -157,23 +203,31 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
             {/* Artisan B2B Score Card */}
             <View style={styles.scoreCard}>
               <View style={styles.scoreHeader}>
-                <Text style={styles.scoreTitle}>📊 आपका B2B Cluster Performance</Text>
+                <Text style={styles.scoreTitle}>
+                  {isHindi ? '📊 आपका B2B क्लस्टर स्कोर' : '📊 Your B2B Cluster Performance'}
+                </Text>
                 <Text style={styles.scoreValue}>⭐ 4.8 / 5.0</Text>
               </View>
               <View style={styles.scoreStatsRow}>
                 <View style={styles.scoreStatItem}>
                   <Text style={styles.scoreStatNumber}>12</Text>
-                  <Text style={styles.scoreStatLabel}>Bulk Orders Done</Text>
+                  <Text style={styles.scoreStatLabel}>
+                    {isHindi ? 'पूर्ण थोक ऑर्डर' : 'Bulk Orders Done'}
+                  </Text>
                 </View>
                 <View style={styles.scoreStatDivider} />
                 <View style={styles.scoreStatItem}>
                   <Text style={styles.scoreStatNumber}>100%</Text>
-                  <Text style={styles.scoreStatLabel}>On-Time Dispatch</Text>
+                  <Text style={styles.scoreStatLabel}>
+                    {isHindi ? 'समय पर डिलीवरी' : 'On-Time Dispatch'}
+                  </Text>
                 </View>
                 <View style={styles.scoreStatDivider} />
                 <View style={styles.scoreStatItem}>
                   <Text style={styles.scoreStatNumber}>₹3.1L</Text>
-                  <Text style={styles.scoreStatLabel}>B2B Earnings</Text>
+                  <Text style={styles.scoreStatLabel}>
+                    {isHindi ? 'B2B कुल आय' : 'B2B Earnings'}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -210,6 +264,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
+  },
+  modalBackButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  modalBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   headerLeft: {
     flex: 1,

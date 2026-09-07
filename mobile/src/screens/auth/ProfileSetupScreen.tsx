@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
+  TextInput as RNTextInput,
   Image,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
+import { VoiceTextInput as TextInput } from '@/components/inputs/VoiceTextInput';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +22,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { UserRole, LocationHierarchyValue } from '@/api/types';
 import { voiceGuidance } from '@/utils/voiceGuidance';
+import { speechRecognitionService, SpeechLanguage } from '@/services/speechRecognitionService';
+import { logger } from '@/utils/logger';
 
 const ARTISAN_AVATAR = require('../../../assets/artisan_3d_avatar.jpg');
 const BUYER_AVATAR = require('../../../assets/buyer_3d_avatar.jpg');
@@ -31,16 +35,20 @@ interface CraftCategory {
   code: string;
   nameHi: string;
   nameEn: string;
+  state: string;
   iconName: IconName;
 }
 
 const CRAFTS: CraftCategory[] = [
-  { code: 'POTTERY_TERRACOTTA', nameHi: 'मिट्टी एवं टेराकोटा', nameEn: 'Clay & Terracotta', iconName: 'palette' },
-  { code: 'TEXTILE_HANDLOOM', nameHi: 'हथकरघा एवं बुनाई', nameEn: 'Handloom & Weaving', iconName: 'tag' },
-  { code: 'PAINTING_FOLK', nameHi: 'पारंपरिक चित्रकला', nameEn: 'Folk Art (Madhubani)', iconName: 'palette' },
-  { code: 'WOODCRAFT', nameHi: 'काष्ठ शिल्प', nameEn: 'Woodcraft & Carving', iconName: 'tool' },
-  { code: 'METALLURGY_DHOKRA', nameHi: 'धातु शिल्प (ढोकरा)', nameEn: 'Metalcraft & Dhokra', iconName: 'sparkles' },
-  { code: 'BAMBOO_CANE', nameHi: 'बांस एवं जूट', nameEn: 'Bamboo & Cane', iconName: 'bagOutline' },
+  { code: 'KOLHAPURI_CHAPPAL', nameEn: 'Kolhapuri Chappal', nameHi: 'कोल्हापुरी चप्पल', state: 'Maharashtra', iconName: 'tag' },
+  { code: 'MADHUBANI_PAINTING', nameEn: 'Madhubani Painting', nameHi: 'मधुबनी पेंटिंग', state: 'Bihar', iconName: 'palette' },
+  { code: 'BANARASI_SAREE', nameEn: 'Banarasi Saree', nameHi: 'बनारसी साड़ी', state: 'Uttar Pradesh', iconName: 'tag' },
+  { code: 'PASHMINA_SHAWL', nameEn: 'Pashmina Shawl', nameHi: 'पश्मीना शॉल', state: 'Kashmir / Ladakh', iconName: 'sparkles' },
+  { code: 'BLUE_POTTERY', nameEn: 'Blue Pottery', nameHi: 'ब्लू पॉटरी', state: 'Rajasthan', iconName: 'home' },
+  { code: 'CHIKANKARI', nameEn: 'Chikankari', nameHi: 'चिकनकारी कढ़ाई', state: 'Uttar Pradesh', iconName: 'sparkles' },
+  { code: 'WARLI_PAINTING', nameEn: 'Warli Painting', nameHi: 'वारली चित्रकला', state: 'Maharashtra', iconName: 'palette' },
+  { code: 'PAITHANI_SAREE', nameEn: 'Paithni saree Handmade', nameHi: 'पैठणी साड़ी (हस्तनिर्मित)', state: 'Maharashtra', iconName: 'tag' },
+  { code: 'OTHER_CRAFT', nameEn: 'Other (Write your own)', nameHi: 'अन्य कला (खुद लिखें/बोलें)', state: '', iconName: 'edit' },
 ];
 
 const LANGUAGES: { code: SupportedLocale; name: string; nativeName: string }[] = [
@@ -94,9 +102,9 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
   const { locale, setLocale } = useAppStore();
   const role: UserRole = route?.params?.role || user?.role || 'ARTISAN';
 
-  // Form states - completely empty by default; only low-opacity placeholders are shown so user enters / chooses everything
-  const [fullName, setFullName] = useState('');
-  const [selectedCraft, setSelectedCraft] = useState<string>('');
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [selectedCraft, setSelectedCraft] = useState<string>(user?.craftCategoryCode || '');
+  const [customCraftText, setCustomCraftText] = useState<string>('');
   const [district, setDistrict] = useState(user?.district || '');
   const [state, setState] = useState(user?.state || '');
   const [locationValue, setLocationValue] = useState<Partial<LocationHierarchyValue>>({
@@ -113,10 +121,10 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
   });
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLocale>(locale || 'hi_IN');
 
-  // Buyer specific - nothing pre-selected
-  const [buyerType, setBuyerType] = useState<string>('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [purchasePreference, setPurchasePreference] = useState<'INDIVIDUAL' | 'BULK' | ''>('');
+  // Buyer specific
+  const [buyerType, setBuyerType] = useState<string>(role === 'BUYER' ? 'COLLECTOR' : '');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(role === 'BUYER' ? ['POTTERY', 'HANDLOOM'] : []);
+  const [purchasePreference, setPurchasePreference] = useState<'INDIVIDUAL' | 'BULK' | ''>(role === 'BUYER' ? 'INDIVIDUAL' : '');
 
   // Admin specific - defaults for demo readiness
   const [adminDept, setAdminDept] = useState<string>('OPERATIONS');
@@ -133,22 +141,158 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
   const roleTitle =
     role === 'BUYER' ? 'Buyer' : role === 'ADMIN' ? 'Admin' : 'Artisan';
 
+  const handleQuickDemoFill = () => {
+    setErrorMessage(null);
+    if (role === 'ARTISAN') {
+      setFullName('Ramesh Kumbhar');
+      setSelectedCraft('KOLHAPURI_CHAPPAL');
+      setState('Maharashtra');
+      setDistrict('Kolhapur');
+      setLocationValue({
+        countryId: 1,
+        countryName: 'India',
+        stateName: 'Maharashtra',
+        districtName: 'Kolhapur',
+        subDistrictName: 'Karveer',
+        villageName: 'Uchgaon',
+      });
+      setSelectedLanguage('hi_IN');
+    } else if (role === 'BUYER') {
+      setFullName('Priya Sharma');
+      setBuyerType('COLLECTOR');
+      setSelectedCategories(['POTTERY', 'HANDLOOM', 'JEWELRY']);
+      setPurchasePreference('INDIVIDUAL');
+      setState('Delhi');
+      setDistrict('New Delhi');
+      setLocationValue({
+        countryId: 1,
+        countryName: 'India',
+        stateName: 'Delhi',
+        districtName: 'New Delhi',
+        subDistrictName: 'Chanakyapuri',
+        villageName: 'Delhi Central',
+      });
+      setSelectedLanguage('en_IN');
+    } else {
+      setFullName('Rajesh Sharma (Admin)');
+      setAdminDept('OPERATIONS');
+      setClearanceLevel('L3');
+      setState('Delhi');
+      setDistrict('New Delhi');
+      setLocationValue({
+        countryId: 1,
+        countryName: 'India',
+        stateName: 'Delhi',
+        districtName: 'New Delhi',
+        subDistrictName: 'Connaught Place',
+        villageName: 'HQ',
+      });
+      setSelectedLanguage('en_IN');
+    }
+  };
+
+  // Live speech-to-text dictation states
+  const [isListeningName, setIsListeningName] = useState(false);
+  const [voiceStatusText, setVoiceStatusText] = useState<string>('');
+  const pulseMicAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    let loop: Animated.CompositeAnimation | null = null;
+    if (isListeningName) {
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseMicAnim, {
+            toValue: 1.25,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseMicAnim, {
+            toValue: 1.0,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      loop.start();
+    } else {
+      pulseMicAnim.setValue(1);
+    }
+    return () => loop?.stop();
+  }, [isListeningName, pulseMicAnim]);
+
   const handleVoiceDictateName = () => {
-    voiceGuidance.speakHindi(
-      'कृपया अपना पूरा नाम बोलिए।',
-      undefined,
-      () => {
-        if (!fullName) {
-          setFullName(role === 'BUYER' ? 'Priya Sharma' : role === 'ADMIN' ? 'Rajesh Sharma (Admin)' : 'Ramesh Kumbhar');
-        }
-      }
+    if (isListeningName) {
+      speechRecognitionService.stopListening();
+      setIsListeningName(false);
+      setVoiceStatusText('');
+      return;
+    }
+
+    const speechLangMap: Record<SupportedLocale, SpeechLanguage> = {
+      hi_IN: 'hi-IN',
+      mr_IN: 'mr-IN',
+      en_IN: 'en-IN',
+      bn_IN: 'bn-IN',
+      ta_IN: 'ta-IN',
+      gu_IN: 'gu-IN',
+      te_IN: 'te-IN',
+      od_IN: 'od-IN',
+    };
+    const lang = speechLangMap[selectedLanguage] || 'hi-IN';
+
+    setIsListeningName(true);
+    setVoiceStatusText('🔴 Sun rahe hain... Boliye (Listening...)');
+    setErrorMessage(null);
+
+    const started = speechRecognitionService.startListening(
+      {
+        onStart: () => {
+          setIsListeningName(true);
+          setVoiceStatusText('🔴 Sun rahe hain... Apna naam boliye');
+        },
+        onResult: (transcript: string) => {
+          // Capitalize first letters of words in full name
+          const formatted = transcript
+            .split(' ')
+            .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
+            .join(' ');
+          setFullName(formatted);
+          setErrorMessage(null);
+        },
+        onError: (err: string) => {
+          setIsListeningName(false);
+          setVoiceStatusText('');
+          logger.warn('PROFILE_SETUP', `Speech recognition error: ${err}`);
+        },
+        onEnd: () => {
+          setIsListeningName(false);
+          setVoiceStatusText('');
+        },
+      },
+      lang
     );
+
+    if (!started) {
+      setIsListeningName(false);
+      setVoiceStatusText('Speech recognition could not start. Please check microphone permissions.');
+    }
   };
 
   const handleComplete = async (destination?: 'STUDIO' | 'HOME') => {
     if (!fullName.trim()) {
       setErrorMessage('कृपया अपना नाम दर्ज करें (Please enter your name)');
       return;
+    }
+
+    if (role === 'ARTISAN') {
+      if (!selectedCraft) {
+        setErrorMessage('कृपया अपनी मुख्य कला / उत्पाद चुनें (Please select your craft)');
+        return;
+      }
+      if (selectedCraft === 'OTHER_CRAFT' && !customCraftText.trim()) {
+        setErrorMessage('कृपया अपनी कला का नाम लिखें या बोलें (Please write your craft name)');
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -159,10 +303,14 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
       const finalState = locationValue.stateName || state || '';
       const finalSubDistrict = locationValue.subDistrictName || '';
       const finalVillage = locationValue.villageName || '';
+      const finalCraftCode =
+        role === 'ARTISAN'
+          ? (selectedCraft === 'OTHER_CRAFT' ? (customCraftText.trim() || 'OTHER') : selectedCraft)
+          : buyerType;
 
       const updatedUser = await authService.setupProfile(user?.id || 'temp_user_id', {
         full_name: fullName.trim(),
-        craft_category_code: role === 'ARTISAN' ? selectedCraft : buyerType,
+        craft_category_code: finalCraftCode,
         country_id: locationValue.countryId || 1,
         state_id: locationValue.stateId,
         district_id: locationValue.districtId,
@@ -178,6 +326,7 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
         ...updatedUser,
         fullName: fullName.trim(),
         role,
+        craftCategoryCode: finalCraftCode,
         countryId: locationValue.countryId || 1,
         stateId: locationValue.stateId,
         districtId: locationValue.districtId,
@@ -231,7 +380,11 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
       >
         {/* Top App Header */}
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('RoleSelection'))}
+            style={styles.backBtn}
+            accessibilityLabel="Go back"
+          >
             <Icon name="arrowLeft" size={18} color="#0F172A" />
           </TouchableOpacity>
 
@@ -277,6 +430,19 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           </View>
 
+          {/* 1-Tap Quick Demo Auto-Fill Assist */}
+          <TouchableOpacity
+            onPress={handleQuickDemoFill}
+            style={[styles.demoFillPill, { borderColor: roleColor, backgroundColor: roleLightBg }]}
+            activeOpacity={0.8}
+            testID="demo-autofill-btn"
+          >
+            <Icon name="sparkles" size={14} color={roleColor} />
+            <Text variant="caption" weight="bold" color={roleColor} style={{ marginLeft: 6 }}>
+              ⚡ Auto-Fill Demo ({role === 'ARTISAN' ? 'Ramesh Kumbhar' : role === 'BUYER' ? 'Priya Sharma' : 'Rajesh Sharma'})
+            </Text>
+          </TouchableOpacity>
+
           {errorMessage && (
             <View style={styles.errorBanner}>
               <Icon name="alertCircle" size={18} color="#DC2626" />
@@ -304,34 +470,72 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
             </View>
 
-            <View style={styles.inputWithAction}>
+            <View
+              style={[
+                styles.inputWithAction,
+                isListeningName && { borderColor: '#EF4444', backgroundColor: '#FEF2F2' },
+              ]}
+            >
               <TextInput
-                style={styles.textInput}
+                style={[
+                  styles.textInput,
+                  isListeningName && { borderColor: '#EF4444', backgroundColor: '#FFFFFF' },
+                ]}
                 value={fullName}
                 onChangeText={(val) => {
                   setFullName(val);
                   setErrorMessage(null);
                 }}
                 placeholder={
-                  role === 'BUYER'
+                  isListeningName
+                    ? '🔴 Sun rahe hain... Boliye...'
+                    : role === 'BUYER'
                     ? 'अपना पूरा नाम लिखें (e.g. Priya Sharma)'
                     : role === 'ADMIN'
                     ? 'अपना पूरा नाम लिखें (e.g. Rajesh Sharma)'
                     : 'अपना पूरा नाम लिखें (e.g. Sunita Devi / Ramesh Kumbhar)'
                 }
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={isListeningName ? '#EF4444' : '#94A3B8'}
               />
-              <TouchableOpacity
-                onPress={handleVoiceDictateName}
-                style={[styles.voiceInlineBtn, { backgroundColor: roleLightBg }]}
-                activeOpacity={0.8}
-              >
-                <Icon name="microphone" size={18} color={roleColor} />
-                <Text variant="caption" weight="bold" color={roleColor}>
-                  Bolkar
-                </Text>
-              </TouchableOpacity>
+              <Animated.View style={{ transform: [{ scale: isListeningName ? pulseMicAnim : 1 }] }}>
+                <TouchableOpacity
+                  onPress={handleVoiceDictateName}
+                  style={[
+                    styles.voiceInlineBtn,
+                    {
+                      backgroundColor: isListeningName ? '#EF4444' : roleLightBg,
+                      borderColor: isListeningName ? '#DC2626' : 'rgba(234, 88, 12, 0.2)',
+                    },
+                  ]}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={isListeningName ? 'Stop listening' : 'Start speaking name'}
+                  testID="name-voice-btn"
+                >
+                  <Icon
+                    name={isListeningName ? 'close' : 'microphone'}
+                    size={18}
+                    color={isListeningName ? '#FFFFFF' : roleColor}
+                  />
+                  <Text
+                    variant="caption"
+                    weight="bold"
+                    color={isListeningName ? '#FFFFFF' : roleColor}
+                  >
+                    {isListeningName ? 'Stop ⏹️' : 'Bolkar 🎙️'}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
             </View>
+
+            {isListeningName && (
+              <View style={styles.listeningLiveBadge}>
+                <Text style={{ fontSize: 13, marginRight: 6 }}>🔴</Text>
+                <Text variant="caption" weight="bold" color="#DC2626" style={{ flex: 1 }}>
+                  {voiceStatusText || 'Sun rahe hain... Jo aap bolenge yahan type hoga (Live Voice-to-Text)'}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Section 2: Craft / Skill (Role Specific) */}
@@ -356,10 +560,60 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
               <View style={styles.craftGrid}>
                 {CRAFTS.map((craft) => {
                   const isSelected = selectedCraft === craft.code;
+                  const isOther = craft.code === 'OTHER_CRAFT';
+
+                  if (isOther) {
+                    return (
+                      <TouchableOpacity
+                        key={craft.code}
+                        onPress={() => {
+                          setSelectedCraft(craft.code);
+                          setErrorMessage(null);
+                        }}
+                        style={[
+                          styles.craftTileFullWidth,
+                          isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
+                        ]}
+                        activeOpacity={0.8}
+                      >
+                        <View
+                          style={[
+                            styles.craftTileIconWrapHorizontal,
+                            { backgroundColor: isSelected ? roleColor : '#F1F5F9' },
+                          ]}
+                        >
+                          <Icon
+                            name={craft.iconName}
+                            size={16}
+                            color={isSelected ? '#FFFFFF' : '#475569'}
+                          />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.craftTitleHorizontal}>
+                            {craft.nameEn}
+                          </Text>
+                          <Text style={styles.craftSubtitleHorizontal}>
+                            {craft.nameHi}
+                          </Text>
+                        </View>
+                        <View style={styles.customBadge}>
+                          <Text style={styles.customBadgeText}>✍️ Custom / खुद लिखें</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  }
+
                   return (
                     <TouchableOpacity
                       key={craft.code}
-                      onPress={() => setSelectedCraft(craft.code)}
+                      onPress={() => {
+                        setSelectedCraft(craft.code);
+                        setErrorMessage(null);
+                        if (craft.state && !locationValue.stateName) {
+                          setState(craft.state);
+                          setLocationValue((prev) => ({ ...prev, stateName: craft.state }));
+                        }
+                      }}
                       style={[
                         styles.craftTile,
                         isSelected && { borderColor: roleColor, backgroundColor: roleLightBg },
@@ -374,29 +628,48 @@ export const ProfileSetupScreen: React.FC<Props> = ({ route, navigation }) => {
                       >
                         <Icon
                           name={craft.iconName}
-                          size={20}
+                          size={16}
                           color={isSelected ? '#FFFFFF' : '#475569'}
                         />
                       </View>
-                      <Text
-                        variant="bodySmall"
-                        weight="bold"
-                        color="#0F172A"
-                        style={{ textAlign: 'center' }}
-                      >
+                      <Text style={styles.craftTitle} numberOfLines={1}>
                         {craft.nameEn}
                       </Text>
-                      <Text
-                        variant="caption"
-                        color="#64748B"
-                        style={{ textAlign: 'center', marginTop: 2, fontSize: 11 }}
-                      >
+                      <Text style={styles.craftSubtitle} numberOfLines={1}>
                         {craft.nameHi}
                       </Text>
+                      {craft.state ? (
+                        <View style={styles.craftStateBadge}>
+                          <Text style={styles.craftStateText}>📍 {craft.state}</Text>
+                        </View>
+                      ) : null}
                     </TouchableOpacity>
                   );
                 })}
               </View>
+
+              {/* Other Custom Craft Text Input */}
+              {selectedCraft === 'OTHER_CRAFT' && (
+                <View style={styles.customCraftBox}>
+                  <View style={styles.customCraftHeader}>
+                    <Icon name="edit" size={16} color={roleColor} />
+                    <Text variant="bodySmall" weight="bold" color={roleColor} style={{ marginLeft: 6 }}>
+                      अपनी कला / उत्पाद का नाम लिखें या बोलें:
+                    </Text>
+                  </View>
+                  <TextInput
+                    style={styles.textInput}
+                    value={customCraftText}
+                    onChangeText={(val) => {
+                      setCustomCraftText(val);
+                      setErrorMessage(null);
+                    }}
+                    placeholder="उदा. टेराकोटा पॉटरी, ढोकरा शिल्प, काष्ठ नक्काशी..."
+                    placeholderTextColor="#94A3B8"
+                    enableVoice={true}
+                  />
+                </View>
+              )}
             </View>
           )}
 
@@ -835,6 +1108,17 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 35,
   },
+  demoFillPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginBottom: 14,
+    alignSelf: 'center',
+  },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -876,6 +1160,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    borderRadius: 16,
+    padding: 2,
+  },
+  listeningLiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginTop: 8,
   },
   textInput: {
     flex: 1,
@@ -912,21 +1209,100 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   craftTile: {
-    width: '48%',
-    padding: 12,
-    borderRadius: 14,
+    width: '48.5%',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#E2E8F0',
     backgroundColor: '#F8FAFC',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  craftTileFullWidth: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
+    marginTop: 2,
   },
   craftTileIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 3,
+  },
+  craftTileIconWrapHorizontal: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  craftTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0F172A',
+    textAlign: 'center',
+  },
+  craftSubtitle: {
+    fontSize: 10,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 1,
+  },
+  craftTitleHorizontal: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  craftSubtitleHorizontal: {
+    fontSize: 10,
+    color: '#64748B',
+  },
+  customBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  customBadgeText: {
+    fontSize: 10,
+    color: '#475569',
+    fontWeight: '700',
+  },
+  craftStateBadge: {
+    backgroundColor: 'rgba(234, 88, 12, 0.08)',
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    marginTop: 3,
+  },
+  craftStateText: {
+    fontSize: 9.5,
+    color: '#EA580C',
+    fontWeight: '700',
+  },
+  customCraftBox: {
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+  },
+  customCraftHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   buyerTypeRow: {
     flexDirection: 'row',

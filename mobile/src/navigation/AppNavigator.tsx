@@ -10,7 +10,7 @@ import {
   KhataScreen,
   OrdersScreen,
 } from '@/screens/artisan';
-import { BuyerHomeScreen, CategoriesScreen, CartScreen } from '@/screens/buyer';
+import { BuyerHomeScreen, CategoriesScreen, CartScreen, WishlistScreen } from '@/screens/buyer';
 import {
   AdminDashboardScreen,
   AdminKycScreen,
@@ -22,6 +22,7 @@ import { OpportunitiesScreen } from '@/screens/linkage/OpportunitiesScreen';
 import { Text } from '@/components/typography/Text';
 import { Icon } from '@/components/icons/Icon';
 import { useCartStore } from '@/store/useCartStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -78,6 +79,16 @@ const TabIcons = {
       <Icon name="users" size={22} color={color} />
     </View>
   ),
+  Wishlist: ({ focused, color, count }: { focused?: boolean; color: string; count?: number }) => (
+    <View style={styles.iconBox}>
+      <Icon name={focused ? 'heartFilled' : 'heart'} size={22} color={color} />
+      {count !== undefined && count > 0 && (
+        <View style={styles.badgeContainer}>
+          <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
+        </View>
+      )}
+    </View>
+  ),
   Orders: ({ focused, color }: { focused?: boolean; color: string }) => (
     <View style={styles.iconBox}>
       <Icon name={focused ? 'orders' : 'ordersOutline'} size={22} color={color} />
@@ -107,6 +118,7 @@ const TabIcons = {
 
 const ExploreTabScreen = (props: any) => <CategoriesScreen {...props} />;
 const BulkDealsTabScreen = (props: any) => <OpportunitiesScreen {...props} />;
+const WishlistTabScreen = (props: any) => <WishlistScreen {...props} />;
 const CartTabScreen = (props: any) => <CartScreen {...props} />;
 const OrdersTabScreen = (props: any) => <OrdersScreen {...props} />;
 const KhataTabScreen = (props: any) => <KhataScreen {...props} />;
@@ -129,11 +141,12 @@ const PlaceholderScreen = () => null;
 export const AppNavigator: React.FC<any> = ({ route }) => {
   const insets = useSafeAreaInsets();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
+  const wishlistCount = useWishlistStore((s) => s.items.length);
   const activeRole = useAuthStore((s) => s.activeRole);
   const user = useAuthStore((s) => s.user);
   const { t, isHindi } = useTranslation();
   const routeRole = route?.params?.role as UserRole | undefined;
-  const role: UserRole = routeRole || activeRole || user?.role || 'ARTISAN';
+  const role: UserRole = activeRole || routeRole || user?.role || 'ARTISAN';
 
   const bottomInset = Math.max(insets.bottom, 10);
   const tabHeight = 60 + bottomInset;
@@ -172,7 +185,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         tabBarInactiveTintColor: '#94A3B8',
       }}
     >
-      {/* 1. ARTISAN TABS (Home 🏠, Create 📸, Saathi 🎙️ (Center Star), Orders 📦, Khata 💰) */}
+      {/* 1. ARTISAN TABS (Home 🏠, Saathi 🎙️, Smart Cataloger [+] (Center Hero), Orders 📦 (with Khata), Profile 👤) */}
       {role === 'ARTISAN' && (
         <>
           <Tab.Screen
@@ -185,21 +198,21 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
             }}
           />
           <Tab.Screen
-            name="CreateTab"
-            component={ArtisanCreateTabScreen}
-            options={{
-              title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: isHindi ? 'बनाओ' : 'Create',
-              tabBarIcon: ({ color, focused }) => <TabIcons.Create focused={focused} color={color} />,
-            }}
-          />
-          <Tab.Screen
             name="SaathiTab"
             component={VoiceSaathiTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: isHindi ? 'साथी' : 'Saathi',
+              tabBarLabel: isHindi ? 'साथी AI' : 'Saathi AI',
               tabBarIcon: ({ color, focused }) => <TabIcons.Saathi focused={focused} color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="CreateTab"
+            component={ArtisanCreateTabScreen}
+            options={{
+              title: 'Kalakar Setu ~ Artisans',
+              tabBarLabel: isHindi ? 'कैटलॉग' : 'Catalog',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Create focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
@@ -207,17 +220,17 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
             component={OrdersTabScreen}
             options={{
               title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: isHindi ? 'ऑर्डर' : 'Orders',
+              tabBarLabel: isHindi ? 'ऑर्डर्स' : 'Orders',
               tabBarIcon: ({ color, focused }) => <TabIcons.Orders focused={focused} color={color} />,
             }}
           />
           <Tab.Screen
-            name="KhataTab"
-            component={KhataTabScreen}
+            name="ProfileTab"
+            component={AccountTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Artisans',
-              tabBarLabel: isHindi ? 'खाता' : 'Khata',
-              tabBarIcon: ({ color, focused }) => <TabIcons.Khata focused={focused} color={color} />,
+              title: 'Kalakar Setu ~ Artisan Profile',
+              tabBarLabel: isHindi ? 'प्रोफ़ाइल' : 'Profile',
+              tabBarIcon: ({ color, focused }) => <TabIcons.Account focused={focused} color={color} />,
             }}
           />
         </>
@@ -273,7 +286,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
         </>
       )}
 
-      {/* 3. BUYER TABS (Discover, Explore, [Bulk Deals ✨], Cart, Profile) */}
+      {/* 3. BUYER TABS (Discover, Explore, Wishlist, Cart, Profile) */}
       {role === 'BUYER' && (
         <>
           <Tab.Screen
@@ -295,12 +308,14 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
             }}
           />
           <Tab.Screen
-            name="BulkDealsTab"
-            component={BulkDealsTabScreen}
+            name="WishlistTab"
+            component={WishlistTabScreen}
             options={{
-              title: 'Kalakar Setu ~ Buyer',
-              tabBarLabel: t.nav.bulkDeals,
-              tabBarIcon: ({ color }) => <TabIcons.BulkDeals color={color} />,
+              title: 'Kalakar Setu ~ Wishlist',
+              tabBarLabel: t.nav.wishlist,
+              tabBarIcon: ({ color, focused }) => (
+                <TabIcons.Wishlist color={color} focused={focused} count={wishlistCount} />
+              ),
             }}
           />
           <Tab.Screen

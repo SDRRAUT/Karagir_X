@@ -16,6 +16,10 @@ import { RootStackParamList } from '@/navigation/types';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
+import { MelaModeModal } from '../artisan/components/MelaModeModal';
+import { B2BBulkModal } from '../artisan/components/B2BBulkModal';
+import { FairPriceCalculatorModal } from '../artisan/components/FairPriceCalculatorModal';
+import { CraftPassportModal } from '../artisan/components/CraftPassportModal';
 
 export const ProfileScreen: React.FC = () => {
   const theme = useTheme();
@@ -26,6 +30,10 @@ export const ProfileScreen: React.FC = () => {
   const [showPinPad, setShowPinPad] = useState(false);
   const [pinDigits, setPinDigits] = useState('');
   const [joinedClub, setJoinedClub] = useState(false);
+  const [showMelaModal, setShowMelaModal] = useState(false);
+  const [showB2BModal, setShowB2BModal] = useState(false);
+  const [showFairPriceModal, setShowFairPriceModal] = useState(false);
+  const [showPassportModal, setShowPassportModal] = useState(false);
 
   const languages: { code: SupportedLocale; name: string; native: string }[] = [
     { code: 'hi_IN', name: 'हिन्दी', native: '🇮🇳 हिन्दी' },
@@ -123,7 +131,13 @@ export const ProfileScreen: React.FC = () => {
                 <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary} numberOfLines={1}>
                   {roleName}
                 </Text>
-                <TouchableOpacity style={styles.editBtn} activeOpacity={0.8}>
+                <TouchableOpacity
+                  style={styles.editBtn}
+                  activeOpacity={0.8}
+                  onPress={() => navigation.navigate('ProfileSetup', { role })}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit profile"
+                >
                   <Text style={{ fontSize: 14 }}>✏️</Text>
                 </TouchableOpacity>
               </View>
@@ -354,7 +368,7 @@ export const ProfileScreen: React.FC = () => {
 
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('Khata' as any)}
+                onPress={() => navigation.navigate('MainTabs' as any, { screen: 'OrdersTab', params: { section: 'khata' } })}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
@@ -436,6 +450,124 @@ export const ProfileScreen: React.FC = () => {
               </View>
             </View>
 
+            {/* 8 CORE PILLARS INNOVATION HUB (Compact 2-Column Grid - Low Space) */}
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionHeaderTitle}>
+                <Text style={{ fontSize: 18, marginRight: 6 }}>✨</Text>
+                <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
+                  {t.artisan.eightPillarsTitle}
+                </Text>
+              </View>
+              <View style={styles.uspBadgePill}>
+                <Text style={styles.uspBadgePillText}>8 USPs</Text>
+              </View>
+            </View>
+
+            <View style={styles.pillarsCompactGrid}>
+              {[
+                {
+                  id: 'p1',
+                  title: t.artisan.voiceListingTitle,
+                  desc: isHindi ? 'आवाज़ लिस्टिंग' : 'Voice Listing',
+                  emoji: '🎙️',
+                  color: '#EA580C',
+                  bg: '#FFF7ED',
+                  border: '#FED7AA',
+                  action: () => navigation.navigate('MainTabs' as any, { screen: 'SaathiTab' }),
+                },
+                {
+                  id: 'p2',
+                  title: t.artisan.autoCatalogTitle,
+                  desc: isHindi ? 'कैटलॉग' : 'Auto Catalog',
+                  emoji: '📝',
+                  color: '#7C3AED',
+                  bg: '#F5F3FF',
+                  border: '#DDD6FE',
+                  action: () => navigation.navigate('MainTabs' as any, { screen: 'CreateTab' }),
+                },
+                {
+                  id: 'p3',
+                  title: t.artisan.photoEnhanceTitle,
+                  desc: isHindi ? 'एआई स्टूडियो' : 'AI Studio',
+                  emoji: '✨',
+                  color: '#0284C7',
+                  bg: '#F0F9FF',
+                  border: '#BAE6FD',
+                  action: () => navigation.navigate('MainTabs' as any, { screen: 'CreateTab' }),
+                },
+                {
+                  id: 'p4',
+                  title: t.artisan.fairPriceTitle,
+                  desc: isHindi ? 'मूल्य कैलकुलेटर' : 'Fair Price',
+                  emoji: '💰',
+                  color: '#059669',
+                  bg: '#ECFDF5',
+                  border: '#A7F3D0',
+                  action: () => setShowFairPriceModal(true),
+                },
+                {
+                  id: 'p5',
+                  title: t.artisan.qrPassportTitle,
+                  desc: isHindi ? 'शिल्प पासपोर्ट' : 'Craft Passport',
+                  emoji: '🏛️',
+                  color: '#4F46E5',
+                  bg: '#EEF2FF',
+                  border: '#C7D2FE',
+                  action: () => setShowPassportModal(true),
+                },
+                {
+                  id: 'p6',
+                  title: t.artisan.clustersB2bTitle,
+                  desc: isHindi ? 'क्लस्टर बी2बी' : 'B2B Clusters',
+                  emoji: '🏢',
+                  color: '#D97706',
+                  bg: '#FEF3C7',
+                  border: '#FDE68A',
+                  action: () => setShowB2BModal(true),
+                },
+                {
+                  id: 'p7',
+                  title: t.artisan.buyerMatchingTitle,
+                  desc: isHindi ? 'मेला 365' : 'Mela 365 Twin',
+                  emoji: '🎪',
+                  color: '#E11D48',
+                  bg: '#FFF1F2',
+                  border: '#FECDD3',
+                  action: () => setShowMelaModal(true),
+                },
+                {
+                  id: 'p8',
+                  title: t.artisan.orderTrackingTitle,
+                  desc: isHindi ? 'ऑर्डर ट्रैकिंग' : 'Live Tracking',
+                  emoji: '🚚',
+                  color: '#16A34A',
+                  bg: '#F0FDF4',
+                  border: '#BBF7D0',
+                  action: () => navigation.navigate('MainTabs' as any, { screen: 'OrdersTab' }),
+                },
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[styles.pillarCompactCard, { borderColor: item.border }]}
+                  onPress={item.action}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.pillarCompactIconBox, { backgroundColor: item.bg }]}>
+                    <Text style={{ fontSize: 16 }}>{item.emoji}</Text>
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <Text numberOfLines={1} style={styles.pillarCompactTitle}>
+                      {item.title}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.pillarCompactSub}>
+                      {item.desc}
+                    </Text>
+                  </View>
+                  <Text style={[styles.pillarLaunchArrow, { color: item.color }]}>↗</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
             {/* Artisan Finance & Growth */}
             <View style={styles.sectionHeader}>
               <View style={styles.sectionHeaderTitle}>
@@ -444,7 +576,7 @@ export const ProfileScreen: React.FC = () => {
                   {t.profile.artisanFinanceTitle}
                 </Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('Khata' as any)}>
+              <TouchableOpacity onPress={() => navigation.navigate('MainTabs' as any, { screen: 'OrdersTab', params: { section: 'khata' } })}>
                 <Text variant="labelMedium" weight="bold" color={theme.colors.terracotta.primary}>
                   {t.common.viewAll} ›
                 </Text>
@@ -833,7 +965,24 @@ export const ProfileScreen: React.FC = () => {
                   useWishlistStore.getState().clearWishlist();
                   useProductDraftStore.getState().resetDraft();
                   useAuthStore.getState().setActiveRole(null as any);
-                  useAuthStore.setState({ user: null, isAuthenticated: false, tokens: null });
+                  useAuthStore.setState({ user: null, isAuthenticated: false, tokens: null, activeRole: null as any });
+
+                  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+                    try {
+                      window.sessionStorage.clear();
+                      const keysToRemove: string[] = [];
+                      for (let i = 0; i < window.localStorage.length; i++) {
+                        const k = window.localStorage.key(i);
+                        if (k && (k.startsWith('@kalakar') || k.startsWith('sb-'))) {
+                          keysToRemove.push(k);
+                        }
+                      }
+                      keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+                      window.history.replaceState(null, '', window.location.pathname);
+                      window.location.href = window.location.pathname;
+                      return;
+                    } catch {}
+                  }
                 } catch (err) {
                   console.error('Reset error:', err);
                 }
@@ -907,6 +1056,18 @@ export const ProfileScreen: React.FC = () => {
           />
         </Card>
       </ScrollView>
+
+      {/* Mela Mode Interactive Modal */}
+      <MelaModeModal visible={showMelaModal} onClose={() => setShowMelaModal(false)} />
+
+      {/* B2B Bulk Interactive Modal */}
+      <B2BBulkModal visible={showB2BModal} onClose={() => setShowB2BModal(false)} />
+
+      {/* Fair Price Calculator Modal */}
+      <FairPriceCalculatorModal visible={showFairPriceModal} onClose={() => setShowFairPriceModal(false)} />
+
+      {/* QR Craft Passport Modal */}
+      <CraftPassportModal visible={showPassportModal} onClose={() => setShowPassportModal(false)} />
     </SafeAreaView>
   );
 };
@@ -1148,6 +1309,63 @@ const styles = StyleSheet.create({
   keypadWrapper: {
     marginTop: 12,
     alignItems: 'center',
+  },
+  uspBadgePill: {
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+  },
+  uspBadgePillText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#EA580C',
+  },
+  pillarsCompactGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 16,
+  },
+  pillarCompactCard: {
+    width: '48.5%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#1A1A2E',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  pillarCompactIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillarCompactTitle: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  pillarCompactSub: {
+    fontSize: 9.5,
+    color: '#64748B',
+    marginTop: 1,
+  },
+  pillarLaunchArrow: {
+    fontSize: 13,
+    fontWeight: '900',
+    marginLeft: 4,
   },
 });
 

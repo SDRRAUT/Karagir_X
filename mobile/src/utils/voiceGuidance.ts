@@ -1,87 +1,50 @@
-// Voice Guidance Utility using Web Speech API with native Hindi voice support
+// Voice Guidance Utility powered by Device Neural Voice Engine (Microsoft Swara/Madhur Natural + Google Natural)
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 class VoiceGuidanceManager {
-  private currentUtterance: SpeechSynthesisUtterance | null = null;
-  private isCurrentlySpeaking: boolean = false;
-  private activeCallback: (() => void) | null = null;
-
   public speakHindi(
     text: string,
     onStart?: () => void,
     onEnd?: () => void
   ): boolean {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      // Not supported in this environment
-      return false;
-    }
+    return realisticVoiceService.speak(text, {
+      lang: 'hi-IN',
+      gender: 'female',
+      rate: 0.94,
+      pitch: 1.02,
+      preferOnlineStream: false,
+      onStart,
+      onEnd,
+      onError: () => onEnd?.(),
+    });
+  }
 
-    try {
-      // If already speaking, cancel previous
-      this.stopSpeaking();
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
-      utterance.rate = 0.92; // Slightly measured rate for clear comprehension
-      utterance.pitch = 1.0;
-
-      // Select high quality Hindi voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const hindiVoice = voices.find(
-        (v) =>
-          v.lang.toLowerCase().includes('hi') ||
-          v.lang.toLowerCase().includes('hindi')
-      );
-      if (hindiVoice) {
-        utterance.voice = hindiVoice;
-      }
-
-      utterance.onstart = () => {
-        this.isCurrentlySpeaking = true;
-        onStart?.();
-      };
-
-      utterance.onend = () => {
-        this.isCurrentlySpeaking = false;
-        this.currentUtterance = null;
-        this.activeCallback = null;
-        onEnd?.();
-      };
-
-      utterance.onerror = () => {
-        this.isCurrentlySpeaking = false;
-        this.currentUtterance = null;
-        this.activeCallback = null;
-        onEnd?.();
-      };
-
-      this.currentUtterance = utterance;
-      this.activeCallback = onEnd || null;
-
-      window.speechSynthesis.speak(utterance);
-      return true;
-    } catch {
-      this.isCurrentlySpeaking = false;
-      onEnd?.();
-      return false;
-    }
+  public speak(
+    text: string,
+    lang: string = 'hi-IN',
+    onStart?: () => void,
+    onEnd?: () => void
+  ): boolean {
+    return realisticVoiceService.speak(text, {
+      lang,
+      gender: 'female',
+      rate: 0.94,
+      pitch: 1.02,
+      preferOnlineStream: false,
+      onStart,
+      onEnd,
+      onError: () => onEnd?.(),
+    });
   }
 
   public stopSpeaking(): void {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    this.isCurrentlySpeaking = false;
-    this.currentUtterance = null;
-    if (this.activeCallback) {
-      const cb = this.activeCallback;
-      this.activeCallback = null;
-      cb();
-    }
+    realisticVoiceService.stop();
   }
 
   public get isSpeaking(): boolean {
-    return this.isCurrentlySpeaking;
+    return realisticVoiceService.isSpeaking();
   }
 }
 
 export const voiceGuidance = new VoiceGuidanceManager();
+

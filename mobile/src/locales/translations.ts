@@ -26,6 +26,7 @@ export interface TranslationsDictionary {
     explore: string;
     bulkDeals: string;
     cart: string;
+    wishlist: string;
     sahyogiDesk: string;
     fulfillment: string;
     create: string;
@@ -84,6 +85,52 @@ export interface TranslationsDictionary {
     terracottaDiya: string;
     handmadePot: string;
     perPiece: string;
+    goodDay: string;
+    listen: string;
+    listenAudio: string;
+    todayEarningsCard: string;
+    growthVsYesterday: string;
+    escrowProtectedSub: string;
+    urgentActionsTitle: string;
+    newOrdersAlert: string;
+    hoursLeftToAccept: string;
+    viewOrdersAction: string;
+    smartTipTitle: string;
+    smartTipFestival: string;
+    smartTipAction: string;
+    estimatedBatchProfit: string;
+    startCraftingBatch: string;
+    myShopTitle: string;
+    productsCountLabel: string;
+    liveActiveLabel: string;
+    thisWeekLabel: string;
+    ratingLabel: string;
+    specialModesTitle: string;
+    melaModeTitle: string;
+    melaModeSub: string;
+    melaLivePosBadge: string;
+    b2bBulkTitle: string;
+    b2bBulkSub: string;
+    b2bRfqBadge: string;
+    eightPillarsTitle: string;
+    eightPillarsSub: string;
+    launchPillar: string;
+    voiceListingTitle: string;
+    voiceListingDesc: string;
+    autoCatalogTitle: string;
+    autoCatalogDesc: string;
+    photoEnhanceTitle: string;
+    photoEnhanceDesc: string;
+    fairPriceTitle: string;
+    fairPriceDesc: string;
+    qrPassportTitle: string;
+    qrPassportPillarDesc: string;
+    clustersB2bTitle: string;
+    clustersB2bDesc: string;
+    buyerMatchingTitle: string;
+    buyerMatchingDesc: string;
+    orderTrackingTitle: string;
+    orderTrackingDesc: string;
   };
   buyer: {
     badge: string;
@@ -285,6 +332,7 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       explore: 'Explore',
       bulkDeals: 'Bulk Deals',
       cart: 'Cart',
+      wishlist: 'Wishlist',
       sahyogiDesk: 'Sahyogi Desk',
       fulfillment: 'Fulfillment',
       create: 'Create',
@@ -343,6 +391,52 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       terracottaDiya: 'Terracotta Diya',
       handmadePot: 'Handmade Pot',
       perPiece: '/ piece',
+      goodDay: 'Today is a productive, auspicious day',
+      listen: 'Listen',
+      listenAudio: 'Listen',
+      todayEarningsCard: "Today's Earnings",
+      growthVsYesterday: '30% more than yesterday',
+      escrowProtectedSub: '₹2,892 safe in Escrow',
+      urgentActionsTitle: 'URGENT ACTIONS',
+      newOrdersAlert: '2 NEW ORDERS RECEIVED — ACCEPT NOW',
+      hoursLeftToAccept: '18 hours remaining to accept',
+      viewOrdersAction: 'View Orders →',
+      smartTipTitle: "Today's Smart Tip",
+      smartTipFestival: 'Diwali in 45 days',
+      smartTipAction: 'Start crafting Terracotta Diyas',
+      estimatedBatchProfit: 'Estimated Batch Profit:',
+      startCraftingBatch: 'Start Crafting Batch →',
+      myShopTitle: 'My Shop Snapshot',
+      productsCountLabel: 'Products',
+      liveActiveLabel: 'Live Active',
+      thisWeekLabel: 'This Week',
+      ratingLabel: 'Rating',
+      specialModesTitle: 'Special Modes',
+      melaModeTitle: 'Mela Mode',
+      melaModeSub: 'Fast Exhibition POS & UPI QR',
+      melaLivePosBadge: 'Live POS →',
+      b2bBulkTitle: 'B2B Bulk',
+      b2bBulkSub: 'Smart Cluster Cooperative',
+      b2bRfqBadge: '2 RFQs →',
+      eightPillarsTitle: '8 CORE PILLARS (Key Features)',
+      eightPillarsSub: 'Tap any pillar to test live workflow',
+      launchPillar: 'Launch →',
+      voiceListingTitle: 'Voice-First Listing',
+      voiceListingDesc: '12 dialects regional speech intake',
+      autoCatalogTitle: 'Auto Product Catalog',
+      autoCatalogDesc: 'AI synthesizes story & specs in 30s',
+      photoEnhanceTitle: 'Photo Enhancement',
+      photoEnhanceDesc: '4K studio lighting & background removal',
+      fairPriceTitle: 'Fair Price Calculator',
+      fairPriceDesc: 'Material + labor hours + GI skill',
+      qrPassportTitle: 'QR Craft Passport',
+      qrPassportPillarDesc: 'Cryptographic GI provenance & story',
+      clustersB2bTitle: 'Artisan Clusters (B2B)',
+      clustersB2bDesc: 'Virtual cooperative for bulk orders',
+      buyerMatchingTitle: 'Buyer–Artisan Matching',
+      buyerMatchingDesc: 'Direct GI discovery & Mela digital bridge',
+      orderTrackingTitle: 'Order & Live Tracking',
+      orderTrackingDesc: '5-stage progress + India Post pickup',
     },
     buyer: {
       badge: 'BUYER MARKETPLACE',
@@ -542,6 +636,7 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       explore: 'शिल्प श्रेणियां',
       bulkDeals: 'थोक सौदे',
       cart: 'कार्ट',
+      wishlist: 'विशलिस्ट',
       sahyogiDesk: 'सहयोगी डेस्क',
       fulfillment: 'पूर्ति केंद्र',
       create: 'शिल्प जोड़ें',
@@ -600,6 +695,52 @@ export const translations: Record<'en' | 'hi', TranslationsDictionary> = {
       terracottaDiya: 'टेराकोटा दीया',
       handmadePot: 'हस्तनिर्मित मिट्टी का पात्र',
       perPiece: '/ प्रति नग',
+      goodDay: 'आज का दिन शुभ एवं फलदायी है',
+      listen: 'सुनें',
+      listenAudio: 'सुनो',
+      todayEarningsCard: 'आज की कमाई',
+      growthVsYesterday: 'कल से 30% ज़्यादा',
+      escrowProtectedSub: '₹2,892 एस्क्रो में सुरक्षित है',
+      urgentActionsTitle: 'ज़रूरी काम',
+      newOrdersAlert: '2 नए ऑर्डर आए — स्वीकार करें',
+      hoursLeftToAccept: 'स्वीकार करने हेतु 18 घंटे शेष',
+      viewOrdersAction: 'ऑर्डर देखें →',
+      smartTipTitle: 'आज का सुझाव',
+      smartTipFestival: 'दीपावली 45 दिनों में है',
+      smartTipAction: 'टेराकोटा दीया बनाना शुरू करें',
+      estimatedBatchProfit: 'अनुमानित बैच लाभ:',
+      startCraftingBatch: 'बैच शुरू करें →',
+      myShopTitle: 'मेरी दुकान की स्थिति',
+      productsCountLabel: 'कुल उत्पाद',
+      liveActiveLabel: 'सक्रिय लाइव',
+      thisWeekLabel: 'इस सप्ताह',
+      ratingLabel: 'रेटिंग',
+      specialModesTitle: 'विशेष मोड',
+      melaModeTitle: 'मेला मोड',
+      melaModeSub: 'प्रदर्शनी पीओएस एवं यूपीआई क्यूआर',
+      melaLivePosBadge: 'लाइव पीओएस →',
+      b2bBulkTitle: 'बी2बी थोक',
+      b2bBulkSub: 'स्मार्ट क्लस्टर सहकारी समूह',
+      b2bRfqBadge: '2 मांग पत्र →',
+      eightPillarsTitle: '8 मुख्य स्तंभ (विशेष सुविधाएं)',
+      eightPillarsSub: 'लाइव डेमो जांचने हेतु किसी भी स्तंभ पर टैप करें',
+      launchPillar: 'प्रारंभ करें →',
+      voiceListingTitle: 'आवाज़ द्वारा लिस्टिंग',
+      voiceListingDesc: '12 क्षेत्रीय बोलियों में बोलकर लिस्टिंग',
+      autoCatalogTitle: 'स्वचालित उत्पाद कैटलॉग',
+      autoCatalogDesc: 'एआई द्वारा 30 सेकंड में विवरण और कहानी',
+      photoEnhanceTitle: 'फोटो स्टूडियो एआई',
+      photoEnhanceDesc: '4K स्टूडियो रोशनी व बैकग्राउंड सफाई',
+      fairPriceTitle: 'उचित मूल्य कैलकुलेटर',
+      fairPriceDesc: 'कच्चा माल + श्रम के घंटे + जीआई कौशल',
+      qrPassportTitle: 'डिजिटल शिल्प पासपोर्ट',
+      qrPassportPillarDesc: 'जीआई प्रामाणिकता व विरासत कहानी',
+      clustersB2bTitle: 'कारीगर क्लस्टर समूह (बी2बी)',
+      clustersB2bDesc: 'थोक ऑर्डर्स हेतु सहकारी क्लस्टर मंच',
+      buyerMatchingTitle: 'खरीदार-कारीगर सीधा मिलान',
+      buyerMatchingDesc: 'जीआई खोज एवं मेला डिजिटल सेतु',
+      orderTrackingTitle: 'ऑर्डर व लाइव ट्रैकिंग',
+      orderTrackingDesc: '5-चरणीय प्रगति व डाक सेवा पिकअप',
     },
     buyer: {
       badge: 'खरीदार बाज़ार',

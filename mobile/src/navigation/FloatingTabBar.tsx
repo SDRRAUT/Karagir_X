@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { UserRole } from '@/api/types';
 import { useCartStore } from '@/store/useCartStore';
+import { useWishlistStore } from '@/store/useWishlistStore';
 
 interface FloatingTabBarProps extends BottomTabBarProps {
   role: UserRole;
@@ -26,10 +27,13 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
+  const wishlistCount = useWishlistStore((s) => s.items.length);
 
-  const isBuyer = role === 'BUYER';
   // Bottom clearance based on device insets
-  const bottomOffset = isBuyer ? Math.max(insets.bottom, 6) : (Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16);
+  const bottomOffset = Platform.OS === 'ios' ? Math.max(insets.bottom, 14) : 14;
+
+  // Has bump only for Artisan studio with center Saathi mic button
+  const hasBump = role === 'ARTISAN';
 
   // Determine middle index for the 5-item layout
   const totalRoutes = state.routes.length;
@@ -38,10 +42,10 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
   return (
     <View
       pointerEvents="box-none"
-      style={isBuyer ? [styles.buyerDockedContainer, { paddingBottom: Math.max(insets.bottom, 6) }] : [styles.containerWrapper, { bottom: bottomOffset }]}
+      style={[styles.containerWrapper, { bottom: bottomOffset }]}
     >
-      {/* 1. Seamless Upward Center Arch Dome */}
-      {!isBuyer && (
+      {/* 1. Seamless Upward Center Arch Dome (Only when hasBump is enabled) */}
+      {hasBump && (
         <View style={styles.centerArchContainer} pointerEvents="none">
           <Svg width={88} height={24} viewBox="0 0 88 24" style={styles.centerArchSvg}>
             {/* Smooth organic bell curve arch connecting to pill top */}
@@ -60,12 +64,12 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
         </View>
       )}
 
-      {/* 2. Floating Elevated Pill Bar / Buyer Docked Bar */}
-      <View style={isBuyer ? styles.buyerBar : styles.floatingBar}>
+      {/* 2. Floating Elevated Pill Bar (Single-Line for Buyer, Elevated Center for Artisan) */}
+      <View style={[styles.floatingBar, !hasBump && styles.floatingBarFlat]}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const isCenterItem = !isBuyer && index === middleIndex;
+          const isCenterItem = index === middleIndex;
 
           const label =
             options.tabBarLabel !== undefined
@@ -97,8 +101,8 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
             });
           };
 
-          // Center Elevated Circular Action Button
-          if (isCenterItem) {
+          // Center Elevated Circular Action Button (ONLY when hasBump is true)
+          if (isCenterItem && hasBump) {
             return (
               <TouchableOpacity
                 key={route.key}
@@ -127,10 +131,6 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
                     <Text style={styles.centerPlusIcon}>+</Text>
                   ) : route.name === 'OnboardTab' ? (
                     <Text style={styles.centerEmojiIcon}>🎙️</Text>
-                  ) : route.name === 'BulkDealsTab' ? (
-                    <Text style={styles.centerEmojiIcon}>✨</Text>
-                  ) : route.name === 'ModerationTab' ? (
-                    <Text style={styles.centerEmojiIcon}>🛡️</Text>
                   ) : (
                     <Text style={styles.centerPlusIcon}>+</Text>
                   )}
@@ -153,7 +153,7 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
             );
           }
 
-          // Standard Tab Item
+          // Standard Single-Line Tab Item
           const iconColor = isFocused ? activeTintColor : '#94A3B8';
 
           return (
@@ -181,6 +181,15 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
                   <View style={styles.cartBadge}>
                     <Text style={styles.cartBadgeText}>
                       {totalCartCount > 99 ? '99+' : totalCartCount}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Wishlist Badge */}
+                {route.name === 'WishlistTab' && wishlistCount > 0 && (
+                  <View style={styles.wishlistBadge}>
+                    <Text style={styles.cartBadgeText}>
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
                     </Text>
                   </View>
                 )}
@@ -352,6 +361,24 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     marginTop: 2,
     letterSpacing: 0.1,
+  },
+  floatingBarFlat: {
+    height: 58,
+    borderRadius: 29,
+  },
+  wishlistBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    backgroundColor: '#EA580C',
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   cartBadge: {
     position: 'absolute',

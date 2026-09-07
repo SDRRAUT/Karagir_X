@@ -14,8 +14,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
 import { Audio } from 'expo-av';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useAppStore, SupportedLocale } from '@/store/useAppStore';
-import { UserProfile, UserRole, AuthTokens } from '@/api/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -41,10 +39,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const soundRef = useRef<Audio.Sound | null>(null);
   const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
-
-  const { isAuthenticated, user, activeRole, isLoading, setSession } = useAuthStore();
-  const { setLocale } = useAppStore();
-  const hasCompletedProfile = !isLoading && (isAuthenticated || !!user?.isProfileComplete);
+  const { isAuthenticated, user, isLoading, activeRole } = useAuthStore();
 
   const doNavigate = () => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
@@ -52,94 +47,34 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       soundRef.current.stopAsync().catch(() => {});
     }
     const currentAuth = useAuthStore.getState();
-    if (currentAuth.isAuthenticated && (currentAuth.user?.role || currentAuth.activeRole)) {
+    const effectiveRole = currentAuth.activeRole || currentAuth.user?.role || 'ARTISAN';
+    if (currentAuth.isAuthenticated && currentAuth.user?.isProfileComplete) {
       navigation.replace('MainTabs', {
         screen: 'HomeTab',
-        params: { role: currentAuth.activeRole || currentAuth.user?.role || 'ARTISAN' },
+        params: { role: effectiveRole },
       });
     } else {
       navigation.replace('Onboarding');
     }
   };
 
-  const handleDevJump = async (role: UserRole) => {
-    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    if (soundRef.current) {
-      try {
-        await soundRef.current.stopAsync();
-      } catch {}
+  // Instant / smooth resume if user session is already active (e.g. web browser refresh)
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && user?.isProfileComplete) {
+      const targetRole = activeRole || user?.role || 'ARTISAN';
+      const quickTimer = setTimeout(() => {
+        if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+        if (soundRef.current) {
+          soundRef.current.stopAsync().catch(() => {});
+        }
+        navigation.replace('MainTabs', {
+          screen: 'HomeTab',
+          params: { role: targetRole },
+        });
+      }, 350);
+      return () => clearTimeout(quickTimer);
     }
-
-    const demoProfiles: Partial<Record<UserRole, UserProfile>> = {
-      ARTISAN: {
-        id: 'demo_artisan_user',
-        phoneNumber: '9876543210',
-        fullName: 'Ramesh Kumbhar',
-        role: 'ARTISAN',
-        preferredLanguage: 'hi_IN',
-        craftCategoryCode: 'POTTERY_TERRACOTTA',
-        countryId: 1,
-        stateId: 26,
-        districtId: 101,
-        subDistrictId: 1001,
-        villageId: 10001,
-        state: 'Maharashtra',
-        district: 'Kolhapur',
-        subDistrict: 'Karveer',
-        villageName: 'Uchgaon Pottery Hub',
-        isProfileComplete: true,
-      },
-      BUYER: {
-        id: 'demo_buyer_user',
-        phoneNumber: '9811223344',
-        fullName: 'Priya Sharma',
-        role: 'BUYER',
-        preferredLanguage: 'en_IN',
-        craftCategoryCode: 'POTTERY',
-        countryId: 1,
-        stateId: 7,
-        districtId: 951,
-        state: 'Delhi',
-        district: 'Delhi NCR / New Delhi',
-        subDistrict: 'Connaught Place',
-        villageName: 'Central Market',
-        isProfileComplete: true,
-      },
-      ADMIN: {
-        id: 'demo_admin_user',
-        phoneNumber: '9800011223',
-        fullName: 'Rajesh Sharma (Admin)',
-        role: 'ADMIN',
-        preferredLanguage: 'en_IN',
-        countryId: 1,
-        stateId: 7,
-        districtId: 1,
-        state: 'Delhi',
-        district: 'New Delhi',
-        isProfileComplete: true,
-      },
-    };
-
-    const user = demoProfiles[role];
-    if (!user) return;
-    const tokens: AuthTokens = {
-      accessToken: `demo_token_${role.toLowerCase()}`,
-      refreshToken: `demo_refresh_${role.toLowerCase()}`,
-      expiresInSeconds: 86400,
-    };
-
-    useAuthStore.getState().setActiveRole(role);
-    await setSession(tokens, user);
-    await setLocale((user.preferredLanguage as SupportedLocale) || 'hi_IN');
-    if (Platform.OS === 'web' && typeof document !== 'undefined') {
-      const roleLabel =
-        role === 'ARTISAN' ? 'Artisans' :
-        role === 'BUYER' ? 'Buyer' :
-        role === 'ADMIN' ? 'Command Center' : '';
-      document.title = `Kalakar Setu ~ ${roleLabel}`;
-    }
-    navigation.replace('MainTabs', { screen: 'HomeTab', params: { role } });
-  };
+  }, [isLoading, isAuthenticated, user?.isProfileComplete, activeRole, navigation]);
 
   const startWaveAnimation = () => {
     const useNative = Platform.OS !== 'web';
@@ -339,44 +274,6 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* ================================================================= */}
-      {/* [DEV ONLY] QUICK DASHBOARD JUMP - EASILY REMOVE FOR PRODUCTION */}
-      {/* ================================================================= */}
-      <View style={styles.devBarContainer}>
-        <View style={styles.devBarPill}>
-          <Text style={styles.devBarTitle}>⚡ DEV QUICK JUMP</Text>
-          <View style={styles.devButtonsRow}>
-            <TouchableOpacity
-              testID="dev-jump-artisan"
-              style={[styles.devRoleBtn, { backgroundColor: '#EA580C' }]}
-              onPress={() => handleDevJump('ARTISAN')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🏺 Artisan</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="dev-jump-buyer"
-              style={[styles.devRoleBtn, { backgroundColor: '#4338CA' }]}
-              onPress={() => handleDevJump('BUYER')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🛍️ Buyer</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              testID="dev-jump-admin"
-              style={[styles.devRoleBtn, { backgroundColor: '#6366F1' }]}
-              onPress={() => handleDevJump('ADMIN')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.devRoleBtnText}>🛡️ Admin</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-      {/* ================================================================= */}
-
       <TouchableOpacity
         testID="splash-touchable"
         style={styles.touchContainer}
@@ -636,58 +533,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     marginLeft: 2,
-  },
-  // [DEV ONLY] Styles for quick jump switcher
-  devBarContainer: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 44 : 12,
-    left: 12,
-    right: 12,
-    zIndex: 9999,
-    elevation: 10,
-    alignItems: 'center',
-  },
-  devBarPill: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 8,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    maxWidth: 400,
-    width: '100%',
-  },
-  devBarTitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#64748B',
-    letterSpacing: 0.8,
-    marginBottom: 6,
-    textTransform: 'uppercase',
-  },
-  devButtonsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    width: '100%',
-  },
-  devRoleBtn: {
-    flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 6,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  devRoleBtnText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
   },
 });

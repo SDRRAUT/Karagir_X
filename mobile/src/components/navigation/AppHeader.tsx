@@ -22,7 +22,7 @@ export interface AppHeaderProps {
 export const AppHeader: React.FC<AppHeaderProps> = ({
   title = 'Kalakar Setu',
   subtitle,
-  showBack = false,
+  showBack = true,
   showBrand = true,
   showDevanagariLogo,
   rightAction,
@@ -49,6 +49,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       onBackPress();
     } else if (navigation?.canGoBack?.()) {
       navigation.goBack();
+    } else {
+      try {
+        navigation?.navigate('HomeTab');
+      } catch {
+        try {
+          navigation?.navigate('MainTabs', { screen: 'HomeTab' });
+        } catch {}
+      }
     }
   };
 
@@ -81,7 +89,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               },
             ]}
           >
-            <Text style={styles.backIcon}>‹</Text>
+            <Icon name="arrowLeft" size={20} color={theme.colors.charcoal[900]} />
           </TouchableOpacity>
         )}
 

@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface FairPriceCalculatorModalProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
   onClose,
   onApplyPrice,
 }) => {
+  const { isHindi } = useTranslation();
   const [materialCost, setMaterialCost] = useState(250);
   const [laborHours, setLaborHours] = useState(7);
   const [hourlyWage, setHourlyWage] = useState(200); // ₹200/hr
@@ -44,9 +46,11 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(
-        `Fair Price Calculator ke anusaar, customer price do hazaar ek sau tirasath rupaye hai. Isme se mitti aur rang do sau pachaas rupaye, aapki mehnat chaudah sau rupaye, GI skill bonus teen sau pachaas rupaye hain. Aapko milenge do hazaar rupaye, yani lagbhag pachaanve pratishat.`
+        isHindi
+          ? `उचित मूल्य कैलकुलेटर के अनुसार, अनुशंसित ग्राहक मूल्य ${recPrice} रुपये है। इसमें कच्चा माल ${materialCost} रुपये, आपकी मेहनत ${rawLabor} रुपये, जीआई कौशल बोनस ${giSkillBonus} रुपये शामिल हैं। आपको सीधे ${artisanTakeHome} रुपये मिलेंगे, जो लगभग पंचानवे प्रतिशत है।`
+          : `According to Fair Price Calculator, the recommended customer price is ${recPrice} rupees. Raw material cost is ${materialCost}, labor is ${rawLabor}, and GI heritage bonus is ${giSkillBonus}. Your direct net payout is ${artisanTakeHome} rupees, which is 95% protected in escrow.`
       );
-      utterance.lang = 'hi-IN';
+      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
@@ -63,19 +67,24 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+              <Text style={styles.modalBackIcon}>‹</Text>
+            </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.badgePill}>
-                <Text style={styles.badgePillText}>💰 CORE PILLAR #4</Text>
+                <Text style={styles.badgePillText}>{isHindi ? '💰 मुख्य स्तंभ #4' : '💰 CORE PILLAR #4'}</Text>
               </View>
-              <Text style={styles.modalTitle}>Fair Price Calculator</Text>
-              <Text style={styles.modalSubtitle}>Transparent, anti-exploitation pricing engine</Text>
+              <Text style={styles.modalTitle}>{isHindi ? 'उचित मूल्य कैलकुलेटर' : 'Fair Price Calculator'}</Text>
+              <Text style={styles.modalSubtitle}>
+                {isHindi ? 'पारदर्शी, शोषण-मुक्त मूल्य निर्धारण प्रणाली' : 'Transparent, anti-exploitation pricing engine'}
+              </Text>
             </View>
             <View style={styles.headerRightActions}>
               <TouchableOpacity onPress={handleSpeak} style={styles.audioBtn} activeOpacity={0.7}>
                 <Text style={styles.audioIcon}>🔊</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
-                <Text style={styles.closeBtnText}>✕ Exit</Text>
+                <Text style={styles.closeBtnText}>{isHindi ? '✕ बाहर निकलें' : '✕ Exit'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -84,26 +93,38 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
             {/* Real-time Final Price Hero Banner */}
             <View style={styles.priceHeroCard}>
               <View style={styles.heroTopRow}>
-                <Text style={styles.heroLabel}>Recommended Customer Price</Text>
+                <Text style={styles.heroLabel}>
+                  {isHindi ? 'अनुशंसित ग्राहक मूल्य' : 'Recommended Customer Price'}
+                </Text>
                 <View style={styles.artisanShareBadge}>
-                  <Text style={styles.artisanShareText}>95% Direct to Artisan ✓</Text>
+                  <Text style={styles.artisanShareText}>
+                    {isHindi ? '95% सीधा कारीगर को ✓' : '95% Direct to Artisan ✓'}
+                  </Text>
                 </View>
               </View>
               <Text style={styles.heroPrice}>₹{recPrice.toLocaleString('en-IN')}</Text>
               <Text style={styles.heroSubText}>
-                Artisan Net Payout: <Text style={styles.heroGreenText}>₹{artisanTakeHome.toLocaleString('en-IN')}</Text> (Protected in Escrow 🔒)
+                {isHindi ? 'कारीगर की शुद्ध आय: ' : 'Artisan Net Payout: '}
+                <Text style={styles.heroGreenText}>₹{artisanTakeHome.toLocaleString('en-IN')}</Text>{' '}
+                {isHindi ? '(एस्क्रो में सुरक्षित 🔒)' : '(Protected in Escrow 🔒)'}
               </Text>
             </View>
 
             {/* Interactive Pricing Controls */}
             <View style={styles.controlsCard}>
-              <Text style={styles.controlsTitle}>⚙️ Cost Factors (लागत घटक):</Text>
+              <Text style={styles.controlsTitle}>
+                {isHindi ? '⚙️ लागत घटक:' : '⚙️ Cost Factors:'}
+              </Text>
 
               {/* 1. Raw Material Cost */}
               <View style={styles.factorRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>1. Raw Materials (Mitti, Rang, Fuel)</Text>
-                  <Text style={styles.factorSub}>Clay, river sediment, red ochre</Text>
+                  <Text style={styles.factorLabel}>
+                    {isHindi ? '1. कच्चा माल (मिट्टी, प्राकृतिक रंग, ईंधन)' : '1. Raw Materials (Clay, Natural Color, Fuel)'}
+                  </Text>
+                  <Text style={styles.factorSub}>
+                    {isHindi ? 'नदी की तलछट मिट्टी, लाल गेरू' : 'River sediment clay, natural ochre'}
+                  </Text>
                 </View>
                 <View style={styles.stepperContainer}>
                   <TouchableOpacity
@@ -125,8 +146,14 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
               {/* 2. Labor Hours */}
               <View style={styles.factorRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>2. Labor Hours (काम के घंटे)</Text>
-                  <Text style={styles.factorSub}>Shaping, molding, kiln firing ({laborHours} hrs @ ₹{hourlyWage}/hr)</Text>
+                  <Text style={styles.factorLabel}>
+                    {isHindi ? '2. काम के घंटे' : '2. Labor Hours'}
+                  </Text>
+                  <Text style={styles.factorSub}>
+                    {isHindi
+                      ? `आकार देना, नक्काशी, भट्ठी पकाई (${laborHours} घंटे @ ₹${hourlyWage}/घंटा)`
+                      : `Shaping, sculpting, kiln firing (${laborHours} hrs @ ₹${hourlyWage}/hr)`}
+                  </Text>
                 </View>
                 <View style={styles.stepperContainer}>
                   <TouchableOpacity
@@ -135,7 +162,7 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
                   >
                     <Text style={styles.stepperBtnText}>-</Text>
                   </TouchableOpacity>
-                  <Text style={styles.stepperVal}>{laborHours} hrs</Text>
+                  <Text style={styles.stepperVal}>{laborHours} {isHindi ? 'घंटे' : 'hrs'}</Text>
                   <TouchableOpacity
                     onPress={() => setLaborHours((v) => v + 1)}
                     style={styles.stepperBtn}
@@ -148,8 +175,12 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
               {/* 3. GI Skill & Heritage Premium */}
               <View style={styles.factorRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>3. GI Certified Craft Skill</Text>
-                  <Text style={styles.factorSub}>Kolhapur Heritage 4th generation skill bonus (+25%)</Text>
+                  <Text style={styles.factorLabel}>
+                    {isHindi ? '3. जीआई प्रमाणित शिल्प कौशल' : '3. GI Certified Craft Skill'}
+                  </Text>
+                  <Text style={styles.factorSub}>
+                    {isHindi ? 'कोल्हापुर 4थी पीढ़ी का विरासत कौशल बोनस (+25%)' : 'Kolhapur Heritage 4th generation skill bonus (+25%)'}
+                  </Text>
                 </View>
                 <View style={styles.stepperContainer}>
                   <Text style={[styles.stepperVal, { color: '#7C3AED' }]}>+₹{giSkillBonus}</Text>
@@ -159,8 +190,12 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
               {/* 4. Eco Packaging */}
               <View style={styles.factorRow}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>4. Eco-Friendly Packaging</Text>
-                  <Text style={styles.factorSub}>Biodegradable straw & jute wrapping</Text>
+                  <Text style={styles.factorLabel}>
+                    {isHindi ? '4. पर्यावरण अनुकूल पैकेजिंग' : '4. Eco-Friendly Packaging'}
+                  </Text>
+                  <Text style={styles.factorSub}>
+                    {isHindi ? 'बायोडिग्रेडेबल जूट एवं पुआल सुरक्षा' : 'Biodegradable straw & jute wrapping'}
+                  </Text>
                 </View>
                 <View style={styles.stepperContainer}>
                   <Text style={styles.stepperVal}>₹{packagingCost}</Text>
@@ -170,8 +205,12 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
               {/* 5. Platform Fee */}
               <View style={[styles.factorRow, { borderBottomWidth: 0 }]}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>5. Platform Tech Fee (5%)</Text>
-                  <Text style={styles.factorSub}>Zero hidden charges, transparent hosting</Text>
+                  <Text style={styles.factorLabel}>
+                    {isHindi ? '5. प्लेटफॉर्म तकनीकी शुल्क (5%)' : '5. Platform Tech Fee (5%)'}
+                  </Text>
+                  <Text style={styles.factorSub}>
+                    {isHindi ? 'शून्य छिपे हुए शुल्क, पारदर्शी होस्टिंग' : 'Zero hidden charges, transparent hosting'}
+                  </Text>
                 </View>
                 <View style={styles.stepperContainer}>
                   <Text style={[styles.stepperVal, { color: '#64748B' }]}>₹{platformFee}</Text>
@@ -181,39 +220,54 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
 
             {/* 3 Suggested Market Tiers */}
             <View style={styles.tiersContainer}>
-              <Text style={styles.tiersTitle}>📊 Recommended Price Tiers:</Text>
+              <Text style={styles.tiersTitle}>
+                {isHindi ? '📊 अनुशंसित मूल्य स्तर:' : '📊 Recommended Price Tiers:'}
+              </Text>
               <View style={styles.tiersGrid}>
                 <View style={styles.tierBox}>
-                  <Text style={styles.tierName}>Minimum</Text>
+                  <Text style={styles.tierName}>{isHindi ? 'न्यूनतम' : 'Minimum'}</Text>
                   <Text style={styles.tierVal}>₹{minPrice}</Text>
-                  <Text style={styles.tierSub}>Quick Liquidity</Text>
+                  <Text style={styles.tierSub}>{isHindi ? 'त्वरित बिक्री' : 'Quick Liquidity'}</Text>
                 </View>
                 <View style={[styles.tierBox, styles.tierBoxRec]}>
                   <View style={styles.recStarBadge}>
-                    <Text style={styles.recStarText}>⭐ Fair Price</Text>
+                    <Text style={styles.recStarText}>{isHindi ? '⭐ उचित मूल्य' : '⭐ Fair Price'}</Text>
                   </View>
-                  <Text style={[styles.tierName, { color: '#7C3AED' }]}>Recommended</Text>
+                  <Text style={[styles.tierName, { color: '#7C3AED' }]}>
+                    {isHindi ? 'अनुशंसित' : 'Recommended'}
+                  </Text>
                   <Text style={[styles.tierVal, { color: '#7C3AED' }]}>₹{recPrice}</Text>
-                  <Text style={styles.tierSub}>Max Artisan Value</Text>
+                  <Text style={styles.tierSub}>
+                    {isHindi ? 'अधिकतम मूल्य' : 'Max Artisan Value'}
+                  </Text>
                 </View>
                 <View style={styles.tierBox}>
-                  <Text style={styles.tierName}>Premium</Text>
+                  <Text style={styles.tierName}>{isHindi ? 'प्रीमियम' : 'Premium'}</Text>
                   <Text style={styles.tierVal}>₹{premPrice}</Text>
-                  <Text style={styles.tierSub}>Collector Guild</Text>
+                  <Text style={styles.tierSub}>{isHindi ? 'विशेष संग्रह' : 'Collector Guild'}</Text>
                 </View>
               </View>
 
               {/* Diwali Surge Intel */}
               <View style={styles.surgeNoticeBox}>
                 <Text style={styles.surgeNoticeText}>
-                  💡 <Text style={{ fontWeight: '800' }}>Diwali Demand Surge:</Text> Festive season pricing can comfortably reach <Text style={{ fontWeight: '800', color: '#047857' }}>₹{diwaliPrice}</Text> due to high buyer demand.
+                  💡 <Text style={{ fontWeight: '800' }}>
+                    {isHindi ? 'दीपावली मांग वृद्धि:' : 'Diwali Demand Surge:'}
+                  </Text>{' '}
+                  {isHindi
+                    ? `त्योहारी मांग के कारण यह उत्पाद आसानी से `
+                    : `Festive season pricing can comfortably reach `}
+                  <Text style={{ fontWeight: '800', color: '#047857' }}>₹{diwaliPrice}</Text>
+                  {isHindi ? ' तक बिक सकता है।' : ' due to high buyer demand.'}
                 </Text>
               </View>
             </View>
 
             {/* CTA */}
             <TouchableOpacity onPress={handleApply} style={styles.applyBtn} activeOpacity={0.85}>
-              <Text style={styles.applyBtnText}>✓ Apply Fair Price (₹{recPrice})</Text>
+              <Text style={styles.applyBtnText}>
+                {isHindi ? `✓ उचित मूल्य लागू करें (₹${recPrice})` : `✓ Apply Fair Price (₹${recPrice})`}
+              </Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -248,6 +302,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
+  },
+  modalBackButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  modalBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   headerLeft: {
     flex: 1,

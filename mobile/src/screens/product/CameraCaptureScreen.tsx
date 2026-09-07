@@ -123,13 +123,19 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
         {/* Top Control Bar */}
         <View style={styles.topBar}>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              if (navigation?.canGoBack?.()) {
+                navigation.goBack();
+              } else {
+                navigation?.navigate?.('MainTabs', { screen: 'HomeTab' });
+              }
+            }}
             style={styles.controlBtn}
             accessibilityRole="button"
-            accessibilityLabel="Close camera"
+            accessibilityLabel="Back"
           >
-            <Text variant="headlineMedium" color="#FFFFFF">
-              ✕
+            <Text variant="headlineMedium" color="#FFFFFF" style={{ marginTop: -2 }}>
+              ‹
             </Text>
           </TouchableOpacity>
 

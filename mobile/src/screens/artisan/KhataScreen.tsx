@@ -12,7 +12,10 @@ import { Text } from '@/components/typography/Text';
 
 const { width } = Dimensions.get('window');
 
-export const KhataScreen: React.FC<any> = ({ navigation }) => {
+export const KhataScreen: React.FC<{ navigation?: any; embedded?: boolean }> = ({
+  navigation,
+  embedded = false,
+}) => {
   const insets = useSafeAreaInsets();
   const [loanApplied, setLoanApplied] = useState(false);
 
@@ -32,27 +35,40 @@ export const KhataScreen: React.FC<any> = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>💰 मेरा खाता (Khata)</Text>
-          <Text style={styles.headerSub}>100% Transparent Fair Price Ledger</Text>
+    <View style={[styles.container, !embedded && { paddingTop: insets.top }]}>
+      {/* Standalone Header */}
+      {!embedded && (
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => (navigation?.canGoBack?.() ? navigation.goBack() : navigation?.navigate?.('HomeTab'))}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Text style={styles.backButtonText}>‹</Text>
+          </TouchableOpacity>
+          <View style={styles.headerLeft}>
+            <Text style={styles.headerTitle}>💰 मेरा खाता (Khata)</Text>
+            <Text style={styles.headerSub}>100% Transparent Fair Price Ledger</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() =>
+              handleSpeak(
+                'Aapki kul kamai chaubees hazaar aath sau rupaye hai. Escrow mein do hazaar aath sau baanve rupaye surakshit hain. Agla payout kal subah das baje aapke State Bank of India khate mein credit hoga.'
+              )
+            }
+            style={styles.headerAudioBtn}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.headerAudioIcon}>🔊</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={() =>
-            handleSpeak(
-              'Aapki kul kamai chaubees hazaar aath sau rupaye hai. Escrow mein do hazaar aath sau baanve rupaye surakshit hain. Agla payout kal subah das baje aapke State Bank of India khate mein credit hoga.'
-            )
-          }
-          style={styles.headerAudioBtn}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.headerAudioIcon}>🔊</Text>
-        </TouchableOpacity>
-      </View>
+      )}
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollBody, embedded && { paddingBottom: 130 }]}
+      >
         {/* 1. BIG EARNINGS CARD */}
         <View style={styles.bigEarningsCard}>
           <View style={styles.cardTopRow}>
@@ -250,6 +266,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
+    gap: 10,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  backButtonText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    lineHeight: 26,
   },
   headerLeft: {
     flex: 1,

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalakar Setu — Artisan Business OS Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Devanagari', sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { 
+    background: #EFECE6; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh; 
+    padding: 24px 16px 60px; 
+    color: #2D2A26;
+  }
+
+  .top-banner {
+    max-width: 412px;
+    width: 100%;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #78716C;
+  }
+  .tag-live {
+    background: #DCFCE7;
+    color: #166534;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  /* ── PHONE FRAME ── */
+  .phone {
+    width: 390px;
+    max-width: 100%;
+    background: #FDFCFA;
+    border-radius: 44px;
+    box-shadow: 0 25px 70px rgba(45, 42, 38, 0.15), 0 0 0 10px #2D2A26;
+    overflow: hidden;
+    border: 1px solid #EAE5DE;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 844px;
+  }
+
+  /* Dynamic Island / Notch */
+  .notch {
+    width: 120px;
+    height: 28px;
+    background: #2D2A26;
+    margin: 0 auto;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .camera-dot { width: 10px; height: 10px; background: #1C1917; border-radius: 50%; border: 1.5px solid #44403C; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 14px 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FDFCFA;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #EA580C, #C2410C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 19px;
+    box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
+  }
+  .brand-name { font-size: 15.5px; font-weight: 800; color: #1C1917; letter-spacing: -0.3px; }
+  .brand-loc { font-size: 11px; color: #854D0E; background: #FEF9C3; padding: 2px 6px; border-radius: 4px; font-weight: 600; display: inline-block; margin-top: 2px; }
+  .header-icons { display: flex; gap: 8px; align-items: center; }
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #F5F3EF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    position: relative;
+    border: 1px solid #EAE5DE;
+    cursor: pointer;
+  }
+  .badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #DC2626;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #FDFCFA;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: #FFEDD5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border: 1.5px solid #EA580C;
+    cursor: pointer;
+  }
+
+  .content-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding-bottom: 90px;
+    scrollbar-width: none;
+  }
+  .content-scroll::-webkit-scrollbar { display: none; }
+
+  /* ── GREETING ── */
+  .greeting {
+    padding: 8px 20px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .greeting h1 { font-size: 20px; font-weight: 800; color: #1C1917; }
+  .greeting p { font-size: 12.5px; color: #78716C; margin-top: 2px; }
+  .speak-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #FFF7ED;
+    border: 1.5px solid #FFEDD5;
+    color: #EA580C;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.08);
+    transition: transform 0.15s ease;
+  }
+  .speak-btn:active { transform: scale(0.96); }
+
+  /* ── EARNINGS & ESCROW HERO CARD ── */
+  .earn-card {
+    margin: 0 16px;
+    border-radius: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #1E3A2F, #142820);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(20, 40, 32, 0.2);
+  }
+  .earn-card::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.09), transparent 70%);
+  }
+  .earn-label { font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .earn-amount { font-size: 34px; font-weight: 900; margin: 4px 0 6px; letter-spacing: -0.5px; }
+  .earn-trend {
+    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .earn-row { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+  .listen-chip {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 1px solid rgba(255,255,255,0.25);
+    cursor: pointer;
+  }
+  .earn-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .earn-stat {
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 9px 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    text-align: center;
+  }
+  .earn-stat .v { font-size: 14px; font-weight: 800; }
+  .earn-stat .l { font-size: 9.5px; opacity: 0.8; margin-top: 2px; }
+
+  /* ── SECTION COMMONS ── */
+  .section { padding: 18px 16px 0; }
+  .sec-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .sec-title { font-size: 14.5px; font-weight: 800; color: #1C1917; display: flex; align-items: center; gap: 7px; }
+  .sec-link { font-size: 12px; color: #EA580C; font-weight: 700; cursor: pointer; }
+
+  /* ── URGENT ALERT CARD ── */
+  .urgent-card {
+    background: #FFF7ED;
+    border: 1.5px solid #FED7AA;
+    border-radius: 18px;
+    padding: 13px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.06);
+    cursor: pointer;
+  }
+  .urgent-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #FFEDD5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .urgent-body { flex: 1; }
+  .urgent-title { font-size: 13px; font-weight: 800; color: #9A3412; }
+  .urgent-sub { font-size: 11.5px; color: #C2410C; margin-top: 2px; font-weight: 600; }
+  .urgent-cta {
+    background: #EA580C;
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 8px 14px;
+    border-radius: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);
+  }
+
+  /* ── AI MARKET TIP ("Kya Banayein?") ── */
+  .tip-card {
+    background: #FEFCE8;
+    border: 1.5px solid #FEF08A;
+    border-radius: 18px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(161, 98, 7, 0.05);
+  }
+  .tip-top { display: flex; gap: 12px; align-items: flex-start; }
+  .tip-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: #FEF08A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .tip-title { font-size: 13px; font-weight: 800; color: #854D0E; }
+  .tip-desc { font-size: 11.5px; color: #713F12; margin-top: 3px; line-height: 1.45; }
+  .tip-profit { color: #15803D; font-weight: 800; }
+  .tip-btn {
+    margin-top: 12px;
+    background: #1C1917;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    border-radius: 13px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── QUICK ACTIONS (4 CIRCLES/TILES) ── */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .qa {
+    background: #fff;
+    border: 1px solid #E7E5E4;
+    border-radius: 18px;
+    padding: 13px 4px 11px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: transform 0.15s ease;
+  }
+  .qa:active { transform: scale(0.96); }
+  .qa-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 6px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .qa-label { font-size: 11px; font-weight: 700; color: #44403C; line-height: 1.25; }
+  .qa1 .qa-icon { background: #FFEDD5; }
+  .qa2 .qa-icon { background: #DCFCE7; }
+  .qa3 .qa-icon { background: #EDE9FE; }
+  .qa4 .qa-icon { background: #FEF3C7; }
+
+  /* ── 8 USPs INNOVATION HUB ── */
+  .usp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .usp-card {
+    background: #FFFFFF;
+    border: 1px solid #E7E5E4;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    position: relative;
+  }
+  .usp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .usp-badge-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+  .usp-name { font-size: 12px; font-weight: 800; color: #1C1917; }
+  .usp-tagline { font-size: 10.5px; color: #78716C; line-height: 1.35; margin-top: 2px; }
+  .usp-chip {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    align-self: flex-start;
+    margin-top: 8px;
+  }
+
+  /* ── SPECIAL MODES (Mela & B2B) ── */
+  .modes { display: flex; gap: 10px; }
+  .mode {
+    flex: 1;
+    border-radius: 18px;
+    padding: 15px 13px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .mode-mela { background: linear-gradient(135deg, #C2410C, #9A3412); }
+  .mode-b2b { background: linear-gradient(135deg, #1E40AF, #1E3A8A); }
+  .mode-icon { font-size: 24px; }
+  .mode-name { font-size: 13.5px; font-weight: 800; margin-top: 6px; }
+  .mode-sub { font-size: 10.5px; opacity: 0.9; margin-top: 2px; line-height: 1.3; }
+  .mode-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.22);
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 7px;
+    border-radius: 8px;
+  }
+
+  /* ── FLOATING BOTTOM NAV BAR ── */
+  .bottom-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 18px 18px;
+    background: linear-gradient(to top, #FDFCFA 75%, transparent);
+    z-index: 10;
+  }
+  .bottom-nav {
+    background: #1C1917;
+    border-radius: 28px;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .nav-item { text-align: center; color: #A8A29E; width: 48px; cursor: pointer; }
+  .nav-item.active { color: #FB923C; }
+  .nav-icon { font-size: 18px; }
+  .nav-label { font-size: 8.5px; font-weight: 700; margin-top: 2px; }
+  .nav-mic {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    margin-top: -30px;
+    background: linear-gradient(135deg, #EA580C, #C2410C);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(234,88,12,0.45), 0 0 0 5px #FDFCFA;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .nav-mic:active { transform: scale(0.92); }
+
+  /* ── MODAL SHEET ── */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-sheet {
+    background: #FFFFFF;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    padding: 24px 20px;
+    width: 100%;
+    animation: slideUp 0.25s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-close {
+    background: #F5F3EF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 12px;
+    float: right;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-banner">
+  <span>Kalakar Setu Mobile Preview</span>
+  <span class="tag-live">● 8 USPs Live Business OS</span>
+</div>
+
+<div class="phone">
+  <!-- Dynamic Island Notch -->
+  <div class="notch"><div class="camera-dot"></div></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo">🎨</div>
+      <div>
+        <div class="brand-name">Kalakar Setu</div>
+        <div class="brand-loc">📍 कोल्हापुर क्लस्टर (Kolhapur)</div>
+      </div>
+    </div>
+    <div class="header-icons">
+      <div class="icon-btn" onclick="speakText('आपके 2 नए ऑर्डर्स और 1 मेला अलर्ट है!')">🔔<div class="badge">3</div></div>
+      <div class="avatar" onclick="openModal('कारीगर प्रोफ़ाइल', 'रमेश कुंभार | शिल्प: टेराकोटा मिट्टी कला | कारीगर पासपोर्ट ID: KS-ART-4029')">👤</div>
+    </div>
+  </div>
+
+  <div class="content-scroll">
+    <!-- GREETING WITH VOICE -->
+    <div class="greeting">
+      <div>
+        <h1>नमस्ते रमेश जी 🙏</h1>
+        <p>आज का दिन शुभ और फलदायी है</p>
+      </div>
+      <div class="speak-btn" onclick="speakText('नमस्ते रमेश जी! आज आपकी कमाई दो हज़ार चार सौ रुपये हुई है। दो नए ऑर्डर स्वीकार करने हेतु लंबित हैं।')">
+        🔊 सुनो
+      </div>
+    </div>
+
+    <!-- 1. HERO EARNINGS & ESCROW PROTECTION -->
+    <div class="earn-card">
+      <div class="earn-row">
+        <div>
+          <div class="earn-label">💰 आज की कुल कमाई</div>
+          <div class="earn-amount">₹2,400</div>
+          <div class="earn-trend">📈 कल से +30% ज़्यादा</div>
+        </div>
+        <div class="listen-chip" onclick="speakText('आज आपने 2400 रुपये कमाए हैं। 2892 रुपये एस्क्रो में सुरक्षित हैं जो डिलीवरी के बाद तुरंत आपके खाते में आएंगे।')">🔊</div>
+      </div>
+      <div class="earn-stats">
+        <div class="earn-stat">
+          <div class="v">2</div>
+          <div class="l">नए ऑर्डर्स</div>
+        </div>
+        <div class="earn-stat">
+          <div class="v">₹2,892</div>
+          <div class="l">🔒 एस्क्रो में</div>
+        </div>
+        <div class="earn-stat">
+          <div class="v">⭐ 4.9</div>
+          <div class="l">ग्राहक रेटिंग</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. URGENT ACTIONS -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">⚡ ज़रूरी काम (Urgent)</div>
+        <div class="sec-link" onclick="openModal('ऑर्डर्स सेक्शन', '2 पेंडिंग ऑर्डर्स: 1. टेराकोटा दीया सेट (₹450), 2. क्ले पॉट (₹850).')">सब देखें →</div>
+      </div>
+      <div class="urgent-card" onclick="openModal('ऑर्डर्स स्वीकार करें', 'ग्राहक: अनिता शर्मा (मुंबई). 18 घंटे में डिस्पैच करें ताकि एस्क्रो पेमेंट रिलीज़ हो सके.')">
+        <div class="urgent-icon">📦</div>
+        <div class="urgent-body">
+          <div class="urgent-title">2 नए ऑर्डर्स स्वीकार करने हैं</div>
+          <div class="urgent-sub">⏰ 18 घंटे बचे हैं — ऑर्डर कन्फर्म करें</div>
+        </div>
+        <div class="urgent-cta">देखें</div>
+      </div>
+    </div>
+
+    <!-- 3. AI MARKET INTELLIGENCE ("Kya Banayein?") -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">💡 आज का AI बाज़ार सुझाव</div>
+        <div class="sec-link" onclick="speakText('दीपावली 45 दिनों में है। दीयों की मांग 3 गुना बढ़ेगी। 250 दीये बनाने पर 18750 रुपये का शुद्ध लाभ होगा।')">🔊</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-top">
+          <div class="tip-icon">🪔</div>
+          <div>
+            <div class="tip-title">दीपावली 45 दिन दूर है!</div>
+            <div class="tip-desc">टेराकोटा दीयों की मांग <b>3x बढ़ेगी</b>। लागत: ₹40 | बाज़ार भाव: ₹120-150 | <span class="tip-profit">₹18,750 अनुमानित मुनाफ़ा</span> (250 पीस पर)</div>
+          </div>
+        </div>
+        <div class="tip-btn" onclick="openModal('बैच निर्माण शुरू करें', 'AI ने 250 दीयों के लिए रॉ मैटीरियल और फेयर प्राइस कैलकुलेटर सेट कर दिया है.')">🚀 नया बैच शुरू करें</div>
+      </div>
+    </div>
+
+    <!-- 4. QUICK ACTION 1-TAP LAUNCHPAD -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">फास्ट टूल्स (Quick Actions)</div>
+      </div>
+      <div class="grid">
+        <div class="qa qa1" onclick="openModal('आवाज़ से लिस्टिंग (Voice)', 'माइक दबाइए: सिर्फ अपनी बोली में बोलें - यह लाल मिट्टी का दीया है, कीमत 150 रुपये - 30 सेकंड में लिस्टिंग तैयार!')">
+          <div class="qa-icon">🎙️</div>
+          <div class="qa-label">आवाज़ से<br>लिस्टिंग</div>
+        </div>
+        <div class="qa qa2" onclick="openModal('बही-खाता (Khata Ledger)', 'उधार और जमा का डिजिटल हिसाब: अनिता (₹450 जमा), राजेश (₹300 बाकी). 1-क्लिक में व्हाट्सएप रिमाइंडर.')">
+          <div class="qa-icon">💰</div>
+          <div class="qa-label">बही<br>खाता</div>
+        </div>
+        <div class="qa qa3" onclick="openModal('कारीगर पासपोर्ट & योजना', 'PM विश्वकर्मा योजना: आप ₹1,00,000 टूलकिट लोन हेतु 100% पात्र हैं. डिजिटल वर्क हिस्ट्री वेरिफाइड.')">
+          <div class="qa-icon">🏛️</div>
+          <div class="qa-label">सरकारी<br>योजना</div>
+        </div>
+        <div class="qa qa4" onclick="openModal('उचित मूल्य कैलकुलेटर', 'लागत (₹35) + श्रम (₹40) + बाज़ार मांग = सही मूल्य ₹120. बिचौलियों से सुरक्षा!')">
+          <div class="qa-icon">⚖️</div>
+          <div class="qa-label">मूल्य<br>कैलकुलेटर</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 8 USPs INNOVATION HUB (JUDGE-READY) -->
+    <div class="section">
+      <div class="sec-head">
+        <div class="sec-title">✨ 8 मुख्य स्तंभ (Business OS)</div>
+      </div>
+      <div class="usp-grid">
+        <!-- USP 1 -->
+        <div class="usp-card" onclick="openModal('1. Voice-First Listing', 'बोलो और बिकाओ — 30 सेकंड में अंग्रेज़ी + हिंदी लिस्टिंग')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#FFEDD5; color:#EA580C;">🎙️</div>
+            <div class="usp-name">वॉइस लिस्टिंग</div>
+          </div>
+          <div class="usp-tagline">टाइपिंग हटाई, आवाज़ से कैटलॉग बनाएं</div>
+          <div class="usp-chip" style="background:#FFEDD5; color:#EA580C;">बोलो और बिकाओ</div>
+        </div>
+
+        <!-- USP 2 -->
+        <div class="usp-card" onclick="openModal('2. Craft-Aware AI Studio', 'क्राफ्ट का असली रंग, टेक्सचर और नैचुरल शैडो प्रिजर्व रखता है.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#E0F2FE; color:#0284C7;">📸</div>
+            <div class="usp-name">AI क्राफ्ट स्टूडियो</div>
+          </div>
+          <div class="usp-tagline">घर बैठे ₹2000 की चीज़ असली दिखेगी</div>
+          <div class="usp-chip" style="background:#E0F2FE; color:#0284C7;">स्टूडियो फोटो</div>
+        </div>
+
+        <!-- USP 3 -->
+        <div class="usp-card" onclick="openModal('3. Mela-to-365 Digital Twin', 'सूरजकुंड मेले के 10 दिन के रिश्ते को 365 दिन का ऑनलाइन बिज़नेस बनाएं.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#FEF3C7; color:#D97706;">🎪</div>
+            <div class="usp-name">मेला डिजिटल ट्विन</div>
+          </div>
+          <div class="usp-tagline">QR स्कैन से सीधे व्हाट्सएप स्टोर सेव</div>
+          <div class="usp-chip" style="background:#FEF3C7; color:#D97706;">365-दिन व्यापार</div>
+        </div>
+
+        <!-- USP 4 -->
+        <div class="usp-card" onclick="openModal('4. Karigar IP & Royalty', 'वार्ली/मधुबनी ओरिजिनल डिज़ाइन्स का डिजिटल रिकॉर्ड — कॉपी पर रोक और रॉयल्टी.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#FCE7F3; color:#DB2777;">🛡️</div>
+            <div class="usp-name">कारीगर IP सुरक्षा</div>
+          </div>
+          <div class="usp-tagline">डिज़ाइन चोरी बंद, कमर्शियल रॉयल्टी</div>
+          <div class="usp-chip" style="background:#FCE7F3; color:#DB2777;">ओरिजिनल अधिकार</div>
+        </div>
+
+        <!-- USP 5 -->
+        <div class="usp-card" onclick="openModal('5. Fair-Value Pricing', 'लागत फ़्लोर + मौसमी मांग + कंपटीटर रेंज = स्मार्ट सही मूल्य.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#DCFCE7; color:#16A34A;">📊</div>
+            <div class="usp-name">मंडी भाव इंटेलिजेंस</div>
+          </div>
+          <div class="usp-tagline">मार्केट का नशा और लागत का हिसाब</div>
+          <div class="usp-chip" style="background:#DCFCE7; color:#16A34A;">उचित बाज़ार मूल्य</div>
+        </div>
+
+        <!-- USP 6 -->
+        <div class="usp-card" onclick="openModal('6. Kaarigar Passport', 'सैलरी स्लिप के बिना बैंक लोन और PM विश्वकर्मा योजना का लाभ.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#EDE9FE; color:#7C3AED;">🏛️</div>
+            <div class="usp-name">कारीगर पासपोर्ट</div>
+          </div>
+          <div class="usp-tagline">डिजिटल वर्क हिस्ट्री + सरकारी स्कीम्स</div>
+          <div class="usp-chip" style="background:#EDE9FE; color:#7C3AED;">₹1L लोन पात्रता</div>
+        </div>
+
+        <!-- USP 7 -->
+        <div class="usp-card" onclick="openModal('7. Artisan Clusters (B2B)', 'टाटा को 500 दीये चाहिए? 15 km के 10 कारीगर मिलकर पूरा करेंगे — वर्चुअल फ़ैक्ट्री.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#E0E7FF; color:#4F46E5;">🤝</div>
+            <div class="usp-name">क्लस्टर बल्क B2B</div>
+          </div>
+          <div class="usp-tagline">पूरा गांव मिलकर B2B ऑर्डर पूरा करे</div>
+          <div class="usp-chip" style="background:#E0E7FF; color:#4F46E5;">वर्चुअल फ़ैक्ट्री</div>
+        </div>
+
+        <!-- USP 8 -->
+        <div class="usp-card" onclick="openModal('8. Escrow Protection', 'कस्टमर का पैसा पहले एस्क्रो में लॉक रहता है — कारीगर को धोखाधड़ी से 100% सुरक्षा.')">
+          <div class="usp-header">
+            <div class="usp-badge-icon" style="background:#CCFBF1; color:#0D9488;">🔒</div>
+            <div class="usp-name">एस्क्रो सुरक्षा</div>
+          </div>
+          <div class="usp-tagline">पक्का भुगतान गारंटी, 0% पेमेंट रिस्क</div>
+          <div class="usp-chip" style="background:#CCFBF1; color:#0D9488;">सुरक्षित पेमेंट</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. SPECIAL MODES -->
+    <div class="section" style="padding-bottom: 20px;">
+      <div class="sec-head">
+        <div class="sec-title">✨ स्पेशल मोड्स (Live Engines)</div>
+      </div>
+      <div class="modes">
+        <div class="mode mode-mela" onclick="openModal('🎪 मेला मोड लाइव', 'सूरजकुंड मेला स्टॉल #42: आपका QR कोड एक्टिव है। अब तक 48 ग्राहकों ने स्कैन करके व्हाट्सएप पर सेव किया।')">
+          <div class="mode-badge">ऑफ़लाइन ✓</div>
+          <div class="mode-icon">🎪</div>
+          <div class="mode-name">मेला मोड</div>
+          <div class="mode-sub">QR बनाओ, स्टॉल डिजिटल करो</div>
+        </div>
+        <div class="mode mode-b2b" onclick="openModal('🏢 B2B क्लस्टर लीड', 'टाटा संस कॉर्पोरेट गिफ्टिंग: 500 दीयों का ऑर्डर। आपके क्लस्टर में 5 कारीगर एक्टिव हैं।')">
+          <div class="mode-badge">1 नई लीड</div>
+          <div class="mode-icon">🏢</div>
+          <div class="mode-name">B2B क्लस्टर</div>
+          <div class="mode-sub">बड़ा ऑर्डर, मिलकर पूरा करो</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING BOTTOM NAVIGATION BAR -->
+  <div class="bottom-wrap">
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="nav-icon">🏠</div>
+        <div class="nav-label">होम</div>
+      </div>
+      <div class="nav-item" onclick="openModal('📸 क्राफ्ट स्टूडियो', 'कैमरा खोलें और फोटो खींचें — AI रोशनी और बैकग्राउंड ठीक करेगा.')">
+        <div class="nav-icon">📸</div>
+        <div class="nav-label">बनाओ</div>
+      </div>
+      <div class="nav-mic" onclick="speakText('नमस्ते! मैं आपका वॉइस साथी हूँ। बताइए आज क्या नया सामान बेचना है?')" title="आवाज़ साथी">
+        🎙️
+      </div>
+      <div class="nav-item" onclick="openModal('📦 ऑर्डर्स & बही-खाता', '📦 ऑर्डर्स: 2 नए ऑर्डर्स | 💰 बही-खाता: ₹1,200 बकाया.')">
+        <div class="nav-icon">📦</div>
+        <div class="nav-label">ऑर्डर्स</div>
+      </div>
+      <div class="nav-item" onclick="openModal('👤 प्रोफ़ाइल & पासपोर्ट', 'रमेश कुंभार | कोल्हापुर कार्यशाला | कारीगर पासपोर्ट & PM योजनाएं')">
+        <div class="nav-icon">👤</div>
+        <div class="nav-label">प्रोफ़ाइल</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE MODAL OVERLAY -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕ बंद करें</button>
+      <h3 id="modalTitle" style="font-size: 17px; font-weight: 800; color: #1C1917; margin-bottom: 8px;">शीर्षक</h3>
+      <p id="modalBody" style="font-size: 13.5px; color: #57534C; line-height: 1.5; margin-bottom: 16px;">विवरण</p>
+      <button style="width: 100%; background: #EA580C; color: #fff; border: none; padding: 12px; border-radius: 14px; font-weight: 700; font-size: 13px; cursor: pointer;" onclick="closeModal()">
+        समझ गया / आगे बढ़ें
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function speakText(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'hi-IN';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    } else {
+      alert(text);
+    }
+  }
+
+  function openModal(title, body) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerText = body;
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

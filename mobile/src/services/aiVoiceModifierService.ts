@@ -51,7 +51,7 @@ export class AiVoiceModifierService {
     // If Gemini API Key is configured, attempt direct Gemini enhancement
     if (apiKey && apiKey.length > 10) {
       try {
-        logger.info('AI_VOICE_MODIFIER', 'Calling Gemini 1.5 Flash to polish voice transcript...');
+        logger.info('AI_VOICE_MODIFIER', 'Calling Gemini 3.6 Flash to polish voice transcript...');
         return await this.callGeminiModifier(trimmed, context, apiKey);
       } catch (err) {
         logger.warn('AI_VOICE_MODIFIER', 'Gemini polishing failed, using Indic NLP engine', { err });
@@ -70,7 +70,7 @@ export class AiVoiceModifierService {
     context: string,
     apiKey: string
   ): Promise<AiVoiceModificationResult> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const prompt = `
 You are Kalakar Setu's Artisan Voice Assistant and Indic Craft Editor.

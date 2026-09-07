@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -24,6 +24,22 @@ export const OrderConfirmationScreen: React.FC<Props> = ({ route, navigation }) 
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
+      <View style={styles.topNavRow}>
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation?.canGoBack?.()) {
+              navigation.goBack();
+            } else {
+              navigation?.navigate?.('MainTabs', { screen: 'HomeTab' });
+            }
+          }}
+          style={styles.topBackButton}
+          activeOpacity={0.7}
+          accessibilityLabel="Back"
+        >
+          <Text style={styles.topBackIcon}>‹</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Celebration Emblem */}
         <View style={styles.celebrationBox}>
@@ -123,6 +139,29 @@ export const OrderConfirmationScreen: React.FC<Props> = ({ route, navigation }) 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+  },
+  topNavRow: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  topBackButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   content: {
     padding: 20,

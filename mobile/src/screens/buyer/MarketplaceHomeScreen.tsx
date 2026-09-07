@@ -340,169 +340,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* ⚡ 6 Core Killer Features Interactive Showcase Hub */}
-        <View style={styles.killerHubContainer}>
-          <View style={styles.killerHubHeader}>
-            <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                ⚡ 6 Core Killer Features
-              </Text>
-              <Text variant="caption" color="#64748B">
-                Tap any feature to launch the live working experience
-              </Text>
-            </View>
-            <View style={styles.livePill}>
-              <Text style={styles.liveDot}>●</Text>
-              <Text variant="caption" weight="bold" color="#16A34A">
-                INTERACTIVE
-              </Text>
-            </View>
-          </View>
 
-          <View style={styles.killerGrid}>
-            {/* 1. AI Smart Catalogue */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('AiEnhancement')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FFEDD5' }]}>
-                <Text style={{ fontSize: 20 }}>📸</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
-                  KILLER #1 • CATALOGUE
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Smart Catalogue
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  Photo + Voice → Auto-clean background & craft categorization
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 2. Voice Saathi Interview */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('VoiceFollowUp')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={{ fontSize: 20 }}>🤖</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
-                  KILLER #2 • VOICE SAATHI
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Interview / Voice Saathi
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  Conversational Q&A in artisan's language (Zero typing)
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 3. Explainable Fair Price Advisor */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PricingRecommendation')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={{ fontSize: 20 }}>💰</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
-                  KILLER #3 • FAIR PRICING
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Explainable Fair Price Advisor
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  Shows WHY: Material + Time + Complexity = Suggested Price
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 4. Digital Craft Passport */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PublishSuccess')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#E0E7FF' }]}>
-                <Text style={{ fontSize: 20 }}>🏛️</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
-                  KILLER #4 • CRAFT PASSPORT
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  GI & Digital Craft Passport
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  QR-linked provenance, audio story, and batch verification
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 5. AI Bulk Order & Smart Cluster */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FCE7F3' }]}>
-                <Text style={{ fontSize: 20 }}>🏢</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
-                  KILLER #5 • SMART CLUSTER
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  AI Bulk Order → Smart Cluster
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  5,000 Units order pooled across 5 local artisans automatically
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 6. Production Brief + Collective Tracking */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#E0F2FE' }]}>
-                <Text style={{ fontSize: 20 }}>📋</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
-                  KILLER #6 • BRIEF & TRACKING
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  Production Brief & Collective Tracking
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  Shared specs (dimensions, clay) + unified live progress view
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
         {/* 5. Artisan Flash Deals Section Header with Timer */}
         <View style={styles.sectionHeader}>
@@ -527,15 +365,18 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* 6. Product Deal Cards Grid (2-Columns) */}
+        {/* 6. Product Deal Cards Grid (2-Columns) - Flipkart UI */}
         <View style={styles.productGrid}>
           {filteredProducts.map((prod) => {
             const wishlisted = isInWishlist(prod.id);
+            const discountPercent = prod.originalPrice && prod.originalPrice > prod.price
+              ? Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100)
+              : null;
             return (
               <TouchableOpacity
                 key={prod.id}
                 style={styles.productCard}
-                activeOpacity={0.9}
+                activeOpacity={0.92}
                 onPress={() => navigation.navigate('ProductDetail', { productId: prod.id })}
               >
                 {/* Product Image Container */}
@@ -547,9 +388,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
                   />
 
                   {/* Top-Left Discount Badge */}
-                  <View style={styles.discountBadge}>
-                    <Text style={styles.discountBadgeText}>{prod.discountBadge}</Text>
-                  </View>
+                  {discountPercent && (
+                    <View style={styles.discountBadge}>
+                      <Text style={styles.discountBadgeText}>{discountPercent}% OFF</Text>
+                    </View>
+                  )}
 
                   {/* Wishlist Heart Overlay */}
                   <TouchableOpacity
@@ -565,6 +408,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         imageUri: prod.imageUrl || '',
                       })
                     }
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <Text style={{ fontSize: 13 }}>{wishlisted ? '❤️' : '🤍'}</Text>
                   </TouchableOpacity>
@@ -572,24 +416,48 @@ export const MarketplaceHomeScreen: React.FC = () => {
 
                 {/* Card Information */}
                 <View style={styles.cardInfo}>
-                  <Text variant="caption" color="#64748B" numberOfLines={1} style={styles.cardArtisan}>
-                    {prod.artisan}
+                  <Text numberOfLines={1} style={styles.cardArtisan}>
+                    {prod.artisan.toUpperCase()}
                   </Text>
-                  <Text variant="bodyMedium" weight="bold" color="#0F172A" numberOfLines={1} style={styles.cardTitle}>
+                  <Text numberOfLines={2} style={styles.cardTitle}>
                     {prod.title}
                   </Text>
+
+                  {/* Rating Pill */}
+                  <View style={styles.ratingRow}>
+                    <View style={styles.ratingPill}>
+                      <Text style={styles.ratingPillText}>4.8 ★</Text>
+                    </View>
+                    <Text style={styles.ratingCountText}>(124)</Text>
+                  </View>
+
+                  {/* Price Row */}
                   <View style={styles.priceRow}>
-                    <Text variant="bodyLarge" weight="bold" color="#0F172A">
-                      ₹{prod.price}
+                    <Text style={styles.currentPrice}>
+                      ₹{prod.price.toLocaleString('en-IN')}
                     </Text>
-                    <Text variant="bodySmall" color="#94A3B8" style={styles.originalPrice}>
-                      ₹{prod.originalPrice}
+                    {prod.originalPrice > prod.price && (
+                      <Text style={styles.originalPrice}>
+                        ₹{prod.originalPrice.toLocaleString('en-IN')}
+                      </Text>
+                    )}
+                    {discountPercent && (
+                      <Text style={styles.discountPercentText}>
+                        {discountPercent}% off
+                      </Text>
+                    )}
+                  </View>
+
+                  <View style={styles.deliveryTrustRow}>
+                    <Text style={styles.deliveryTrustText}>
+                      ⚡ Free Delivery • Direct Artisan
                     </Text>
                   </View>
 
                   {/* Quick Add Button */}
                   <TouchableOpacity
                     style={styles.quickAddBtn}
+                    activeOpacity={0.85}
                     onPress={() => {
                       addItemToCart({
                         productId: prod.id,
@@ -603,7 +471,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                       });
                     }}
                   >
-                    <Text variant="caption" weight="bold" color="#EA580C">
+                    <Text style={styles.quickAddBtnText}>
                       + Add to Cart
                     </Text>
                   </TouchableOpacity>
@@ -996,29 +864,34 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.2,
   },
+  // Product Grid - Modern Flipkart / E-Commerce Style
   productGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 12,
+    justifyContent: 'space-between',
     gap: 10,
   },
   productCard: {
-    width: '48%',
+    width: '48.5%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#E2E8F0',
     overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     elevation: 2,
-    marginBottom: 6,
+    marginBottom: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   cardImageContainer: {
     width: '100%',
-    height: 160,
+    height: 170,
     position: 'relative',
     backgroundColor: '#F8FAFC',
   },
@@ -1030,56 +903,123 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: '#0284C7', // Vibrant blue matching mockup
+    backgroundColor: '#EA580C',
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 4,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
   discountBadgeText: {
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.2,
   },
   heartBtn: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 2,
   },
   cardInfo: {
     padding: 10,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   cardArtisan: {
-    fontSize: 11,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.3,
     marginBottom: 2,
   },
   cardTitle: {
     fontSize: 13,
+    fontWeight: '600',
+    color: '#0F172A',
+    lineHeight: 18,
+    minHeight: 36,
+    marginBottom: 4,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: 6,
+  },
+  ratingPill: {
+    backgroundColor: '#16A34A',
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  ratingPillText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
+  ratingCountText: {
+    fontSize: 10.5,
+    color: '#64748B',
+    fontWeight: '500',
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    alignItems: 'baseline',
+    gap: 5,
+    marginBottom: 4,
+    flexWrap: 'wrap',
+  },
+  currentPrice: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0F172A',
   },
   originalPrice: {
     textDecorationLine: 'line-through',
-    fontSize: 12,
+    fontSize: 11.5,
+    color: '#94A3B8',
+  },
+  discountPercentText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#16A34A',
+  },
+  deliveryTrustRow: {
+    marginBottom: 8,
+  },
+  deliveryTrustText: {
+    fontSize: 9.5,
+    color: '#059669',
+    fontWeight: '600',
   },
   quickAddBtn: {
     backgroundColor: '#FFF7ED',
     borderWidth: 1,
     borderColor: '#FED7AA',
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  quickAddBtnText: {
+    color: '#C2410C',
+    fontSize: 11.5,
+    fontWeight: '700',
   },
   guaranteeCard: {
     marginHorizontal: 16,

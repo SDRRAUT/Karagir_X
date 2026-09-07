@@ -23,6 +23,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import Svg, { Path } from 'react-native-svg';
 import { CRAFT_IMAGES } from '@/assets/craftImages';
 import { useCatalogStore } from '@/store/useCatalogStore';
+import { VoiceInputModal } from '@/components/modals/VoiceInputModal';
 
 interface FlashProduct {
   id: string;
@@ -222,6 +223,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('Home');
 
   // Interactive Modals for Top 8 Killer Buyer Features
@@ -429,7 +431,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <Icon name="search" size={18} color="#94A3B8" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search artisan sarees, blue po..."
+            placeholder={isHindi ? 'कारीगर साड़ियाँ, ब्लू पॉटरी खोजें...' : 'Search artisan sarees, blue pottery...'}
             placeholderTextColor="#94A3B8"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -438,7 +440,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           {/* Voice Search (Mic) */}
           <TouchableOpacity
             style={styles.searchActionButton}
-            onPress={() => navigation.navigate('Search')}
+            onPress={() => setShowVoiceModal(true)}
             accessibilityLabel="Voice Search"
           >
             <Icon name="microphone" size={18} color="#64748B" />
@@ -571,15 +573,18 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         )}
 
-        {/* 6. Product Deal Cards Grid (2-Columns) matching reference mockup */}
+        {/* 6. Product Deal Cards Grid (2-Columns) - Flipkart / Modern E-Commerce UI */}
         <View style={styles.productGrid}>
           {filteredProducts.map((prod) => {
             const wishlisted = isInWishlist(prod.id);
+            const discountPercent = prod.originalPrice && prod.originalPrice > prod.price
+              ? Math.round(((prod.originalPrice - prod.price) / prod.originalPrice) * 100)
+              : null;
             return (
               <TouchableOpacity
                 key={prod.id}
                 style={styles.productCard}
-                activeOpacity={0.9}
+                activeOpacity={0.92}
                 onPress={() => navigation.navigate('ProductDetail', { productId: prod.id })}
               >
                 {/* Product Image Container */}
@@ -590,19 +595,21 @@ export const MarketplaceHomeScreen: React.FC = () => {
                     resizeMode="cover"
                   />
 
-                  {/* Top-Left Discount or Just Listed Badge */}
-                  <View
-                    style={[
-                      styles.discountBadge,
-                      prod.isNewlyListed && styles.justListedBadge,
-                    ]}
-                  >
-                    <Text style={styles.discountBadgeText}>
-                      {prod.isNewlyListed ? '🟢 JUST LISTED' : prod.discountBadge}
-                    </Text>
-                  </View>
+                  {/* Top-Left Discount / Deal Badge */}
+                  {(discountPercent || prod.isNewlyListed) && (
+                    <View
+                      style={[
+                        styles.discountBadge,
+                        prod.isNewlyListed && styles.justListedBadge,
+                      ]}
+                    >
+                      <Text style={styles.discountBadgeText}>
+                        {prod.isNewlyListed ? (isHindi ? '🟢 नया' : '🟢 NEW') : `${discountPercent}% ${isHindi ? 'छूट' : 'OFF'}`}
+                      </Text>
+                    </View>
+                  )}
 
-                  {/* Wishlist Heart Overlay */}
+                  {/* Floating Wishlist Heart Overlay */}
                   <TouchableOpacity
                     style={styles.heartBtn}
                     onPress={() =>
@@ -616,49 +623,90 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         imageUri: prod.imageUrl || '',
                       })
                     }
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <Text style={{ fontSize: 13 }}>{wishlisted ? '❤️' : '🤍'}</Text>
                   </TouchableOpacity>
+
+                  {/* Bottom Image Overlay GI Tag / Authenticity Chip */}
+                  <View style={styles.imagePedigreeChip}>
+                    <Text style={styles.imagePedigreeChipText} numberOfLines={1}>
+                      🏛️ {prod.cluster.split(' ')[0] || 'GI Certified'}
+                    </Text>
+                  </View>
                 </View>
 
-                {/* Card Information & Handmade Heritage Details Below */}
+                {/* Clean E-Commerce Card Info */}
                 <View style={styles.cardInfo}>
+                  {/* Line 1: Artisan & Region */}
                   <Text numberOfLines={1} style={styles.cardArtisan}>
-                    {prod.artisan}
+                    {prod.artisan.toUpperCase()}
                   </Text>
-                  <Text numberOfLines={1} style={styles.cardTitle}>
+
+                  {/* Line 2: Product Title (2 lines max) */}
+                  <Text numberOfLines={2} style={styles.cardTitle}>
                     {prod.title}
                   </Text>
+
+                  {/* Line 3: Flipkart Style Star Rating & Reviews */}
+                  <View style={styles.ratingRow}>
+                    <View style={styles.ratingPill}>
+                      <Text style={styles.ratingPillText}>4.8 ★</Text>
+                    </View>
+                    <Text style={styles.ratingCountText}>
+                      ({Math.floor(Math.abs(prod.price * 1.3) % 400 + 45)})
+                    </Text>
+                  </View>
+
+                  {/* Line 4: Price Row (Selling Price, Strike MRP, Discount %) */}
                   <View style={styles.priceRow}>
                     <Text style={styles.currentPrice}>
-                      ₹{prod.price}
+                      ₹{prod.price.toLocaleString('en-IN')}
                     </Text>
-                    <Text style={styles.originalPrice}>
-                      ₹{prod.originalPrice}
-                    </Text>
+                    {prod.originalPrice > prod.price && (
+                      <Text style={styles.originalPrice}>
+                        ₹{prod.originalPrice.toLocaleString('en-IN')}
+                      </Text>
+                    )}
+                    {discountPercent && (
+                      <Text style={styles.discountPercentText}>
+                        {discountPercent}% {isHindi ? 'छूट' : 'off'}
+                      </Text>
+                    )}
                   </View>
 
-                  {/* Authentic Handmade Technique Tag */}
-                  <View style={styles.craftTagBadge}>
-                    <Text style={styles.craftTagBadgeText}>{prod.craftTag}</Text>
-                  </View>
-
-                  {/* Detailed Craft Info: Material, Heritage & Technique */}
-                  <Text numberOfLines={3} style={styles.craftInfoText}>
-                    {prod.craftInfo}
-                  </Text>
-
-                  {/* GI Certified Cluster Origin */}
-                  <View style={styles.giPedigreeBadge}>
-                    <Text numberOfLines={1} style={styles.giPedigreeText}>
-                      🏛️ {prod.cluster}
+                  {/* Line 5: Assured Trust / Free Delivery Micro Badge */}
+                  <View style={styles.deliveryTrustRow}>
+                    <Text style={styles.deliveryTrustText}>
+                      ⚡ {isHindi ? 'मुफ़्त डिलीवरी • सीधा शिल्पी से' : 'Free Delivery • Direct Artisan'}
                     </Text>
                   </View>
 
-                  {/* Direct Rural Artisan Guarantee */}
-                  <Text style={styles.directArtisanBadge}>
-                    ✓ 100% Handcrafted • 0% Middleman
-                  </Text>
+                  {/* Line 6: Modern Quick Add Button */}
+                  <TouchableOpacity
+                    style={styles.quickAddBtn}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      addItemToCart({
+                        productId: prod.id,
+                        title: prod.title,
+                        price: prod.price,
+                        imageUri: typeof prod.imageSource === 'string' ? prod.imageSource : (prod.imageUrl || ''),
+                        craftCategoryName: prod.category,
+                        artisanName: prod.artisan,
+                        artisanCluster: prod.cluster,
+                        stockType: 'READY_STOCK',
+                      });
+                      Alert.alert(
+                        isHindi ? 'कार्ट में जोड़ा गया' : 'Added to Cart',
+                        isHindi ? `${prod.title} आपके कार्ट में जोड़ दिया गया है।` : `${prod.title} has been added to your cart.`
+                      );
+                    }}
+                  >
+                    <Text style={styles.quickAddBtnText}>
+                      + {isHindi ? 'कार्ट में जोड़ें' : 'Add to Cart'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </TouchableOpacity>
             );
@@ -862,169 +910,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* ⚡ 6 Core Killer Features Interactive Showcase Hub */}
-        <View style={styles.killerHubContainer}>
-          <View style={styles.killerHubHeader}>
-            <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                ⚡ {t.artisan.coreFeaturesTitle}
-              </Text>
-              <Text variant="caption" color="#64748B">
-                {t.artisan.coreFeaturesSub}
-              </Text>
-            </View>
-            <View style={styles.livePill}>
-              <Text style={styles.liveDot}>●</Text>
-              <Text variant="caption" weight="bold" color="#16A34A">
-                {t.buyer.coreFeaturesInteractive}
-              </Text>
-            </View>
-          </View>
 
-          <View style={styles.killerGrid}>
-            {/* 1. AI Smart Catalogue */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('AiEnhancement')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FFEDD5' }]}>
-                <Text style={{ fontSize: 20 }}>📸</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#EA580C', backgroundColor: '#FFF7ED' }]}>
-                  {isHindi ? 'विशेष #1 • कैटलॉग' : 'KILLER #1 • CATALOGUE'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.aiCatalogue}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.aiCatalogueDesc}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 2. Voice Saathi Interview */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('VoiceFollowUp')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={{ fontSize: 20 }}>🤖</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#D97706', backgroundColor: '#FFFBEB' }]}>
-                  {isHindi ? 'विशेष #2 • आवाज़ साथी' : 'KILLER #2 • VOICE SAATHI'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.voiceSaathiInterview}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.voiceSaathiInterviewDesc}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 3. Explainable Fair Price Advisor */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PricingRecommendation')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={{ fontSize: 20 }}>💰</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#16A34A', backgroundColor: '#F0FDF4' }]}>
-                  {isHindi ? 'विशेष #3 • उचित मूल्य' : 'KILLER #3 • FAIR PRICING'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.fairPriceAdvisor}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.fairPriceAdvisorDesc}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 4. Digital Craft Passport */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() => navigation.navigate('PublishSuccess')}
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#E0E7FF' }]}>
-                <Text style={{ fontSize: 20 }}>🏛️</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#4F46E5', backgroundColor: '#EEF2FF' }]}>
-                  {isHindi ? 'विशेष #4 • शिल्प पासपोर्ट' : 'KILLER #4 • CRAFT PASSPORT'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {t.artisan.qrPassport}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {t.artisan.qrPassportDesc}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 5. AI Bulk Order & Smart Cluster */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#FCE7F3' }]}>
-                <Text style={{ fontSize: 20 }}>🏢</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#DB2777', backgroundColor: '#FDF2F8' }]}>
-                  {isHindi ? 'विशेष #5 • क्लस्टर ऑर्डर' : 'KILLER #5 • SMART CLUSTER'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'एआई थोक ऑर्डर एवं क्लस्टर' : 'AI Bulk Order → Smart Cluster'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? '5,000 इकाइयों का ऑर्डर 5 स्थानीय कारीगरों में विभाजित' : '5,000 Units order pooled across 5 local artisans'}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-
-            {/* 6. Production Brief + Collective Tracking */}
-            <TouchableOpacity
-              style={styles.killerCard}
-              onPress={() =>
-                navigation.navigate('OpportunityDetail', { opportunityId: 'opp_tcs_diwali_01' })
-              }
-              activeOpacity={0.88}
-            >
-              <View style={[styles.killerIconBox, { backgroundColor: '#E0F2FE' }]}>
-                <Text style={{ fontSize: 20 }}>📋</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.killerTag, { color: '#0284C7', backgroundColor: '#F0F9FF' }]}>
-                  {isHindi ? 'विशेष #6 • उत्पादन विवरण' : 'KILLER #6 • BRIEF & TRACKING'}
-                </Text>
-                <Text variant="bodyMedium" weight="bold" color="#0F172A">
-                  {isHindi ? 'डिजिटल उत्पादन विवरण पत्र' : 'Production Brief & Collective Tracking'}
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? 'मानकीकृत विनिर्देश एवं सामूहिक लाइव प्रगति' : 'Shared specs (dimensions, clay) + unified live progress view'}
-                </Text>
-              </View>
-              <Text style={styles.killerArrow}>›</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
 
 
@@ -1079,6 +965,14 @@ export const MarketplaceHomeScreen: React.FC = () => {
                 resizeMode="cover"
               />
               <View style={styles.storyTopBar}>
+                <TouchableOpacity
+                  onPress={() => setActiveStory(null)}
+                  style={styles.storyCloseBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 'bold', lineHeight: 26 }}>‹</Text>
+                </TouchableOpacity>
                 <View style={styles.storyAuthorRow}>
                   <Image source={{ uri: activeStory.avatarUrl }} style={styles.storyAvatar} />
                   <View>
@@ -1091,7 +985,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                   </View>
                 </View>
                 <TouchableOpacity onPress={() => setActiveStory(null)} style={styles.storyCloseBtn}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold' }}>✕</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>✕</Text>
                 </TouchableOpacity>
               </View>
 
@@ -1127,13 +1021,23 @@ export const MarketplaceHomeScreen: React.FC = () => {
         <View style={styles.arModalOverlay}>
           <View style={styles.arSimulatorCard}>
             <View style={styles.arSimulatorHeader}>
-              <View>
-                <Text variant="headlineSmall" weight="bold" color="#0F172A">
-                  👓 AR Room Visualizer
-                </Text>
-                <Text variant="caption" color="#64748B">
-                  {isHindi ? 'सतह पहचानी गई: फर्श/मेज • पैमाना 1:1' : 'Surface Detected: Floor/Tabletop • 1:1 Scale'}
-                </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <TouchableOpacity
+                  onPress={() => setShowArModal(false)}
+                  style={styles.modalCloseCircle}
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                >
+                  <Text style={{ fontSize: 24, color: '#0F172A', fontWeight: 'bold', lineHeight: 26 }}>‹</Text>
+                </TouchableOpacity>
+                <View>
+                  <Text variant="headlineSmall" weight="bold" color="#0F172A">
+                    👓 AR Room Visualizer
+                  </Text>
+                  <Text variant="caption" color="#64748B">
+                    {isHindi ? 'सतह पहचानी गई: फर्श/मेज • पैमाना 1:1' : 'Surface Detected: Floor/Tabletop • 1:1 Scale'}
+                  </Text>
+                </View>
               </View>
               <TouchableOpacity onPress={() => setShowArModal(false)} style={styles.modalCloseCircle}>
                 <Text style={{ fontSize: 18, color: '#64748B', fontWeight: 'bold' }}>✕</Text>
@@ -1189,8 +1093,18 @@ export const MarketplaceHomeScreen: React.FC = () => {
         <View style={styles.melaModalOverlay}>
           <View style={styles.melaStreamCard}>
             <View style={styles.melaStreamHeader}>
-              <View style={styles.melaLivePill}>
-                <Text style={styles.melaLivePillText}>🔴 LIVE AUCTION</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setShowLiveMelaModal(false)}
+                  style={styles.storyCloseBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 24, fontWeight: 'bold', lineHeight: 26 }}>‹</Text>
+                </TouchableOpacity>
+                <View style={styles.melaLivePill}>
+                  <Text style={styles.melaLivePillText}>🔴 LIVE AUCTION</Text>
+                </View>
               </View>
               <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 13 }}>
                 Bastar Bell Metal Master Manglu
@@ -1242,6 +1156,14 @@ export const MarketplaceHomeScreen: React.FC = () => {
           <View style={styles.chatCard}>
             <View style={styles.chatHeader}>
               <View style={styles.chatHeaderLeft}>
+                <TouchableOpacity
+                  onPress={() => setShowChatModal(false)}
+                  style={styles.modalCloseCircle}
+                  accessibilityRole="button"
+                  accessibilityLabel="Go back"
+                >
+                  <Text style={{ fontSize: 24, color: '#0F172A', fontWeight: 'bold', lineHeight: 26 }}>‹</Text>
+                </TouchableOpacity>
                 <Image
                   source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80' }}
                   style={styles.chatAvatar}
@@ -1395,6 +1317,15 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Real-time Voice Search Modal */}
+      <VoiceInputModal
+        visible={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onApplyText={(text) => setSearchQuery(text)}
+        context="search"
+        title={isHindi ? 'आवाज़ से खोजें (Voice Search)' : 'Voice Craft Search'}
+      />
     </SafeAreaView>
   );
 };
@@ -1548,14 +1479,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     height: 46,
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 23,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000000',
+    borderColor: '#CBD5E1',
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchMagnifier: {
     fontSize: 16,
@@ -1564,13 +1495,19 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
+    height: '100%',
+    fontSize: 13.5,
     color: '#0F172A',
     paddingVertical: 0,
+    paddingHorizontal: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 0,
   },
   searchActionButton: {
     padding: 6,
-    marginLeft: 4,
+    marginLeft: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   searchActionEmoji: {
     fontSize: 16,
@@ -2045,30 +1982,34 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.2,
   },
-  // Product Grid
+  // Product Grid - Modern Flipkart / E-Commerce Style
   productGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 12,
+    justifyContent: 'space-between',
     gap: 10,
   },
   productCard: {
-    width: '48%',
+    width: '48.5%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#E2E8F0',
     overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     elevation: 2,
-    marginBottom: 6,
+    marginBottom: 12,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   cardImageContainer: {
     width: '100%',
-    height: 160,
+    height: 170,
     position: 'relative',
     backgroundColor: '#F8FAFC',
   },
@@ -2080,10 +2021,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: '#0284C7',
+    backgroundColor: '#EA580C',
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 4,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
   justListedBadge: {
     backgroundColor: '#16A34A',
@@ -2092,42 +2038,86 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.2,
   },
   heartBtn: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  imagePedigreeChip: {
+    position: 'absolute',
+    bottom: 6,
+    left: 6,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  imagePedigreeChipText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '700',
   },
   cardInfo: {
     padding: 10,
-  },
-  craftDnaPill: {
-    backgroundColor: '#E0F2FE',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: 4,
-    marginBottom: 4,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   cardArtisan: {
-    fontSize: 11,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.3,
     marginBottom: 2,
   },
   cardTitle: {
     fontSize: 13,
+    fontWeight: '600',
+    color: '#0F172A',
+    lineHeight: 18,
+    minHeight: 36,
+    marginBottom: 4,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginBottom: 6,
+  },
+  ratingPill: {
+    backgroundColor: '#16A34A',
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  ratingPillText: {
+    color: '#FFFFFF',
+    fontSize: 9.5,
+    fontWeight: '800',
+  },
+  ratingCountText: {
+    fontSize: 10.5,
+    color: '#64748B',
+    fontWeight: '500',
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    alignItems: 'baseline',
+    gap: 5,
+    marginBottom: 4,
+    flexWrap: 'wrap',
   },
   currentPrice: {
     fontSize: 15,
@@ -2136,59 +2126,35 @@ const styles = StyleSheet.create({
   },
   originalPrice: {
     textDecorationLine: 'line-through',
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#94A3B8',
   },
-  craftTagBadge: {
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1,
-    borderColor: '#FED7AA',
-    paddingHorizontal: 7,
-    paddingVertical: 2.5,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-    marginBottom: 5,
-  },
-  craftTagBadgeText: {
-    color: '#C2410C',
-    fontSize: 9.5,
+  discountPercentText: {
+    fontSize: 11,
     fontWeight: '700',
-  },
-  craftInfoText: {
-    fontSize: 10.5,
-    color: '#475569',
-    lineHeight: 14.5,
-    marginBottom: 6,
-  },
-  giPedigreeBadge: {
-    backgroundColor: '#F0F9FF',
-    borderWidth: 1,
-    borderColor: '#BAE6FD',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    alignSelf: 'flex-start',
-    marginBottom: 4,
-  },
-  giPedigreeText: {
-    color: '#0369A1',
-    fontSize: 9,
-    fontWeight: '600',
-  },
-  directArtisanBadge: {
     color: '#16A34A',
-    fontSize: 9,
-    fontWeight: '700',
-    marginTop: 2,
+  },
+  deliveryTrustRow: {
+    marginBottom: 8,
+  },
+  deliveryTrustText: {
+    fontSize: 9.5,
+    color: '#059669',
+    fontWeight: '600',
   },
   quickAddBtn: {
     backgroundColor: '#FFF7ED',
     borderWidth: 1,
     borderColor: '#FED7AA',
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  quickAddBtnText: {
+    color: '#C2410C',
+    fontSize: 11.5,
+    fontWeight: '700',
   },
   guaranteeCard: {
     marginHorizontal: 16,

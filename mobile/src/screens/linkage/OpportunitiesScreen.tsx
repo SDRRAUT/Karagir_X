@@ -9,11 +9,13 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { marketLinkageService } from '@/api/marketLinkageService';
 import { useMarketLinkageStore, MarketOpportunity } from '@/store/useMarketLinkageStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Opportunities'>;
 
 export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { isHindi } = useTranslation();
   const { opportunities, setOpportunities } = useMarketLinkageStore();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,8 +29,8 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.surface.sand }]} edges={['top']}>
       <AppHeader
-        title="बड़ा बाज़ार (B2B Opportunities)"
-        subtitle="AI Cluster Matchmaking"
+        title={isHindi ? 'बड़ा बाज़ार (B2B थोक अवसर)' : 'B2B Wholesale Opportunities'}
+        subtitle={isHindi ? 'एआई क्लस्टर मैचमेकिंग' : 'AI Cluster Matchmaking'}
         showBack={true}
         onBackPress={() => navigation.goBack()}
         onVoicePress={() => {}}
@@ -41,14 +43,16 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
             <View style={{ flex: 1, paddingRight: 10 }}>
               <View style={styles.heroBadge}>
                 <Text variant="labelSmall" weight="bold" color="#FFFFFF">
-                  ✨ AI क्लस्टर मैचमेकिंग इंजन
+                  {isHindi ? '✨ AI क्लस्टर मैचमेकिंग इंजन' : '✨ AI Cluster Matchmaking Engine'}
                 </Text>
               </View>
               <Text variant="headlineSmall" weight="bold" color="#FFFFFF" style={{ marginVertical: 4 }}>
-                कॉर्पोरेट व संस्थागत थोक ऑर्डर्स
+                {isHindi ? 'कॉर्पोरेट व संस्थागत थोक ऑर्डर्स' : 'Corporate & Enterprise Bulk Orders'}
               </Text>
               <Text variant="labelSmall" color="#E0DCFF">
-                आपकी क्षमता अनुसार छोटा कोटा, 30% एडवांस सामग्री भुगतान और पक्की कमाई।
+                {isHindi
+                  ? 'आपकी क्षमता अनुसार छोटा कोटा, 30% एडवांस सामग्री भुगतान और पक्की कमाई।'
+                  : 'Flexible production quotas, 30% upfront material advance, and guaranteed escrow payout.'}
               </Text>
             </View>
             <Text style={{ fontSize: 36 }}>🤝</Text>
@@ -58,17 +62,17 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
         {/* Opportunity List Section */}
         <View style={styles.sectionHeader}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.text.primary}>
-            आपके लिए उपलब्ध अवसर ({opportunities.length})
+            {isHindi ? `आपके लिए उपलब्ध अवसर (${opportunities.length})` : `Available Opportunities (${opportunities.length})`}
           </Text>
           <Text variant="labelSmall" color={theme.colors.text.secondary}>
-            शिल्प व क्षमता अनुसार ऑटो-मैच
+            {isHindi ? 'शिल्प व क्षमता अनुसार ऑटो-मैच' : 'Auto-matched by craft skill & capacity'}
           </Text>
         </View>
 
         {isLoading ? (
           <View style={styles.loadingBox}>
             <Text variant="bodyMedium" color={theme.colors.text.secondary}>
-              अवसर खोजे जा रहे हैं...
+              {isHindi ? 'अवसर खोजे जा रहे हैं...' : 'Finding matched opportunities...'}
             </Text>
           </View>
         ) : (
@@ -78,14 +82,14 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
               onPress={() => navigation.navigate('OpportunityDetail', { opportunityId: item.id })}
               activeOpacity={0.88}
               accessibilityRole="button"
-              accessibilityLabel={item.rfqTitle.hi}
+              accessibilityLabel={isHindi ? item.rfqTitle.hi : (item.rfqTitle.en || item.rfqTitle.hi)}
             >
               <Card style={styles.opportunityCard}>
                 {/* Match Badge & Category */}
                 <View style={styles.topRow}>
                   <View style={[styles.matchBadge, { backgroundColor: 'rgba(108, 99, 255, 0.12)' }]}>
                     <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                      🎯 {item.matchConfidencePercentage}% शिल्प मिलान
+                      {isHindi ? `🎯 ${item.matchConfidencePercentage}% शिल्प मिलान` : `🎯 ${item.matchConfidencePercentage}% Craft Match`}
                     </Text>
                   </View>
                   <Text variant="labelSmall" color={theme.colors.terracotta.primary} weight="bold">
@@ -103,17 +107,17 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
                   color={theme.colors.text.primary}
                   style={styles.rfqTitle}
                 >
-                  {item.rfqTitle.hi}
+                  {isHindi ? item.rfqTitle.hi : (item.rfqTitle.en || item.rfqTitle.hi)}
                 </Text>
 
                 {/* Quota & Earnings Matrix */}
                 <View style={[styles.matrixCard, { backgroundColor: theme.colors.surface.card }]}>
                   <View style={styles.matrixCol}>
                     <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                      आपका कोटा
+                      {isHindi ? 'आपका कोटा' : 'Your Quota'}
                     </Text>
                     <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-                      {item.artisanAllocatedQuota} पीस
+                      {item.artisanAllocatedQuota} {isHindi ? 'पीस' : 'Units'}
                     </Text>
                   </View>
 
@@ -121,7 +125,7 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
 
                   <View style={styles.matrixCol}>
                     <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                      दर प्रति पीस
+                      {isHindi ? 'दर प्रति पीस' : 'Rate / Unit'}
                     </Text>
                     <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
                       ₹{item.unitRateArtisan}
@@ -132,7 +136,7 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
 
                   <View style={styles.matrixCol}>
                     <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                      कुल पक्की कमाई
+                      {isHindi ? 'कुल पक्की कमाई' : 'Total Payout'}
                     </Text>
                     <Text variant="labelMedium" weight="bold" color="#6C63FF">
                       ₹{item.totalPotentialPayout.toLocaleString('en-IN')}
@@ -144,10 +148,12 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.advanceRow}>
                   <Text style={{ fontSize: 15, marginRight: 6 }}>💰</Text>
                   <Text variant="labelSmall" weight="bold" color="#6C63FF">
-                    ₹{item.upfrontMaterialAdvance.toLocaleString('en-IN')} कच्चा माल एडवांस तुरंत
+                    {isHindi
+                      ? `₹${item.upfrontMaterialAdvance.toLocaleString('en-IN')} कच्चा माल एडवांस तुरंत`
+                      : `₹${item.upfrontMaterialAdvance.toLocaleString('en-IN')} Instant Material Advance`}
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary} style={{ marginLeft: 'auto' }}>
-                    ⏳ {item.daysToDeliver} दिन
+                    {isHindi ? `⏳ ${item.daysToDeliver} दिन` : `⏳ ${item.daysToDeliver} Days`}
                   </Text>
                 </View>
               </Card>
@@ -164,10 +170,10 @@ export const OpportunitiesScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={{ fontSize: 24, marginRight: 12 }}>🏢</Text>
           <View style={{ flex: 1 }}>
             <Text variant="labelMedium" weight="bold" color={theme.colors.text.primary}>
-              क्या आप कॉर्पोरेट खरीदार हैं?
+              {isHindi ? 'क्या आप कॉर्पोरेट खरीदार हैं?' : 'Are you a Corporate Buyer?'}
             </Text>
             <Text variant="labelSmall" color={theme.colors.text.secondary}>
-              कारीगर क्लस्टर्स को सीधे बल्क RFQ भेजें →
+              {isHindi ? 'कारीगर क्लस्टर्स को सीधे बल्क RFQ भेजें →' : 'Send bulk custom RFQ directly to artisan clusters →'}
             </Text>
           </View>
         </TouchableOpacity>

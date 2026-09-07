@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
+import { VoiceTextInput as TextInput } from '@/components/inputs/VoiceTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';

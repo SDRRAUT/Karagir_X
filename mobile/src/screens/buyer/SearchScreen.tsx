@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
+import { VoiceTextInput as TextInput } from '@/components/inputs/VoiceTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -80,7 +81,13 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       {/* Search Header Bar */}
       <View style={[styles.searchHeader, { backgroundColor: theme.colors.sand[50], borderBottomColor: theme.colors.sand[200] }]}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            if (navigation?.canGoBack?.()) {
+              navigation.goBack();
+            } else {
+              navigation?.navigate?.('MainTabs', { screen: 'HomeTab' });
+            }
+          }}
           style={[styles.backBtn, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}
           accessibilityLabel="Back"
         >

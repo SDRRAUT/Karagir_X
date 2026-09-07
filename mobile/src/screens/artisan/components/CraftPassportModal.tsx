@@ -9,6 +9,7 @@ import {
   Share,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
+import { useTranslation } from '@/hooks/useTranslation';
 import Svg, { Rect } from 'react-native-svg';
 
 interface CraftPassportModalProps {
@@ -24,15 +25,18 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
   craftName = 'Kolhapuri Terracotta Diya Set',
   artisanName = 'Master Ramesh Kumbhar',
 }) => {
+  const { isHindi } = useTranslation();
   const passportId = 'GI-MH-KLP-2026-8942';
 
   const handleSpeak = () => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(
-        `Yeh Kolhapuri Terracotta Diya Set ka digital craft passport hai. Master Ramesh Kumbhar dwara Kolhapur mein Panchganga nadi ki shuddh mitti se banaya gaya hai. Yeh GI Registry dwara pramanit aur 100% authentic hai.`
+        isHindi
+          ? `यह कोल्हापुरी टेराकोटा दीया सेट का डिजिटल शिल्प पासपोर्ट है। मास्टर रमेश कुंभार द्वारा कोल्हापुर में पंचगंगा नदी की शुद्ध मिट्टी से बनाया गया है। यह जीआई रजिस्ट्री द्वारा प्रमाणित और 100% प्रामाणिक है।`
+          : `This is the verified digital craft passport for Kolhapuri Terracotta Diya Set, handcrafted by Master Ramesh Kumbhar in Kolhapur using pure riverbed clay. 100% authentic and verified under the GI Registry.`
       );
-      utterance.lang = 'hi-IN';
+      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
@@ -54,19 +58,24 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
+            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+              <Text style={styles.modalBackIcon}>‹</Text>
+            </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.badgePill}>
-                <Text style={styles.badgePillText}>🏛️ CORE PILLAR #5</Text>
+                <Text style={styles.badgePillText}>{isHindi ? '🏛️ मुख्य स्तंभ #5' : '🏛️ CORE PILLAR #5'}</Text>
               </View>
-              <Text style={styles.modalTitle}>Digital Craft Passport</Text>
-              <Text style={styles.modalSubtitle}>Cryptographic GI Provenance & Authenticity</Text>
+              <Text style={styles.modalTitle}>{isHindi ? 'डिजिटल शिल्प पासपोर्ट' : 'Digital Craft Passport'}</Text>
+              <Text style={styles.modalSubtitle}>
+                {isHindi ? 'क्रिप्टोग्राफिक जीआई प्रामाणिकता एवं विरासत प्रमाण' : 'Cryptographic GI Provenance & Authenticity'}
+              </Text>
             </View>
             <View style={styles.headerRightActions}>
               <TouchableOpacity onPress={handleSpeak} style={styles.audioBtn} activeOpacity={0.7}>
                 <Text style={styles.audioIcon}>🔊</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
-                <Text style={styles.closeBtnText}>✕ Close</Text>
+                <Text style={styles.closeBtnText}>{isHindi ? '✕ बंद करें' : '✕ Close'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -80,17 +89,21 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
                   <Text style={{ fontSize: 24 }}>🏛️</Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.certAuthority}>GOVERNMENT OF INDIA • GI REGISTRY</Text>
-                  <Text style={styles.certTitle}>Authentic Heritage Craft Passport</Text>
+                  <Text style={styles.certAuthority}>
+                    {isHindi ? 'भारत सरकार • जीआई रजिस्ट्री' : 'GOVERNMENT OF INDIA • GI REGISTRY'}
+                  </Text>
+                  <Text style={styles.certTitle}>
+                    {isHindi ? 'प्रामाणिक विरासत शिल्प पासपोर्ट' : 'Authentic Heritage Craft Passport'}
+                  </Text>
                 </View>
                 <View style={styles.verifiedStamp}>
-                  <Text style={styles.verifiedStampText}>VERIFIED ✓</Text>
+                  <Text style={styles.verifiedStampText}>{isHindi ? 'सत्यापित ✓' : 'VERIFIED ✓'}</Text>
                 </View>
               </View>
 
               {/* Passport ID Barcode Strip */}
               <View style={styles.passportIdStrip}>
-                <Text style={styles.passportIdLabel}>Passport No:</Text>
+                <Text style={styles.passportIdLabel}>{isHindi ? 'पासपोर्ट संख्या:' : 'Passport No:'}</Text>
                 <Text style={styles.passportIdVal}>{passportId}</Text>
               </View>
 
@@ -118,40 +131,52 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
                     <Rect x="100" y="100" width="30" height="25" fill="#7C3AED" />
                   </Svg>
                 </View>
-                <Text style={styles.qrScanPrompt}>Scan to verify origin & maker history</Text>
+                <Text style={styles.qrScanPrompt}>
+                  {isHindi ? 'उत्पत्ति और शिल्पकार इतिहास सत्यापित करने हेतु स्कैन करें' : 'Scan to verify origin & maker history'}
+                </Text>
               </View>
 
               {/* Product & Master Artisan Meta */}
               <View style={styles.metaSection}>
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaLabel}>Craft Item:</Text>
+                  <Text style={styles.metaLabel}>{isHindi ? 'शिल्प वस्तु:' : 'Craft Item:'}</Text>
                   <Text style={styles.metaVal}>{craftName}</Text>
                 </View>
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaLabel}>Master Artisan:</Text>
-                  <Text style={styles.metaVal}>{artisanName} (4th Gen)</Text>
+                  <Text style={styles.metaLabel}>{isHindi ? 'मुख्य शिल्पकार:' : 'Master Artisan:'}</Text>
+                  <Text style={styles.metaVal}>{artisanName} ({isHindi ? 'चौथी पीढ़ी' : '4th Gen'})</Text>
                 </View>
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaLabel}>GI Cluster Origin:</Text>
-                  <Text style={styles.metaVal}>Kolhapur Terracotta Cluster, Maharashtra</Text>
+                  <Text style={styles.metaLabel}>{isHindi ? 'जीआई क्लस्टर क्षेत्र:' : 'GI Cluster Origin:'}</Text>
+                  <Text style={styles.metaVal}>
+                    {isHindi ? 'कोल्हापुर टेराकोटा क्लस्टर, महाराष्ट्र' : 'Kolhapur Terracotta Cluster, Maharashtra'}
+                  </Text>
                 </View>
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaLabel}>Raw Materials:</Text>
-                  <Text style={styles.metaVal}>100% Panchganga Riverbed Clay, Natural Ochre</Text>
+                  <Text style={styles.metaLabel}>{isHindi ? 'कच्ची सामग्री:' : 'Raw Materials:'}</Text>
+                  <Text style={styles.metaVal}>
+                    {isHindi ? '100% पंचगंगा नदी की तलछट मिट्टी, प्राकृतिक गेरू' : '100% Panchganga Riverbed Clay, Natural Ochre'}
+                  </Text>
                 </View>
               </View>
 
               {/* PROVENANCE TIMELINE */}
               <View style={styles.provenanceBox}>
-                <Text style={styles.provenanceTitle}>🧬 Provenance & Crafting Lifecycle:</Text>
+                <Text style={styles.provenanceTitle}>
+                  {isHindi ? '🧬 प्रामाणिकता और निर्माण जीवनचक्र:' : '🧬 Provenance & Crafting Lifecycle:'}
+                </Text>
 
                 <View style={styles.timelineList}>
                   {/* Stage 1 */}
                   <View style={styles.timelineItem}>
                     <View style={styles.timelineDot} />
                     <View style={styles.timelineContent}>
-                      <Text style={styles.timelineStageTitle}>1. Riverbed Clay Extraction</Text>
-                      <Text style={styles.timelineStageSub}>Panchganga riverbanks • Natural sedimentation testing</Text>
+                      <Text style={styles.timelineStageTitle}>
+                        {isHindi ? '1. नदी तलछट मिट्टी निष्कर्षण' : '1. Riverbed Clay Extraction'}
+                      </Text>
+                      <Text style={styles.timelineStageSub}>
+                        {isHindi ? 'पंचगंगा नदी तट • प्राकृतिक तलछट परीक्षण' : 'Panchganga riverbanks • Natural sedimentation testing'}
+                      </Text>
                     </View>
                   </View>
 
@@ -159,8 +184,12 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
                   <View style={styles.timelineItem}>
                     <View style={styles.timelineDot} />
                     <View style={styles.timelineContent}>
-                      <Text style={styles.timelineStageTitle}>2. Manual Potter's Wheel Shaping</Text>
-                      <Text style={styles.timelineStageSub}>Hand-turned by Master Ramesh Kumbhar</Text>
+                      <Text style={styles.timelineStageTitle}>
+                        {isHindi ? '2. चाक पर हस्तनिर्मित आकार' : "2. Manual Potter's Wheel Shaping"}
+                      </Text>
+                      <Text style={styles.timelineStageSub}>
+                        {isHindi ? 'मास्टर रमेश कुंभार द्वारा हस्त-निर्मित' : 'Hand-turned by Master Ramesh Kumbhar'}
+                      </Text>
                     </View>
                   </View>
 
@@ -168,8 +197,12 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
                   <View style={styles.timelineItem}>
                     <View style={styles.timelineDot} />
                     <View style={styles.timelineContent}>
-                      <Text style={styles.timelineStageTitle}>3. Traditional Wood Kiln Firing</Text>
-                      <Text style={styles.timelineStageSub}>850°C wood firing for natural thermal strength</Text>
+                      <Text style={styles.timelineStageTitle}>
+                        {isHindi ? '3. पारंपरिक लकड़ी भट्टी में पकाई' : '3. Traditional Wood Kiln Firing'}
+                      </Text>
+                      <Text style={styles.timelineStageSub}>
+                        {isHindi ? '850°C प्राकृतिक पकाई उच्च मजबूती के लिए' : '850°C wood firing for natural thermal strength'}
+                      </Text>
                     </View>
                   </View>
 
@@ -177,8 +210,12 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
                   <View style={styles.timelineItem}>
                     <View style={[styles.timelineDot, { backgroundColor: '#7C3AED' }]} />
                     <View style={styles.timelineContent}>
-                      <Text style={styles.timelineStageTitle}>4. GI Registry Stamp & QR Affixed</Text>
-                      <Text style={styles.timelineStageSub}>Tamper-proof digital seal recorded on ledger</Text>
+                      <Text style={styles.timelineStageTitle}>
+                        {isHindi ? '4. जीआई रजिस्ट्री मुहर और डिजिटल क्यूआर' : '4. GI Registry Stamp & QR Affixed'}
+                      </Text>
+                      <Text style={styles.timelineStageSub}>
+                        {isHindi ? 'अपरिवर्तनीय डिजिटल सील लेजर पर दर्ज' : 'Tamper-proof digital seal recorded on ledger'}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -186,7 +223,9 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
 
               {/* Share Certificate Button */}
               <TouchableOpacity onPress={handleShare} style={styles.shareBtn} activeOpacity={0.85}>
-                <Text style={styles.shareBtnText}>📤 Share Public QR Passport</Text>
+                <Text style={styles.shareBtnText}>
+                  {isHindi ? '📤 सार्वजनिक क्यूआर पासपोर्ट साझा करें' : '📤 Share Public QR Passport'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -222,6 +261,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
+  },
+  modalBackButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  modalBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   headerLeft: {
     flex: 1,

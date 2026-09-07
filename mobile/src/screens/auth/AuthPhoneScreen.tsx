@@ -18,9 +18,11 @@ import { TactileKeypad } from '@/components/inputs/TactileKeypad';
 import { Icon } from '@/components/icons/Icon';
 import { authService } from '@/api/authService';
 import { useAppStore } from '@/store/useAppStore';
+import type { SupportedLocale } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { UserRole, AuthTokens } from '@/api/types';
 import { voiceGuidance } from '@/utils/voiceGuidance';
+import { speechRecognitionService, SpeechLanguage } from '@/services/speechRecognitionService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AuthPhone'>;
 
@@ -158,20 +160,61 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     setErrorMessage(null);
   };
 
-  // Voice speech & number dictation handler
+  // Voice speech & number dictation handler with real-time SpeechRecognition
   const handleVoiceInput = () => {
     setIsVoiceListening(true);
-    voiceGuidance.speakHindi(
-      roleData.voicePrompt,
-      () => {},
-      () => {
-        setTimeout(() => {
-          setPhoneNumber(roleData.demoPhone);
+    setErrorMessage(null);
+
+    const speechLangMap: Record<SupportedLocale, SpeechLanguage> = {
+      hi_IN: 'hi-IN',
+      mr_IN: 'mr-IN',
+      en_IN: 'en-IN',
+      bn_IN: 'bn-IN',
+      ta_IN: 'ta-IN',
+      gu_IN: 'gu-IN',
+      te_IN: 'te-IN',
+      od_IN: 'od-IN',
+    };
+    const lang = speechLangMap[locale] || 'hi-IN';
+
+    const started = speechRecognitionService.startListening(
+      {
+        onStart: () => {
+          setIsVoiceListening(true);
+        },
+        onResult: (transcript: string) => {
+          const parsed = speechRecognitionService.parseSpokenPhoneNumber(transcript);
+          if (parsed) {
+            setPhoneNumber(parsed);
+          }
+          if (parsed.length === 10) {
+            speechRecognitionService.stopListening();
+            setIsVoiceListening(false);
+          }
+        },
+        onError: () => {
           setIsVoiceListening(false);
-          setErrorMessage(null);
-        }, 900);
-      }
+        },
+        onEnd: () => {
+          setIsVoiceListening(false);
+        },
+      },
+      lang
     );
+
+    if (!started) {
+      voiceGuidance.speakHindi(
+        roleData.voicePrompt,
+        () => {},
+        () => {
+          setTimeout(() => {
+            setPhoneNumber(roleData.demoPhone);
+            setIsVoiceListening(false);
+            setErrorMessage(null);
+          }, 900);
+        }
+      );
+    }
   };
 
   // Primary Action: Sends OTP and navigates to Screen 6 (OtpVerification)

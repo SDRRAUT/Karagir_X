@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,18 +9,29 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
+import { useTranslation } from '@/hooks/useTranslation';
+import { KhataScreen } from './KhataScreen';
 
 const { width } = Dimensions.get('window');
 
 type OrderTabType = 'new' | 'making' | 'done';
 
-export const OrdersScreen: React.FC<any> = ({ navigation }) => {
+export const OrdersScreen: React.FC<any> = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
+  const { isHindi } = useTranslation();
+  const initialSection = route?.params?.section === 'khata' ? 'khata' : 'orders';
+  const [activeSection, setActiveSection] = useState<'orders' | 'khata'>(initialSection);
   const [activeTab, setActiveTab] = useState<OrderTabType>('new');
   const [acceptedOrders, setAcceptedOrders] = useState<string[]>([]);
   const [rejectedOrders, setRejectedOrders] = useState<string[]>([]);
   const [pickupRequested, setPickupRequested] = useState(false);
   const [uploadedPhoto, setUploadedPhoto] = useState(false);
+
+  useEffect(() => {
+    if (route?.params?.section) {
+      setActiveSection(route.params.section);
+    }
+  }, [route?.params?.section]);
 
   const handleSpeak = (text: string) => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -49,15 +60,31 @@ export const OrdersScreen: React.FC<any> = ({ navigation }) => {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
+      {/* Header with Back Button */}
       <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => (navigation?.canGoBack?.() ? navigation.goBack() : navigation?.navigate?.('HomeTab'))}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>📦 मेरे Orders</Text>
-          <Text style={styles.headerSub}>Fulfillment, Escrow & Dispatch</Text>
+          <Text style={styles.headerTitle}>
+            {activeSection === 'orders' ? '📦 मेरे Orders' : '💰 मेरा खाता (Khata)'}
+          </Text>
+          <Text style={styles.headerSub}>
+            {activeSection === 'orders' ? 'Fulfillment, Escrow & Dispatch' : '100% Transparent Fair Price Ledger'}
+          </Text>
         </View>
         <TouchableOpacity
           onPress={() =>
-            handleSpeak('Aapke 2 naye orders hain, 1 order production mein hai aur 12 orders deliver ho chuke hain.')
+            handleSpeak(
+              activeSection === 'orders'
+                ? 'Aapke 2 naye orders hain, 1 order production mein hai aur 12 orders deliver ho chuke hain.'
+                : 'Aapki kul kamai chaubees hazaar aath sau rupaye hai. Escrow mein do hazaar aath sau baanve rupaye surakshit hain.'
+            )
           }
           style={styles.headerAudioBtn}
           activeOpacity={0.7}
@@ -66,8 +93,41 @@ export const OrdersScreen: React.FC<any> = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Segmented Tab Filter Pills */}
-      <View style={styles.tabsFilterContainer}>
+      {/* Primary Section Switch: Orders vs Khata Ledger */}
+      <View style={styles.mainSegmentContainer}>
+        <TouchableOpacity
+          onPress={() => setActiveSection('orders')}
+          style={[styles.mainSegmentPill, activeSection === 'orders' && styles.mainSegmentPillActive]}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.mainSegmentText, activeSection === 'orders' && styles.mainSegmentTextActive]}>
+            📦 {isHindi ? 'ऑर्डर्स' : 'Orders'} (15)
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setActiveSection('khata')}
+          style={[styles.mainSegmentPill, activeSection === 'khata' && styles.mainSegmentPillActive]}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.mainSegmentText, activeSection === 'khata' && styles.mainSegmentTextActive]}>
+            💰 {isHindi ? 'बही-खाता' : 'Khata Ledger'} (₹24,800)
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Khata Ledger Mode */}
+      {activeSection === 'khata' && (
+        <View style={{ flex: 1 }}>
+          <KhataScreen navigation={navigation} embedded={true} />
+        </View>
+      )}
+
+      {/* Orders Fulfillment Mode */}
+      {activeSection === 'orders' && (
+        <>
+          {/* Segmented Tab Filter Pills */}
+          <View style={styles.tabsFilterContainer}>
         <TouchableOpacity
           onPress={() => setActiveTab('new')}
           style={[styles.tabFilterPill, activeTab === 'new' && styles.tabFilterPillActiveNew]}
@@ -436,7 +496,9 @@ export const OrdersScreen: React.FC<any> = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
-    </View>
+    </>
+  )}
+</View>
   );
 };
 
@@ -454,9 +516,61 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
+    gap: 10,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  backButtonText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    lineHeight: 26,
   },
   headerLeft: {
     flex: 1,
+  },
+  mainSegmentContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#E2E8F0',
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 4,
+    padding: 3,
+    borderRadius: 14,
+    gap: 6,
+  },
+  mainSegmentPill: {
+    flex: 1,
+    paddingVertical: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 11,
+    backgroundColor: 'transparent',
+  },
+  mainSegmentPillActive: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  mainSegmentText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  mainSegmentTextActive: {
+    color: '#0F172A',
+    fontWeight: '800',
   },
   headerTitle: {
     fontSize: 20,

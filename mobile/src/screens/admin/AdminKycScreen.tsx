@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
 import { Icon } from '@/components/icons/Icon';
@@ -8,8 +9,17 @@ import { useAdminStore } from '@/store/useAdminStore';
 import { AdminKycApplication } from '@/api/types';
 
 export const AdminKycScreen: React.FC = () => {
+  const navigation = useNavigation<any>();
   const { kycQueue, approveKyc, rejectKyc } = useAdminStore();
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
+
+  const handleGoBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('HomeTab');
+    }
+  };
 
   const filteredList = kycQueue.filter((item) => {
     if (filter === 'ALL') return true;
@@ -50,12 +60,24 @@ export const AdminKycScreen: React.FC = () => {
     <SafeAreaView style={[styles.container, { backgroundColor: '#0B0F19' }]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text variant="headlineSmall" style={styles.headerTitle}>
-          Artisan Accreditation & KYC
-        </Text>
-        <Text variant="bodySmall" style={styles.headerSubtitle}>
-          Verify DC Handicrafts Pehchan IDs, Aadhaar tokens & GI authenticity
-        </Text>
+        <View style={styles.headerTopRow}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={handleGoBack}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Icon name="arrowLeft" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text variant="headlineSmall" style={styles.headerTitle}>
+              Artisan Accreditation & KYC
+            </Text>
+            <Text variant="bodySmall" style={styles.headerSubtitle}>
+              Verify DC Handicrafts Pehchan IDs, Aadhaar tokens & GI authenticity
+            </Text>
+          </View>
+        </View>
 
         {/* Filter Pills */}
         <View style={styles.filterRow}>
@@ -230,6 +252,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#1F2937',
   },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  backButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#1F2937',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#374151',
+  },
   headerTitle: {
     color: '#F9FAFB',
     fontWeight: '800',
@@ -237,7 +275,6 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     color: '#9CA3AF',
     marginTop: 2,
-    marginBottom: 12,
   },
   filterRow: {
     flexDirection: 'row',

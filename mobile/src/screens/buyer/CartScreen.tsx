@@ -9,11 +9,13 @@ import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { useCartStore } from '@/store/useCartStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Cart'>;
 
 export const CartScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { isHindi } = useTranslation();
   const {
     items,
     updateQuantity,
@@ -35,20 +37,22 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         <AppHeader
           showBack
           showBrand
-          title="आपकी टोकरी"
-          subtitle="Cart is Empty"
+          title={isHindi ? 'आपकी टोकरी' : 'Your Shopping Cart'}
+          subtitle={isHindi ? 'टोकरी खाली है' : 'Cart is Empty'}
         />
 
         <View style={styles.emptyBox}>
           <Text style={{ fontSize: 56, marginBottom: 12 }}>🛒</Text>
           <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
-            आपकी टोकरी खाली है
+            {isHindi ? 'आपकी टोकरी खाली है' : 'Your Cart is Empty'}
           </Text>
           <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.emptySubtitle}>
-            सीधे ग्रामीण कारीगरों से बने अनूठे व प्रमाणित हस्तशिल्प खोजें।
+            {isHindi
+              ? 'सीधे ग्रामीण कारीगरों से बने अनूठे व प्रमाणित हस्तशिल्प खोजें।'
+              : 'Discover authentic, GI-certified handmade crafts directly from rural master artisans.'}
           </Text>
           <Button
-            label="शिल्प बाज़ार देखें (Explore Crafts)"
+            label={isHindi ? 'शिल्प बाज़ार देखें' : 'Explore Crafts'}
             variant="primary"
             size="default"
             onPress={() => navigation.navigate('MarketplaceHome')}
@@ -64,8 +68,8 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
       <AppHeader
         showBack
         showBrand
-        title="आपकी टोकरी"
-        subtitle={`${items.length} हस्तशिल्प उत्पाद`}
+        title={isHindi ? 'आपकी टोकरी' : 'Your Shopping Cart'}
+        subtitle={isHindi ? `${items.length} हस्तशिल्प उत्पाद` : `${items.length} Handcrafted ${items.length === 1 ? 'Item' : 'Items'}`}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -74,10 +78,12 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={{ fontSize: 22, marginRight: 10 }}>🛡️</Text>
           <View style={{ flex: 1 }}>
             <Text variant="caption" weight="bold" color={theme.colors.primary.emerald700}>
-              RBI-अनुमोदित नोडल एस्क्रो सुरक्षा (Escrow Protected)
+              {isHindi ? 'RBI-अनुमोदित नोडल एस्क्रो सुरक्षा' : 'RBI-Approved Nodal Escrow Protection'}
             </Text>
             <Text variant="caption" color={theme.colors.charcoal[800]}>
-              पार्सल डिलीवरी की पुष्टि होने तक आपका भुगतान सुरक्षित तिजोरी में रहेगा।
+              {isHindi
+                ? 'पार्सल डिलीवरी की पुष्टि होने तक आपका भुगतान सुरक्षित तिजोरी में रहेगा।'
+                : 'Your payment is safely held in escrow until you verify the package delivery.'}
             </Text>
           </View>
         </View>
@@ -94,7 +100,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
                 {item.title}
               </Text>
               <Text variant="caption" color={theme.colors.text.secondary}>
-                शिल्पी: {item.artisanName}
+                {isHindi ? 'शिल्पी: ' : 'Artisan: '}{item.artisanName}
               </Text>
               <Text variant="headlineSmall" weight="bold" color={theme.colors.brand.primary} style={{ marginVertical: 4 }}>
                 ₹{item.price.toLocaleString('en-IN')}
@@ -125,7 +131,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
 
                 <TouchableOpacity onPress={() => removeItem(item.productId)} style={styles.deleteBtn}>
-                  <Text style={styles.deleteText}>🗑️ हटाएँ</Text>
+                  <Text style={styles.deleteText}>{isHindi ? '🗑️ हटाएँ' : '🗑️ Remove'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -135,12 +141,12 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         {/* Price Breakdown Ledger Card */}
         <Card style={styles.priceSummaryCard}>
           <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]} style={{ marginBottom: 12 }}>
-            मूल्य सारांश (Price Summary)
+            {isHindi ? 'मूल्य सारांश' : 'Price Summary'}
           </Text>
 
           <View style={styles.summaryRow}>
             <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              शिल्प सामग्री उप-योग (Items Total):
+              {isHindi ? 'शिल्प सामग्री उप-योग:' : 'Items Subtotal:'}
             </Text>
             <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{subtotal.toLocaleString('en-IN')}
@@ -149,7 +155,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.summaryRow}>
             <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              इको-फ्रेंडली सुरक्षित पैकेजिंग:
+              {isHindi ? 'इको-फ्रेंडली सुरक्षित पैकेजिंग:' : 'Eco-Friendly Safe Packaging:'}
             </Text>
             <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[900]}>
               ₹{packagingFee}
@@ -158,14 +164,14 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.summaryRow}>
             <Text variant="bodySmall" color={theme.colors.text.secondary}>
-              इंडिया पोस्ट स्पीड पोस्ट डिलीवरी:
+              {isHindi ? 'इंडिया पोस्ट स्पीड पोस्ट डिलीवरी:' : 'India Post Speed Delivery:'}
             </Text>
             <Text
               variant="bodySmall"
               weight="bold"
               color={deliveryFee === 0 ? theme.colors.primary.emerald700 : theme.colors.charcoal[900]}
             >
-              {deliveryFee === 0 ? 'निःशुल्क (FREE)' : `₹${deliveryFee}`}
+              {deliveryFee === 0 ? (isHindi ? 'निःशुल्क (FREE)' : 'FREE') : `₹${deliveryFee}`}
             </Text>
           </View>
 
@@ -173,7 +179,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
           <View style={styles.summaryRow}>
             <Text variant="bodyMedium" weight="bold" color={theme.colors.charcoal[900]}>
-              कुल देय राशि (Total Amount):
+              {isHindi ? 'कुल देय राशि:' : 'Total Payable:'}
             </Text>
             <Text variant="headlineMedium" weight="bold" color={theme.colors.brand.primary}>
               ₹{total.toLocaleString('en-IN')}
@@ -186,7 +192,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
       <View style={[styles.bottomBar, { backgroundColor: theme.colors.surface.card, borderTopColor: theme.colors.sand[200], ...theme.shadows.level4 }]}>
         <View style={styles.bottomPriceInfo}>
           <Text variant="caption" color={theme.colors.text.secondary}>
-            कुल भुगतान (Total):
+            {isHindi ? 'कुल भुगतान:' : 'Total:'}
           </Text>
           <Text variant="headlineMedium" weight="bold" color={theme.colors.brand.primary}>
             ₹{total.toLocaleString('en-IN')}
@@ -194,7 +200,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <Button
-          label="चेकआउट करें →"
+          label={isHindi ? 'चेकआउट करें →' : 'Proceed to Checkout →'}
           variant="primary"
           size="default"
           onPress={() => navigation.navigate('Checkout')}

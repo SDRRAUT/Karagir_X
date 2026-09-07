@@ -4,6 +4,7 @@ export * from './buttons/Button';
 export * from './buttons/IconButton';
 export * from './buttons/FloatingMicButton';
 export * from './inputs/TextInput';
+export * from './inputs/VoiceTextInput';
 export * from './inputs/SearchInput';
 export * from './inputs/TactileKeypad';
 export * from './cards/Card';

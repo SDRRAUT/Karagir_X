@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
@@ -10,11 +11,12 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { useWishlistStore, WishlistItem } from '@/store/useWishlistStore';
 import { useCartStore } from '@/store/useCartStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Wishlist'>;
-
-export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
+export const WishlistScreen: React.FC<any> = () => {
   const theme = useTheme();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { isHindi } = useTranslation();
   const { items, removeItem } = useWishlistStore();
   const addItemToCart = useCartStore((s) => s.addItem);
 
@@ -47,7 +49,8 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         </Text>
 
         <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-          कारीगर: <Text weight="semiBold" color={theme.colors.charcoal[700]}>{item.artisanName}</Text>
+          {isHindi ? 'कारीगर: ' : 'Artisan: '}
+          <Text weight="semiBold" color={theme.colors.charcoal[700]}>{item.artisanName}</Text>
         </Text>
 
         <View style={styles.priceActionRow}>
@@ -61,7 +64,9 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               onPress={() => handleMoveToCart(item)}
               style={styles.cartBtn}
             >
-              <Text style={styles.cartBtnText}>कार्ट में डालें 🛒</Text>
+              <Text style={styles.cartBtnText}>
+                {isHindi ? 'कार्ट में डालें 🛒' : 'Move to Cart 🛒'}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -80,9 +85,9 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.sand[50] }]}>
       <AppHeader
-        title="मनपसंद शिल्प"
-        subtitle={`Saved Heritage Crafts (${items.length})`}
-        onBackPress={() => navigation.goBack()}
+        title={isHindi ? 'मनपसंद शिल्प' : 'Saved Wishlist'}
+        subtitle={isHindi ? `पसंदीदा विरासत हस्तशिल्प (${items.length})` : `Saved Heritage Crafts (${items.length})`}
+        onBackPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MarketplaceHome'))}
         showDevanagariLogo
       />
 
@@ -92,13 +97,15 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={{ fontSize: 40 }}>🤍</Text>
           </View>
           <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]}>
-            आपकी विशलिस्ट खाली है
+            {isHindi ? 'आपकी विशलिस्ट खाली है' : 'Your Wishlist is Empty'}
           </Text>
           <Text variant="bodyMedium" color={theme.colors.charcoal[500]} style={styles.emptySubtitle}>
-            अपने पसंदीदा हस्तशिल्पों को सुरक्षित रखने के लिए दिल (❤️) आइकन पर टैप करें।
+            {isHindi
+              ? 'अपने पसंदीदा हस्तशिल्पों को सुरक्षित रखने के लिए दिल (❤️) आइकन पर टैप करें।'
+              : 'Tap the heart (❤️) icon on any product in the store to save items for later.'}
           </Text>
           <Button
-            label="शिल्प खोजें (Explore Crafts)"
+            label={isHindi ? 'शिल्प खोजें (Explore Crafts)' : 'Explore Crafts'}
             variant="primary"
             size="default"
             onPress={() => navigation.navigate('MarketplaceHome')}

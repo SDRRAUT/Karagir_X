@@ -922,6 +922,22 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       {/* Top App Header Row */}
       <View style={styles.topHeader}>
         <View style={styles.headerLeft}>
+          <TouchableOpacity
+            onPress={() => {
+              if (currentSlide > 0) {
+                handlePrev();
+              } else if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate('LanguageSelection');
+              }
+            }}
+            style={styles.headerBackBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Text style={[styles.headerBackArrow, { color: slide.titleColor }]}>‹</Text>
+          </TouchableOpacity>
           {/* Clean Brand Typography */}
           <Text style={[styles.brandWordmark, { color: slide.titleColor }]}>
             Kalakar <Text style={{ color: '#EA580C' }}>Setu</Text>
@@ -981,6 +997,36 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
               {currentLangObj.label}
             </Text>
             <Text style={[styles.langTriggerChevron, { color: slide.titleColor }]}>▾</Text>
+          </TouchableOpacity>
+
+          {/* Quick Skip Button */}
+          <TouchableOpacity
+            testID="onboarding-skip-btn"
+            onPress={() => {
+              voiceGuidance.stopSpeaking();
+              stopCurrentAudio();
+              navigation.navigate('RoleSelection');
+            }}
+            style={[
+              styles.langDropdownTrigger,
+              {
+                backgroundColor: 'rgba(255, 255, 255, 0.88)',
+                borderColor: slide.indicatorInactive,
+                paddingHorizontal: 10,
+              },
+            ]}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Skip to role selection"
+          >
+            <Text
+              variant="caption"
+              weight="bold"
+              color={slide.titleColor}
+              style={styles.langTriggerLabel}
+            >
+              {locale === 'hi_IN' ? 'छोड़ें →' : 'Skip →'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -1350,6 +1396,22 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  headerBackBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
+  },
+  headerBackArrow: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    lineHeight: 24,
   },
   headerRight: {
     flexDirection: 'row',

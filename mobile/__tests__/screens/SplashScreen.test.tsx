@@ -50,7 +50,7 @@ describe('SplashScreen', () => {
     expect(mockNavigation.replace).toHaveBeenCalledWith('Onboarding');
   });
 
-  it('allows dev quick jump directly to Artisan Dashboard with prefilled demo account', async () => {
+  it('allows user to press Get Started button to navigate to Onboarding', async () => {
     const { getByTestId } = await render(
       <ThemeProvider>
         <SplashScreen navigation={mockNavigation} route={{} as any} />
@@ -58,46 +58,9 @@ describe('SplashScreen', () => {
     );
 
     await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-artisan'));
+      fireEvent.press(getByTestId('splash-start-btn'));
     });
 
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
-      screen: 'HomeTab',
-      params: { role: 'ARTISAN' },
-    });
-  });
-
-  it('allows dev quick jump directly to Buyer Dashboard with prefilled demo account', async () => {
-    const { getByTestId } = await render(
-      <ThemeProvider>
-        <SplashScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-buyer'));
-    });
-
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
-      screen: 'HomeTab',
-      params: { role: 'BUYER' },
-    });
-  });
-
-  it('allows dev quick jump directly to Admin Command Center with prefilled demo account', async () => {
-    const { getByTestId } = await render(
-      <ThemeProvider>
-        <SplashScreen navigation={mockNavigation} route={{} as any} />
-      </ThemeProvider>
-    );
-
-    await act(async () => {
-      fireEvent.press(getByTestId('dev-jump-admin'));
-    });
-
-    expect(mockNavigation.replace).toHaveBeenCalledWith('MainTabs', {
-      screen: 'HomeTab',
-      params: { role: 'ADMIN' },
-    });
+    expect(mockNavigation.replace).toHaveBeenCalledWith('Onboarding');
   });
 });

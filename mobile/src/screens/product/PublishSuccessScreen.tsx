@@ -41,6 +41,23 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: '#FFFDF7' }]}>
+      <View style={styles.topNavRow}>
+        <TouchableOpacity
+          onPress={() => {
+            resetDraft();
+            if (navigation?.canGoBack?.()) {
+              navigation.goBack();
+            } else {
+              navigation?.navigate?.('MainTabs', { screen: 'HomeTab' });
+            }
+          }}
+          style={styles.topBackButton}
+          activeOpacity={0.7}
+          accessibilityLabel="Back"
+        >
+          <Text style={styles.topBackIcon}>‹</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Celebration Header */}
         <View style={styles.headerBox}>
@@ -230,6 +247,28 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFDF7',
+  },
+  topNavRow: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  topBackButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topBackIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginTop: -2,
   },
   content: {
     padding: 20,

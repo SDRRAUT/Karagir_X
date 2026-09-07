@@ -9,11 +9,13 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { CRAFT_CATEGORIES } from '@/api/marketplaceService';
 import { useMarketplaceStore } from '@/store/useMarketplaceStore';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Categories'>;
 
 export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { isHindi } = useTranslation();
   const setCategoryFilter = useMarketplaceStore((s) => s.setCategoryFilter);
 
   const handleSelectCategory = (code: string) => {
@@ -26,13 +28,15 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
       <AppHeader
         showBack
         showBrand
-        title="शिल्प श्रेणियां"
-        subtitle="Explore Craft Categories"
+        title={isHindi ? 'शिल्प श्रेणियां' : 'Craft Categories'}
+        subtitle={isHindi ? 'विरासत हस्तकलाएं' : 'Explore Heritage Crafts'}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text variant="bodyMedium" color={theme.colors.text.secondary} style={styles.subHeading}>
-          भारत की 6 मुख्य पारंपरिक हस्तकलाएं, सीधे ऐतिहासिक शिल्पी समूहों से
+          {isHindi
+            ? 'भारत की 6 मुख्य पारंपरिक हस्तकलाएं, सीधे ऐतिहासिक शिल्पी समूहों से'
+            : "India's 6 premier heritage crafts, directly from historical artisan clusters"}
         </Text>
 
         {CRAFT_CATEGORIES.map((cat) => (
@@ -40,7 +44,7 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
             key={cat.code}
             onPress={() => handleSelectCategory(cat.code)}
             accessibilityRole="button"
-            accessibilityLabel={cat.nameHi}
+            accessibilityLabel={isHindi ? cat.nameHi : cat.nameEn}
           >
             <Card style={styles.categoryCard}>
               <View style={styles.cardHeaderRow}>
@@ -49,10 +53,10 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
                 <View style={styles.catInfo}>
                   <Text variant="headlineSmall" weight="bold" color={theme.colors.charcoal[900]}>
-                    {cat.nameHi}
+                    {isHindi ? cat.nameHi : cat.nameEn}
                   </Text>
                   <Text variant="bodySmall" color={theme.colors.text.secondary}>
-                    {cat.nameEn} • {cat.clusterCount}+ क्लस्टर
+                    {isHindi ? `${cat.nameEn} • ${cat.clusterCount}+ क्लस्टर` : `${cat.nameHi} • ${cat.clusterCount}+ Clusters`}
                   </Text>
                 </View>
                 <Text style={[styles.chevron, { color: theme.colors.brand.primary }]}>→</Text>
@@ -60,7 +64,7 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
 
               <View style={[styles.regionsRow, { borderTopColor: theme.colors.sand[200] }]}>
                 <Text variant="bodySmall" weight="bold" color={theme.colors.brand.primary}>
-                  प्रमुख क्षेत्र:{' '}
+                  {isHindi ? 'प्रमुख क्षेत्र: ' : 'Key Hubs: '}
                 </Text>
                 <Text variant="bodySmall" color={theme.colors.text.secondary}>
                   {cat.popularRegions.join(', ')}

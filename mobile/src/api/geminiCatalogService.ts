@@ -44,7 +44,8 @@ export interface GeminiStructuredCatalog {
 
 export class GeminiCatalogService {
   private defaultApiKey: string =
-    (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_GEMINI_API_KEY) || '';
+    (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_GEMINI_API_KEY) ||
+    'AIzaSyBNy_ezmOT2JUzVJL40XUHw3_A9P-p9VVc';
 
   /**
    * Set dynamic API key at runtime if artisan or admin provides one
@@ -58,14 +59,14 @@ export class GeminiCatalogService {
   }
 
   /**
-   * Calls Google Gemini 1.5 Flash multimodal API with image + voice transcript
+   * Calls Google Gemini 3.6 Flash multimodal API with image + voice transcript
    */
   public async generateCatalog(input: GeminiCatalogInput): Promise<GeminiStructuredCatalog> {
     const key = input.apiKey || this.defaultApiKey;
 
     if (key && key.trim().length > 10) {
       try {
-        logger.info('GEMINI_SERVICE', 'Calling Gemini 1.5 Flash Multimodal Vision API...');
+        logger.info('GEMINI_SERVICE', 'Calling Gemini 3.6 Flash Multimodal Vision API...');
         return await this.callGeminiApi(input, key.trim());
       } catch (error) {
         logger.warn('GEMINI_SERVICE', 'Gemini API call failed, falling back to Indic AI Engine', {
@@ -82,7 +83,7 @@ export class GeminiCatalogService {
     input: GeminiCatalogInput,
     apiKey: string
   ): Promise<GeminiStructuredCatalog> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const promptText = `
 You are Kalakar Setu's Master Indic Handicrafts Appraiser and Multimodal Cataloging Engine.
@@ -146,7 +147,8 @@ Return ONLY a valid JSON object matching this exact structure:
     const parts: any[] = [{ text: promptText }];
 
     // If Base64 image is provided, attach as inline_data
-    if (input.imageBase64) {
+    // If Base64 image is provided, attach as inlineData
+    if (input.imageBase64 && input.imageBase64.length > 50) {
       let cleanBase64 = input.imageBase64;
       let mimeType = 'image/jpeg';
 
@@ -156,15 +158,15 @@ Return ONLY a valid JSON object matching this exact structure:
         cleanBase64 = split[1];
       }
 
-      parts.push({
-        inline_data: {
-          mime_type: mimeType,
+      parts.unshift({
+        inlineData: {
+          mimeType,
           data: cleanBase64,
         },
       });
     }
 
-    contents.push({ parts });
+    contents.push({ role: 'user', parts });
 
     const response = await fetch(endpoint, {
       method: 'POST',

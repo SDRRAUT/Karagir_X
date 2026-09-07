@@ -6,9 +6,9 @@ import {
   Image,
   ScrollView,
   Animated,
-  TextInput,
   ActivityIndicator,
 } from 'react-native';
+import { VoiceTextInput as TextInput } from '@/components/inputs/VoiceTextInput';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';

@@ -6,6 +6,8 @@
     "start": "npm run start:2882 --prefix mobile",
     "dev": "npm run start:2882 --prefix mobile",
     "web": "npm run web:2882 --prefix mobile",
+    "web:seller": "npm run web:2882 --prefix mobile",
+    "web:buyer": "npm run web:2883 --prefix mobile",
     "test": "npm test --prefix mobile",
     "typecheck": "npm run typecheck --prefix mobile",
     "admin": "npx serve admin-web -p 3000"
