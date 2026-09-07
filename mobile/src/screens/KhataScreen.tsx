@@ -7,7 +7,7 @@ import { Card } from '@/components/cards/Card';
 import { Button } from '@/components/buttons/Button';
 import { AppHeader } from '@/components/navigation/AppHeader';
 
-export const KhataScreen: React.FC = () => {
+export const KhataScreen: React.FC<any> = ({ navigation }) => {
   const theme = useTheme();
 
   const ledgerItems = [
@@ -53,7 +53,7 @@ export const KhataScreen: React.FC = () => {
         title="Digital Ledger"
         subtitle="Passbook & Fair Share Ledger"
         showDevanagariLogo={false}
-        onVoicePress={() => {}}
+        onVoicePress={() => navigation?.navigate?.('SaathiTab')}
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

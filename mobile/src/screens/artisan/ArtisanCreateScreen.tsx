@@ -16,6 +16,7 @@ import { catalogSynthesisService, CatalogSynthesisResult } from '@/api/catalogSy
 import { geminiCatalogService } from '@/api/geminiCatalogService';
 import { productService } from '@/api/productService';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
+import { useCatalogStore } from '@/store/useCatalogStore';
 import { FairPriceCalculatorModal } from './components/FairPriceCalculatorModal';
 import { CraftPassportModal } from './components/CraftPassportModal';
 
@@ -50,6 +51,8 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const [selectedLanguage, setSelectedLanguage] = useState<'hi-IN' | 'mr-IN' | 'en-IN'>('hi-IN');
   const [transcription, setTranscription] = useState('');
   const [enhancedMode, setEnhancedMode] = useState<'studio' | 'raw'>('studio');
+  const [isAiPolishingVoice, setIsAiPolishingVoice] = useState(false);
+  const [aiVoiceExplanation, setAiVoiceExplanation] = useState('');
   const recognitionRef = useRef<any>(null);
 
   // Step 3: AI Catalog & Pricing State
@@ -69,7 +72,7 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const [isPublished, setIsPublished] = useState(false);
   const [isDownloadingFlyer, setIsDownloadingFlyer] = useState(false);
 
-  const { addPhoto, setCatalogSynthesis, setFinalSellingPrice, setPublishedProduct } = useProductDraftStore();
+  const { finalSellingPrice, addPhoto, setCatalogSynthesis, setFinalSellingPrice, setPublishedProduct } = useProductDraftStore();
 
   // -------------------------------------------------------------
   // SPEECH SYNTHESIS (TTS)
@@ -281,25 +284,24 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   // REAL-TIME SPEECH RECOGNITION (Web Speech API)
   // -------------------------------------------------------------
   const toggleSpeechRecognition = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-      if (!SpeechRecognition) {
-        // Fallback simulation for unsupported browsers
-        setIsRecording(!isRecording);
-        if (!isRecording) {
-          setTranscription('हाथ से बना पारंपरिक कोल्हापुरी टेराकोटा दीया सेट, 5 पीस, नदी की शुद्ध मिट्टी से बना...');
-        }
-        return;
-      }
-
-      if (isRecording) {
-        if (recognitionRef.current) {
+    if (isRecording) {
+      if (recognitionRef.current) {
+        try {
           recognitionRef.current.stop();
+        } catch {}
+      }
+      setIsRecording(false);
+    } else {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        const SpeechRecognition =
+          (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+          setIsRecording(true);
+          setTimeout(() => setIsRecording(false), 1500);
+          return;
         }
-        setIsRecording(false);
-      } else {
+
         try {
           const recognition = new SpeechRecognition();
           recognition.lang = selectedLanguage;
@@ -333,12 +335,25 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
           console.warn('Speech recognition failed to start:', err);
           setIsRecording(false);
         }
+      } else {
+        setIsRecording(!isRecording);
       }
-    } else {
-      setIsRecording(!isRecording);
-      if (!isRecording) {
-        setTranscription('हाथ से बना पारंपरिक कोल्हापुरी टेराकोटा दीया सेट, 5 पीस, नदी की शुद्ध मिट्टी से बना...');
-      }
+    }
+  };
+
+  const handleModifyVoiceWithAi = async () => {
+    if (!transcription.trim()) return;
+    setIsAiPolishingVoice(true);
+    try {
+      const { aiVoiceModifierService } = require('@/services/aiVoiceModifierService');
+      const res = await aiVoiceModifierService.modifyWithAi(transcription, 'product_story');
+      setTranscription(res.modifiedText);
+      setAiVoiceExplanation(res.explanation || 'AI ने आपकी आवाज़ को शिल्प विवरण में बदला।');
+      handleSpeak('AI ne aapki craft kahaani ko behtar banaya hai.');
+    } catch {
+      // fallback
+    } finally {
+      setIsAiPolishingVoice(false);
     }
   };
 
@@ -562,8 +577,30 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
       });
 
       setPublishedProduct(listing);
+
+      // Add to live catalog store so it appears in buyer catalog and artisan products
+      useCatalogStore.getState().addProductToCatalog({
+        id: listing?.id,
+        title: catalogResult?.titles.en || 'Handmade Kolhapuri Terracotta Diya Set',
+        price: priceToSet,
+        imageUri: enhancedImage || capturedImage || undefined,
+        category: catalogResult?.craftCategoryCode || 'POTTERY',
+        craftTag: '🏺 GI Certified • Kolhapur Heritage',
+        craftInfo: catalogResult?.descriptions.en || 'Crafted by Master Ramesh Kumbhar from pure riverbed clay.',
+        cluster: 'Kolhapur Artisan Cluster',
+      });
     } catch (e) {
       console.warn('Local listing created (Supabase sync queued):', e);
+      // Even if offline, ensure it is added to the local catalog
+      useCatalogStore.getState().addProductToCatalog({
+        title: catalogResult?.titles.en || 'Handmade Kolhapuri Terracotta Diya Set',
+        price: priceToSet,
+        imageUri: enhancedImage || capturedImage || undefined,
+        category: catalogResult?.craftCategoryCode || 'POTTERY',
+        craftTag: '🏺 GI Certified • Kolhapur Heritage',
+        craftInfo: catalogResult?.descriptions.en || 'Crafted by Master Ramesh Kumbhar from pure riverbed clay.',
+        cluster: 'Kolhapur Artisan Cluster',
+      });
     }
 
     handleSpeak('Badhaai ho! Aapka product Kalakar Setu, WhatsApp aur ONDC par live ho gaya hai.');
@@ -922,6 +959,34 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
 
+                {/* AI Story Polish Button (Display to user then modify by AI) */}
+                <TouchableOpacity
+                  onPress={handleModifyVoiceWithAi}
+                  disabled={!transcription.trim() || isAiPolishingVoice}
+                  style={[
+                    styles.quickChip,
+                    {
+                      backgroundColor: '#EEF2FF',
+                      borderColor: '#6366F1',
+                      paddingVertical: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: 10,
+                      opacity: !transcription.trim() || isAiPolishingVoice ? 0.6 : 1,
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#4F46E5' }}>
+                    {isAiPolishingVoice ? '✨ AI Polishing Voice Story...' : '✨ AI se Aawaz Sudharein (Modify with AI)'}
+                  </Text>
+                </TouchableOpacity>
+
+                {aiVoiceExplanation ? (
+                  <Text style={{ fontSize: 11, color: '#166534', marginTop: 4, fontStyle: 'italic', textAlign: 'center' }}>
+                    ✓ {aiVoiceExplanation}
+                  </Text>
+                ) : null}
+
                 {/* Done Speaking / Generate Button */}
                 <TouchableOpacity
                   onPress={handleGenerateMagicCatalog}
@@ -961,6 +1026,39 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                     <Text style={styles.livePlatformText}>✓ ONDC Network</Text>
                   </View>
                 </View>
+
+                {/* Live Catalog Confirmation Banner */}
+                <View style={styles.catalogSuccessBanner}>
+                  <View style={styles.catalogSuccessImgBox}>
+                    <Image
+                      source={{
+                        uri:
+                          enhancedImage ||
+                          capturedImage ||
+                          'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=800',
+                      }}
+                      style={{ width: 44, height: 44, borderRadius: 8 }}
+                    />
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text style={styles.catalogSuccessLiveDot}>🟢</Text>
+                      <Text style={styles.catalogSuccessBannerTitle}>Added to Live Catalog</Text>
+                    </View>
+                    <Text style={styles.catalogSuccessBannerSub} numberOfLines={2}>
+                      Listed at ₹{finalSellingPrice || calculatedPrice} with "🟢 JUST LISTED" tag at the top of Marketplace!
+                    </Text>
+                  </View>
+                </View>
+
+                {/* View in Live Catalog Button */}
+                <TouchableOpacity
+                  onPress={() => navigation?.navigate?.('MarketplaceHome')}
+                  style={styles.viewCatalogLiveBtn}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.viewCatalogLiveBtnText}>👀 View in Live Catalog →</Text>
+                </TouchableOpacity>
 
                 {/* 1-Tap Download Flyer Button */}
                 <TouchableOpacity
@@ -1901,6 +1999,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '800',
     color: '#15803D',
+  },
+  catalogSuccessBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1.5,
+    borderColor: '#86EFAC',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 16,
+    width: '100%',
+  },
+  catalogSuccessImgBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#E2E8F0',
+  },
+  catalogSuccessLiveDot: {
+    fontSize: 12,
+  },
+  catalogSuccessBannerTitle: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#166534',
+  },
+  catalogSuccessBannerSub: {
+    fontSize: 11,
+    color: '#15803D',
+    marginTop: 2,
+    lineHeight: 15,
+  },
+  viewCatalogLiveBtn: {
+    width: '100%',
+    backgroundColor: '#7C3AED',
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginBottom: 10,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  viewCatalogLiveBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
   },
   downloadFlyerBtn: {
     width: '100%',

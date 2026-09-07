@@ -70,12 +70,12 @@ const TabIcons = {
   ),
   Explore: ({ color }: { color: string }) => (
     <View style={styles.iconBox}>
-      <Icon name="search" size={22} color={color} />
+      <Icon name="compass" size={22} color={color} />
     </View>
   ),
   BulkDeals: ({ color }: { color: string }) => (
     <View style={styles.iconBox}>
-      <Icon name="sparkles" size={22} color={color} />
+      <Icon name="users" size={22} color={color} />
     </View>
   ),
   Orders: ({ focused, color }: { focused?: boolean; color: string }) => (
@@ -139,7 +139,7 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
   const tabHeight = 60 + bottomInset;
 
   const activeTintColor =
-    role === 'BUYER' ? '#4338CA' : role === 'ADMIN' ? '#6366F1' : '#7C3AED';
+    role === 'BUYER' ? '#EA580C' : role === 'ADMIN' ? '#6366F1' : '#EA580C';
 
   const roleLabel =
     role === 'ARTISAN' ? 'Artisans' :

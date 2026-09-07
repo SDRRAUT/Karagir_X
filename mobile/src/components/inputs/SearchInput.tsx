@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextInput,
@@ -9,9 +9,11 @@ import {
 } from 'react-native';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Icon } from '@/components/icons/Icon';
+import { VoiceInputModal } from '@/components/modals/VoiceInputModal';
 
 export interface SearchInputProps extends TextInputProps {
   onVoicePress?: () => void;
+  showVoiceButton?: boolean;
   onClear?: () => void;
   containerStyle?: ViewStyle;
 }
@@ -20,6 +22,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   value,
   onChangeText,
   onVoicePress,
+  showVoiceButton = true,
   onClear,
   placeholder = 'खोजें / Search craft...',
   containerStyle,
@@ -27,66 +30,89 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   ...props
 }) => {
   const theme = useTheme();
+  const [isVoiceModalVisible, setIsVoiceModalVisible] = useState(false);
+
+  const handleMicPress = () => {
+    if (onVoicePress) {
+      onVoicePress();
+    } else {
+      setIsVoiceModalVisible(true);
+    }
+  };
+
+  const handleVoiceApply = (spokenText: string) => {
+    onChangeText?.(spokenText);
+  };
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          backgroundColor: theme.colors.surface.card,
-          borderColor: theme.colors.border.default,
-          borderRadius: theme.touch.radii.full,
-          ...theme.shadows.low,
-        },
-        containerStyle,
-      ]}
-    >
-      <View style={styles.iconWrapper}>
-        <Icon name="search" size={20} color={theme.colors.text.tertiary} />
+    <>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: theme.colors.surface.card,
+            borderColor: theme.colors.border.default,
+            borderRadius: theme.touch.radii.full,
+            ...theme.shadows.low,
+          },
+          containerStyle,
+        ]}
+      >
+        <View style={styles.iconWrapper}>
+          <Icon name="search" size={20} color={theme.colors.text.tertiary} />
+        </View>
+
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={theme.colors.text.tertiary}
+          style={[
+            styles.input,
+            {
+              color: theme.colors.text.primary,
+              fontSize: theme.typography.sizes.bodyMedium,
+              fontFamily: theme.typography.fonts.regular,
+            },
+            style,
+          ]}
+          {...props}
+        />
+
+        {value && value.length > 0 && (
+          <Pressable
+            onPress={() => {
+              onChangeText?.('');
+              onClear?.();
+            }}
+            style={styles.actionBtn}
+            accessibilityLabel="Clear search"
+            hitSlop={8}
+          >
+            <Icon name="close" size={18} color={theme.colors.text.tertiary} />
+          </Pressable>
+        )}
+
+        {showVoiceButton && (
+          <Pressable
+            onPress={handleMicPress}
+            style={[styles.voiceBtn, { backgroundColor: theme.colors.brand.primaryLight }]}
+            accessibilityLabel="Voice search"
+            hitSlop={8}
+          >
+            <Icon name="microphone" size={18} color={theme.colors.brand.primary} />
+          </Pressable>
+        )}
       </View>
 
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={theme.colors.text.tertiary}
-        style={[
-          styles.input,
-          {
-            color: theme.colors.text.primary,
-            fontSize: theme.typography.sizes.bodyMedium,
-            fontFamily: theme.typography.fonts.regular,
-          },
-          style,
-        ]}
-        {...props}
+      <VoiceInputModal
+        visible={isVoiceModalVisible}
+        onClose={() => setIsVoiceModalVisible(false)}
+        onApplyText={handleVoiceApply}
+        title="Voice Search (बोलकर खोजें)"
+        context="search"
       />
-
-      {value && value.length > 0 && (
-        <Pressable
-          onPress={() => {
-            onChangeText?.('');
-            onClear?.();
-          }}
-          style={styles.actionBtn}
-          accessibilityLabel="Clear search"
-          hitSlop={8}
-        >
-          <Icon name="close" size={18} color={theme.colors.text.tertiary} />
-        </Pressable>
-      )}
-
-      {onVoicePress && (
-        <Pressable
-          onPress={onVoicePress}
-          style={[styles.voiceBtn, { backgroundColor: theme.colors.brand.primaryLight }]}
-          accessibilityLabel="Voice search"
-          hitSlop={8}
-        >
-          <Icon name="microphone" size={18} color={theme.colors.brand.primary} />
-        </Pressable>
-      )}
-    </View>
+    </>
   );
 };
 

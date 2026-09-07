@@ -27,6 +27,11 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('MainTabs', { screen: 'HomeTab' });
   };
 
+  const handleViewCatalog = () => {
+    resetDraft();
+    navigation.navigate('MarketplaceHome');
+  };
+
   const handleListenStory = () => {
     Alert.alert(
       '▶ Craft Story Audio',
@@ -48,6 +53,19 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
           <Text variant="bodyMedium" color="#e85d2a" style={styles.vernacularTitle}>
             Your Craft Listing is Now Live on Marketplace
           </Text>
+        </View>
+
+        {/* Live Catalog Confirmation Pill */}
+        <View style={styles.catalogListedBanner}>
+          <Text style={{ fontSize: 20, marginRight: 8 }}>🟢</Text>
+          <View style={{ flex: 1 }}>
+            <Text variant="bodyMedium" weight="bold" color="#166534">
+              Successfully Added to Live Catalog
+            </Text>
+            <Text variant="caption" color="#15803D" style={{ marginTop: 2 }}>
+              Your item is catalogued with digital GI pedigree and discoverable by all buyers.
+            </Text>
+          </View>
         </View>
 
         {/* Digital Craft Passport Card (Stitch 04_digital_craft_passport.html) */}
@@ -186,6 +204,12 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
         {/* Action Buttons */}
         <View style={styles.buttonStack}>
           <Button
+            label="👀 View in Live Catalog →"
+            variant="primary"
+            onPress={handleViewCatalog}
+            style={{ marginBottom: 12, backgroundColor: '#0284C7' }}
+          />
+          <Button
             label="Share on WhatsApp"
             variant="outline"
             onPress={handleShareWhatsApp}
@@ -210,6 +234,16 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 40,
+  },
+  catalogListedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    borderWidth: 1.5,
+    borderColor: '#86EFAC',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
   },
   headerBox: {
     alignItems: 'center',

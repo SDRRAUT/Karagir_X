@@ -18,6 +18,7 @@ export * from './badges/VerifiedArtisanBadge';
 export * from './badges/GITagBadge';
 export * from './modals/Modal';
 export * from './modals/BottomSheet';
+export * from './modals/VoiceInputModal';
 export * from './feedback/LoadingSpinner';
 export * from './feedback/Skeleton';
 export * from './feedback/EmptyState';

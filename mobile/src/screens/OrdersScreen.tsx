@@ -9,7 +9,7 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 
 type OrderTab = 'NEW' | 'IN_PROGRESS' | 'DELIVERED';
 
-export const OrdersScreen: React.FC = () => {
+export const OrdersScreen: React.FC<any> = ({ navigation }) => {
   const theme = useTheme();
   const [selectedTab, setSelectedTab] = useState<OrderTab>('NEW');
 
@@ -25,7 +25,7 @@ export const OrdersScreen: React.FC = () => {
         title="Artisan Orders"
         subtitle="Orders & Direct Fulfillment"
         showDevanagariLogo={true}
-        onVoicePress={() => {}}
+        onVoicePress={() => navigation?.navigate?.('SaathiTab')}
       />
 
       {/* Segmented Filter Tab Pills */}

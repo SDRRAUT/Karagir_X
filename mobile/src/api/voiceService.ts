@@ -65,7 +65,8 @@ export class VoiceService {
    */
   public async transcribeDescription(
     _audioUri: string,
-    sourceLanguage: string = 'hi'
+    sourceLanguage: string = 'hi',
+    spokenText?: string
   ): Promise<VoiceTranscriptionResult> {
     try {
       const formData = new FormData();
@@ -88,6 +89,24 @@ export class VoiceService {
       return response;
     } catch (_error) {
       logger.warn('VOICE_SERVICE', 'Backend voice endpoint unavailable, using local Bhashini NLU fallback');
+
+      // If user provided an actual spoken text, extract real entities from what they said
+      if (spokenText && spokenText.trim().length > 0) {
+        const { aiVoiceModifierService } = require('@/services/aiVoiceModifierService');
+        const polishResult = aiVoiceModifierService.generateIndicNlpPolish(spokenText, 'product_story');
+        return {
+          transcript: polishResult.modifiedText,
+          extractedEntities: {
+            craftCategory: polishResult.extractedAttributes.craftCategory || 'POTTERY_TERRACOTTA',
+            material: polishResult.extractedAttributes.material || 'प्राकृतिक कच्चा माल (Natural Craft Materials)',
+            technique: polishResult.extractedAttributes.technique || 'पारंपरिक हस्तशिल्प तकनीक',
+            motif: polishResult.extractedAttributes.motif || 'सांस्कृतिक धरोहर रूपांकन',
+            laborHours: polishResult.extractedAttributes.laborHours || 16,
+          },
+          nextQuestion: FOLLOW_UP_QUESTIONS[0],
+          isComplete: false,
+        };
+      }
 
       // Cultural fallback entity synthesis
       return {

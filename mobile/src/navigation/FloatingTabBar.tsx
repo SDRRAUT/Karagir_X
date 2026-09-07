@@ -27,8 +27,9 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
   const insets = useSafeAreaInsets();
   const totalCartCount = useCartStore((s) => s.getTotalCount());
 
+  const isBuyer = role === 'BUYER';
   // Bottom clearance based on device insets
-  const bottomOffset = Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16;
+  const bottomOffset = isBuyer ? Math.max(insets.bottom, 6) : (Platform.OS === 'ios' ? Math.max(insets.bottom, 16) : 16);
 
   // Determine middle index for the 5-item layout
   const totalRoutes = state.routes.length;
@@ -37,32 +38,34 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.containerWrapper, { bottom: bottomOffset }]}
+      style={isBuyer ? [styles.buyerDockedContainer, { paddingBottom: Math.max(insets.bottom, 6) }] : [styles.containerWrapper, { bottom: bottomOffset }]}
     >
       {/* 1. Seamless Upward Center Arch Dome */}
-      <View style={styles.centerArchContainer} pointerEvents="none">
-        <Svg width={88} height={24} viewBox="0 0 88 24" style={styles.centerArchSvg}>
-          {/* Smooth organic bell curve arch connecting to pill top */}
-          <Path
-            d="M 0 24 C 22 24 24 3 44 3 C 64 3 66 24 88 24 Z"
-            fill="#FFFFFF"
-          />
-          {/* Subtle top edge border */}
-          <Path
-            d="M 0 24 C 22 24 24 3 44 3 C 64 3 66 24 88 24"
-            stroke="rgba(0, 0, 0, 0.06)"
-            strokeWidth={1}
-            fill="none"
-          />
-        </Svg>
-      </View>
+      {!isBuyer && (
+        <View style={styles.centerArchContainer} pointerEvents="none">
+          <Svg width={88} height={24} viewBox="0 0 88 24" style={styles.centerArchSvg}>
+            {/* Smooth organic bell curve arch connecting to pill top */}
+            <Path
+              d="M 0 24 C 22 24 24 3 44 3 C 64 3 66 24 88 24 Z"
+              fill="#FFFFFF"
+            />
+            {/* Subtle top edge border */}
+            <Path
+              d="M 0 24 C 22 24 24 3 44 3 C 64 3 66 24 88 24"
+              stroke="rgba(0, 0, 0, 0.06)"
+              strokeWidth={1}
+              fill="none"
+            />
+          </Svg>
+        </View>
+      )}
 
-      {/* 2. Floating Elevated Pill Bar */}
-      <View style={styles.floatingBar}>
+      {/* 2. Floating Elevated Pill Bar / Buyer Docked Bar */}
+      <View style={isBuyer ? styles.buyerBar : styles.floatingBar}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          const isCenterItem = index === middleIndex;
+          const isCenterItem = !isBuyer && index === middleIndex;
 
           const label =
             options.tabBarLabel !== undefined
@@ -204,6 +207,27 @@ export const FloatingTabBar: React.FC<FloatingTabBarProps> = ({
 };
 
 const styles = StyleSheet.create({
+  buyerDockedContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  buyerBar: {
+    width: '100%',
+    maxWidth: 600,
+    height: 56,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: 8,
+  },
   containerWrapper: {
     position: 'absolute',
     left: 16,

@@ -17,6 +17,7 @@ import { Text } from '@/components/typography/Text';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { CRAFT_IMAGES } from '@/assets/craftImages';
 
 interface FlashProduct {
   id: string;
@@ -25,75 +26,70 @@ interface FlashProduct {
   price: number;
   originalPrice: number;
   discountBadge: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageSource?: any;
   category: string;
 }
 
 const FLASH_PRODUCTS: FlashProduct[] = [
   {
     id: 'prod_flash_1',
-    title: 'Terracotta Diya (Set o...',
-    artisan: 'Ramesh Kumbhar, Kolhap...',
+    title: 'Terracotta Diya & Urli (Set of 4)',
+    artisan: 'Ramesh Kumbhar, Kolhapur',
     price: 149,
     originalPrice: 299,
     discountBadge: '50% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.terracottaDiya,
     category: 'POTTERY',
   },
   {
     id: 'prod_flash_2',
-    title: 'Handwoven Chande...',
-    artisan: 'GI Tagged Chanderi',
+    title: 'Handwoven Chanderi Silk Saree',
+    artisan: 'GI Tagged Chanderi Weavers',
     price: 799,
     originalPrice: 1599,
     discountBadge: '50% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.chanderiSaree,
     category: 'TEXTILE',
   },
   {
     id: 'prod_flash_3',
-    title: 'Dhokra Brass Nandi (Authentic)',
+    title: 'Dhokra Brass Nandi (Indus Casting)',
     artisan: 'Manglu Baghel, Bastar',
     price: 899,
     originalPrice: 1499,
     discountBadge: '40% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1584286595398-a59f21d313f5?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.dhokraNandi,
     category: 'METAL',
   },
   {
     id: 'prod_flash_4',
-    title: 'Madhubani Handpainted Stole',
+    title: 'Madhubani Mithila Folk Painting',
     artisan: 'Sunita Devi, Madhubani',
     price: 1299,
     originalPrice: 2500,
     discountBadge: '48% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.madhubaniArt,
     category: 'PAINTING',
   },
   {
     id: 'prod_flash_5',
-    title: 'Jaipur Blue Pottery Vase',
+    title: 'Jaipur Blue Pottery Floral Urn',
     artisan: 'Kripal Studio, Jaipur',
     price: 549,
     originalPrice: 999,
     discountBadge: '45% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.bluePottery,
     category: 'POTTERY',
   },
   {
     id: 'prod_flash_6',
-    title: 'Kashmiri Carved Walnut Box',
+    title: 'Kashmiri Hand-Carved Walnut Box',
     artisan: 'Ghulam Rasool, Srinagar',
     price: 1150,
     originalPrice: 2100,
     discountBadge: '45% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.walnutBox,
     category: 'WOOD',
   },
 ];
@@ -544,7 +540,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
               >
                 {/* Product Image Container */}
                 <View style={styles.cardImageContainer}>
-                  <Image source={{ uri: prod.imageUrl }} style={styles.cardImage} resizeMode="cover" />
+                  <Image
+                    source={prod.imageSource || { uri: prod.imageUrl }}
+                    style={styles.cardImage}
+                    resizeMode="cover"
+                  />
 
                   {/* Top-Left Discount Badge */}
                   <View style={styles.discountBadge}>
@@ -562,7 +562,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         craftCategoryName: prod.category,
                         artisanName: prod.artisan,
                         artisanState: 'India',
-                        imageUri: prod.imageUrl,
+                        imageUri: prod.imageUrl || '',
                       })
                     }
                   >
@@ -595,7 +595,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         productId: prod.id,
                         title: prod.title,
                         price: prod.price,
-                        imageUri: prod.imageUrl,
+                        imageUri: prod.imageUrl || '',
                         craftCategoryName: prod.category,
                         artisanName: prod.artisan,
                         artisanCluster: prod.artisan,
