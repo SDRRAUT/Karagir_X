@@ -72,4 +72,8 @@ export type RootStackParamList = {
   AdminKyc: undefined;
   AdminModeration: undefined;
   AdminEscrow: undefined;
+
+  // Shared Profile & Settings
+  Profile: undefined;
+  ProfileTab: undefined;
 };

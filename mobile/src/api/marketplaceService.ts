@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '@/utils/logger';
-import { useCatalogStore } from '@/store/useCatalogStore';
+import { useCatalogStore } from '../store/useCatalogStore';
 
 export interface CraftCategory {
   code: string;

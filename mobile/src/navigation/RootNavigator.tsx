@@ -56,6 +56,7 @@ import {
   AdminModerationScreen,
   AdminEscrowScreen,
 } from '@/screens/admin';
+import { ProfileScreen } from '@/screens/shared/ProfileScreen';
 
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -138,6 +139,10 @@ export const RootNavigator: React.FC = () => {
         <Stack.Screen name="AdminKyc" component={AdminKycScreen} />
         <Stack.Screen name="AdminModeration" component={AdminModerationScreen} />
         <Stack.Screen name="AdminEscrow" component={AdminEscrowScreen} />
+
+        {/* Shared Profile & Settings Screens */}
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="ProfileTab" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
