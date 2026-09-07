@@ -5,10 +5,10 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 interface FairPriceCalculatorModalProps {
   visible: boolean;
@@ -22,6 +22,8 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
   onApplyPrice,
 }) => {
   const { isHindi } = useTranslation();
+  const [activeTab, setActiveTab] = useState<'cost' | 'mandi'>('cost');
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [materialCost, setMaterialCost] = useState(250);
   const [laborHours, setLaborHours] = useState(7);
   const [hourlyWage, setHourlyWage] = useState(200); // ₹200/hr
@@ -34,67 +36,113 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
   const subTotalArtisan = materialCost + rawLabor + giSkillBonus + packagingCost; // ₹2,060
   const platformFee = Math.round(subTotalArtisan * 0.05); // 5% fee = ₹103
   const totalCustomerPrice = subTotalArtisan + platformFee; // ₹2,163
-  const artisanTakeHome = subTotalArtisan - packagingCost; // ₹2,000 (93-95%)
+  const artisanTakeHome = subTotalArtisan - packagingCost; // ₹2,000
 
-  // Pricing Tiers
+  // Pricing Tiers & Intelligence
   const minPrice = Math.round(totalCustomerPrice * 0.8);
   const recPrice = totalCustomerPrice;
-  const premPrice = Math.round(totalCustomerPrice * 1.4);
   const diwaliPrice = Math.round(totalCustomerPrice * 1.6);
 
   const handleSpeak = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? `उचित मूल्य कैलकुलेटर के अनुसार, अनुशंसित ग्राहक मूल्य ${recPrice} रुपये है। इसमें कच्चा माल ${materialCost} रुपये, आपकी मेहनत ${rawLabor} रुपये, जीआई कौशल बोनस ${giSkillBonus} रुपये शामिल हैं। आपको सीधे ${artisanTakeHome} रुपये मिलेंगे, जो लगभग पंचानवे प्रतिशत है।`
-          : `According to Fair Price Calculator, the recommended customer price is ${recPrice} rupees. Raw material cost is ${materialCost}, labor is ${rawLabor}, and GI heritage bonus is ${giSkillBonus}. Your direct net payout is ${artisanTakeHome} rupees, which is 95% protected in escrow.`
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
+    if (isSpeaking) {
+      realisticVoiceService.stop();
+      setIsSpeaking(false);
+      return;
     }
+
+    const speechText =
+      isHindi
+        ? 'सिर्फ लागत नहीं — बाजार भी दिखाते हैं। दीपावली आ रही है तो सिस्टम कहता है: इस दीये की मांग 3 गुना बढ़ेगी, और मूल्य 1600 रुपये तक जा सकता है। कॉस्ट फ्लोर प्लस मौसमी मांग प्लस कंपटीटर रेंज बराबर है स्मार्ट फेयर प्राइस। हम सिर्फ प्राइस सजेस्ट नहीं करते — बाजार का नशा और लागत का हिसाब दोनों देते हैं।'
+        : 'We do not just calculate cost — we provide live market intelligence. With Diwali approaching, demand surges 3x and recommended pricing comfortably reaches 1600 rupees. Cost floor plus seasonal demand plus competitor benchmark equals smart fair pricing.';
+
+    setIsSpeaking(true);
+    realisticVoiceService.speak(speechText, {
+      lang: isHindi ? 'hi-IN' : 'en-IN',
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
   };
 
   const handleApply = () => {
+    realisticVoiceService.stop();
+    setIsSpeaking(false);
     onApplyPrice?.(recPrice);
     onClose();
   };
 
+  const handleClose = () => {
+    realisticVoiceService.stop();
+    setIsSpeaking(false);
+    onClose();
+  };
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+            <TouchableOpacity onPress={handleClose} style={styles.modalBackButton} activeOpacity={0.7}>
               <Text style={styles.modalBackIcon}>‹</Text>
             </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.badgePill}>
-                <Text style={styles.badgePillText}>{isHindi ? '💰 मुख्य स्तंभ #4' : '💰 CORE PILLAR #4'}</Text>
+                <Text style={styles.badgePillText}>{isHindi ? '📊 मुख्य स्तंभ #5 व #6' : '📊 CORE PILLAR #5 & #6'}</Text>
               </View>
-              <Text style={styles.modalTitle}>{isHindi ? 'उचित मूल्य कैलकुलेटर' : 'Fair Price Calculator'}</Text>
+              <Text style={styles.modalTitle}>{isHindi ? 'उचित मूल्य व मंडी इंटेलिजेंस' : 'Fair-Value + Market Intelligence'}</Text>
               <Text style={styles.modalSubtitle}>
-                {isHindi ? 'पारदर्शी, शोषण-मुक्त मूल्य निर्धारण प्रणाली' : 'Transparent, anti-exploitation pricing engine'}
+                {isHindi ? 'लागत का हिसाब + बाजार का नब्ज (मंडी इंटेलिजेंस)' : 'Cost floor + seasonal demand + competitor benchmark'}
               </Text>
             </View>
             <View style={styles.headerRightActions}>
               <TouchableOpacity onPress={handleSpeak} style={styles.audioBtn} activeOpacity={0.7}>
-                <Text style={styles.audioIcon}>🔊</Text>
+                <Text style={styles.audioIcon}>{isSpeaking ? '⏹️' : '🔊'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
-                <Text style={styles.closeBtnText}>{isHindi ? '✕ बाहर निकलें' : '✕ Exit'}</Text>
+              <TouchableOpacity onPress={handleClose} style={styles.closeBtn} activeOpacity={0.7}>
+                <Text style={styles.closeBtnText}>{isHindi ? '✕ बाहर' : '✕ Exit'}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+            {/* Punchline Hero Banner */}
+            <View style={styles.punchlineBanner}>
+              <Text style={styles.punchlineQuote}>
+                💡 {isHindi
+                  ? '“हम सिर्फ प्राइस सजेस्ट नहीं करते — बाजार का नशा और कॉस्ट का हिसाब दोनों देते हैं।”'
+                  : '“We do not just guess price — we calculate cost floor and decode live market demand.”'}
+              </Text>
+              <Text style={styles.punchlineSub}>
+                {isHindi
+                  ? 'समस्या: कारीगर को बाजार का पता नहीं होता। समाधान: रियल-टाइम मंडी इंटेलिजेंस उसकी भाषा में।' : 'Problem: Artisans are in the dark on true retail value. Solution: Real-time vernacular market intelligence.'}
+              </Text>
+            </View>
+
+            {/* Tabs */}
+            <View style={styles.tabRow}>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === 'cost' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('cost')}
+              >
+                <Text style={[styles.tabBtnText, activeTab === 'cost' && styles.tabBtnTextActive]}>
+                  {isHindi ? '💰 लागत का हिसाब (Cost Floor)' : '💰 Cost Floor & Living Wage'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === 'mandi' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('mandi')}
+              >
+                <Text style={[styles.tabBtnText, activeTab === 'mandi' && styles.tabBtnTextActive]}>
+                  {isHindi ? '📈 मंडी इंटेलिजेंस (Market Surge)' : '📈 Mandi & Festival Demand'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Real-time Final Price Hero Banner */}
             <View style={styles.priceHeroCard}>
               <View style={styles.heroTopRow}>
                 <Text style={styles.heroLabel}>
-                  {isHindi ? 'अनुशंसित ग्राहक मूल्य' : 'Recommended Customer Price'}
+                  {isHindi ? 'स्मार्ट अनुशंसित ग्राहक मूल्य' : 'Smart Recommended Customer Price'}
                 </Text>
                 <View style={styles.artisanShareBadge}>
                   <Text style={styles.artisanShareText}>
@@ -104,164 +152,122 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
               </View>
               <Text style={styles.heroPrice}>₹{recPrice.toLocaleString('en-IN')}</Text>
               <Text style={styles.heroSubText}>
-                {isHindi ? 'कारीगर की शुद्ध आय: ' : 'Artisan Net Payout: '}
+                {isHindi ? 'कारीगर की शुद्ध आय: ' : 'Artisan Direct Take-Home: '}
                 <Text style={styles.heroGreenText}>₹{artisanTakeHome.toLocaleString('en-IN')}</Text>{' '}
                 {isHindi ? '(एस्क्रो में सुरक्षित 🔒)' : '(Protected in Escrow 🔒)'}
               </Text>
             </View>
 
-            {/* Interactive Pricing Controls */}
-            <View style={styles.controlsCard}>
-              <Text style={styles.controlsTitle}>
-                {isHindi ? '⚙️ लागत घटक:' : '⚙️ Cost Factors:'}
-              </Text>
+            {activeTab === 'cost' && (
+              <View>
+                {/* Interactive Pricing Controls */}
+                <View style={styles.controlsCard}>
+                  <Text style={styles.controlsTitle}>
+                    {isHindi ? '⚙️ शोषण-मुक्त लागत घटक (Cost Floor):' : '⚙️ Transparent Cost Floor Components:'}
+                  </Text>
 
-              {/* 1. Raw Material Cost */}
-              <View style={styles.factorRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>
-                    {isHindi ? '1. कच्चा माल (मिट्टी, प्राकृतिक रंग, ईंधन)' : '1. Raw Materials (Clay, Natural Color, Fuel)'}
-                  </Text>
-                  <Text style={styles.factorSub}>
-                    {isHindi ? 'नदी की तलछट मिट्टी, लाल गेरू' : 'River sediment clay, natural ochre'}
-                  </Text>
-                </View>
-                <View style={styles.stepperContainer}>
-                  <TouchableOpacity
-                    onPress={() => setMaterialCost((v) => Math.max(50, v - 50))}
-                    style={styles.stepperBtn}
-                  >
-                    <Text style={styles.stepperBtnText}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.stepperVal}>₹{materialCost}</Text>
-                  <TouchableOpacity
-                    onPress={() => setMaterialCost((v) => v + 50)}
-                    style={styles.stepperBtn}
-                  >
-                    <Text style={styles.stepperBtnText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* 2. Labor Hours */}
-              <View style={styles.factorRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>
-                    {isHindi ? '2. काम के घंटे' : '2. Labor Hours'}
-                  </Text>
-                  <Text style={styles.factorSub}>
-                    {isHindi
-                      ? `आकार देना, नक्काशी, भट्ठी पकाई (${laborHours} घंटे @ ₹${hourlyWage}/घंटा)`
-                      : `Shaping, sculpting, kiln firing (${laborHours} hrs @ ₹${hourlyWage}/hr)`}
-                  </Text>
-                </View>
-                <View style={styles.stepperContainer}>
-                  <TouchableOpacity
-                    onPress={() => setLaborHours((v) => Math.max(1, v - 1))}
-                    style={styles.stepperBtn}
-                  >
-                    <Text style={styles.stepperBtnText}>-</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.stepperVal}>{laborHours} {isHindi ? 'घंटे' : 'hrs'}</Text>
-                  <TouchableOpacity
-                    onPress={() => setLaborHours((v) => v + 1)}
-                    style={styles.stepperBtn}
-                  >
-                    <Text style={styles.stepperBtnText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* 3. GI Skill & Heritage Premium */}
-              <View style={styles.factorRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>
-                    {isHindi ? '3. जीआई प्रमाणित शिल्प कौशल' : '3. GI Certified Craft Skill'}
-                  </Text>
-                  <Text style={styles.factorSub}>
-                    {isHindi ? 'कोल्हापुर 4थी पीढ़ी का विरासत कौशल बोनस (+25%)' : 'Kolhapur Heritage 4th generation skill bonus (+25%)'}
-                  </Text>
-                </View>
-                <View style={styles.stepperContainer}>
-                  <Text style={[styles.stepperVal, { color: '#7C3AED' }]}>+₹{giSkillBonus}</Text>
-                </View>
-              </View>
-
-              {/* 4. Eco Packaging */}
-              <View style={styles.factorRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>
-                    {isHindi ? '4. पर्यावरण अनुकूल पैकेजिंग' : '4. Eco-Friendly Packaging'}
-                  </Text>
-                  <Text style={styles.factorSub}>
-                    {isHindi ? 'बायोडिग्रेडेबल जूट एवं पुआल सुरक्षा' : 'Biodegradable straw & jute wrapping'}
-                  </Text>
-                </View>
-                <View style={styles.stepperContainer}>
-                  <Text style={styles.stepperVal}>₹{packagingCost}</Text>
-                </View>
-              </View>
-
-              {/* 5. Platform Fee */}
-              <View style={[styles.factorRow, { borderBottomWidth: 0 }]}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.factorLabel}>
-                    {isHindi ? '5. प्लेटफॉर्म तकनीकी शुल्क (5%)' : '5. Platform Tech Fee (5%)'}
-                  </Text>
-                  <Text style={styles.factorSub}>
-                    {isHindi ? 'शून्य छिपे हुए शुल्क, पारदर्शी होस्टिंग' : 'Zero hidden charges, transparent hosting'}
-                  </Text>
-                </View>
-                <View style={styles.stepperContainer}>
-                  <Text style={[styles.stepperVal, { color: '#64748B' }]}>₹{platformFee}</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* 3 Suggested Market Tiers */}
-            <View style={styles.tiersContainer}>
-              <Text style={styles.tiersTitle}>
-                {isHindi ? '📊 अनुशंसित मूल्य स्तर:' : '📊 Recommended Price Tiers:'}
-              </Text>
-              <View style={styles.tiersGrid}>
-                <View style={styles.tierBox}>
-                  <Text style={styles.tierName}>{isHindi ? 'न्यूनतम' : 'Minimum'}</Text>
-                  <Text style={styles.tierVal}>₹{minPrice}</Text>
-                  <Text style={styles.tierSub}>{isHindi ? 'त्वरित बिक्री' : 'Quick Liquidity'}</Text>
-                </View>
-                <View style={[styles.tierBox, styles.tierBoxRec]}>
-                  <View style={styles.recStarBadge}>
-                    <Text style={styles.recStarText}>{isHindi ? '⭐ उचित मूल्य' : '⭐ Fair Price'}</Text>
+                  {/* 1. Raw Material Cost */}
+                  <View style={styles.factorRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.factorLabel}>{isHindi ? '1. कच्चा माल (मिट्टी, रंग, भट्टी ईंधन)' : '1. Raw Materials (Clay, Dyes, Kiln Fuel)'}</Text>
+                      <Text style={styles.factorSub}>{isHindi ? 'प्राकृतिक नदी मिट्टी और लकड़ी की लागत' : 'Authentic natural clay & fuel expense'}</Text>
+                    </View>
+                    <Text style={styles.factorVal}>₹{materialCost}</Text>
                   </View>
-                  <Text style={[styles.tierName, { color: '#7C3AED' }]}>
-                    {isHindi ? 'अनुशंसित' : 'Recommended'}
-                  </Text>
-                  <Text style={[styles.tierVal, { color: '#7C3AED' }]}>₹{recPrice}</Text>
-                  <Text style={styles.tierSub}>
-                    {isHindi ? 'अधिकतम मूल्य' : 'Max Artisan Value'}
-                  </Text>
-                </View>
-                <View style={styles.tierBox}>
-                  <Text style={styles.tierName}>{isHindi ? 'प्रीमियम' : 'Premium'}</Text>
-                  <Text style={styles.tierVal}>₹{premPrice}</Text>
-                  <Text style={styles.tierSub}>{isHindi ? 'विशेष संग्रह' : 'Collector Guild'}</Text>
-                </View>
-              </View>
 
-              {/* Diwali Surge Intel */}
-              <View style={styles.surgeNoticeBox}>
-                <Text style={styles.surgeNoticeText}>
-                  💡 <Text style={{ fontWeight: '800' }}>
-                    {isHindi ? 'दीपावली मांग वृद्धि:' : 'Diwali Demand Surge:'}
-                  </Text>{' '}
-                  {isHindi
-                    ? `त्योहारी मांग के कारण यह उत्पाद आसानी से `
-                    : `Festive season pricing can comfortably reach `}
-                  <Text style={{ fontWeight: '800', color: '#047857' }}>₹{diwaliPrice}</Text>
-                  {isHindi ? ' तक बिक सकता है।' : ' due to high buyer demand.'}
-                </Text>
+                  {/* 2. Labor Hours & Wage */}
+                  <View style={styles.factorRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.factorLabel}>{isHindi ? `2. कारीगर मजदूरी (${laborHours} घंटे @ ₹${hourlyWage}/घंटा)` : `2. Fair Artisan Wage (${laborHours} hrs @ ₹${hourlyWage}/hr)`}</Text>
+                      <Text style={styles.factorSub}>{isHindi ? 'सम्मानजनक जीवन निर्वाह मजदूरी मानक' : 'Dignified fair living wage index'}</Text>
+                    </View>
+                    <Text style={styles.factorVal}>₹{rawLabor}</Text>
+                  </View>
+
+                  {/* 3. GI Heritage Bonus */}
+                  <View style={styles.factorRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.factorLabel}>{isHindi ? '3. जीआई विरासत कौशल प्रीमियम (+25%)' : '3. GI Heritage Skill Premium (+25%)'}</Text>
+                      <Text style={styles.factorSub}>{isHindi ? 'पीढ़ी-दर-पीढ़ी विरासत हुनर का मूल्य' : 'Centuries-old generational craft value'}</Text>
+                    </View>
+                    <Text style={[styles.factorVal, { color: '#059669' }]}>+₹{giSkillBonus}</Text>
+                  </View>
+
+                  {/* 4. Safe Craft Packaging */}
+                  <View style={styles.factorRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.factorLabel}>{isHindi ? '4. इको-फ्रेंडली सुरक्षित पैकेजिंग' : '4. Eco-friendly Safe Packaging'}</Text>
+                      <Text style={styles.factorSub}>{isHindi ? 'शून्य टूट-फूट कुशन बॉक्स' : 'Zero breakage shock cushion box'}</Text>
+                    </View>
+                    <Text style={styles.factorVal}>₹{packagingCost}</Text>
+                  </View>
+
+                  {/* 5. Platform Fee */}
+                  <View style={[styles.factorRow, { borderBottomWidth: 0 }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.factorLabel}>{isHindi ? '5. प्लेटफॉर्म टेक व एस्क्रो शुल्क (5%)' : '5. Platform Tech & Escrow Fee (5%)'}</Text>
+                      <Text style={styles.factorSub}>{isHindi ? 'शून्य हिडन चार्ज, 100% पारदर्शी' : 'Zero hidden cuts, fully transparent'}</Text>
+                    </View>
+                    <Text style={[styles.factorVal, { color: '#64748B' }]}>₹{platformFee}</Text>
+                  </View>
+                </View>
               </View>
-            </View>
+            )}
+
+            {activeTab === 'mandi' && (
+              <View>
+                {/* Diwali Seasonal Demand Curve Card */}
+                <View style={styles.surgeNoticeBox}>
+                  <View style={styles.surgeHeaderRow}>
+                    <Text style={{ fontSize: 22 }}>🪔</Text>
+                    <View style={{ flex: 1, marginLeft: 8 }}>
+                      <Text style={styles.surgeHeading}>{isHindi ? 'दीपावली मांग वृद्धि: 3x मांग' : 'Diwali Demand Surge: 3x Volume'}</Text>
+                      <Text style={styles.surgeSub}>{isHindi ? 'त्योहारी मांग में खरीदार बिना झिझक प्रीमियम देते हैं' : 'High seasonal appetite supports elevated premium'}</Text>
+                    </View>
+                    <View style={styles.surgeMultiplierBadge}>
+                      <Text style={styles.surgeMultiplierText}>3x Surge</Text>
+                    </View>
+                  </View>
+                  <View style={styles.surgePriceRow}>
+                    <Text style={styles.surgePriceLabel}>{isHindi ? 'त्योहारी सीजन में बिक सकता है:' : 'Seasonal Reach Price:'}</Text>
+                    <Text style={styles.surgePriceVal}>₹{diwaliPrice}</Text>
+                  </View>
+                </View>
+
+                {/* Mandi & Retail Benchmark Comparison */}
+                <View style={styles.benchmarkCard}>
+                  <Text style={styles.benchmarkTitle}>
+                    {isHindi ? '📊 बाजार तुलना (Market Intelligence):' : '📊 Market Intelligence & Competitor Range:'}
+                  </Text>
+
+                  <View style={styles.benchmarkRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.benchmarkLabel}>{isHindi ? 'स्थानीय बिचौलिया खरीद (शोषण)' : 'Local Middleman Trader (Exploitation)'}</Text>
+                      <Text style={styles.benchmarkSub}>{isHindi ? 'कारीगर को नाममात्र कीमत मिलती है' : 'Unfair distress price paid to artisan'}</Text>
+                    </View>
+                    <Text style={[styles.benchmarkVal, { color: '#EF4444' }]}>₹350</Text>
+                  </View>
+
+                  <View style={[styles.benchmarkRow, styles.benchmarkRowHighlight]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.benchmarkLabel, { color: '#059669', fontWeight: '800' }]}>
+                        {isHindi ? '✓ कलाकार सेतु अनुशंसित उचित मूल्य' : '✓ Kalakar Setu Fair Recommended Price'}
+                      </Text>
+                      <Text style={styles.benchmarkSub}>{isHindi ? 'लागत फ्लोर + जीवन निर्वाह मजदूरी सुरक्षित' : 'Living wage + GI skill bonus + 95% payout'}</Text>
+                    </View>
+                    <Text style={[styles.benchmarkVal, { color: '#059669', fontSize: 18 }]}>₹{recPrice}</Text>
+                  </View>
+
+                  <View style={[styles.benchmarkRow, { borderBottomWidth: 0 }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.benchmarkLabel}>{isHindi ? 'शहरी बुटीक / अमेज़न रिटेल मूल्य' : 'Urban Metro Boutique / Amazon Retail'}</Text>
+                      <Text style={styles.benchmarkSub}>{isHindi ? 'अंतिम खरीदार जो खुशी से चुकाता है' : 'What city buyers happily pay'}</Text>
+                    </View>
+                    <Text style={[styles.benchmarkVal, { color: '#6366F1' }]}>₹2,800</Text>
+                  </View>
+                </View>
+              </View>
+            )}
 
             {/* CTA */}
             <TouchableOpacity onPress={handleApply} style={styles.applyBtn} activeOpacity={0.85}>
@@ -324,7 +330,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   badgePill: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#D1FAE5',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -334,7 +340,7 @@ const styles = StyleSheet.create({
   badgePillText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#B45309',
+    color: '#065F46',
   },
   modalTitle: {
     fontSize: 19,
@@ -342,59 +348,94 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   modalSubtitle: {
-    fontSize: 11.5,
+    fontSize: 12,
     color: '#64748B',
     marginTop: 2,
   },
   headerRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   audioBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#ECFDF5',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
   },
   audioIcon: {
     fontSize: 16,
   },
   closeBtn: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 12,
+    backgroundColor: '#F1F5F9',
   },
   closeBtnText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#64748B',
   },
   scrollBody: {
+    padding: 18,
+    paddingBottom: 40,
+  },
+  punchlineBanner: {
+    backgroundColor: '#064E3B',
+    borderRadius: 16,
     padding: 16,
-    gap: 14,
+    marginBottom: 16,
+  },
+  punchlineQuote: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#6EE7B7',
+    lineHeight: 20,
+  },
+  punchlineSub: {
+    fontSize: 12,
+    color: '#A7F3D0',
+    marginTop: 6,
+    lineHeight: 18,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    backgroundColor: '#D1FAE5',
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 16,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  tabBtnActive: {
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+  },
+  tabBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#065F46',
+  },
+  tabBtnTextActive: {
+    color: '#047857',
+    fontWeight: '800',
   },
   priceHeroCard: {
-    backgroundColor: '#7C3AED',
-    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
     padding: 18,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#7C3AED',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.35,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 8,
-      },
-      web: {
-        boxShadow: '0px 6px 20px rgba(124, 58, 237, 0.3)',
-      },
-    }),
+    borderWidth: 2,
+    borderColor: '#34D399',
+    marginBottom: 16,
   },
   heroTopRow: {
     flexDirection: 'row',
@@ -404,31 +445,31 @@ const styles = StyleSheet.create({
   heroLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#DDD6FE',
+    color: '#64748B',
   },
   artisanShareBadge: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 10,
+    borderRadius: 8,
   },
   artisanShareText: {
-    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '800',
+    color: '#059669',
   },
   heroPrice: {
-    fontSize: 36,
+    fontSize: 34,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginVertical: 4,
   },
   heroSubText: {
     fontSize: 12,
-    color: '#EDE9FE',
+    color: '#64748B',
   },
   heroGreenText: {
-    color: '#34D399',
+    color: '#059669',
     fontWeight: '800',
   },
   controlsCard: {
@@ -437,135 +478,131 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
   controlsTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#334155',
+    color: '#0F172A',
     marginBottom: 12,
   },
   factorRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
   },
   factorLabel: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: '700',
     color: '#1E293B',
   },
   factorSub: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#64748B',
     marginTop: 2,
   },
-  stepperContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepperBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  stepperBtnText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#334155',
-  },
-  stepperVal: {
+  factorVal: {
     fontSize: 13,
     fontWeight: '800',
     color: '#0F172A',
-    minWidth: 50,
-    textAlign: 'center',
   },
-  tiersContainer: {
+  surgeNoticeBox: {
+    backgroundColor: '#FFFBEB',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+    marginBottom: 16,
+  },
+  surgeHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  surgeHeading: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  surgeSub: {
+    fontSize: 10,
+    color: '#B45309',
+    marginTop: 2,
+  },
+  surgeMultiplierBadge: {
+    backgroundColor: '#F59E0B',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  surgeMultiplierText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  surgePriceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#FEF3C7',
+  },
+  surgePriceLabel: {
+    fontSize: 12,
+    color: '#78350F',
+    fontWeight: '600',
+  },
+  surgePriceVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#D97706',
+  },
+  benchmarkCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
-  tiersTitle: {
+  benchmarkTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#334155',
-    marginBottom: 10,
-  },
-  tiersGrid: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  tierBox: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 10,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-  },
-  tierBoxRec: {
-    backgroundColor: '#FAF5FF',
-    borderColor: '#7C3AED',
-    borderWidth: 2,
-    position: 'relative',
-  },
-  recStarBadge: {
-    position: 'absolute',
-    top: -8,
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 8,
-  },
-  recStarText: {
-    color: '#FFFFFF',
-    fontSize: 8,
-    fontWeight: '800',
-  },
-  tierName: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-  tierVal: {
-    fontSize: 15,
-    fontWeight: '800',
     color: '#0F172A',
+    marginBottom: 12,
+  },
+  benchmarkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  benchmarkRowHighlight: {
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    borderRadius: 10,
+  },
+  benchmarkLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  benchmarkSub: {
+    fontSize: 10,
+    color: '#64748B',
     marginTop: 2,
   },
-  tierSub: {
-    fontSize: 9,
-    color: '#94A3B8',
-    marginTop: 2,
-  },
-  surgeNoticeBox: {
-    backgroundColor: '#FFFBEB',
-    borderRadius: 12,
-    padding: 10,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-  },
-  surgeNoticeText: {
-    fontSize: 11.5,
-    color: '#92400E',
-    lineHeight: 16,
+  benchmarkVal: {
+    fontSize: 14,
+    fontWeight: '800',
   },
   applyBtn: {
     backgroundColor: '#059669',
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 14,
     alignItems: 'center',
   },

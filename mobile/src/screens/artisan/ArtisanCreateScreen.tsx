@@ -829,6 +829,48 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
+            {/* Quick 1-Tap Voice Prompts for Instant 30s Demo */}
+            <View style={{ marginBottom: 10 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#64748B', marginBottom: 6 }}>
+                ⚡ त्वरित नमूना बोलें (Tap 1-Click Demo Voice):
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setCraftStoryInput('Yeh mitti ka diya hai, laal, 150 rupaye lagat')}
+                  style={{
+                    backgroundColor: '#FFF7ED',
+                    borderColor: '#FED7AA',
+                    borderWidth: 1,
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 12,
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#C2410C' }}>
+                    🎤 "Yeh mitti ka diya hai, laal, ₹150"
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setCraftStoryInput('हाथ से बना टेराकोटा दीया सेट, 16 घंटे मेहनत लगी और 150 रुपये कच्चा माल लगा')}
+                  style={{
+                    backgroundColor: '#F5F3FF',
+                    borderColor: '#DDD6FE',
+                    borderWidth: 1,
+                    paddingHorizontal: 10,
+                    paddingVertical: 6,
+                    borderRadius: 12,
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#7C3AED' }}>
+                    🪔 "हाथ से बना दीया सेट, 16 घंटे, ₹150 माल"
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+
             {/* 3. THE SINGLE INPUT BOX: Real-time Audio-to-Typing happens here! */}
             <View style={styles.singleInputFieldGroup}>
               <Text style={styles.fieldLabel}>

@@ -20,6 +20,8 @@ import { MelaModeModal } from '../artisan/components/MelaModeModal';
 import { B2BBulkModal } from '../artisan/components/B2BBulkModal';
 import { FairPriceCalculatorModal } from '../artisan/components/FairPriceCalculatorModal';
 import { CraftPassportModal } from '../artisan/components/CraftPassportModal';
+import { CraftStudioModal } from '../artisan/components/CraftStudioModal';
+import { KaragirIpModal } from '../artisan/components/KaragirIpModal';
 
 export const ProfileScreen: React.FC = () => {
   const theme = useTheme();
@@ -34,6 +36,8 @@ export const ProfileScreen: React.FC = () => {
   const [showB2BModal, setShowB2BModal] = useState(false);
   const [showFairPriceModal, setShowFairPriceModal] = useState(false);
   const [showPassportModal, setShowPassportModal] = useState(false);
+  const [showStudioModal, setShowStudioModal] = useState(false);
+  const [showIpModal, setShowIpModal] = useState(false);
 
   const languages: { code: SupportedLocale; name: string; native: string }[] = [
     { code: 'hi_IN', name: 'हिन्दी', native: '🇮🇳 हिन्दी' },
@@ -467,68 +471,28 @@ export const ProfileScreen: React.FC = () => {
               {[
                 {
                   id: 'p1',
-                  title: t.artisan.voiceListingTitle,
-                  desc: isHindi ? 'आवाज़ लिस्टिंग' : 'Voice Listing',
-                  emoji: '🎙️',
+                  title: isHindi ? '१. आवाज़ लिस्टिंग' : '1. Voice-First Listing',
+                  desc: isHindi ? 'बोलो और बिकाओ' : 'Bolo aur Bikao',
+                  emoji: '🎤',
                   color: '#EA580C',
                   bg: '#FFF7ED',
                   border: '#FED7AA',
-                  action: () => navigation.navigate('MainTabs' as any, { screen: 'SaathiTab' }),
+                  action: () => navigation.navigate('MainTabs' as any, { screen: 'CreateTab' }),
                 },
                 {
                   id: 'p2',
-                  title: t.artisan.autoCatalogTitle,
-                  desc: isHindi ? 'कैटलॉग' : 'Auto Catalog',
-                  emoji: '📝',
-                  color: '#7C3AED',
-                  bg: '#F5F3FF',
-                  border: '#DDD6FE',
-                  action: () => navigation.navigate('MainTabs' as any, { screen: 'CreateTab' }),
-                },
-                {
-                  id: 'p3',
-                  title: t.artisan.photoEnhanceTitle,
-                  desc: isHindi ? 'एआई स्टूडियो' : 'AI Studio',
-                  emoji: '✨',
+                  title: isHindi ? '२. क्राफ्ट AI स्टूडियो' : '2. Craft-Aware Studio',
+                  desc: isHindi ? 'ओरिजिनल टेक्सचर' : 'Preserve Craft Grain',
+                  emoji: '📸',
                   color: '#0284C7',
                   bg: '#F0F9FF',
                   border: '#BAE6FD',
-                  action: () => navigation.navigate('MainTabs' as any, { screen: 'CreateTab' }),
+                  action: () => setShowStudioModal(true),
                 },
                 {
-                  id: 'p4',
-                  title: t.artisan.fairPriceTitle,
-                  desc: isHindi ? 'मूल्य कैलकुलेटर' : 'Fair Price',
-                  emoji: '💰',
-                  color: '#059669',
-                  bg: '#ECFDF5',
-                  border: '#A7F3D0',
-                  action: () => setShowFairPriceModal(true),
-                },
-                {
-                  id: 'p5',
-                  title: t.artisan.qrPassportTitle,
-                  desc: isHindi ? 'शिल्प पासपोर्ट' : 'Craft Passport',
-                  emoji: '🏛️',
-                  color: '#4F46E5',
-                  bg: '#EEF2FF',
-                  border: '#C7D2FE',
-                  action: () => setShowPassportModal(true),
-                },
-                {
-                  id: 'p6',
-                  title: t.artisan.clustersB2bTitle,
-                  desc: isHindi ? 'क्लस्टर बी2बी' : 'B2B Clusters',
-                  emoji: '🏢',
-                  color: '#D97706',
-                  bg: '#FEF3C7',
-                  border: '#FDE68A',
-                  action: () => setShowB2BModal(true),
-                },
-                {
-                  id: 'p7',
-                  title: t.artisan.buyerMatchingTitle,
-                  desc: isHindi ? 'मेला 365' : 'Mela 365 Twin',
+                  id: 'p3',
+                  title: isHindi ? '३. मेला 365 ट्विन' : '3. Mela-to-365 Twin',
+                  desc: isHindi ? 'व्हाट्सएप डिजिटल दुकान' : 'WhatsApp Digital Store',
                   emoji: '🎪',
                   color: '#E11D48',
                   bg: '#FFF1F2',
@@ -536,14 +500,54 @@ export const ProfileScreen: React.FC = () => {
                   action: () => setShowMelaModal(true),
                 },
                 {
+                  id: 'p4',
+                  title: isHindi ? '४. कारीगर आईपी' : '4. Karagir IP & Royalty',
+                  desc: isHindi ? 'डिज़ाइन सुरक्षा व रॉयल्टी' : 'Design IP & Royalties',
+                  emoji: '🛡️',
+                  color: '#7C3AED',
+                  bg: '#F5F3FF',
+                  border: '#DDD6FE',
+                  action: () => setShowIpModal(true),
+                },
+                {
+                  id: 'p5',
+                  title: isHindi ? '५. उचित मूल्य निर्धारण' : '5. Fair-Value Pricing',
+                  desc: isHindi ? 'लागत का हिसाब (95% शुद्ध)' : 'Cost Floor & Living Wage',
+                  emoji: '💰',
+                  color: '#059669',
+                  bg: '#ECFDF5',
+                  border: '#A7F3D0',
+                  action: () => setShowFairPriceModal(true),
+                },
+                {
+                  id: 'p6',
+                  title: isHindi ? '६. मंडी इंटेलिजेंस' : '6. Mandi Intelligence',
+                  desc: isHindi ? 'दीपावली 3x मांग वृद्धि' : 'Diwali 3x Demand Surge',
+                  emoji: '📈',
+                  color: '#D97706',
+                  bg: '#FEF3C7',
+                  border: '#FDE68A',
+                  action: () => setShowFairPriceModal(true),
+                },
+                {
+                  id: 'p7',
+                  title: isHindi ? '७. कारीगर पासपोर्ट' : '7. Kaarigar Passport',
+                  desc: isHindi ? 'क्रेडिट व पीएम विश्वकर्मा' : 'Credit & Govt Schemes',
+                  emoji: '🏛️',
+                  color: '#4F46E5',
+                  bg: '#EEF2FF',
+                  border: '#C7D2FE',
+                  action: () => setShowPassportModal(true),
+                },
+                {
                   id: 'p8',
-                  title: t.artisan.orderTrackingTitle,
-                  desc: isHindi ? 'ऑर्डर ट्रैकिंग' : 'Live Tracking',
-                  emoji: '🚚',
-                  color: '#16A34A',
-                  bg: '#F0FDF4',
-                  border: '#BBF7D0',
-                  action: () => navigation.navigate('MainTabs' as any, { screen: 'OrdersTab' }),
+                  title: isHindi ? '८. वर्चुअल फैक्ट्री' : '8. Virtual Factory',
+                  desc: isHindi ? '15 किमी क्लस्टर थोक पूर्ति' : '15km Cluster Fulfilment',
+                  emoji: '🤝',
+                  color: '#B45309',
+                  bg: '#FFFBEB',
+                  border: '#FCD34D',
+                  action: () => setShowB2BModal(true),
                 },
               ].map((item) => (
                 <TouchableOpacity
@@ -1068,6 +1072,12 @@ export const ProfileScreen: React.FC = () => {
 
       {/* QR Craft Passport Modal */}
       <CraftPassportModal visible={showPassportModal} onClose={() => setShowPassportModal(false)} />
+
+      {/* Craft-Aware AI Studio Modal */}
+      <CraftStudioModal visible={showStudioModal} onClose={() => setShowStudioModal(false)} />
+
+      {/* Karagir IP & Royalty Modal */}
+      <KaragirIpModal visible={showIpModal} onClose={() => setShowIpModal(false)} />
     </SafeAreaView>
   );
 };

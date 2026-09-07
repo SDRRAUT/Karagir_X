@@ -5,10 +5,10 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Platform,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 interface B2BBulkModalProps {
   visible: boolean;
@@ -18,219 +18,199 @@ interface B2BBulkModalProps {
 export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) => {
   const { isHindi } = useTranslation();
   const [accepted, setAccepted] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [activeTab, setActiveTab] = useState<'rfq' | 'cluster'>('rfq');
 
   const handleAcceptCluster = () => {
     setAccepted(true);
+    setActiveTab('cluster');
   };
 
   const handleSpeak = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? 'टाटा कैपिटल से 500 टेराकोटा दीया का बल्क ऑर्डर प्राप्त हुआ है। कुल बजट 1 लाख 25 हज़ार रुपये है। आपके क्लस्टर के 5 कारीगर मिलकर यह ऑर्डर पूरा करेंगे। आपकी हिस्सेदारी 25 हज़ार रुपये है।'
-          : 'Bulk inquiry received from TATA Capital for 500 terracotta diya sets with a budget of 1 lakh 25 thousand rupees. Your local 5-artisan cooperative cluster will fulfill this order together, yielding 25 thousand rupees for your share.'
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
+    if (isSpeaking) {
+      realisticVoiceService.stop();
+      setIsSpeaking(false);
+      return;
     }
+
+    const speechText =
+      isHindi
+        ? 'टाटा को 500 दीये चाहिए। एक कारीगर सिर्फ 100 बना सकता है — आमतौर पर ऑर्डर कैंसिल हो जाता। हमारा एआई 15 किलोमीटर के अंदर समान हुनर वाले 5 से 10 कारीगरों को जोड़ता है। ऑर्डर बांटता है, क्वालिटी चेक करता है और पेमेंट स्प्लिट करता है। एक अकेला कारीगर नहीं — पूरा गांव मिलकर बी2बी ऑर्डर पूरा करता है। बिचौलिया हटा, क्लस्टर बना।'
+        : 'Tata Capital needs 500 terracotta diya sets. An individual artisan can only craft 100 units — typically resulting in order cancellation. Our AI pools 5 to 10 verified artisans within a 15 km radius into a Virtual Factory. It auto-splits production, manages QC, and distributes escrow payments. Eliminating middlemen through collaborative clusters.';
+
+    setIsSpeaking(true);
+    realisticVoiceService.speak(speechText, {
+      lang: isHindi ? 'hi-IN' : 'en-IN',
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
+  };
+
+  const handleClose = () => {
+    realisticVoiceService.stop();
+    setIsSpeaking(false);
+    onClose();
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+            <TouchableOpacity onPress={handleClose} style={styles.modalBackButton} activeOpacity={0.7}>
               <Text style={styles.modalBackIcon}>‹</Text>
             </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.hotPill}>
-                <Text style={styles.hotText}>{isHindi ? '🔥 2 नए RFQ मैच' : '🔥 2 NEW RFQ MATCH'}</Text>
+                <Text style={styles.hotText}>{isHindi ? '🤝 मुख्य स्तंभ #8' : '🤝 CORE PILLAR #8'}</Text>
               </View>
-              <Text style={styles.modalTitle}>{isHindi ? '🏢 B2B थोक अवसर' : '🏢 B2B Bulk Opportunities'}</Text>
+              <Text style={styles.modalTitle}>{isHindi ? 'कारीगर क्लस्टर व वर्चुअल फैक्ट्री' : 'Artisan Clusters & Virtual Factory'}</Text>
               <Text style={styles.subtitle}>
-                {isHindi ? 'सीधे कॉर्पोरेट उपहार एवं थोक ऑर्डर' : 'Direct enterprise corporate gifting orders'}
+                {isHindi ? '15 किमी दायरे में क्लस्टर निर्माण • 500+ थोक ऑर्डर पूर्ति' : '15 km skill pooling • 500+ bulk order fulfillment'}
               </Text>
             </View>
             <View style={styles.headerRightActions}>
               <TouchableOpacity onPress={handleSpeak} style={styles.audioButton} activeOpacity={0.7}>
-                <Text style={styles.audioIcon}>🔊</Text>
+                <Text style={styles.audioIcon}>{isSpeaking ? '⏹️' : '🔊'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
+              <TouchableOpacity onPress={handleClose} style={styles.closeButton} activeOpacity={0.7}>
                 <Text style={styles.closeButtonText}>{isHindi ? '✕ बंद करें' : '✕ Close'}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
-            {/* Primary Opportunity Card */}
-            <View style={styles.rfqCard}>
-              <View style={styles.companyRow}>
-                <View style={styles.companyLogoBadge}>
-                  <Text style={styles.companyLogoText}>🏢</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.companyName}>TATA Capital</Text>
-                  <Text style={styles.campaignName}>
-                    {isHindi ? 'दीपावली कॉर्पोरेट उपहार अभियान' : 'Diwali Corporate Gifting Campaign'}
-                  </Text>
-                </View>
-                <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedText}>
-                    {isHindi ? 'सत्यापित खरीदार ✓' : 'Verified Buyer ✓'}
-                  </Text>
-                </View>
-              </View>
+            {/* Punchline Hero Banner */}
+            <View style={styles.punchlineBanner}>
+              <Text style={styles.punchlineQuote}>
+                💡 {isHindi
+                  ? '“एक अकेला कारीगर नहीं — पूरा गांव मिलकर B2B ऑर्डर पूरा करता है। बिचौलिया हटा, क्लस्टर बना।”'
+                  : '“Not an isolated craftsman — an entire village unites as an enterprise Virtual Factory.”'}
+              </Text>
+              <Text style={styles.punchlineSub}>
+                {isHindi
+                  ? 'समस्या: व्यक्तिगत क्षमता छोटी है। समाधान: वर्चुअल फैक्ट्री, बिना फैक्ट्री बनाए।' : 'Problem: Individual capacity is limited. Solution: Virtual factory without building brick-and-mortar.'}
+              </Text>
+            </View>
 
-              {/* Order Specs */}
-              <View style={styles.specsGrid}>
-                <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>{isHindi ? '📦 कुल मात्रा' : '📦 Total Quantity'}</Text>
-                  <Text style={styles.specValue}>500 Sets</Text>
-                </View>
-                <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>{isHindi ? '💰 कुल बजट' : '💰 Total Budget'}</Text>
-                  <Text style={[styles.specValue, { color: '#059669' }]}>₹1,25,000</Text>
-                </View>
-                <View style={styles.specBox}>
-                  <Text style={styles.specLabel}>{isHindi ? '📅 डिलीवरी अंतिम तिथि' : '📅 Delivery Deadline'}</Text>
-                  <Text style={styles.specValue}>15 Oct 2026</Text>
-                </View>
-              </View>
-
-              {/* Warning/Opportunity Notice */}
-              <View style={styles.capacityNotice}>
-                <Text style={styles.capacityNoticeText}>
-                  ⚠️ <Text style={{ fontWeight: '700' }}>
-                    {isHindi ? 'अकेले कारीगर की क्षमता:' : 'Single Artisan Capacity Limit:'}
-                  </Text>{' '}
-                  {isHindi
-                    ? '500 सेट बनाना 15 दिन में कठिन है।'
-                    : 'Crafting 500 sets alone in 15 days is challenging.'}
+            {/* Top Navigation Tabs */}
+            <View style={styles.tabRow}>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === 'rfq' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('rfq')}
+              >
+                <Text style={[styles.tabBtnText, activeTab === 'rfq' && styles.tabBtnTextActive]}>
+                  {isHindi ? '🏢 TATA बल्क RFQ' : '🏢 TATA Enterprise RFQ'}
                 </Text>
-              </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === 'cluster' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('cluster')}
+              >
+                <Text style={[styles.tabBtnText, activeTab === 'cluster' && styles.tabBtnTextActive]}>
+                  {isHindi ? '🏭 15 किमी वर्चुअल फैक्ट्री' : '🏭 15km Virtual Factory'}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-              {/* SMART CLUSTER SUGGESTION (USP) */}
-              <View style={styles.clusterBox}>
-                <View style={styles.clusterHeaderRow}>
-                  <Text style={styles.clusterSparkle}>✨</Text>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.clusterTitle}>
-                      {isHindi ? 'स्मार्ट क्लस्टर पूर्ति (सहकारी मॉडल)' : 'SMART CLUSTER FULFILLMENT (USP)'}
-                    </Text>
-                    <Text style={styles.clusterSub}>
-                      {isHindi
-                        ? 'AI वर्चुअल कोऑपरेटिव ने 5 पास के कारीगरों को जोड़ा है:'
-                        : 'AI Virtual Cooperative connected 5 nearby artisans:'}
-                    </Text>
+            {activeTab === 'rfq' && (
+              <View>
+                {/* Primary Opportunity Card */}
+                <View style={styles.rfqCard}>
+                  <View style={styles.companyRow}>
+                    <View style={styles.companyLogoBadge}>
+                      <Text style={styles.companyLogoText}>🏢</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.companyName}>TATA Capital</Text>
+                      <Text style={styles.campaignName}>
+                        {isHindi ? 'दीपावली कॉर्पोरेट उपहार अभियान' : 'Diwali Corporate Gifting Campaign'}
+                      </Text>
+                    </View>
+                    <View style={styles.verifiedBadge}>
+                      <Text style={styles.verifiedText}>
+                        {isHindi ? 'सत्यापित खरीदार ✓' : 'Verified Buyer ✓'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Order Specs */}
+                  <View style={styles.specsGrid}>
+                    <View style={styles.specBox}>
+                      <Text style={styles.specLabel}>{isHindi ? '📦 कुल मात्रा' : '📦 Total Quantity'}</Text>
+                      <Text style={styles.specValue}>500 Sets</Text>
+                    </View>
+                    <View style={styles.specBox}>
+                      <Text style={styles.specLabel}>{isHindi ? '💰 कुल बजट' : '💰 Total Budget'}</Text>
+                      <Text style={[styles.specValue, { color: '#059669' }]}>₹1,25,000</Text>
+                    </View>
+                    <View style={styles.specBox}>
+                      <Text style={styles.specLabel}>{isHindi ? '📅 डिलीवरी अंतिम तिथि' : '📅 Delivery Deadline'}</Text>
+                      <Text style={styles.specValue}>15 Oct 2026</Text>
+                    </View>
+                    <View style={styles.specBox}>
+                      <Text style={styles.specLabel}>{isHindi ? '⭐ जीआई प्रमाणीकरण' : '⭐ GI Required'}</Text>
+                      <Text style={styles.specValue}>GI Mandatory</Text>
+                    </View>
                   </View>
                 </View>
 
-                <View style={styles.artisanList}>
-                  <View style={[styles.artisanRow, styles.artisanRowYou]}>
-                    <Text style={styles.artisanName}>
-                      {isHindi ? '• रमेश कुंभार (आप)' : '• Ramesh Kumbhar (You)'}
-                    </Text>
-                    <Text style={styles.artisanShare}>
-                      100 units → <Text style={styles.greenText}>₹25,000</Text>
-                    </Text>
-                  </View>
-                  <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>
-                      {isHindi ? '• सुरेश पाटिल (कोल्हापुर क्लस्टर)' : '• Suresh Patil (Kolhapur Cluster)'}
-                    </Text>
-                    <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
-                  </View>
-                  <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>
-                      {isHindi ? '• गणेश लोहार (हुपरी क्लस्टर)' : '• Ganesh Lohar (Hupari Cluster)'}
-                    </Text>
-                    <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
-                  </View>
-                  <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>
-                      {isHindi ? '• महेश कुंभार (गोकुल शिरगांव)' : '• Mahesh Kumbhar (Gokul Shirgaon)'}
-                    </Text>
-                    <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
-                  </View>
-                  <View style={styles.artisanRow}>
-                    <Text style={styles.artisanName}>
-                      {isHindi ? '• राकेश सुतार (उचगांव)' : '• Rakesh Sutar (Uchgaon)'}
-                    </Text>
-                    <Text style={styles.artisanShare}>100 units → ₹25,000</Text>
-                  </View>
-                </View>
-
-                {/* Direct Benefit */}
-                <View style={styles.earningsSummaryBox}>
-                  <Text style={styles.earningsSummaryLabel}>
-                    {isHindi ? 'आपकी हिस्सेदारी की पक्की कमाई:' : 'Guaranteed Payout for Your Share:'}
-                  </Text>
-                  <Text style={styles.earningsSummaryValue}>
-                    ₹25,000 {isHindi ? '(एस्क्रो में एडवांस सुरक्षित 🔒)' : '(Advance Protected in Escrow 🔒)'}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Accept Cluster CTA */}
-              {accepted ? (
-                <View style={styles.acceptedSuccessBox}>
-                  <Text style={styles.acceptedSuccessTitle}>
-                    {isHindi ? '🎉 क्लस्टर ऑर्डर स्वीकार किया गया!' : '🎉 Cluster Order Accepted!'}
-                  </Text>
-                  <Text style={styles.acceptedSuccessText}>
-                    {isHindi
-                      ? '5 कारीगरों का समूह तैयार है। ₹5,000 अग्रिम आपके खाते में एस्क्रो द्वारा सुरक्षित कर दिया गया है।'
-                      : '5-artisan cooperative group is ready. ₹5,000 advance has been secured in escrow for your account.'}
-                  </Text>
-                </View>
-              ) : (
+                {/* Accept Cluster CTA */}
                 <TouchableOpacity
                   onPress={handleAcceptCluster}
-                  style={styles.acceptClusterButton}
+                  style={[styles.acceptButton, accepted && styles.acceptButtonDone]}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.acceptClusterButtonText}>
-                    {isHindi ? '✓ क्लस्टर के साथ स्वीकार करें' : '✓ Accept with Cluster Cooperative'}
+                  <Text style={styles.acceptButtonText}>
+                    {accepted
+                      ? isHindi ? '✓ वर्चुअल फैक्ट्री सक्रिय! (क्लस्टर मैप देखें)' : '✓ Virtual Factory Active! View Map' : isHindi ? '🤝 15 किमी क्लस्टर जोड़ें व वर्चुअल फैक्ट्री बनाएं' : '🤝 Pool 15km Cluster & Form Virtual Factory'}
                   </Text>
                 </TouchableOpacity>
-              )}
-            </View>
+              </View>
+            )}
 
-            {/* Artisan B2B Score Card */}
-            <View style={styles.scoreCard}>
-              <View style={styles.scoreHeader}>
-                <Text style={styles.scoreTitle}>
-                  {isHindi ? '📊 आपका B2B क्लस्टर स्कोर' : '📊 Your B2B Cluster Performance'}
-                </Text>
-                <Text style={styles.scoreValue}>⭐ 4.8 / 5.0</Text>
+            {activeTab === 'cluster' && (
+              <View>
+                {/* Virtual Factory Map Summary */}
+                <View style={styles.factorySummaryCard}>
+                  <Text style={styles.factorySummaryTitle}>
+                    {isHindi ? '🏭 कोल्हापुर 15 किमी टेराकोटा क्लस्टर (500 दीये)' : '🏭 Kolhapur 15km Terracotta Cluster (500 Sets)'}
+                  </Text>
+                  <Text style={styles.factorySummarySub}>
+                    {isHindi
+                      ? 'AI ने आपके नजदीकी 5 कारीगरों को जोड़ा। प्रत्येक को 100 दीये बांटे गए:'
+                      : 'AI pooled 5 nearby craftspeople. Exactly 100 sets assigned to each:'}
+                  </Text>
+
+                  {[
+                    { name: isHindi ? 'रमेश कुंभार (आप - क्लस्टर हेड)' : 'Ramesh Kumbhar (You - Cluster Lead)', dist: '0 km', qty: '100 Sets', pay: '₹25,000', status: 'स्वीकृत' },
+                    { name: isHindi ? 'सुरेश कुंभार' : 'Suresh Kumbhar', dist: '3.2 km', qty: '100 Sets', pay: '₹25,000', status: 'स्वीकृत' },
+                    { name: isHindi ? 'अनीता प्रजापति' : 'Anita Prajapati', dist: '5.8 km', qty: '100 Sets', pay: '₹25,000', status: 'स्वीकृत' },
+                    { name: isHindi ? 'गणेश पोद्दार' : 'Ganesh Poddar', dist: '8.4 km', qty: '100 Sets', pay: '₹25,000', status: 'स्वीकृत' },
+                    { name: isHindi ? 'मीना बाई' : 'Meena Bai', dist: '12.1 km', qty: '100 Sets', pay: '₹25,000', status: 'स्वीकृत' },
+                  ].map((artisan, idx) => (
+                    <View key={idx} style={styles.artisanRow}>
+                      <View style={styles.artisanIcon}><Text style={{ fontSize: 16 }}>🏺</Text></View>
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text style={styles.artisanName}>{artisan.name}</Text>
+                        <Text style={styles.artisanDist}>{artisan.dist} • {artisan.qty}</Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={styles.artisanPay}>{artisan.pay}</Text>
+                        <Text style={styles.artisanStatus}>{artisan.status}</Text>
+                      </View>
+                    </View>
+                  ))}
+
+                  {/* Total Split Ledger */}
+                  <View style={styles.splitFooter}>
+                    <Text style={styles.splitTotalLabel}>{isHindi ? 'कुल क्लस्टर भुगतान (एस्क्रो सुरक्षित):' : 'Total Escrow Allocation:'}</Text>
+                    <Text style={styles.splitTotalVal}>₹1,25,000</Text>
+                  </View>
+                </View>
               </View>
-              <View style={styles.scoreStatsRow}>
-                <View style={styles.scoreStatItem}>
-                  <Text style={styles.scoreStatNumber}>12</Text>
-                  <Text style={styles.scoreStatLabel}>
-                    {isHindi ? 'पूर्ण थोक ऑर्डर' : 'Bulk Orders Done'}
-                  </Text>
-                </View>
-                <View style={styles.scoreStatDivider} />
-                <View style={styles.scoreStatItem}>
-                  <Text style={styles.scoreStatNumber}>100%</Text>
-                  <Text style={styles.scoreStatLabel}>
-                    {isHindi ? 'समय पर डिलीवरी' : 'On-Time Dispatch'}
-                  </Text>
-                </View>
-                <View style={styles.scoreStatDivider} />
-                <View style={styles.scoreStatItem}>
-                  <Text style={styles.scoreStatNumber}>₹3.1L</Text>
-                  <Text style={styles.scoreStatLabel}>
-                    {isHindi ? 'B2B कुल आय' : 'B2B Earnings'}
-                  </Text>
-                </View>
-              </View>
-            </View>
+            )}
           </ScrollView>
         </View>
       </View>
@@ -289,7 +269,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF3C7',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 12,
+    borderRadius: 8,
     alignSelf: 'flex-start',
     marginBottom: 4,
   },
@@ -299,67 +279,113 @@ const styles = StyleSheet.create({
     color: '#B45309',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '800',
     color: '#0F172A',
   },
   subtitle: {
     fontSize: 12,
-    fontWeight: '500',
     color: '#64748B',
     marginTop: 2,
   },
   headerRightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   audioButton: {
-    backgroundColor: '#EFF6FF',
     width: 36,
     height: 36,
     borderRadius: 18,
+    backgroundColor: '#FEF3C7',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
   },
   audioIcon: {
     fontSize: 16,
   },
   closeButton: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 12,
+    backgroundColor: '#F1F5F9',
   },
   closeButtonText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#64748B',
   },
   scrollBody: {
+    padding: 18,
+    paddingBottom: 40,
+  },
+  punchlineBanner: {
+    backgroundColor: '#451A03',
+    borderRadius: 16,
     padding: 16,
-    gap: 14,
+    marginBottom: 16,
+  },
+  punchlineQuote: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FDE68A',
+    lineHeight: 20,
+  },
+  punchlineSub: {
+    fontSize: 12,
+    color: '#FEF3C7',
+    marginTop: 6,
+    lineHeight: 18,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    backgroundColor: '#FEF3C7',
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 16,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  tabBtnActive: {
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+  },
+  tabBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#B45309',
+  },
+  tabBtnTextActive: {
+    color: '#92400E',
+    fontWeight: '800',
   },
   rfqCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 18,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
   companyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
     marginBottom: 14,
   },
   companyLogoBadge: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: '#EEF2FF',
+    borderRadius: 14,
+    backgroundColor: '#FEF3C7',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 10,
   },
   companyLogoText: {
     fontSize: 22,
@@ -375,214 +401,123 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   verifiedBadge: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
     borderRadius: 8,
   },
   verifiedText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#047857',
+    fontWeight: '800',
+    color: '#059669',
   },
   specsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  specBox: {
+    width: '48%',
     backgroundColor: '#F8FAFC',
-    borderRadius: 16,
     padding: 12,
-    justifyContent: 'space-between',
-    marginBottom: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#F1F5F9',
   },
-  specBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
   specLabel: {
     fontSize: 10,
-    fontWeight: '600',
     color: '#64748B',
-    textAlign: 'center',
+    marginBottom: 4,
   },
   specValue: {
     fontSize: 14,
     fontWeight: '800',
     color: '#0F172A',
-    marginTop: 4,
   },
-  capacityNotice: {
-    backgroundColor: '#FFFBEB',
-    padding: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
-    marginBottom: 14,
-  },
-  capacityNoticeText: {
-    fontSize: 12,
-    color: '#92400E',
-    lineHeight: 16,
-  },
-  clusterBox: {
-    backgroundColor: '#FAF5FF',
-    borderRadius: 18,
-    padding: 14,
-    borderWidth: 1.5,
-    borderColor: '#E9D5FF',
-    marginBottom: 14,
-  },
-  clusterHeaderRow: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  clusterSparkle: {
-    fontSize: 20,
-  },
-  clusterTitle: {
-    fontSize: 12.5,
-    fontWeight: '800',
-    color: '#6B21A8',
-    letterSpacing: 0.2,
-  },
-  clusterSub: {
-    fontSize: 11,
-    color: '#9333EA',
-    marginTop: 1,
-  },
-  artisanList: {
-    gap: 6,
-    marginVertical: 8,
-  },
-  artisanRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#F3E8FF',
-  },
-  artisanRowYou: {
-    backgroundColor: '#FDF4FF',
-    borderColor: '#D946EF',
-    borderWidth: 1.5,
-  },
-  artisanName: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#334155',
-  },
-  artisanShare: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-  greenText: {
-    color: '#059669',
-    fontWeight: '800',
-  },
-  earningsSummaryBox: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#E9D5FF',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  earningsSummaryLabel: {
-    fontSize: 11.5,
-    fontWeight: '600',
-    color: '#6B21A8',
-  },
-  earningsSummaryValue: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#047857',
-  },
-  acceptClusterButton: {
-    backgroundColor: '#7C3AED',
-    borderRadius: 14,
+  acceptButton: {
+    backgroundColor: '#D97706',
+    borderRadius: 16,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  acceptClusterButtonText: {
+  acceptButtonDone: {
+    backgroundColor: '#059669',
+  },
+  acceptButtonText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
   },
-  acceptedSuccessBox: {
-    backgroundColor: '#ECFDF5',
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-    alignItems: 'center',
-  },
-  acceptedSuccessTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#047857',
-  },
-  acceptedSuccessText: {
-    fontSize: 12,
-    color: '#065F46',
-    textAlign: 'center',
-    marginTop: 4,
-    lineHeight: 16,
-  },
-  scoreCard: {
+  factorySummaryCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
-  scoreHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  scoreTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#334155',
-  },
-  scoreValue: {
+  factorySummaryTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#D97706',
-  },
-  scoreStatsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    paddingVertical: 12,
-  },
-  scoreStatItem: {
-    alignItems: 'center',
-  },
-  scoreStatNumber: {
-    fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
   },
-  scoreStatLabel: {
+  factorySummarySub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  artisanRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  artisanIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  artisanName: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  artisanDist: {
     fontSize: 10,
     color: '#64748B',
     marginTop: 2,
   },
-  scoreStatDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: '#E2E8F0',
+  artisanPay: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  artisanStatus: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  splitFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  splitTotalLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  splitTotalVal: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#D97706',
   },
 });

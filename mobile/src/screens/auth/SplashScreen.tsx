@@ -69,8 +69,14 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       const targetRole = activeRole || user?.role || 'ARTISAN';
       const quickTimer = setTimeout(() => {
         if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-        if (soundRef.current) {
-          soundRef.current.stopAsync().catch(() => {});
+        if (audioPlayerRef.current) {
+          try {
+            if (typeof audioPlayerRef.current.pause === 'function') {
+              audioPlayerRef.current.pause();
+            } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
+              audioPlayerRef.current.stopAsync().catch(() => {});
+            }
+          } catch {}
         }
         navigation.replace('MainTabs', {
           screen: 'HomeTab',
