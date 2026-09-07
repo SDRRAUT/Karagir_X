@@ -21,6 +21,8 @@ import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import Svg, { Path } from 'react-native-svg';
+import { CRAFT_IMAGES } from '@/assets/craftImages';
+import { useCatalogStore } from '@/store/useCatalogStore';
 
 interface FlashProduct {
   id: string;
@@ -29,12 +31,15 @@ interface FlashProduct {
   price: number;
   originalPrice: number;
   discountBadge: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageSource: any;
   category: string;
   state: string;
   giCertified: boolean;
   giNumber: string;
   cluster: string;
+  craftTag: string;
+  craftInfo: string;
 }
 
 interface KahaaniStory {
@@ -43,7 +48,7 @@ interface KahaaniStory {
   craft: string;
   location: string;
   avatarUrl: string;
-  videoThumb: string;
+  videoThumb: any;
   storyQuote: string;
   duration: string;
   views: string;
@@ -53,44 +58,44 @@ const KAHAANI_STORIES: KahaaniStory[] = [
   {
     id: 'story_1',
     artisan: 'Radha Devi',
-    craft: 'Chanderi Silk',
+    craft: 'Chanderi Pure Silk',
     location: 'Chanderi, Madhya Pradesh',
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
-    videoThumb: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
-    storyQuote: 'Every single motif is handwoven on traditional pit looms over 18 days of devotion.',
+    videoThumb: CRAFT_IMAGES.chanderiSaree,
+    storyQuote: 'Every single motif is handwoven on traditional wooden pit looms over 18 days of devotion.',
     duration: '0:15',
     views: '12.4k',
   },
   {
     id: 'story_2',
     artisan: 'Master Ramesh',
-    craft: 'Terracotta Molding',
+    craft: 'Terracotta Hand-Molding',
     location: 'Bishnupur, West Bengal',
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-    videoThumb: 'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
-    storyQuote: 'River clay crafted with acoustic hollow chambers that cool water naturally by 8°C.',
+    videoThumb: CRAFT_IMAGES.terracottaDiya,
+    storyQuote: 'Alluvial river clay hand-turned on wooden wheels with porous micro-chambers that preserve water coolness.',
     duration: '0:14',
     views: '18.9k',
   },
   {
     id: 'story_3',
     artisan: 'Manglu Baghel',
-    craft: 'Lost-Wax Dhokra',
+    craft: 'Lost-Wax Dhokra Metallurgy',
     location: 'Bastar, Chhattisgarh',
     avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    videoThumb: 'https://images.unsplash.com/photo-1584286595398-a59f21d313f5?auto=format&fit=crop&w=600&q=80',
-    storyQuote: '4,000-year-old tribal metallurgy with wild bee honey-wax. No mold is ever reused.',
+    videoThumb: CRAFT_IMAGES.dhokraNandi,
+    storyQuote: '4,000-year-old tribal metallurgy with wild bee honey-wax molds. No mold is ever reused.',
     duration: '0:16',
     views: '9.8k',
   },
   {
     id: 'story_4',
     artisan: 'Sunita Devi',
-    craft: 'Kachni Madhubani',
+    craft: 'Kachni Madhubani Painting',
     location: 'Madhubani, Bihar',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    videoThumb: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80',
-    storyQuote: 'Hand-painted with nib pens using herbal extracts of turmeric, indigo, and forest soot.',
+    videoThumb: CRAFT_IMAGES.madhubaniArt,
+    storyQuote: 'Hand-painted with nib pens using herbal extracts of turmeric, indigo, and forest soot on rag paper.',
     duration: '0:15',
     views: '24.1k',
   },
@@ -108,93 +113,99 @@ const CRAFT_MAP_STATES = [
 const FLASH_PRODUCTS: FlashProduct[] = [
   {
     id: 'prod_flash_1',
-    title: 'Terracotta Diya (Set of 4)',
+    title: 'Terracotta Diya & Urli (Set of 4)',
     artisan: 'Ramesh Kumbhar, Kolhapur',
     price: 149,
     originalPrice: 299,
     discountBadge: '50% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.terracottaDiya,
     category: 'POTTERY',
     state: 'WEST_BENGAL',
     giCertified: true,
     giNumber: 'GI-IN-0412',
     cluster: 'Bishnupur Clay Cluster',
+    craftTag: '🏺 Hand-Thrown River Clay',
+    craftInfo: 'Hand-shaped on traditional wooden potter wheels using river alluvial clay & fired in earthen open kilns.',
   },
   {
     id: 'prod_flash_2',
-    title: 'Handwoven Chanderi Saree',
+    title: 'Handwoven Chanderi Silk Saree',
     artisan: 'Radha Devi, Chanderi',
     price: 799,
     originalPrice: 1599,
     discountBadge: '50% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.chanderiSaree,
     category: 'TEXTILE',
     state: 'GUJARAT',
     giCertified: true,
     giNumber: 'GI-IN-0078',
     cluster: 'Chanderi Weaver Co-op',
+    craftTag: '🧶 Pure Pit Loom Silk',
+    craftInfo: 'Woven over 18 days on traditional wooden pit looms with pure mulberry silk & genuine gold zari brocade.',
   },
   {
     id: 'prod_flash_3',
-    title: 'Dhokra Brass Nandi (Authentic)',
+    title: 'Dhokra Brass Nandi (Indus Cast)',
     artisan: 'Manglu Baghel, Bastar',
     price: 899,
     originalPrice: 1499,
     discountBadge: '40% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.dhokraNandi,
     category: 'METAL',
     state: 'CHHATTISGARH',
     giCertified: true,
     giNumber: 'GI-IN-0105',
     cluster: 'Bastar Lost-Wax Guild',
+    craftTag: '🔔 4,000-Yr Lost-Wax Cast',
+    craftInfo: 'Ancient tribal lost-wax metallurgy using wild honey beeswax. Each single mold is destroyed & unique.',
   },
   {
     id: 'prod_flash_4',
-    title: 'Madhubani Handpainted Stole',
+    title: 'Madhubani Mithila Folk Painting',
     artisan: 'Sunita Devi, Madhubani',
     price: 1299,
     originalPrice: 2500,
     discountBadge: '48% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.madhubaniArt,
     category: 'PAINTING',
     state: 'BIHAR',
     giCertified: true,
     giNumber: 'GI-IN-0091',
     cluster: 'Ranti Craft Village',
+    craftTag: '🎨 Natural Herbal Dyes',
+    craftInfo: 'Hand-painted with bamboo nibs on handmade rag paper using organic dyes of turmeric, indigo & soot.',
   },
   {
     id: 'prod_flash_5',
-    title: 'Jaipur Blue Pottery Vase',
+    title: 'Jaipur Blue Pottery Floral Urn',
     artisan: 'Kripal Studio, Jaipur',
     price: 549,
     originalPrice: 999,
     discountBadge: '45% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.bluePottery,
     category: 'POTTERY',
     state: 'GUJARAT',
     giCertified: true,
     giNumber: 'GI-IN-0054',
     cluster: 'Jaipur Heritage Guild',
+    craftTag: '🏺 Glazed Quartz Ceramic',
+    craftInfo: 'Crafted from crushed quartz stone & Multani mitti—never clay—fired with natural cobalt blue glaze.',
   },
   {
     id: 'prod_flash_6',
-    title: 'Kashmiri Carved Walnut Box',
+    title: 'Kashmiri Hand-Carved Walnut Box',
     artisan: 'Ghulam Rasool, Srinagar',
     price: 1150,
     originalPrice: 2100,
     discountBadge: '45% OFF',
-    imageUrl:
-      'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80',
+    imageSource: CRAFT_IMAGES.walnutBox,
     category: 'WOOD',
     state: 'KASHMIR',
     giCertified: true,
     giNumber: 'GI-IN-0182',
     cluster: 'Downtown Srinagar Guild',
+    craftTag: '🪵 Solid Walnut Carving',
+    craftInfo: 'Hewn from 100-year seasoned Himalayan walnut wood with deep chinar leaf relief carved with fine chisels.',
   },
 ];
 
@@ -323,7 +334,9 @@ export const MarketplaceHomeScreen: React.FC = () => {
     return `${h}h ${m}m ${s}s`;
   };
 
-  const filteredProducts = FLASH_PRODUCTS.filter((p) => {
+  const catalogProducts = useCatalogStore((s) => s.catalogProducts);
+
+  const filteredProducts = catalogProducts.filter((p) => {
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
     const matchesState = selectedState === 'ALL' || p.state === selectedState;
     const matchesSearch =
@@ -350,6 +363,15 @@ export const MarketplaceHomeScreen: React.FC = () => {
       {/* 1. Header Bar matching reference mockup */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          {navigation.canGoBack() && (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ marginRight: 8, padding: 4 }}
+              accessibilityLabel="Go back"
+            >
+              <Text style={{ fontSize: 18, color: '#0F172A', fontWeight: 'bold' }}>←</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.brandTitleMain}>Kalakar Setu</Text>
           <TouchableOpacity
             style={styles.locationSelector}
@@ -531,6 +553,24 @@ export const MarketplaceHomeScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Live Catalog Update Alert if newly listed item exists */}
+        {catalogProducts.some((p) => p.isNewlyListed) && (
+          <View style={styles.catalogNewlyAddedBanner}>
+            <Text style={{ fontSize: 20, marginRight: 8 }}>✨</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.catalogNewlyAddedTitle}>
+                Live Catalog Updated: New Craft Listed!
+              </Text>
+              <Text style={styles.catalogNewlyAddedSub}>
+                Direct from artisan workshop • Verified GI pedigree. Discover below.
+              </Text>
+            </View>
+            <View style={styles.liveGreenPill}>
+              <Text style={styles.liveGreenPillText}>🟢 LIVE</Text>
+            </View>
+          </View>
+        )}
+
         {/* 6. Product Deal Cards Grid (2-Columns) matching reference mockup */}
         <View style={styles.productGrid}>
           {filteredProducts.map((prod) => {
@@ -544,11 +584,22 @@ export const MarketplaceHomeScreen: React.FC = () => {
               >
                 {/* Product Image Container */}
                 <View style={styles.cardImageContainer}>
-                  <Image source={{ uri: prod.imageUrl }} style={styles.cardImage} resizeMode="cover" />
+                  <Image
+                    source={prod.imageSource ? prod.imageSource : { uri: prod.imageUrl }}
+                    style={styles.cardImage}
+                    resizeMode="cover"
+                  />
 
-                  {/* Top-Left Discount Badge */}
-                  <View style={styles.discountBadge}>
-                    <Text style={styles.discountBadgeText}>{prod.discountBadge}</Text>
+                  {/* Top-Left Discount or Just Listed Badge */}
+                  <View
+                    style={[
+                      styles.discountBadge,
+                      prod.isNewlyListed && styles.justListedBadge,
+                    ]}
+                  >
+                    <Text style={styles.discountBadgeText}>
+                      {prod.isNewlyListed ? '🟢 JUST LISTED' : prod.discountBadge}
+                    </Text>
                   </View>
 
                   {/* Wishlist Heart Overlay */}
@@ -562,7 +613,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         craftCategoryName: prod.category,
                         artisanName: prod.artisan,
                         artisanState: 'India',
-                        imageUri: prod.imageUrl,
+                        imageUri: prod.imageUrl || '',
                       })
                     }
                   >
@@ -570,7 +621,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                   </TouchableOpacity>
                 </View>
 
-                {/* Card Information */}
+                {/* Card Information & Handmade Heritage Details Below */}
                 <View style={styles.cardInfo}>
                   <Text numberOfLines={1} style={styles.cardArtisan}>
                     {prod.artisan}
@@ -586,6 +637,28 @@ export const MarketplaceHomeScreen: React.FC = () => {
                       ₹{prod.originalPrice}
                     </Text>
                   </View>
+
+                  {/* Authentic Handmade Technique Tag */}
+                  <View style={styles.craftTagBadge}>
+                    <Text style={styles.craftTagBadgeText}>{prod.craftTag}</Text>
+                  </View>
+
+                  {/* Detailed Craft Info: Material, Heritage & Technique */}
+                  <Text numberOfLines={3} style={styles.craftInfoText}>
+                    {prod.craftInfo}
+                  </Text>
+
+                  {/* GI Certified Cluster Origin */}
+                  <View style={styles.giPedigreeBadge}>
+                    <Text numberOfLines={1} style={styles.giPedigreeText}>
+                      🏛️ {prod.cluster}
+                    </Text>
+                  </View>
+
+                  {/* Direct Rural Artisan Guarantee */}
+                  <Text style={styles.directArtisanBadge}>
+                    ✓ 100% Handcrafted • 0% Middleman
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
@@ -617,7 +690,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
                 activeOpacity={0.88}
               >
                 <View style={styles.storyImageRing}>
-                  <Image source={{ uri: story.videoThumb }} style={styles.storyThumbnail} />
+                  <Image
+                    source={typeof story.videoThumb === 'string' ? { uri: story.videoThumb } : story.videoThumb}
+                    style={styles.storyThumbnail}
+                    resizeMode="cover"
+                  />
                   <View style={styles.storyPlayIconBox}>
                     <Text style={{ fontSize: 12, color: '#FFFFFF' }}>▶</Text>
                   </View>
@@ -996,7 +1073,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
         <View style={styles.storyModalOverlay}>
           {activeStory && (
             <View style={styles.storyPlayerContainer}>
-              <Image source={{ uri: activeStory.videoThumb }} style={styles.storyPlayerBg} resizeMode="cover" />
+              <Image
+                source={typeof activeStory.videoThumb === 'string' ? { uri: activeStory.videoThumb } : activeStory.videoThumb}
+                style={styles.storyPlayerBg}
+                resizeMode="cover"
+              />
               <View style={styles.storyTopBar}>
                 <View style={styles.storyAuthorRow}>
                   <Image source={{ uri: activeStory.avatarUrl }} style={styles.storyAvatar} />
@@ -1122,7 +1203,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
             {/* Video Stream Placeholder */}
             <View style={styles.melaVideoBox}>
               <Image
-                source={{ uri: 'https://images.unsplash.com/photo-1584286595398-a59f21d313f5?auto=format&fit=crop&w=600&q=80' }}
+                source={CRAFT_IMAGES.dhokraNandi}
                 style={{ width: '100%', height: '100%' }}
                 resizeMode="cover"
               />
@@ -2004,6 +2085,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 4,
   },
+  justListedBadge: {
+    backgroundColor: '#16A34A',
+  },
   discountBadgeText: {
     color: '#FFFFFF',
     fontSize: 10,
@@ -2054,6 +2138,48 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     fontSize: 12,
     color: '#94A3B8',
+  },
+  craftTagBadge: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 5,
+  },
+  craftTagBadgeText: {
+    color: '#C2410C',
+    fontSize: 9.5,
+    fontWeight: '700',
+  },
+  craftInfoText: {
+    fontSize: 10.5,
+    color: '#475569',
+    lineHeight: 14.5,
+    marginBottom: 6,
+  },
+  giPedigreeBadge: {
+    backgroundColor: '#F0F9FF',
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+  },
+  giPedigreeText: {
+    color: '#0369A1',
+    fontSize: 9,
+    fontWeight: '600',
+  },
+  directArtisanBadge: {
+    color: '#16A34A',
+    fontSize: 9,
+    fontWeight: '700',
+    marginTop: 2,
   },
   quickAddBtn: {
     backgroundColor: '#FFF7ED',
@@ -2537,5 +2663,38 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  catalogNewlyAddedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1.5,
+    borderColor: '#6EE7B7',
+    borderRadius: 14,
+    padding: 12,
+    marginHorizontal: 16,
+    marginBottom: 12,
+  },
+  catalogNewlyAddedTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#065F46',
+  },
+  catalogNewlyAddedSub: {
+    fontSize: 11,
+    color: '#047857',
+    marginTop: 2,
+  },
+  liveGreenPill: {
+    backgroundColor: '#10B981',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginLeft: 6,
+  },
+  liveGreenPillText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '800',
   },
 });

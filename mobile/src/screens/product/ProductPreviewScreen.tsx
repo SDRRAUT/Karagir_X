@@ -10,6 +10,7 @@ import { Card } from '@/components/cards/Card';
 import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { productService } from '@/api/productService';
+import { useCatalogStore } from '@/store/useCatalogStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductPreview'>;
 
@@ -59,10 +60,35 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
         careInstructions: careInstructions.hi,
       });
 
+      // Add to central live catalog store
+      useCatalogStore.getState().addProductToCatalog({
+        id: result.id,
+        title: displayTitle,
+        price: finalSellingPrice || 2150,
+        originalPrice: Math.round((finalSellingPrice || 2150) * 1.35),
+        imageUri: primaryPhoto?.enhancedUri || primaryPhoto?.uri,
+        category: 'POTTERY',
+        craftTag: `✓ ${craftCategoryName || '100% Handcrafted'}`,
+        craftInfo: displayDescription,
+        cluster: 'Kolhapur Heritage Cluster',
+      });
+
       setPublishedProduct(result);
       setIsPublishing(false);
       navigation.replace('PublishSuccess');
     } catch (_err) {
+      // Even if offline/network fails, ensure it is added to the local catalog
+      useCatalogStore.getState().addProductToCatalog({
+        title: displayTitle,
+        price: finalSellingPrice || 2150,
+        originalPrice: Math.round((finalSellingPrice || 2150) * 1.35),
+        imageUri: primaryPhoto?.enhancedUri || primaryPhoto?.uri,
+        category: 'POTTERY',
+        craftTag: `✓ ${craftCategoryName || '100% Handcrafted'}`,
+        craftInfo: displayDescription,
+        cluster: 'Kolhapur Heritage Cluster',
+      });
+
       setIsPublishing(false);
       navigation.replace('PublishSuccess');
     }

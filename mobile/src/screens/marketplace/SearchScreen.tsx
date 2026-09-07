@@ -8,6 +8,7 @@ import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
 import { useMarketplaceStore } from '@/store/useMarketplaceStore';
 import { marketplaceService, MarketplaceProduct } from '@/api/marketplaceService';
+import { VoiceInputModal } from '@/components/modals/VoiceInputModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Search'>;
 
@@ -15,7 +16,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { searchQuery, setSearchQuery, recentSearches, addRecentSearch } = useMarketplaceStore();
   const [results, setResults] = useState<MarketplaceProduct[]>([]);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
   useEffect(() => {
     marketplaceService.getProducts({ searchQuery }).then(setResults);
@@ -30,12 +31,14 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleVoiceSearch = () => {
-    setIsVoiceActive(true);
-    setTimeout(() => {
-      setIsVoiceActive(false);
-      setSearchQuery('Madhubani Painting');
-      addRecentSearch('Madhubani Painting');
-    }, 1200);
+    setShowVoiceModal(true);
+  };
+
+  const handleVoiceApply = (spokenText: string) => {
+    if (spokenText.trim()) {
+      setSearchQuery(spokenText.trim());
+      addRecentSearch(spokenText.trim());
+    }
   };
 
   const renderProductItem = ({ item }: { item: MarketplaceProduct }) => (
@@ -107,16 +110,6 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       </View>
 
-      {/* Voice Listening Banner */}
-      {isVoiceActive && (
-        <View style={[styles.voiceActiveCard, { backgroundColor: theme.colors.brand.light, borderColor: theme.colors.brand.primary }]}>
-          <Text style={{ fontSize: 20, marginRight: 8 }}>🔴</Text>
-          <Text variant="bodyMedium" weight="bold" color={theme.colors.brand.primary}>
-            Listening... Speak in any language
-          </Text>
-        </View>
-      )}
-
       {/* Recent Searches Pills */}
       {recentSearches.length > 0 && searchQuery.length === 0 && (
         <View style={styles.recentContainer}>
@@ -159,6 +152,15 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           ) : null
         }
+      />
+
+      {/* Real-time Voice Search Modal with AI Modification */}
+      <VoiceInputModal
+        visible={showVoiceModal}
+        onClose={() => setShowVoiceModal(false)}
+        onApplyText={handleVoiceApply}
+        title="Voice Craft Search (बोलकर खोजें)"
+        context="search"
       />
     </SafeAreaView>
   );

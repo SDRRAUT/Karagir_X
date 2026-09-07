@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Animated,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -11,6 +20,14 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 import { LoadingSpinner } from '@/components/feedback/LoadingSpinner';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { voiceService, VoiceTranscriptionResult } from '@/api/voiceService';
+import {
+  speechRecognitionService,
+  SpeechLanguage,
+} from '@/services/speechRecognitionService';
+import {
+  aiVoiceModifierService,
+  AiVoiceModificationResult,
+} from '@/services/aiVoiceModifierService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VoiceDescription'>;
 
@@ -18,10 +35,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { photos, primaryPhotoId, setVoiceStory } = useProductDraftStore();
 
+  const [selectedLanguage, setSelectedLanguage] = useState<SpeechLanguage>('hi-IN');
   const [isRecording, setIsRecording] = useState(false);
   const [secondsRecorded, setSecondsRecorded] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [spokenTranscript, setSpokenTranscript] = useState('');
   const [transcriptionResult, setTranscriptionResult] = useState<VoiceTranscriptionResult | null>(null);
+  const [isModifyingWithAi, setIsModifyingWithAi] = useState(false);
+  const [aiModifiedResult, setAiModifiedResult] = useState<AiVoiceModificationResult | null>(null);
 
   const [pulseAnim] = useState(() => new Animated.Value(1));
   const timerRef = useRef<any>(null);
@@ -65,19 +86,76 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
     setSecondsRecorded(0);
     setIsRecording(true);
     setTranscriptionResult(null);
+    setAiModifiedResult(null);
+
+    speechRecognitionService.startListening(
+      {
+        onResult: (transcript) => {
+          setSpokenTranscript(transcript);
+        },
+        onError: (err) => {
+          console.warn('Speech error:', err);
+        },
+      },
+      selectedLanguage
+    );
   };
 
   const handleStopRecording = async () => {
+    speechRecognitionService.stopListening();
     setIsRecording(false);
     setIsProcessing(true);
 
     try {
-      const result = await voiceService.transcribeDescription('file:///mock/recorded_voice.wav');
+      const userText = spokenTranscript.trim();
+      const result = await voiceService.transcribeDescription(
+        'file:///mock/recorded_voice.wav',
+        selectedLanguage.split('-')[0],
+        userText || undefined
+      );
+
       setTranscriptionResult(result);
+      if (!userText) {
+        setSpokenTranscript(result.transcript);
+      }
       setVoiceStory('file:///mock/recorded_voice.wav', result.transcript, result.extractedEntities);
       setIsProcessing(false);
     } catch (_err) {
       setIsProcessing(false);
+    }
+  };
+
+  const handleModifyWithAi = async () => {
+    const textToModify = spokenTranscript || transcriptionResult?.transcript || '';
+    if (!textToModify.trim()) return;
+
+    setIsModifyingWithAi(true);
+    try {
+      const aiRes = await aiVoiceModifierService.modifyWithAi(textToModify, 'product_story');
+      setAiModifiedResult(aiRes);
+
+      const updatedEntities = {
+        ...(transcriptionResult?.extractedEntities || {}),
+        ...(aiRes.extractedAttributes || {}),
+      };
+
+      setVoiceStory('file:///mock/recorded_voice.wav', aiRes.modifiedText, updatedEntities);
+      setTranscriptionResult((prev) =>
+        prev
+          ? {
+              ...prev,
+              transcript: aiRes.modifiedText,
+              extractedEntities: updatedEntities,
+            }
+          : {
+              transcript: aiRes.modifiedText,
+              extractedEntities: updatedEntities,
+              isComplete: false,
+            }
+      );
+      setIsModifyingWithAi(false);
+    } catch (_e) {
+      setIsModifyingWithAi(false);
     }
   };
 
@@ -117,10 +195,56 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               Tell us about your handcrafted creation
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]} style={{ marginTop: 2 }}>
-              What is it, how did you make it, what materials were used?
+              Speak naturally: what is it, how did you make it, what materials were used?
             </Text>
           </View>
         </Card>
+
+        {/* Language Selector Bar */}
+        <View style={styles.langSelectorRow}>
+          <Text variant="bodySmall" weight="semiBold" color="#64748B">
+            Language:
+          </Text>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('hi-IN')}
+            style={[styles.langChip, selectedLanguage === 'hi-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'hi-IN' && styles.langChipTextActive,
+              ]}
+            >
+              🇮🇳 हिंदी
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('mr-IN')}
+            style={[styles.langChip, selectedLanguage === 'mr-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'mr-IN' && styles.langChipTextActive,
+              ]}
+            >
+              मराठी
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('en-IN')}
+            style={[styles.langChip, selectedLanguage === 'en-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'en-IN' && styles.langChipTextActive,
+              ]}
+            >
+              English
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Central Audio Recording Studio */}
         <View style={styles.centerStage}>
@@ -129,7 +253,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             style={[
               styles.pulseRing,
               {
-                borderColor: isRecording ? '#6C63FF' : '#DAA520',
+                borderColor: isRecording ? '#EA580C' : '#DAA520',
                 transform: [{ scale: pulseAnim }],
               },
             ]}
@@ -143,7 +267,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             style={[
               styles.micButton,
               {
-                backgroundColor: isRecording ? '#6B6B8D' : '#6C63FF',
+                backgroundColor: isRecording ? '#EA580C' : '#6C63FF',
               },
             ]}
             accessibilityRole="button"
@@ -156,7 +280,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
           <Text
             variant="headlineLarge"
             weight="bold"
-            color={isRecording ? '#6C63FF' : theme.colors.charcoal[900]}
+            color={isRecording ? '#EA580C' : theme.colors.charcoal[900]}
             style={styles.timerText}
           >
             {isRecording ? formatTimer(secondsRecorded) : 'Tap Mic to Speak'}
@@ -180,7 +304,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
                     styles.waveBar,
                     {
                       height: h,
-                      backgroundColor: i % 2 === 0 ? '#6C63FF' : '#4F9DFF',
+                      backgroundColor: i % 2 === 0 ? '#EA580C' : '#F59E0B',
                     },
                   ]}
                 />
@@ -188,6 +312,86 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           )}
         </View>
+
+        {/* STEP 1: Spoken Voice Transcript Display Card (Display to User) */}
+        {(spokenTranscript.length > 0 || isRecording) && (
+          <Card style={styles.spokenVoiceCard} variant="elevated">
+            <View style={styles.spokenHeader}>
+              <Text variant="bodySmall" weight="bold" color="#EA580C">
+                🎙️ 1. Your Spoken Words (आपकी आवाज़):
+              </Text>
+              <Text variant="caption" color="#64748B">
+                Tap to edit
+              </Text>
+            </View>
+            <TextInput
+              style={styles.spokenInput}
+              multiline
+              value={spokenTranscript}
+              onChangeText={setSpokenTranscript}
+              placeholder="Aapki aawaz yahan transcript hogi..."
+              placeholderTextColor="#94A3B8"
+            />
+
+            {/* Quick Suggestion Chips */}
+            <View style={styles.chipsRow}>
+              <TouchableOpacity
+                style={styles.quickChip}
+                onPress={() =>
+                  setSpokenTranscript((prev) =>
+                    prev ? prev + ' शुद्ध टेराकोटा नदी की मिट्टी से बना।' : 'शुद्ध टेराकोटा नदी की मिट्टी से बना 5 पीस का दीया सेट।'
+                  )
+                }
+              >
+                <Text style={styles.quickChipText}>+ Terracotta Clay</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickChip}
+                onPress={() =>
+                  setSpokenTranscript((prev) =>
+                    prev ? prev + ' शुद्ध सिल्क हथकरघा साड़ी।' : 'अस्सल पैठणी शुद्ध रेशम हथकरघा साड़ी।'
+                  )
+                }
+              >
+                <Text style={styles.quickChipText}>+ Pure Silk</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.quickChip}
+                onPress={() =>
+                  setSpokenTranscript((prev) =>
+                    prev ? prev + ' 2 दिन का श्रम लगा है।' : '2 दिन का कठिन हाथ का श्रम।'
+                  )
+                }
+              >
+                <Text style={styles.quickChipText}>+ 2 Days Labor</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* STEP 2: Trigger AI Modification */}
+            <TouchableOpacity
+              style={[
+                styles.modifyAiBtn,
+                (!spokenTranscript.trim() || isModifyingWithAi) && styles.btnDisabled,
+              ]}
+              disabled={!spokenTranscript.trim() || isModifyingWithAi}
+              onPress={handleModifyWithAi}
+              activeOpacity={0.85}
+            >
+              {isModifyingWithAi ? (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                  <Text variant="bodySmall" weight="bold" color="#FFFFFF" style={{ marginLeft: 8 }}>
+                    AI Analyzing & Polishing Story...
+                  </Text>
+                </View>
+              ) : (
+                <Text variant="bodySmall" weight="bold" color="#FFFFFF">
+                  ✨ 2. Modify & Enhance with AI (AI से सुधारें)
+                </Text>
+              )}
+            </TouchableOpacity>
+          </Card>
+        )}
 
         {/* Processing State */}
         {isProcessing && (
@@ -202,12 +406,12 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               Bhashini AI Speech Engine is listening...
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
-              Bhashini Speech Engine: Transcribing voice & extracting craft attributes
+              Transcribing voice & extracting craft attributes
             </Text>
           </Card>
         )}
 
-        {/* Successful Transcript Card */}
+        {/* Successful Transcript Card / Voice Summary */}
         {transcriptionResult && !isProcessing && (
           <Card style={styles.resultCard} variant="elevated">
             <View style={styles.resultHeader}>
@@ -219,13 +423,29 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               </Text>
             </View>
 
-            <Text variant="caption" weight="bold" color={theme.colors.brand.primary} style={{ marginTop: 6, marginBottom: 2 }}>
+            <Text
+              variant="caption"
+              weight="bold"
+              color={theme.colors.brand.primary}
+              style={{ marginTop: 6, marginBottom: 2 }}
+            >
               Voice Summary:
             </Text>
 
-            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.transcriptText}>
+            <Text
+              variant="bodyLarge"
+              weight="bold"
+              color={theme.colors.charcoal[900]}
+              style={styles.transcriptText}
+            >
               "{transcriptionResult.transcript}"
             </Text>
+
+            {aiModifiedResult?.explanation && (
+              <Text variant="caption" color="#059669" style={{ marginTop: 4, fontStyle: 'italic' }}>
+                ✓ {aiModifiedResult.explanation}
+              </Text>
+            )}
 
             <View style={styles.clusterBadge}>
               <Text style={styles.clusterBadgeText}>
@@ -263,7 +483,12 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Bottom Sticky Bar */}
       {!isProcessing && (
-        <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
+        <View
+          style={[
+            styles.bottomBar,
+            { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] },
+          ]}
+        >
           <Button
             label={
               transcriptionResult
@@ -296,16 +521,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E0DCFF',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   thumb: {
-    width: 68,
-    height: 68,
-    borderRadius: 12,
+    width: 60,
+    height: 60,
+    borderRadius: 10,
     marginRight: 14,
   },
   placeholderThumb: {
-    backgroundColor: '#F3EFE9',
+    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -314,7 +539,7 @@ const styles = StyleSheet.create({
   },
   voiceTagPill: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F0EEFF',
+    backgroundColor: '#EEF2FF',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
@@ -322,22 +547,44 @@ const styles = StyleSheet.create({
   },
   voiceTagText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: '#6C63FF',
-    letterSpacing: 0.5,
+    fontWeight: 'bold',
+    color: '#6366F1',
+  },
+  langSelectorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  langChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+    backgroundColor: '#E2E8F0',
+  },
+  langChipActive: {
+    backgroundColor: '#EA580C',
+  },
+  langChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+  },
+  langChipTextActive: {
+    color: '#FFFFFF',
   },
   centerStage: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 28,
-    position: 'relative',
+    paddingVertical: 24,
   },
   pulseRing: {
     position: 'absolute',
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    borderWidth: 2.5,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    borderWidth: 2,
   },
   micButton: {
     width: 96,
@@ -345,115 +592,161 @@ const styles = StyleSheet.create({
     borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#1A1A2E',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
     elevation: 6,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
   },
   micIcon: {
-    fontSize: 42,
+    fontSize: 40,
   },
   timerText: {
-    marginTop: 20,
-    textAlign: 'center',
+    marginTop: 16,
   },
   guidancePill: {
     marginTop: 8,
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 14,
     paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#F3EFE9',
+    borderRadius: 12,
   },
   waveRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 36,
-    marginTop: 18,
     gap: 4,
+    marginTop: 16,
   },
   waveBar: {
     width: 4,
     borderRadius: 2,
   },
+  spokenVoiceCard: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FDBA74',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+  },
+  spokenHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  spokenInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    padding: 10,
+    fontSize: 14,
+    color: '#0F172A',
+    minHeight: 60,
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+    marginBottom: 10,
+  },
+  quickChip: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#FDBA74',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  quickChipText: {
+    fontSize: 11,
+    color: '#C2410C',
+    fontWeight: '600',
+  },
+  modifyAiBtn: {
+    backgroundColor: '#4F46E5',
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  btnDisabled: {
+    opacity: 0.5,
+  },
   processingCard: {
     alignItems: 'center',
-    padding: 18,
-    marginTop: 16,
+    padding: 20,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E0DCFF',
+    backgroundColor: '#FFFBEB',
+    marginBottom: 16,
   },
   resultCard: {
-    marginTop: 20,
-    padding: 18,
+    padding: 16,
     borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0DCFF',
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
   resultHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   badgeRow: {
-    backgroundColor: '#F3EFE9',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 6,
   },
   badgeText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#6B6B8D',
-    letterSpacing: 0.5,
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#166534',
   },
   transcriptText: {
-    lineHeight: 24,
-    marginBottom: 12,
+    fontStyle: 'italic',
+    lineHeight: 22,
+    marginTop: 4,
   },
   clusterBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#E8F5EE',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: '#F0FDF4',
+    padding: 8,
     borderRadius: 8,
-    marginBottom: 12,
+    marginTop: 12,
   },
   clusterBadgeText: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#6C63FF',
+    fontWeight: '600',
+    color: '#166534',
   },
   entitiesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
   },
   entityChip: {
-    backgroundColor: '#F3EFE9',
-    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginRight: 8,
-    marginBottom: 6,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
+    padding: 16,
     borderTopWidth: 1,
-    shadowColor: '#1A1A2E',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
-    elevation: 8,
   },
 });
-

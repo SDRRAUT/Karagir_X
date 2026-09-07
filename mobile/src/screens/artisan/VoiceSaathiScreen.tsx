@@ -6,9 +6,17 @@ import {
   ScrollView,
   Platform,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
+import {
+  speechRecognitionService,
+  SpeechLanguage,
+} from '@/services/speechRecognitionService';
+import {
+  aiVoiceModifierService,
+} from '@/services/aiVoiceModifierService';
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +26,7 @@ interface ConversationEntry {
   text: string;
   audioText?: string;
   time: string;
-  actionType?: 'orders' | 'earnings' | 'price' | 'delivery' | 'schemes' | 'create';
+  actionType?: 'orders' | 'earnings' | 'price' | 'delivery' | 'schemes' | 'create' | 'general';
   data?: any;
 }
 
@@ -32,13 +40,18 @@ const COMMAND_SUGGESTIONS = [
 
 export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const [selectedLanguage, setSelectedLanguage] = useState<SpeechLanguage>('hi-IN');
   const [isListening, setIsListening] = useState(false);
   const [activeSpeech, setActiveSpeech] = useState('');
+  const [lastSpokenText, setLastSpokenText] = useState('');
+  const [isTypingQuery, setIsTypingQuery] = useState(false);
+  const [customQueryText, setCustomQueryText] = useState('');
+
   const [conversations, setConversations] = useState<ConversationEntry[]>([
     {
       id: '1',
       sender: 'saathi',
-      text: 'Namaste Ramesh Ji! Main aapka Voice Saathi hoon. Aap mujhse bolkar app ka koi bhi kaam karwa sakte hain.',
+      text: 'Namaste Ramesh Ji! Main aapka Voice Saathi hoon. Boliye, main aapki kya madad kar sakta hoon?',
       audioText: 'Namaste Ramesh Ji! Main aapka Voice Saathi hoon. Boliye, main aapki kya madad kar sakta hoon?',
       time: 'Just now',
     },
@@ -48,76 +61,87 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
+      utterance.lang = selectedLanguage;
       utterance.rate = 0.95;
       window.speechSynthesis.speak(utterance);
     }
   };
 
-  const handleCommandPress = (query: string, type: string) => {
-    // Add User Query
+  const handleQuerySubmit = (queryText: string) => {
+    const trimmed = queryText.trim();
+    if (!trimmed) return;
+
+    // 1. Add User's Actual Spoken Query to Conversation
     const userMsg: ConversationEntry = {
       id: Date.now().toString(),
       sender: 'user',
-      text: query,
+      text: trimmed,
       time: 'Now',
     };
 
-    let replyText = '';
-    let speechAudio = '';
-    let actionData: any = null;
-
-    if (type === 'earnings') {
-      replyText = '💰 Ramesh Ji, aaj aapne kul ₹2,400 kamaye hain, jo ki kal se 30% zyada hai! Nodal Escrow mein ₹2,892 safe hain.';
-      speechAudio = 'Ramesh Ji, aaj aapne kul do hazaar char sau rupaye kamaye hain, jo kal se tees pratishat zyada hai.';
-      actionData = { earnings: '₹2,400', escrow: '₹2,892', change: '+30%' };
-    } else if (type === 'orders') {
-      replyText = '📦 Aapke pass 2 naye orders pending hain. Pune se Priya Sharma Ji ne Terracotta Diya Set ka order diya hai (₹1,250).';
-      speechAudio = 'Aapke pass do naye orders pending hain. Pune se Priya Sharma Ji ka diya set ka order accept karna hai.';
-      actionData = { count: 2, buyer: 'Priya Sharma', item: 'Terracotta Diya Set' };
-    } else if (type === 'price') {
-      replyText = '💡 Terracotta Diya Set ka recommended price ₹850 hai. Diwali festival demand ki wajah se ye ₹1,500 tak ja sakta hai.';
-      speechAudio = 'Terracotta Diya Set ka sahi daam aath sau pachaas rupaye hai. Diwali par demand teen guna badh gayi hai.';
-      actionData = { recommended: '₹850', festival: '₹1,500' };
-    } else if (type === 'delivery') {
-      replyText = '🚚 Anita Desai Ji ka clay pot order 12 September tak deliver karna hai. India Post pickup ready hai.';
-      speechAudio = 'Anita Desai Ji ka order barah september tak deliver karna hai. Packing hone par pickup bula lein.';
-      actionData = { customer: 'Anita Desai', deadline: '12 Sept' };
-    } else if (type === 'schemes') {
-      replyText = '🏛️ PM Vishwakarma yojana mein ₹15,000 tool grant link ho chuka hai. Mudra loan mein ₹50,000 pre-approved hain.';
-      speechAudio = 'PM Vishwakarma yojana se tool grant mil gaya hai, aur Mudra loan mein pachaas hazaar rupaye pre-approved hain.';
-      actionData = { vishwakarma: '₹15,000 Linked', mudra: '₹50,000 Pre-approved' };
-    } else {
-      replyText = `Maine aapka sandesh samajh liya hai: "${query}".`;
-      speechAudio = replyText;
-    }
+    // 2. Process intelligently using AI Voice Modifier & Intent Service
+    const aiResponse = aiVoiceModifierService.processSaathiQuery(trimmed);
 
     const saathiMsg: ConversationEntry = {
       id: (Date.now() + 1).toString(),
       sender: 'saathi',
-      text: replyText,
-      audioText: speechAudio,
+      text: aiResponse.replyText,
+      audioText: aiResponse.audioText,
       time: 'Now',
-      actionType: type as any,
-      data: actionData,
+      actionType: aiResponse.actionType,
+      data: aiResponse.data,
     };
 
     setConversations((prev) => [saathiMsg, userMsg, ...prev]);
-    playVoice(speechAudio);
+    playVoice(aiResponse.audioText);
+    setLastSpokenText('');
+    setCustomQueryText('');
   };
 
   const handleMicToggle = () => {
-    if (!isListening) {
-      setIsListening(true);
-      setActiveSpeech('Sun rahe hain... बोलीए...');
-      setTimeout(() => {
-        setIsListening(false);
-        setActiveSpeech('');
-        handleCommandPress('Aaj kitna kamaya?', 'earnings');
-      }, 2500);
-    } else {
+    if (isListening) {
+      speechRecognitionService.stopListening();
       setIsListening(false);
+      if (activeSpeech.trim()) {
+        const spoken = activeSpeech.trim();
+        setLastSpokenText(spoken);
+        setActiveSpeech('');
+        handleQuerySubmit(spoken);
+      }
+    } else {
       setActiveSpeech('');
+      setLastSpokenText('');
+      const started = speechRecognitionService.startListening(
+        {
+          onStart: () => {
+            setIsListening(true);
+            setActiveSpeech('Sun rahe hain... बोलिए...');
+          },
+          onResult: (transcript, isFinal) => {
+            setActiveSpeech(transcript);
+            setLastSpokenText(transcript);
+            if (isFinal && transcript.trim().length > 3) {
+              speechRecognitionService.stopListening();
+              setIsListening(false);
+              handleQuerySubmit(transcript.trim());
+            }
+          },
+          onError: (err) => {
+            setIsListening(false);
+            setActiveSpeech(`Mic notice: ${err}`);
+          },
+          onEnd: () => {
+            setIsListening(false);
+          },
+        },
+        selectedLanguage
+      );
+
+      if (!started) {
+        setIsListening(false);
+        setIsTypingQuery(true);
+        setActiveSpeech('Speech recognition not available. Please type your query below.');
+      }
     }
   };
 
@@ -131,7 +155,7 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
           </View>
           <View>
             <Text style={styles.saathiHeaderTitle}>Voice Saathi (साथी)</Text>
-            <Text style={styles.saathiHeaderSub}>Aapka Voice AI Assistant</Text>
+            <Text style={styles.saathiHeaderSub}>Aapka AI Craft Assistant</Text>
           </View>
         </View>
 
@@ -142,6 +166,50 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
+        {/* Language Selector Bar */}
+        <View style={styles.languageBar}>
+          <Text style={styles.languageBarLabel}>Language / भाषा:</Text>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('hi-IN')}
+            style={[styles.langChip, selectedLanguage === 'hi-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'hi-IN' && styles.langChipTextActive,
+              ]}
+            >
+              🇮🇳 हिंदी
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('mr-IN')}
+            style={[styles.langChip, selectedLanguage === 'mr-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'mr-IN' && styles.langChipTextActive,
+              ]}
+            >
+              मराठी
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setSelectedLanguage('en-IN')}
+            style={[styles.langChip, selectedLanguage === 'en-IN' && styles.langChipActive]}
+          >
+            <Text
+              style={[
+                styles.langChipText,
+                selectedLanguage === 'en-IN' && styles.langChipTextActive,
+              ]}
+            >
+              English
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* BIG HERO GLOWING SAFFRON MICROPHONE */}
         <View style={styles.heroMicSection}>
           <View style={styles.micGlowWrapper}>
@@ -151,16 +219,55 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
               onPress={handleMicToggle}
               style={[styles.glowingMicButton, isListening && styles.glowingMicButtonActive]}
               activeOpacity={0.85}
+              accessibilityLabel={isListening ? 'Stop Listening' : 'Start Speaking to Saathi'}
             >
-              <Text style={styles.glowingMicEmoji}>🎙️</Text>
+              <Text style={styles.glowingMicEmoji}>{isListening ? '⏹️' : '🎙️'}</Text>
             </TouchableOpacity>
           </View>
 
           <Text style={styles.greetingTitle}>"Namaste Ramesh Ji,</Text>
           <Text style={styles.greetingSubTitle}>
-            {isListening ? activeSpeech : 'kya kaam karna hai? Mic dabakar bolein'}
+            {isListening
+              ? activeSpeech || 'Sun rahe hain... बोलीए...'
+              : 'kya kaam karna hai? Mic dabakar bolein'}
           </Text>
         </View>
+
+        {/* RECOGNIZED SPOKEN WORDS DISPLAY CARD */}
+        {(isListening || lastSpokenText.length > 0 || isTypingQuery) && (
+          <View style={styles.spokenReviewCard}>
+            <View style={styles.spokenCardHeader}>
+              <Text style={styles.spokenCardTitle}>🎙️ Aapki Aawaz (Recognized Query):</Text>
+              {isListening && (
+                <View style={styles.liveIndicator}>
+                  <View style={styles.liveDot} />
+                  <Text style={styles.liveText}>LIVE</Text>
+                </View>
+              )}
+            </View>
+
+            <TextInput
+              style={styles.spokenTextInput}
+              multiline
+              value={isTypingQuery ? customQueryText : activeSpeech || lastSpokenText}
+              onChangeText={(txt) => {
+                setIsTypingQuery(true);
+                setCustomQueryText(txt);
+              }}
+              placeholder="Aapki boli hui baat yahan dikhegi..."
+              placeholderTextColor="#94A3B8"
+            />
+
+            <View style={styles.spokenCardActions}>
+              <TouchableOpacity
+                style={styles.submitSpokenBtn}
+                onPress={() => handleQuerySubmit(customQueryText || lastSpokenText || activeSpeech)}
+              >
+                <Text style={styles.submitSpokenText}>✓ Saathi se Poochhein (Ask Saathi)</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* VOICE COMMAND SUGGESTIONS */}
         <View style={styles.suggestionsContainer}>
@@ -170,7 +277,7 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
             {COMMAND_SUGGESTIONS.map((cmd) => (
               <TouchableOpacity
                 key={cmd.id}
-                onPress={() => handleCommandPress(cmd.query, cmd.type)}
+                onPress={() => handleQuerySubmit(cmd.query)}
                 style={styles.suggestionChip}
                 activeOpacity={0.75}
               >
@@ -240,6 +347,18 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
                   </TouchableOpacity>
                 </View>
               )}
+
+              {msg.actionType === 'create' && (
+                <View style={styles.bubbleActionCard}>
+                  <Text style={styles.bubbleActionTitle}>🎨 AI Product Studio & Catalog</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation?.navigate?.('CreateTab')}
+                    style={styles.bubbleJumpButton}
+                  >
+                    <Text style={styles.bubbleJumpText}>Studio Kholein →</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
           ))}
         </View>
@@ -251,149 +370,227 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#0F172A',
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#1E293B',
   },
   saathiBranding: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   saathiIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFF7ED',
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(234, 88, 12, 0.2)',
+    borderWidth: 1,
+    borderColor: '#EA580C',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#FED7AA',
   },
   saathiIcon: {
-    fontSize: 18,
+    fontSize: 22,
   },
   saathiHeaderTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   saathiHeaderSub: {
-    fontSize: 11,
-    color: '#64748B',
+    fontSize: 12,
+    color: '#94A3B8',
   },
   activePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
+    gap: 6,
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
-    gap: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
   },
   activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#22C55E',
   },
   activePillText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#059669',
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#22C55E',
   },
   scrollBody: {
-    padding: 16,
-    paddingBottom: 90,
+    paddingBottom: 40,
+  },
+  languageBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    gap: 8,
+    backgroundColor: '#1E293B',
+  },
+  languageBarLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#94A3B8',
+  },
+  langChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#334155',
+  },
+  langChipActive: {
+    backgroundColor: '#EA580C',
+  },
+  langChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#CBD5E1',
+  },
+  langChipTextActive: {
+    color: '#FFFFFF',
   },
   heroMicSection: {
     alignItems: 'center',
-    paddingVertical: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
   },
   micGlowWrapper: {
-    position: 'relative',
+    width: 140,
+    height: 140,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 130,
-    height: 130,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   pulsingRingOuter: {
     position: 'absolute',
     width: 130,
     height: 130,
     borderRadius: 65,
-    backgroundColor: 'rgba(234, 88, 12, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(234, 88, 12, 0.35)',
   },
   pulsingRingInner: {
     position: 'absolute',
-    width: 105,
-    height: 105,
-    borderRadius: 52.5,
-    backgroundColor: 'rgba(234, 88, 12, 0.25)',
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 2,
+    borderColor: 'rgba(234, 88, 12, 0.6)',
   },
   glowingMicButton: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: '#EA580C',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 4,
-    borderColor: '#FED7AA',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#EA580C',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.45,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 10,
-      },
-      web: {
-        boxShadow: '0px 8px 24px rgba(234, 88, 12, 0.45)',
-      },
-    }),
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+    elevation: 8,
   },
   glowingMicButtonActive: {
     backgroundColor: '#DC2626',
-    borderColor: '#FECACA',
+    transform: [{ scale: 1.05 }],
   },
   glowingMicEmoji: {
     fontSize: 38,
   },
   greetingTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
   },
   greetingSubTitle: {
-    fontSize: 13,
-    color: '#EA580C',
-    fontWeight: '700',
+    fontSize: 14,
+    color: '#CBD5E1',
     marginTop: 4,
+    textAlign: 'center',
+  },
+  spokenReviewCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: '#1E293B',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#334155',
+    padding: 12,
+  },
+  spokenCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  spokenCardTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#F97316',
+  },
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#EF4444',
+  },
+  liveText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#EF4444',
+  },
+  spokenTextInput: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    backgroundColor: '#0F172A',
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 50,
+  },
+  spokenCardActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  submitSpokenBtn: {
+    backgroundColor: '#EA580C',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  submitSpokenText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   suggestionsContainer: {
-    marginBottom: 18,
+    paddingHorizontal: 16,
+    marginBottom: 20,
   },
   suggestionsHeader: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#334155',
+    fontWeight: 'bold',
+    color: '#94A3B8',
     marginBottom: 10,
   },
   suggestionsList: {
@@ -401,47 +598,49 @@ const styles = StyleSheet.create({
   },
   suggestionChip: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
     paddingHorizontal: 14,
     paddingVertical: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#334155',
   },
   suggestionText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1E293B',
+    fontSize: 14,
+    color: '#E2E8F0',
+    fontWeight: '500',
   },
   suggestionArrow: {
     fontSize: 14,
   },
   historySection: {
-    gap: 12,
+    paddingHorizontal: 16,
   },
   historyHeader: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#334155',
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#94A3B8',
+    marginBottom: 12,
   },
   messageBubble: {
-    borderRadius: 16,
     padding: 14,
-    borderWidth: 1,
+    borderRadius: 16,
+    marginBottom: 12,
+    maxWidth: width * 0.88,
   },
   userBubble: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#BFDBFE',
     alignSelf: 'flex-end',
-    maxWidth: '85%',
+    backgroundColor: '#EA580C',
+    borderBottomRightRadius: 4,
   },
   saathiBubble: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E2E8F0',
     alignSelf: 'flex-start',
-    maxWidth: '92%',
+    backgroundColor: '#1E293B',
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderBottomLeftRadius: 4,
   },
   messageHeaderRow: {
     flexDirection: 'row',
@@ -451,54 +650,54 @@ const styles = StyleSheet.create({
   },
   messageSender: {
     fontSize: 11,
-    fontWeight: '700',
-    color: '#64748B',
+    fontWeight: 'bold',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   bubbleSpeakButton: {
-    backgroundColor: '#EDE9FE',
-    paddingHorizontal: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 10,
   },
   bubbleSpeakIcon: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#7C3AED',
-  },
-  messageText: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  userMessageText: {
-    color: '#1E40AF',
+    fontSize: 11,
+    color: '#FFFFFF',
     fontWeight: '600',
   },
+  messageText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  userMessageText: {
+    color: '#FFFFFF',
+  },
   saathiMessageText: {
-    color: '#0F172A',
+    color: '#E2E8F0',
   },
   bubbleActionCard: {
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderRadius: 10,
+    padding: 10,
     marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   bubbleActionTitle: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: '#334155',
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FDBA74',
+    marginBottom: 6,
   },
   bubbleJumpButton: {
-    backgroundColor: '#7C3AED',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: '#EA580C',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
   },
   bubbleJumpText: {
+    fontSize: 11,
+    fontWeight: 'bold',
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
   },
 });

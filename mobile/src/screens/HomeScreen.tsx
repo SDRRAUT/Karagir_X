@@ -16,12 +16,14 @@ import { Text } from '@/components/typography/Text';
 import { Icon } from '@/components/icons/Icon';
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useCatalogStore } from '@/store/useCatalogStore';
 
 interface ProductTile {
   id: string;
   name: string;
   price: string;
-  imageUrl: string;
+  imageUrl?: string;
+  imageSource?: any;
 }
 
 const ARTISAN_PRODUCTS: ProductTile[] = [
@@ -29,15 +31,13 @@ const ARTISAN_PRODUCTS: ProductTile[] = [
     id: 'prod_1',
     name: 'Terracotta Diya',
     price: '₹145 / piece',
-    imageUrl:
-      'https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=600&q=80',
+    imageSource: require('../assets/crafts/terracotta_diya.jpg'),
   },
   {
     id: 'prod_2',
     name: 'Handmade Pot',
     price: '₹350 / piece',
-    imageUrl:
-      'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
+    imageSource: require('../assets/crafts/blue_pottery.jpg'),
   },
 ];
 
@@ -45,6 +45,7 @@ export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { isOnline } = useAppStore();
   const { user } = useAuthStore();
+  const artisanProducts = useCatalogStore((s) => s.artisanProducts);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   useEffect(() => {
@@ -417,17 +418,26 @@ export const HomeScreen: React.FC = () => {
           <Text variant="headlineSmall" weight="bold" color="#2b2b2b">
             My Products
           </Text>
-          <TouchableOpacity
-            style={styles.audioSpeakerBtn}
-            onPress={() =>
-              handleSpeakText(
-                'Your Products. Terracotta Diya selling at 45 rupees per piece, and Handmade Pot at 350 rupees per piece.'
-              )
-            }
-            accessibilityLabel="Read products section aloud"
-          >
-            <Text style={{ fontSize: 18 }}>🔊</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <TouchableOpacity
+              style={styles.viewCatalogBtn}
+              onPress={() => navigation.navigate('MarketplaceHome')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.viewCatalogBtnText}>👀 View in Live Catalog →</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.audioSpeakerBtn}
+              onPress={() =>
+                handleSpeakText(
+                  'Your Products. Terracotta Diya selling at 45 rupees per piece, and Handmade Pot at 350 rupees per piece.'
+                )
+              }
+              accessibilityLabel="Read products section aloud"
+            >
+              <Text style={{ fontSize: 18 }}>🔊</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Horizontal Snap Scroll Reel */}
@@ -436,9 +446,18 @@ export const HomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.productsReel}
         >
-          {ARTISAN_PRODUCTS.map((item) => (
+          {artisanProducts.map((item) => (
             <View key={item.id} style={styles.productTileCard}>
-              <Image source={{ uri: item.imageUrl }} style={styles.tileImg} resizeMode="cover" />
+              <Image
+                source={item.imageSource || { uri: item.imageUrl }}
+                style={styles.tileImg}
+                resizeMode="cover"
+              />
+              {item.isNewlyListed && (
+                <View style={{ position: 'absolute', top: 6, left: 6, backgroundColor: '#16A34A', paddingHorizontal: 5, paddingVertical: 2, borderRadius: 4 }}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 8, fontWeight: 'bold' }}>🟢 LIVE IN CATALOG</Text>
+                </View>
+              )}
               <View style={styles.tileInfo}>
                 <Text variant="caption" weight="bold" color="#2b2b2b" numberOfLines={1}>
                   {item.name}
@@ -452,11 +471,11 @@ export const HomeScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.viewAllCard}
-            onPress={() => navigation.navigate('CameraPermission')}
+            onPress={() => navigation.navigate('MarketplaceHome')}
           >
-            <Text style={{ fontSize: 28, color: '#737373', marginBottom: 4 }}>⊕</Text>
+            <Text style={{ fontSize: 24, color: '#737373', marginBottom: 4 }}>🛍️</Text>
             <Text variant="caption" weight="bold" color="#737373">
-              View All
+              Full Catalog
             </Text>
           </TouchableOpacity>
         </ScrollView>
@@ -1014,5 +1033,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
     zIndex: 50,
+  },
+  viewCatalogBtn: {
+    backgroundColor: '#EEF2FF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  viewCatalogBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#4338CA',
   },
 });
