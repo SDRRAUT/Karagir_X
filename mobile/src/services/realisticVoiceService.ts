@@ -14,7 +14,7 @@
  */
 
 import { Platform } from 'react-native';
-import { logger } from '@/utils/logger';
+import { logger } from '../utils/logger';
 
 export interface RealisticVoiceOptions {
   lang?: string; // 'hi-IN', 'mr-IN', 'en-IN'
@@ -60,7 +60,7 @@ class RealisticVoiceEngine {
           };
         }
       } catch (e) {
-        logger.warn('REALISTIC_VOICE', 'Failed to prefetch voices', e);
+        logger.warn('REALISTIC_VOICE', 'Failed to prefetch voices', { error: String(e) });
       }
     }
   }

@@ -12,7 +12,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
-import { Audio } from 'expo-av';
 import { useAuthStore } from '@/store/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
@@ -36,15 +35,21 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [audioFinished, setAudioFinished] = useState(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const audioPlayerRef = useRef<any>(null);
   const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const { isAuthenticated, user, isLoading, activeRole } = useAuthStore();
 
   const doNavigate = () => {
     if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-    if (soundRef.current) {
-      soundRef.current.stopAsync().catch(() => {});
+    if (audioPlayerRef.current) {
+      try {
+        if (typeof audioPlayerRef.current.pause === 'function') {
+          audioPlayerRef.current.pause();
+        } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
+          audioPlayerRef.current.stopAsync().catch(() => {});
+        }
+      } catch {}
     }
     const currentAuth = useAuthStore.getState();
     const effectiveRole = currentAuth.activeRole || currentAuth.user?.role || 'ARTISAN';
@@ -176,75 +181,77 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     );
     pulseLoop.start();
 
-    // 4. Play splash.mp3
+    // 4. Play splash.mp3 with universal fallback
     const playSplashAudio = async () => {
       try {
-        if (Platform.OS !== 'web') {
-          await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-        }
+        if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof window.Audio !== 'undefined') {
+          // Web Native HTML Audio
+          const audio = new window.Audio(require('../../../assets/audio/splash.mp3'));
+          audioPlayerRef.current = audio;
+          audio.volume = 1.0;
 
-        const { sound } = await Audio.Sound.createAsync(
-          require('../../../assets/audio/splash.mp3'),
-          { shouldPlay: false, volume: 1.0 }
-        );
-        soundRef.current = sound;
-
-        if (!isMounted) {
-          sound.unloadAsync().catch(() => {});
-          return;
-        }
-
-        sound.setOnPlaybackStatusUpdate((s) => {
-          if (!isMounted) return;
-          if (!s.isLoaded) {
-            setIsAudioPlaying(false);
-            setAudioFinished(true);
-            stopWaveAnimation();
-            return;
-          }
-          if (s.isPlaying) {
+          audio.onplay = () => {
+            if (!isMounted) return;
             setIsAudioPlaying(true);
-          }
-          if (s.didJustFinish) {
+            startWaveAnimation();
+          };
+
+          audio.onended = () => {
+            if (!isMounted) return;
             setIsAudioPlaying(false);
             setAudioFinished(true);
             stopWaveAnimation();
-            // Auto-navigate 500ms after audio finishes
             navigationTimerRef.current = setTimeout(() => {
               if (isMounted) doNavigate();
-            }, 500);
-          }
-        });
+            }, 400);
+          };
 
-        // Try playing
-        try {
-          await sound.playAsync();
+          try {
+            await audio.play();
+            setIsAudioPlaying(true);
+            startWaveAnimation();
+
+            Animated.timing(progressAnim, {
+              toValue: 1,
+              duration: 7000,
+              easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+              useNativeDriver: false,
+            }).start();
+          } catch (_e) {
+            setIsAudioPlaying(false);
+            setAudioFinished(true);
+            navigationTimerRef.current = setTimeout(() => {
+              if (isMounted) doNavigate();
+            }, 3500);
+          }
+        } else {
+          // Native Device (Expo Go / Android / iOS)
+          // Timed elegant cinematic splash entrance
           setIsAudioPlaying(true);
           startWaveAnimation();
 
-          // Progress bar tracks audio duration
           Animated.timing(progressAnim, {
             toValue: 1,
-            duration: 8000,
+            duration: 3200,
             easing: Easing.bezier(0.25, 0.1, 0.25, 1),
             useNativeDriver: false,
           }).start();
-        } catch (_autoplayErr) {
-          // Autoplay blocked by browser policy without user gesture on web.
-          // Option A: User taps "शुरू करें / Get Started" to register user activation.
-          setIsAudioPlaying(false);
-          setAudioFinished(true);
-          // Long safety fallback (15s) in case unattended
+
           navigationTimerRef.current = setTimeout(() => {
-            if (isMounted) doNavigate();
-          }, 15000);
+            if (isMounted) {
+              setIsAudioPlaying(false);
+              setAudioFinished(true);
+              stopWaveAnimation();
+              doNavigate();
+            }
+          }, 3200);
         }
       } catch (_err) {
         if (!isMounted) return;
         setAudioFinished(true);
         navigationTimerRef.current = setTimeout(() => {
           if (isMounted) doNavigate();
-        }, 15000);
+        }, 3000);
       }
     };
 

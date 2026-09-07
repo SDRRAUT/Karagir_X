@@ -1,5 +1,5 @@
 // Voice Guidance Utility powered by Device Neural Voice Engine (Microsoft Swara/Madhur Natural + Google Natural)
-import { realisticVoiceService } from '@/services/realisticVoiceService';
+import { realisticVoiceService } from '../services/realisticVoiceService';
 
 class VoiceGuidanceManager {
   public speakHindi(
