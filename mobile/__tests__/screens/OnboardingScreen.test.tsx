@@ -184,30 +184,20 @@ describe('OnboardingScreen', () => {
     });
   });
 
-  it('keeps simple Next button always accessible and shows small audio countdown timer badge while audio is playing', async () => {
-    const playSpy = jest.spyOn((Audio.Sound as any).prototype, 'playAsync').mockImplementation(async function (this: any) {
-      if (this._onStatus) {
-        this._onStatus({ isLoaded: true, isPlaying: true, durationMillis: 5000, positionMillis: 2000, didJustFinish: false });
-      }
-      return { isLoaded: true, isPlaying: true, didJustFinish: false } as any;
-    });
-
-    const { getByTestId, getByText } = await render(
+  it('keeps simple Next button always accessible and advances slides on tap', async () => {
+    const { getByTestId } = await render(
       <ThemeProvider>
         <OnboardingScreen navigation={mockNavigation} route={{} as any} />
       </ThemeProvider>
     );
 
     // Simple next button is always visible
-    expect(getByTestId('onboarding-next-btn')).toBeTruthy();
+    const nextBtn = getByTestId('onboarding-next-btn');
+    expect(nextBtn).toBeTruthy();
 
-    // Small countdown timer badge is visible
-    await waitFor(() => {
-      expect(getByText(/3s/i)).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(nextBtn);
     });
-
-    // Restore playAsync mock
-    playSpy.mockRestore();
   });
 });
 

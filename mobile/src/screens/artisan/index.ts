@@ -7,3 +7,6 @@ export { MelaModeModal } from './components/MelaModeModal';
 export { B2BBulkModal } from './components/B2BBulkModal';
 export { FairPriceCalculatorModal } from './components/FairPriceCalculatorModal';
 export { CraftPassportModal } from './components/CraftPassportModal';
+export { CraftStudioModal } from './components/CraftStudioModal';
+export { KaragirIpModal } from './components/KaragirIpModal';
+

@@ -263,8 +263,15 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
       stopWaveAnimation();
       pulseLoop.stop();
-      soundRef.current?.stopAsync().catch(() => {});
-      soundRef.current?.unloadAsync().catch(() => {});
+      if (audioPlayerRef.current) {
+        try {
+          if (typeof audioPlayerRef.current.pause === 'function') {
+            audioPlayerRef.current.pause();
+          } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
+            audioPlayerRef.current.stopAsync().catch(() => {});
+          }
+        } catch {}
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -5,10 +5,11 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  Platform,
+  Share,
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 import Svg, { Rect } from 'react-native-svg';
 
 interface MelaModeModalProps {
@@ -33,14 +34,21 @@ const QUICK_PRODUCTS: QuickProduct[] = [
 
 export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }) => {
   const { isHindi } = useTranslation();
+  const [activeTab, setActiveTab] = useState<'twin' | 'pos'>('twin');
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isScanningVideo, setIsScanningVideo] = useState(false);
+  const [twinCreated, setTwinCreated] = useState(true);
+  const [broadcastSent, setBroadcastSent] = useState(false);
+
+  // POS billing states
   const [selectedProducts, setSelectedProducts] = useState<{ [id: string]: number }>({
     '1': 1,
     '2': 1,
     '3': 1,
   });
-  const [followersCount, setFollowersCount] = useState(12);
-  const [todaySales, setTodaySales] = useState(4200);
-  const [salesCount, setSalesCount] = useState(8);
+  const [followersCount, setFollowersCount] = useState(148);
+  const [todaySales, setTodaySales] = useState(8600);
+  const [salesCount, setSalesCount] = useState(16);
   const [showSuccess, setShowSuccess] = useState(false);
 
   const calculateTotal = () => {
@@ -62,23 +70,61 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
     });
   };
 
+  const handleSpeak = () => {
+    if (isSpeaking) {
+      realisticVoiceService.stop();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const speechText =
+      isHindi
+        ? 'सूरजकुंड मेले में 10 दिन बिक्री होती है, फिर 355 दिन सन्नाटा। कारीगर स्टॉल का 30-सेकंड वीडियो लेता है और AI उससे डिजिटल स्टॉल बना देता है। विजिटर क्यूआर स्कैन करता है तो दुकान सीधे व्हाट्सएप पर सेव हो जाती है। मेला खत्म, बिजनेस शुरू। 10 दिन के रिश्ते को लाइफटाइम कस्टमर बना दिया।'
+        : 'In fairs like Surajkund, artisans sell for 10 days, followed by 355 days of silence. With Mela-to-365 Digital Twin, the artisan takes a 30-second stall video and AI turns it into an interactive digital twin. Visitors scan the QR to save the shop on WhatsApp. When new items are crafted later, past buyers are automatically notified.';
+
+    setIsSpeaking(true);
+    realisticVoiceService.speak(speechText, {
+      lang: isHindi ? 'hi-IN' : 'en-IN',
+      onEnd: () => setIsSpeaking(false),
+      onError: () => setIsSpeaking(false),
+    });
+  };
+
+  const handleSimulateVideoScan = () => {
+    setIsScanningVideo(true);
+    setTimeout(() => {
+      setIsScanningVideo(false);
+      setTwinCreated(true);
+    }, 1500);
+  };
+
+  const handleSendBroadcast = () => {
+    setBroadcastSent(true);
+    setTimeout(() => {
+      setBroadcastSent(false);
+    }, 3000);
+  };
+
+  const handleShareWhatsAppShop = async () => {
+    try {
+      await Share.share({
+        message: `🎪 Welcome to Ramesh Kumbhar Terracotta Surajkund Mela Digital Stall! Explore full handcrafted collection online: https://kalakarsetu.in/mela/surajkund/stall-42`,
+      });
+    } catch {}
+  };
+
   const handleCompleteSale = () => {
     setShowSuccess(true);
     setTodaySales((prev) => prev + totalAmount);
     setSalesCount((prev) => prev + 1);
     setFollowersCount((prev) => prev + 1);
 
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? `${totalAmount} रुपये का भुगतान प्राप्त हुआ। बिल सफलतापूर्वक सहेजा गया।`
-          : `Payment of ${totalAmount} rupees received. Bill saved successfully.`
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    realisticVoiceService.speak(
+      isHindi
+        ? `${totalAmount} रुपये का भुगतान प्राप्त हुआ। बिल सफलतापूर्वक सहेजा गया।`
+        : `Payment of ${totalAmount} rupees received. Saved successfully.`,
+      { lang: isHindi ? 'hi-IN' : 'en-IN' }
+    );
 
     setTimeout(() => {
       setShowSuccess(false);
@@ -86,187 +132,259 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
     }, 2200);
   };
 
+  const handleClose = () => {
+    realisticVoiceService.stop();
+    setIsSpeaking(false);
+    onClose();
+  };
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.modalBackButton} activeOpacity={0.7} accessibilityLabel="Back">
+            <TouchableOpacity onPress={handleClose} style={styles.modalBackButton} activeOpacity={0.7}>
               <Text style={styles.modalBackIcon}>‹</Text>
             </TouchableOpacity>
             <View style={styles.headerLeft}>
               <View style={styles.livePill}>
                 <View style={styles.liveDot} />
-                <Text style={styles.liveText}>{isHindi ? '🔴 लाइव मेला' : '🔴 LIVE MELA'}</Text>
+                <Text style={styles.liveText}>{isHindi ? '🔴 365-दिन डिजिटल मेला' : '🔴 365-DAY DIGITAL MELA'}</Text>
               </View>
-              <Text style={styles.melaTitle}>{isHindi ? '🎪 मेला मोड - लाइव' : '🎪 Mela Mode - Live!'}</Text>
+              <Text style={styles.melaTitle}>{isHindi ? '🎪 मेला-टू-डिजिटल ट्विन' : '🎪 Mela-to-Digital Twin'}</Text>
               <Text style={styles.locationSubText}>
-                {isHindi ? '📍 सूरजकुंड मेला, फरीदाबाद' : '📍 Surajkund Mela, Faridabad'}
+                {isHindi ? '📍 सूरजकुंड मेला • स्टॉल #42 • 365 दिन चालू' : '📍 Surajkund Mela • Stall #42 • Active 365 Days'}
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
-              <Text style={styles.closeButtonText}>{isHindi ? '✕ बंद करें' : '✕ Exit'}</Text>
-            </TouchableOpacity>
+            <View style={styles.headerRightActions}>
+              <TouchableOpacity onPress={handleSpeak} style={styles.audioBtn} activeOpacity={0.7}>
+                <Text style={styles.audioIcon}>{isSpeaking ? '⏹️' : '🔊'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleClose} style={styles.closeButton} activeOpacity={0.7}>
+                <Text style={styles.closeButtonText}>{isHindi ? '✕ बंद करें' : '✕ Exit'}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
-            {/* Live Stats Bar */}
-            <View style={styles.statsStrip}>
-              <View style={styles.statBox}>
-                <Text style={styles.statLabel}>{isHindi ? '💰 आज की बिक्री' : "💰 Today's Sales"}</Text>
-                <Text style={styles.statValue}>₹{todaySales.toLocaleString('en-IN')}</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statBox}>
-                <Text style={styles.statLabel}>{isHindi ? '🛒 कुल ऑर्डर' : '🛒 Total Orders'}</Text>
-                <Text style={styles.statValue}>{salesCount} {isHindi ? 'ऑर्डर' : 'orders'}</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statBox}>
-                <Text style={styles.statLabel}>{isHindi ? '📱 नए फॉलोअर्स' : '📱 New Followers'}</Text>
-                <Text style={[styles.statValue, { color: '#059669' }]}>+{followersCount}</Text>
-              </View>
-            </View>
-
-            {/* Quick Bill Product Selector */}
-            <View style={styles.sectionCard}>
-              <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>
-                  {isHindi ? '💳 त्वरित बिलिंग (फास्ट चेकआउट)' : '💳 QUICK BILL (Fast Checkout)'}
-                </Text>
-                <Text style={styles.sectionHelper}>
-                  {isHindi ? 'जोड़ने / हटाने के लिए टैप करें' : 'Tap to add/remove'}
-                </Text>
-              </View>
-
-              <View style={styles.productGrid}>
-                {QUICK_PRODUCTS.map((prod) => {
-                  const isSelected = (selectedProducts[prod.id] || 0) > 0;
-                  return (
-                    <TouchableOpacity
-                      key={prod.id}
-                      onPress={() => handleToggleProduct(prod.id)}
-                      style={[styles.productChip, isSelected && styles.productChipActive]}
-                      activeOpacity={0.75}
-                    >
-                      <Text style={styles.productEmoji}>{prod.emoji}</Text>
-                      <Text style={[styles.productChipName, isSelected && styles.productChipNameActive]}>
-                        {isHindi ? prod.hindiName : prod.name}
-                      </Text>
-                      <Text style={[styles.productChipPrice, isSelected && styles.productChipPriceActive]}>
-                        ₹{prod.price}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Total Row */}
-              <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>
-                  {isHindi ? 'कुल राशि:' : 'Total Amount:'}
-                </Text>
-                <Text style={styles.totalValue}>₹{totalAmount.toLocaleString('en-IN')}</Text>
-              </View>
-            </View>
-
-            {/* QR Code Container */}
-            <View style={styles.qrCard}>
-              <Text style={styles.qrTitle}>
-                {isHindi ? '⚡ यूपीआई क्यूआर कोड (भुगतान करें)' : '⚡ UPI QR Code (Scan to Pay)'}
+            {/* Punchline Hero Banner */}
+            <View style={styles.punchlineBanner}>
+              <Text style={styles.punchlineQuote}>
+                💡 {isHindi
+                  ? '“मेला खत्म, बिजनेस शुरू। 10 दिन के रिश्ते को लाइफटाइम कस्टमर बना दिया।”'
+                  : '“Fair ends, continuous business begins. 10 days of footfall converted into lifetime customers.”'}
               </Text>
-              <Text style={styles.qrSubtitle}>GPay, PhonePe, Paytm, BHIM</Text>
+              <Text style={styles.punchlineSub}>
+                {isHindi
+                  ? 'समस्या: 10 दिन बिक्री, फिर 355 दिन सन्नाटा। समाधान: 365-दिन व्हाट्सएप डिजिटल ट्विन।'
+                  : 'Problem: 10-day fair sales trap. Solution: 365-day digital twin connected via WhatsApp.'}
+              </Text>
+            </View>
 
-              {/* Dynamic Simulated UPI QR */}
-              <View style={styles.qrCodeFrame}>
-                <View style={styles.qrInner}>
-                  {/* Visual QR Pattern Simulation */}
-                  <Svg width={180} height={180} viewBox="0 0 180 180">
-                    <Rect x="10" y="10" width="40" height="40" fill="#1E293B" rx={4} />
-                    <Rect x="16" y="16" width="28" height="28" fill="#FFFFFF" rx={2} />
-                    <Rect x="22" y="22" width="16" height="16" fill="#1E293B" rx={1} />
-
-                    <Rect x="130" y="10" width="40" height="40" fill="#1E293B" rx={4} />
-                    <Rect x="136" y="16" width="28" height="28" fill="#FFFFFF" rx={2} />
-                    <Rect x="142" y="22" width="16" height="16" fill="#1E293B" rx={1} />
-
-                    <Rect x="10" y="130" width="40" height="40" fill="#1E293B" rx={4} />
-                    <Rect x="16" y="136" width="28" height="28" fill="#FFFFFF" rx={2} />
-                    <Rect x="22" y="142" width="16" height="16" fill="#1E293B" rx={1} />
-
-                    {/* QR Matrix Blocks */}
-                    <Rect x="60" y="20" width="15" height="15" fill="#1E293B" />
-                    <Rect x="85" y="20" width="25" height="15" fill="#1E293B" />
-                    <Rect x="60" y="45" width="20" height="20" fill="#7C3AED" />
-                    <Rect x="90" y="45" width="25" height="20" fill="#1E293B" />
-
-                    <Rect x="20" y="65" width="30" height="20" fill="#1E293B" />
-                    <Rect x="60" y="75" width="60" height="30" fill="#1E293B" />
-                    <Rect x="130" y="65" width="35" height="25" fill="#7C3AED" />
-
-                    <Rect x="65" y="115" width="25" height="45" fill="#1E293B" />
-                    <Rect x="100" y="115" width="25" height="20" fill="#1E293B" />
-                    <Rect x="135" y="100" width="35" height="35" fill="#1E293B" />
-                    <Rect x="100" y="145" width="65" height="25" fill="#7C3AED" />
-                  </Svg>
-                </View>
-                <View style={styles.qrAmountBadge}>
-                  <Text style={styles.qrAmountBadgeText}>₹{totalAmount}</Text>
-                </View>
-              </View>
-
-              <Text style={styles.upiHandle}>UPI ID: ramesh.kumbhar@sbi</Text>
-
-              {/* Instant Mark as Paid Button */}
+            {/* Top Navigation Tabs */}
+            <View style={styles.tabRow}>
               <TouchableOpacity
-                onPress={handleCompleteSale}
-                style={[styles.payDoneButton, showSuccess && styles.payDoneButtonSuccess]}
-                activeOpacity={0.8}
+                style={[styles.tabBtn, activeTab === 'twin' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('twin')}
               >
-                <Text style={styles.payDoneButtonText}>
-                  {showSuccess
-                    ? (isHindi ? '✓ भुगतान प्राप्त और सुरक्षित!' : '✓ Payment Received & Saved!')
-                    : (isHindi ? '✓ भुगतान मिला — बिल सहेजें' : '✓ Mark Paid & Save Bill')}
+                <Text style={[styles.tabBtnText, activeTab === 'twin' && styles.tabBtnTextActive]}>
+                  {isHindi ? '🌐 365-दिन डिजिटल ट्विन' : '🌐 365-Day Digital Twin'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === 'pos' && styles.tabBtnActive]}
+                onPress={() => setActiveTab('pos')}
+              >
+                <Text style={[styles.tabBtnText, activeTab === 'pos' && styles.tabBtnTextActive]}>
+                  {isHindi ? '⚡ फास्ट पीओएस चेकआउट' : '⚡ Fast POS Checkout'}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* MELA-TO-DIGITAL BRIDGE (USP) */}
-            <View style={styles.bridgeCard}>
-              <View style={styles.bridgeHeaderRow}>
-                <Text style={styles.bridgeEmoji}>✨</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.bridgeTitle}>
-                    {isHindi ? 'मेला से डिजिटल सेतु (विशेष सुविधा)' : 'MELA-TO-DIGITAL BRIDGE (USP)'}
-                  </Text>
-                  <Text style={styles.bridgeSubTitle}>
-                    {isHindi ? 'मेले के आगंतुकों को ऑनलाइन स्थायी खरीदार बनाएं' : 'Turn physical fair visitors into lifelong online buyers'}
-                  </Text>
-                </View>
-              </View>
+            {activeTab === 'twin' && (
+              <View>
+                {/* Digital Twin 3D Storefront Card */}
+                <View style={styles.twinCard}>
+                  <View style={styles.twinHeaderRow}>
+                    <Text style={{ fontSize: 24 }}>🎥</Text>
+                    <View style={{ flex: 1, marginLeft: 10 }}>
+                      <Text style={styles.twinTitle}>
+                        {isHindi ? '30-सेकंड स्टॉल वीडियो $\\rightarrow$ AI डिजिटल ट्विन' : '30-Sec Stall Video $\\rightarrow$ AI Digital Twin'}
+                      </Text>
+                      <Text style={styles.twinSub}>
+                        {isHindi ? 'स्टॉल का 360° वीडियो स्कैन करें, AI डिजिटल दुकान बना देता है' : 'Auto-synthesizes your physical stall into a 3D digital storefront'}
+                      </Text>
+                    </View>
+                    <View style={styles.twinBadge}>
+                      <Text style={styles.twinBadgeText}>{isHindi ? 'सक्रिय ✓' : 'LIVE 365'}</Text>
+                    </View>
+                  </View>
 
-              <View style={styles.bridgeContentBox}>
-                <Text style={styles.bridgeDesc}>
-                  📱 <Text style={{ fontWeight: '700' }}>
-                    {isHindi
-                      ? 'खरीदार क्यूआर स्कैन करके आपको फॉलो कर सकते हैं।'
-                      : 'Buyers scan your QR code to follow your studio.'}
-                  </Text>{' '}
-                  {isHindi
-                    ? 'मेला समाप्त होने के बाद भी वे आपसे ऑनलाइन प्रामाणिक उत्पाद खरीद सकेंगे!'
-                    : 'They can continue ordering your authentic handmade crafts online year-round!'}
-                </Text>
-                <View style={styles.bridgeFollowersRow}>
-                  <Text style={styles.bridgeFollowersBadge}>
-                    {isHindi ? `📊 आज के नए फॉलोअर्स: +${followersCount}` : `📊 Today's Fair Followers: +${followersCount}`}
+                  <TouchableOpacity
+                    onPress={handleSimulateVideoScan}
+                    style={styles.scanVideoBtn}
+                    activeOpacity={0.8}
+                    disabled={isScanningVideo}
+                  >
+                    <Text style={styles.scanVideoBtnText}>
+                      {isScanningVideo
+                        ? isHindi ? '⏳ 3D स्टॉल मॉडल तैयार हो रहा है...' : '⏳ Generating 3D Digital Stall...' : isHindi ? '📹 नया 30-सेकंड स्टॉल वीडियो स्कैन करें' : '📹 Re-scan 30-Sec Stall Video'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Visitor WhatsApp QR Standee Card */}
+                <View style={styles.qrCard}>
+                  <Text style={styles.qrTitle}>
+                    {isHindi ? '📲 आगंतुक क्यूआर कोड (व्हाट्सएप पर दुकान सेव)' : '📲 Visitor QR (Save Shop on WhatsApp)'}
                   </Text>
-                  <Text style={styles.bridgeRepeatBadge}>
-                    {isHindi ? '🔁 3 दोहराए गए ऑर्डर' : '🔁 3 Repeat Orders received'}
+                  <Text style={styles.qrSubtitle}>
+                    {isHindi ? 'मेले में आने वाले ग्राहक स्कैन करें $\\rightarrow$ आपकी दुकान उनके व्हाट्सएप पर लाइफटाइम सेव होगी' : 'Visitors scan this QR $\\rightarrow$ Your entire catalog auto-saves to their WhatsApp'}
                   </Text>
+
+                  <View style={styles.qrCodeFrame}>
+                    <View style={styles.qrInner}>
+                      <Svg width={160} height={160} viewBox="0 0 180 180">
+                        <Rect x="10" y="10" width="40" height="40" fill="#1E293B" rx={4} />
+                        <Rect x="16" y="16" width="28" height="28" fill="#FFFFFF" rx={2} />
+                        <Rect x="22" y="22" width="16" height="16" fill="#1E293B" rx={1} />
+                        <Rect x="130" y="10" width="40" height="40" fill="#1E293B" rx={4} />
+                        <Rect x="136" y="16" width="28" height="28" fill="#FFFFFF" rx={2} />
+                        <Rect x="142" y="22" width="16" height="16" fill="#1E293B" rx={1} />
+                        <Rect x="10" y="130" width="40" height="40" fill="#1E293B" rx={4} />
+                        <Rect x="16" y="136" width="28" height="28" fill="#FFFFFF" rx={2} />
+                        <Rect x="22" y="142" width="16" height="16" fill="#1E293B" rx={1} />
+                        <Rect x="60" y="20" width="15" height="15" fill="#25D366" />
+                        <Rect x="85" y="20" width="25" height="15" fill="#1E293B" />
+                        <Rect x="60" y="45" width="20" height="20" fill="#25D366" />
+                        <Rect x="90" y="45" width="25" height="20" fill="#1E293B" />
+                        <Rect x="20" y="65" width="30" height="20" fill="#1E293B" />
+                        <Rect x="60" y="75" width="60" height="30" fill="#1E293B" />
+                        <Rect x="130" y="65" width="35" height="25" fill="#25D366" />
+                        <Rect x="65" y="115" width="25" height="45" fill="#1E293B" />
+                        <Rect x="100" y="115" width="25" height="20" fill="#1E293B" />
+                        <Rect x="100" y="145" width="65" height="25" fill="#25D366" />
+                      </Svg>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity onPress={handleShareWhatsAppShop} style={styles.shareShopBtn} activeOpacity={0.85}>
+                    <Text style={styles.shareShopBtnText}>
+                      {isHindi ? '🟢 व्हाट्सएप लिंक साझा करें' : '🟢 Share WhatsApp Shop Link'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* 365-Day Post-Mela Re-engagement Tool */}
+                <View style={styles.broadcastCard}>
+                  <Text style={styles.broadcastTitle}>
+                    {isHindi ? '📢 मेला बाद 365-दिन री-एंगेजमेंट' : '📢 Post-Mela 365 Broadcast Engine'}
+                  </Text>
+                  <Text style={styles.broadcastSub}>
+                    {isHindi ? 'जब भी नया माल बने, मेले के सभी 148 पुराने खरीदारों को 1-क्लिक में सूचित करें:' : 'Whenever you make a fresh batch, ping all 148 fair visitors directly on WhatsApp:'}
+                  </Text>
+
+                  <View style={styles.msgTemplateBox}>
+                    <Text style={styles.msgTemplateText}>
+                      {isHindi
+                        ? '“नमस्ते! आपने सूरजकुंड मेले में हमारी मिट्टी की कला पसंद की थी। आज हमने दीपावली के लिए 50 नए हस्तनिर्मित दीये तैयार किए हैं। देखने के लिए टैप करें: kalakarsetu.in/ramesh”'
+                        : '“Hello! You loved our terracotta pottery at Surajkund Mela. We just crafted 50 fresh festive pieces. Tap to view & order directly: kalakarsetu.in/ramesh”'}
+                    </Text>
+                  </View>
+
+                  {broadcastSent && (
+                    <View style={styles.broadcastSentBadge}>
+                      <Text style={styles.broadcastSentText}>
+                        {isHindi ? '✓ 148 पुराने मेला खरीदारों को व्हाट्सएप सूचना भेज दी गई!' : '✓ Broadcast delivered to 148 past fair buyers!'}
+                      </Text>
+                    </View>
+                  )}
+
+                  <TouchableOpacity
+                    onPress={handleSendBroadcast}
+                    style={styles.broadcastBtn}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.broadcastBtnText}>
+                      {isHindi ? '🚀 पुराने मेला खरीदारों को सूचित करें (148 ग्राहक)' : '🚀 Notify Past Mela Buyers (148 Visitors)'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            )}
+
+            {activeTab === 'pos' && (
+              <View>
+                {/* Live Stats Bar */}
+                <View style={styles.statsStrip}>
+                  <View style={styles.statBox}>
+                    <Text style={styles.statLabel}>{isHindi ? '💰 आज की बिक्री' : "Today's Sales"}</Text>
+                    <Text style={styles.statValue}>₹{todaySales.toLocaleString('en-IN')}</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statBox}>
+                    <Text style={styles.statLabel}>{isHindi ? '🛒 कुल ऑर्डर' : 'Total Orders'}</Text>
+                    <Text style={styles.statValue}>{salesCount} {isHindi ? 'ऑर्डर' : 'orders'}</Text>
+                  </View>
+                  <View style={styles.statDivider} />
+                  <View style={styles.statBox}>
+                    <Text style={styles.statLabel}>{isHindi ? '📱 नए फॉलोअर्स' : 'New Followers'}</Text>
+                    <Text style={[styles.statValue, { color: '#059669' }]}>+{followersCount}</Text>
+                  </View>
+                </View>
+
+                {/* Quick Bill Product Selector */}
+                <View style={styles.sectionCard}>
+                  <View style={styles.sectionHeaderRow}>
+                    <Text style={styles.sectionTitle}>
+                      {isHindi ? '💳 त्वरित बिलिंग (फास्ट चेकआउट)' : '💳 QUICK BILL (Fast Checkout)'}
+                    </Text>
+                    <Text style={styles.sectionHelper}>
+                      {isHindi ? 'जोड़ने / हटाने के लिए टैप करें' : 'Tap to add/remove'}
+                    </Text>
+                  </View>
+
+                  <View style={styles.productGrid}>
+                    {QUICK_PRODUCTS.map((prod) => {
+                      const isSelected = (selectedProducts[prod.id] || 0) > 0;
+                      return (
+                        <TouchableOpacity
+                          key={prod.id}
+                          onPress={() => handleToggleProduct(prod.id)}
+                          style={[styles.productChip, isSelected && styles.productChipActive]}
+                          activeOpacity={0.75}
+                        >
+                          <Text style={styles.productEmoji}>{prod.emoji}</Text>
+                          <Text style={[styles.productChipName, isSelected && styles.productChipNameActive]}>
+                            {isHindi ? prod.hindiName : prod.name}
+                          </Text>
+                          <Text style={[styles.productChipPrice, isSelected && styles.productChipPriceActive]}>
+                            ₹{prod.price}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  {/* Total Row */}
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>
+                      {isHindi ? 'कुल राशि:' : 'Total Amount:'}
+                    </Text>
+                    <Text style={styles.totalValue}>₹{totalAmount.toLocaleString('en-IN')}</Text>
+                  </View>
+                </View>
+
+                {/* Complete Bill CTA */}
+                <TouchableOpacity onPress={handleCompleteSale} style={styles.completeSaleBtn} activeOpacity={0.85}>
+                  <Text style={styles.completeSaleBtnText}>
+                    {showSuccess
+                      ? isHindi ? '✓ भुगतान दर्ज हुआ!' : '✓ Payment Recorded!' : isHindi ? `⚡ ₹${totalAmount} प्राप्त करें और रसीद दें` : `⚡ Collect ₹${totalAmount} & Save Bill`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </ScrollView>
         </View>
       </View>
@@ -327,7 +445,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEE2E2',
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 12,
+    borderRadius: 8,
     alignSelf: 'flex-start',
     marginBottom: 4,
   },
@@ -336,69 +454,280 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#EF4444',
-    marginRight: 5,
+    marginRight: 4,
   },
   liveText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#DC2626',
-    letterSpacing: 0.3,
+    color: '#B91C1C',
   },
   melaTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: '800',
     color: '#0F172A',
   },
   locationSubText: {
     fontSize: 12,
-    fontWeight: '500',
     color: '#64748B',
     marginTop: 2,
   },
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  audioBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FEF2F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+  },
+  audioIcon: {
+    fontSize: 16,
+  },
   closeButton: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 12,
+    backgroundColor: '#F1F5F9',
   },
   closeButtonText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#64748B',
   },
   scrollBody: {
+    padding: 18,
+    paddingBottom: 40,
+  },
+  punchlineBanner: {
+    backgroundColor: '#881337',
+    borderRadius: 16,
     padding: 16,
-    gap: 14,
+    marginBottom: 16,
+  },
+  punchlineQuote: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FDA4AF',
+    lineHeight: 20,
+  },
+  punchlineSub: {
+    fontSize: 12,
+    color: '#FFE4E6',
+    marginTop: 6,
+    lineHeight: 18,
+  },
+  tabRow: {
+    flexDirection: 'row',
+    backgroundColor: '#FFE4E6',
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 16,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  tabBtnActive: {
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+  },
+  tabBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#9F1239',
+  },
+  tabBtnTextActive: {
+    color: '#BE123C',
+    fontWeight: '800',
+  },
+  twinCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  twinHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  twinTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  twinSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  twinBadge: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6EE7B7',
+  },
+  twinBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  scanVideoBtn: {
+    marginTop: 14,
+    backgroundColor: '#FFF1F2',
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+  },
+  scanVideoBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#E11D48',
+  },
+  qrCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  qrTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+    textAlign: 'center',
+  },
+  qrSubtitle: {
+    fontSize: 11,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: 14,
+  },
+  qrCodeFrame: {
+    padding: 10,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  qrInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareShopBtn: {
+    marginTop: 14,
+    backgroundColor: '#16A34A',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    width: '100%',
+    alignItems: 'center',
+  },
+  shareShopBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  broadcastCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  broadcastTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  broadcastSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  msgTemplateBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  msgTemplateText: {
+    fontSize: 12,
+    color: '#334155',
+    fontStyle: 'italic',
+    lineHeight: 18,
+  },
+  broadcastSentBadge: {
+    backgroundColor: '#ECFDF5',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    marginBottom: 12,
+  },
+  broadcastSentText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#065F46',
+    textAlign: 'center',
+  },
+  broadcastBtn: {
+    backgroundColor: '#E11D48',
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  broadcastBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
   },
   statsStrip: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     borderRadius: 18,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    justifyContent: 'space-between',
+    marginBottom: 16,
+    justifyContent: 'space-around',
     alignItems: 'center',
   },
   statBox: {
-    flex: 1,
     alignItems: 'center',
   },
   statLabel: {
     fontSize: 11,
-    fontWeight: '600',
     color: '#64748B',
+    marginBottom: 2,
   },
   statValue: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
     color: '#0F172A',
-    marginTop: 3,
   },
   statDivider: {
     width: 1,
-    height: 28,
+    height: 24,
     backgroundColor: '#E2E8F0',
   },
   sectionCard: {
@@ -407,6 +736,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
@@ -417,8 +747,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#334155',
-    letterSpacing: 0.2,
+    color: '#0F172A',
   },
   sectionHelper: {
     fontSize: 11,
@@ -430,39 +759,40 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   productChip: {
-    flexBasis: '48%',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    width: '48%',
   },
   productChipActive: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#3B82F6',
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FDA4AF',
   },
   productEmoji: {
-    fontSize: 22,
-    marginBottom: 4,
+    fontSize: 18,
+    marginRight: 6,
   },
   productChipName: {
     fontSize: 12,
     fontWeight: '700',
     color: '#334155',
-    textAlign: 'center',
+    flex: 1,
   },
   productChipNameActive: {
-    color: '#1D4ED8',
+    color: '#BE123C',
   },
   productChipPrice: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '800',
-    color: '#0F172A',
-    marginTop: 4,
+    color: '#059669',
   },
   productChipPriceActive: {
-    color: '#2563EB',
+    color: '#E11D48',
   },
   totalRow: {
     flexDirection: 'row',
@@ -476,140 +806,22 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#475569',
+    color: '#64748B',
   },
   totalValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
-    color: '#059669',
+    color: '#E11D48',
   },
-  qrCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-  },
-  qrTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0F172A',
-  },
-  qrSubtitle: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  qrCodeFrame: {
-    position: 'relative',
-    marginVertical: 14,
-    padding: 12,
-    backgroundColor: '#FFFFFF',
+  completeSaleBtn: {
+    backgroundColor: '#E11D48',
     borderRadius: 16,
-    borderWidth: 2,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qrInner: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  qrAmountBadge: {
-    position: 'absolute',
-    bottom: -10,
-    backgroundColor: '#059669',
-    paddingHorizontal: 12,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
-  qrAmountBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  upiHandle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: 14,
-  },
-  payDoneButton: {
-    width: '100%',
-    backgroundColor: '#059669',
-    borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  payDoneButtonSuccess: {
-    backgroundColor: '#047857',
-  },
-  payDoneButtonText: {
+  completeSaleBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',
-  },
-  bridgeCard: {
-    backgroundColor: '#FAF5FF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E9D5FF',
-  },
-  bridgeHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-  },
-  bridgeEmoji: {
-    fontSize: 22,
-  },
-  bridgeTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#6B21A8',
-    letterSpacing: 0.3,
-  },
-  bridgeSubTitle: {
-    fontSize: 11,
-    color: '#9333EA',
-  },
-  bridgeContentBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#F3E8FF',
-  },
-  bridgeDesc: {
-    fontSize: 12.5,
-    color: '#374151',
-    lineHeight: 18,
-  },
-  bridgeFollowersRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 10,
-  },
-  bridgeFollowersBadge: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#7C3AED',
-    backgroundColor: '#F3E8FF',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  bridgeRepeatBadge: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#059669',
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
   },
 });
