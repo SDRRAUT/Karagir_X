@@ -18,6 +18,7 @@ import { logger } from '../utils/logger';
 
 export interface RealisticVoiceOptions {
   lang?: string; // 'hi-IN', 'mr-IN', 'en-IN'
+  language?: string; // alias for lang
   gender?: 'female' | 'male';
   rate?: number; // 0.92 - 0.96 for natural human conversational speed
   pitch?: number; // 1.02 - 1.04 for warm non-monotone cadence
@@ -59,8 +60,8 @@ class RealisticVoiceEngine {
             this.cachedVoices = window.speechSynthesis.getVoices() || [];
           };
         }
-      } catch (e) {
-        logger.warn('REALISTIC_VOICE', 'Failed to prefetch voices', { error: String(e) });
+      } catch (_e) {
+        this.cachedVoices = [];
       }
     }
   }
@@ -72,15 +73,12 @@ class RealisticVoiceEngine {
     if (this.cachedVoices.length > 0) return this.cachedVoices;
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.cachedVoices = window.speechSynthesis.getVoices() || [];
-      return this.cachedVoices;
     }
-    return [];
+    return this.cachedVoices;
   }
 
   /**
-   * Evaluates and scores an OS voice.
-   * Gives top marks to Neural/Natural voices (Swara, Madhur, Google Hindi)
-   * and heavily penalizes robotic legacy voices (Ravi, eSpeak).
+   * Scores voices based on realism, neural characteristics, and language dialect match.
    */
   public scoreVoice(
     voice: any,
@@ -143,8 +141,36 @@ class RealisticVoiceEngine {
     if (name.includes('lekha') || name.includes('rishi') || name.includes('veena')) {
       score += 70;
     }
+    // Google Indian English / Hindi Neural
+    if (name.includes('google') && (lang.includes('in') || name.includes('india'))) {
+      score += 80;
+    }
 
-    // 4. Blacklist / Penalty for robotic voices
+    // 4. Gender preference bonus
+    if (preferredGender === 'female') {
+      if (
+        name.includes('female') ||
+        name.includes('swara') ||
+        name.includes('aarohi') ||
+        name.includes('zira') ||
+        name.includes('neerja') ||
+        name.includes('heera')
+      ) {
+        score += 30;
+      }
+    } else {
+      if (
+        name.includes('male') ||
+        name.includes('madhur') ||
+        name.includes('manohar') ||
+        name.includes('ravi') ||
+        name.includes('prabhat')
+      ) {
+        score += 30;
+      }
+    }
+
+    // 5. Penalize robotic / old legacy TTS engines
     if (name.includes('ravi')) score -= 300;
     if (name.includes('hemant')) score -= 250;
     if (name.includes('kalpana')) score -= 250;
@@ -206,18 +232,27 @@ class RealisticVoiceEngine {
       this.keepAliveInterval = null;
     }
 
-    if (this.currentAudioElement) {
+    if (Platform.OS !== 'web') {
       try {
-        this.currentAudioElement.pause();
-        this.currentAudioElement.currentTime = 0;
-      } catch {}
-      this.currentAudioElement = null;
+        const Speech = require('expo-speech');
+        Speech.stop();
+      } catch (_err) {
+        // Native Speech stop error handled gracefully
+      }
     }
 
     if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         window.speechSynthesis.cancel();
-      } catch {}
+      } catch (_e) {}
+    }
+
+    if (this.currentAudioElement) {
+      try {
+        this.currentAudioElement.pause();
+        this.currentAudioElement.currentTime = 0;
+      } catch (_e) {}
+      this.currentAudioElement = null;
     }
 
     this.isSpeakingState = false;
@@ -233,8 +268,8 @@ class RealisticVoiceEngine {
    * Speaks text using the Device Neural Voice Engine (Swara/Madhur/Google Natural)
    */
   public speak(text: string, options: RealisticVoiceOptions = {}): boolean {
+    const lang = options.lang || options.language || 'hi-IN';
     const {
-      lang = 'hi-IN',
       gender = 'female',
       rate = 0.94, // Human conversational cadence
       pitch = 1.02, // Warm, natural non-monotone pitch
@@ -318,8 +353,42 @@ class RealisticVoiceEngine {
     onEnd?: () => void,
     onError?: (err: any) => void
   ): boolean {
-    if (Platform.OS !== 'web' || typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      onError?.(new Error('SpeechSynthesis not supported on this platform'));
+    if (Platform.OS !== 'web') {
+      try {
+        const Speech = require('expo-speech');
+        this.isSpeakingState = true;
+        Speech.speak(text, {
+          language: lang,
+          pitch,
+          rate,
+          volume,
+          onStart: () => {
+            this.isSpeakingState = true;
+            onStart?.();
+          },
+          onDone: () => {
+            this.isSpeakingState = false;
+            onEnd?.();
+          },
+          onStopped: () => {
+            this.isSpeakingState = false;
+            onEnd?.();
+          },
+          onError: (err: any) => {
+            this.isSpeakingState = false;
+            onError?.(err);
+          },
+        });
+        return true;
+      } catch (err) {
+        this.isSpeakingState = false;
+        onError?.(err);
+        return false;
+      }
+    }
+
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      onError?.(new Error('SpeechSynthesis not supported on this browser'));
       onEnd?.();
       return false;
     }

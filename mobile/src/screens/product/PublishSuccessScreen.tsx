@@ -7,11 +7,17 @@ import { Text } from '@/components/typography/Text';
 import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PublishSuccess'>;
 
 export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
-  const { publishedProduct, resetDraft } = useProductDraftStore();
+  const { publishedProduct, resetDraft, extractedEntities } = useProductDraftStore();
+  const user = useAuthStore((s) => s.user);
+  const artisanDisplayName =
+    (extractedEntities?.artisanName as string)?.trim() ||
+    user?.fullName?.trim() ||
+    'Master Artisan';
 
   const handleShareWhatsApp = () => {
     const text = encodeURIComponent(
@@ -130,7 +136,7 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
                 Master Artisan & Origin
               </Text>
               <Text variant="bodyLarge" weight="bold" color="#2b2b2b">
-                Ramesh Kumbhar (Kolhapur Master Potter)
+                {artisanDisplayName}
               </Text>
               <Text variant="caption" color="#64748B">
                 Panchganga Valley, Kolhapur (GI #MH-24 Region)

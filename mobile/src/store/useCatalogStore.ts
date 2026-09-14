@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CRAFT_IMAGES } from '@/assets/craftImages';
 import { logger } from '@/utils/logger';
+
+const CATALOG_STORAGE_KEY = '@kalakar_catalog_products_v1';
 
 export interface CatalogProductItem {
   id: string;
@@ -35,6 +38,8 @@ interface CatalogStoreState {
   catalogProducts: CatalogProductItem[];
   artisanProducts: ArtisanProductTile[];
   totalListingsCount: number;
+  isInitialized: boolean;
+  initialize: () => Promise<void>;
   addProductToCatalog: (product: {
     id?: string;
     title: string;
@@ -168,22 +173,85 @@ const INITIAL_ARTISAN_PRODUCTS: ArtisanProductTile[] = [
   },
 ];
 
+const saveToStorage = async (products: CatalogProductItem[]) => {
+  try {
+    // Persist custom/newly created products or products with imageUrl to avoid duplicating static catalog
+    const userProducts = products.filter(
+      (p) => !INITIAL_CATALOG_PRODUCTS.some((base) => base.id === p.id) || p.isNewlyListed || p.imageUrl
+    );
+    await AsyncStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(userProducts));
+  } catch (err) {
+    logger.error('CATALOG_STORE', 'Failed to persist products to AsyncStorage', err);
+  }
+};
+
 export const useCatalogStore = create<CatalogStoreState>((set, get) => ({
   catalogProducts: INITIAL_CATALOG_PRODUCTS,
   artisanProducts: INITIAL_ARTISAN_PRODUCTS,
   totalListingsCount: INITIAL_CATALOG_PRODUCTS.length,
+  isInitialized: false,
+
+  initialize: async () => {
+    try {
+      const stored = await AsyncStorage.getItem(CATALOG_STORAGE_KEY);
+      if (stored) {
+        const parsed: CatalogProductItem[] = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Rehydrate imageSource for stored products
+          const rehydrated = parsed.map((item) => ({
+            ...item,
+            imageSource: item.imageUrl
+              ? { uri: item.imageUrl }
+              : item.imageSource?.uri
+              ? { uri: item.imageSource.uri }
+              : CRAFT_IMAGES.terracottaDiya,
+          }));
+
+          // Merge: user-created products first, then standard catalog products
+          const existingIds = new Set(rehydrated.map((p) => p.id));
+          const merged = [
+            ...rehydrated,
+            ...INITIAL_CATALOG_PRODUCTS.filter((p) => !existingIds.has(p.id)),
+          ];
+
+          const artisanTiles: ArtisanProductTile[] = merged.slice(0, 15).map((p) => ({
+            id: p.id,
+            name: p.title,
+            price: `₹${p.price} / piece`,
+            imageSource: p.imageSource,
+            imageUrl: p.imageUrl,
+            isNewlyListed: p.isNewlyListed,
+          }));
+
+          set({
+            catalogProducts: merged,
+            artisanProducts: artisanTiles,
+            totalListingsCount: merged.length,
+            isInitialized: true,
+          });
+          logger.info('CATALOG_STORE', `Rehydrated ${rehydrated.length} saved products from storage. Total: ${merged.length}`);
+          return;
+        }
+      }
+    } catch (err) {
+      logger.error('CATALOG_STORE', 'Failed to load catalog products from storage', err);
+    }
+    set({ isInitialized: true });
+  },
 
   addProductToCatalog: (item) => {
     const id = item.id || `prod_${Date.now()}`;
+    const rawImageUri = item.imageUri || (typeof item.imageSource === 'string' ? item.imageSource : item.imageSource?.uri);
+    
     const newProduct: CatalogProductItem = {
       id,
       title: item.title,
-      artisan: item.artisan || 'Ramesh Kumbhar, Kolhapur',
+      artisan: item.artisan || 'Sunita Devi',
       price: item.price,
       originalPrice: item.originalPrice || Math.round(item.price * 1.4),
       discountBadge: 'NEW LISTING',
-      imageSource: item.imageSource || (item.imageUri ? { uri: item.imageUri } : CRAFT_IMAGES.terracottaDiya),
-      imageUrl: item.imageUri,
+      imageSource: item.imageSource || (rawImageUri ? { uri: rawImageUri } : CRAFT_IMAGES.terracottaDiya),
+      imageUrl: rawImageUri,
       category: item.category || 'POTTERY',
       state: item.state || 'MAHARASHTRA',
       giCertified: item.giCertified ?? true,
@@ -200,25 +268,39 @@ export const useCatalogStore = create<CatalogStoreState>((set, get) => ({
       name: item.title,
       price: `₹${item.price} / piece`,
       imageSource: newProduct.imageSource,
-      imageUrl: item.imageUri,
+      imageUrl: rawImageUri,
       isNewlyListed: true,
     };
 
-    set((state) => ({
-      catalogProducts: [newProduct, ...state.catalogProducts],
-      artisanProducts: [newArtisanTile, ...state.artisanProducts],
-      totalListingsCount: state.totalListingsCount + 1,
-    }));
+    const currentProducts = get().catalogProducts.filter((p) => p.id !== id);
+    const currentTiles = get().artisanProducts.filter((p) => p.id !== id);
+    const updatedProducts = [newProduct, ...currentProducts];
+    const updatedTiles = [newArtisanTile, ...currentTiles];
 
-    logger.info('CATALOG_STORE', `Product successfully added to catalog: ${id} - ${item.title}`);
+    set({
+      catalogProducts: updatedProducts,
+      artisanProducts: updatedTiles,
+      totalListingsCount: updatedProducts.length,
+    });
+
+    saveToStorage(updatedProducts);
+
+    logger.info('CATALOG_STORE', `Product successfully added & persisted to catalog: ${id} - ${item.title} by ${item.artisan}`);
     return newProduct;
   },
 
   removeProductFromCatalog: (id: string) => {
-    set((state) => ({
-      catalogProducts: state.catalogProducts.filter((p) => p.id !== id),
-      artisanProducts: state.artisanProducts.filter((p) => p.id !== id),
-      totalListingsCount: Math.max(0, state.totalListingsCount - 1),
-    }));
+    const updatedProducts = get().catalogProducts.filter((p) => p.id !== id);
+    const updatedTiles = get().artisanProducts.filter((p) => p.id !== id);
+    set({
+      catalogProducts: updatedProducts,
+      artisanProducts: updatedTiles,
+      totalListingsCount: Math.max(0, updatedProducts.length),
+    });
+    saveToStorage(updatedProducts);
   },
 }));
+
+// Automatically trigger rehydration
+useCatalogStore.getState().initialize().catch(() => {});
+

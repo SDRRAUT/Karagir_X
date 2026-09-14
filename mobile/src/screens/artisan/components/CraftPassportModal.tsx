@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 import Svg, { Rect } from 'react-native-svg';
 
 interface CraftPassportModalProps {
@@ -29,17 +30,13 @@ export const CraftPassportModal: React.FC<CraftPassportModalProps> = ({
   const passportId = 'GI-MH-KLP-2026-8942';
 
   const handleSpeak = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? `यह कोल्हापुरी टेराकोटा दीया सेट का डिजिटल शिल्प पासपोर्ट है। मास्टर रमेश कुंभार द्वारा कोल्हापुर में पंचगंगा नदी की शुद्ध मिट्टी से बनाया गया है। यह जीआई रजिस्ट्री द्वारा प्रमाणित और 100% प्रामाणिक है।`
-          : `This is the verified digital craft passport for Kolhapuri Terracotta Diya Set, handcrafted by Master Ramesh Kumbhar in Kolhapur using pure riverbed clay. 100% authentic and verified under the GI Registry.`
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    const text = isHindi
+      ? `यह कोल्हापुरी टेराकोटा दीया सेट का डिजिटल शिल्प पासपोर्ट है। मास्टर रमेश कुंभार द्वारा कोल्हापुर में पंचगंगा नदी की शुद्ध मिट्टी से बनाया गया है। यह जीआई रजिस्ट्री द्वारा प्रमाणित और 100% प्रामाणिक है।`
+      : `This is the verified digital craft passport for Kolhapuri Terracotta Diya Set, handcrafted by Master Ramesh Kumbhar in Kolhapur using pure riverbed clay. 100% authentic and verified under the GI Registry.`;
+    realisticVoiceService.speak(text, {
+      language: isHindi ? 'hi-IN' : 'en-IN',
+      rate: 0.95,
+    });
   };
 
   const handleShare = async () => {

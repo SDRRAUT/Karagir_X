@@ -7,11 +7,17 @@ import { Card } from '@/components/cards/Card';
 import { Icon } from '@/components/icons/Icon';
 import { useAdminStore } from '@/store/useAdminStore';
 import { AdminKycApplication } from '@/api/types';
+import { useRequireAdminRole } from '@/components/auth/useRequireAdminRole';
 
 export const AdminKycScreen: React.FC = () => {
+  const { isAuthorizedAdmin } = useRequireAdminRole();
   const navigation = useNavigation<any>();
   const { kycQueue, approveKyc, rejectKyc } = useAdminStore();
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
+
+  if (!isAuthorizedAdmin) {
+    return null;
+  }
 
   const handleGoBack = () => {
     if (navigation.canGoBack()) {

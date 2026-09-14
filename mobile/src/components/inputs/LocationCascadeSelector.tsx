@@ -12,6 +12,7 @@ import { Country, State, District, SubDistrict, Village, LocationHierarchyValue 
 import { SearchablePickerModal, PickerItem } from '@/components/modals/SearchablePickerModal';
 import { useAppStore } from '@/store/useAppStore';
 import { voiceGuidance } from '@/utils/voiceGuidance';
+import { speechRecognitionService } from '@/services/speechRecognitionService';
 
 interface Props {
   value?: Partial<LocationHierarchyValue>;
@@ -215,45 +216,88 @@ export const LocationCascadeSelector: React.FC<Props> = ({
 
   // Voice Assistant: "Pune, Haveli" or "Kolhapur, Karveer"
   const handleVoiceLocate = () => {
+    if (isVoiceListening) {
+      speechRecognitionService.stopListening();
+      setIsVoiceListening(false);
+      return;
+    }
+
     setIsVoiceListening(true);
     voiceGuidance.speakHindi(
       'कृपया अपना ज़िला और तहसील या राज्य का नाम बोलिए।',
       undefined,
       async () => {
-        // Simulated voice capture hook for voice testing
-        const sampleUtterances = [
-          'Pune, Haveli',
-          'Kolhapur, Karveer',
-          'Varanasi, Sadar',
-        ];
-        const randomUtterance = sampleUtterances[Math.floor(Math.random() * sampleUtterances.length)];
-        const result = await locationService.parseVoiceLocation(randomUtterance);
-
-        if (result && result.stateId) {
-          const s = states.find((st) => st.id === result.stateId) || null;
-          setSelectedState(s);
-
-          if (result.districtId) {
-            const dList = await locationService.getDistricts(result.stateId);
-            setDistricts(dList);
-            const d = dList.find((dst) => dst.id === result.districtId) || null;
-            setSelectedDistrict(d);
-
-            if (result.subDistrictId && d) {
-              const sdList = await locationService.getSubDistricts(d.id);
-              setSubDistricts(sdList);
-              const sd = sdList.find((sdt) => sdt.id === result.subDistrictId) || null;
-              setSelectedSubDistrict(sd);
-
-              notifyChange(selectedCountry, s, d, sd, null, '');
-            } else {
-              notifyChange(selectedCountry, s, d, null, null, '');
-            }
-          } else {
-            notifyChange(selectedCountry, s, null, null, null, '');
+        try {
+          const hasPerm = await speechRecognitionService.requestMicrophonePermission();
+          if (!hasPerm) {
+            setIsVoiceListening(false);
+            return;
           }
+
+          let capturedText = '';
+          const targetLang = locale?.startsWith('mr')
+            ? 'mr-IN'
+            : locale?.startsWith('hi')
+            ? 'hi-IN'
+            : 'en-IN';
+
+          const handleFinalSpoken = async (spokenRaw: string) => {
+            const spoken = spokenRaw.trim();
+            setIsVoiceListening(false);
+            speechRecognitionService.stopListening();
+            if (!spoken) return;
+
+            const result = await locationService.parseVoiceLocation(spoken);
+            if (result && result.stateId) {
+              const s = states.find((st) => st.id === result.stateId) || null;
+              setSelectedState(s);
+
+              if (result.districtId) {
+                const dList = await locationService.getDistricts(result.stateId);
+                setDistricts(dList);
+                const d = dList.find((dst) => dst.id === result.districtId) || null;
+                setSelectedDistrict(d);
+
+                if (result.subDistrictId && d) {
+                  const sdList = await locationService.getSubDistricts(d.id);
+                  setSubDistricts(sdList);
+                  const sd = sdList.find((sdt) => sdt.id === result.subDistrictId) || null;
+                  setSelectedSubDistrict(sd);
+
+                  notifyChange(selectedCountry, s, d, sd, null, '');
+                } else {
+                  notifyChange(selectedCountry, s, d, null, null, '');
+                }
+              } else {
+                notifyChange(selectedCountry, s, null, null, null, '');
+              }
+            }
+          };
+
+          speechRecognitionService.startListening(
+            {
+              onResult: (text: string, isFinal: boolean) => {
+                capturedText = text;
+                if (isFinal) {
+                  handleFinalSpoken(text);
+                }
+              },
+              onEnd: () => {
+                if (capturedText) {
+                  handleFinalSpoken(capturedText);
+                } else {
+                  setIsVoiceListening(false);
+                }
+              },
+              onError: () => {
+                setIsVoiceListening(false);
+              },
+            },
+            targetLang
+          );
+        } catch {
+          setIsVoiceListening(false);
         }
-        setIsVoiceListening(false);
       }
     );
   };

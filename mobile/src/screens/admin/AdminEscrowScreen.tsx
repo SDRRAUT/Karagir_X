@@ -7,11 +7,17 @@ import { Card } from '@/components/cards/Card';
 import { Icon } from '@/components/icons/Icon';
 import { useAdminStore } from '@/store/useAdminStore';
 import { AdminEscrowTransaction } from '@/api/types';
+import { useRequireAdminRole } from '@/components/auth/useRequireAdminRole';
 
 export const AdminEscrowScreen: React.FC = () => {
+  const { isAuthorizedAdmin } = useRequireAdminRole();
   const navigation = useNavigation<any>();
   const { escrowQueue, forceReleaseEscrow, resolveDispute } = useAdminStore();
   const [filter, setFilter] = useState<'ALL' | 'DISPUTED' | 'NODAL_VAULT' | 'RELEASE_PENDING'>('ALL');
+
+  if (!isAuthorizedAdmin) {
+    return null;
+  }
 
   const handleGoBack = () => {
     if (navigation.canGoBack()) {

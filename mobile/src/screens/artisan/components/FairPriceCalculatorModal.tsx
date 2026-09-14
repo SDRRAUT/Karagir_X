@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 interface FairPriceCalculatorModalProps {
   visible: boolean;
@@ -43,17 +44,13 @@ export const FairPriceCalculatorModal: React.FC<FairPriceCalculatorModalProps> =
   const diwaliPrice = Math.round(totalCustomerPrice * 1.6);
 
   const handleSpeak = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? `उचित मूल्य कैलकुलेटर के अनुसार, अनुशंसित ग्राहक मूल्य ${recPrice} रुपये है। इसमें कच्चा माल ${materialCost} रुपये, आपकी मेहनत ${rawLabor} रुपये, जीआई कौशल बोनस ${giSkillBonus} रुपये शामिल हैं। आपको सीधे ${artisanTakeHome} रुपये मिलेंगे, जो लगभग पंचानवे प्रतिशत है।`
-          : `According to Fair Price Calculator, the recommended customer price is ${recPrice} rupees. Raw material cost is ${materialCost}, labor is ${rawLabor}, and GI heritage bonus is ${giSkillBonus}. Your direct net payout is ${artisanTakeHome} rupees, which is 95% protected in escrow.`
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    const text = isHindi
+      ? `उचित मूल्य कैलकुलेटर के अनुसार, अनुशंसित ग्राहक मूल्य ${recPrice} रुपये है। इसमें कच्चा माल ${materialCost} रुपये, आपकी मेहनत ${rawLabor} रुपये, जीआई कौशल बोनस ${giSkillBonus} रुपये शामिल हैं। आपको सीधे ${artisanTakeHome} रुपये मिलेंगे, जो लगभग पंचानवे प्रतिशत है।`
+      : `According to Fair Price Calculator, the recommended customer price is ${recPrice} rupees. Raw material cost is ${materialCost}, labor is ${rawLabor}, and GI heritage bonus is ${giSkillBonus}. Your direct net payout is ${artisanTakeHome} rupees, which is 95% protected in escrow.`;
+    realisticVoiceService.speak(text, {
+      language: isHindi ? 'hi-IN' : 'en-IN',
+      rate: 0.95,
+    });
   };
 
   const handleApply = () => {

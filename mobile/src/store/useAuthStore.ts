@@ -21,7 +21,7 @@ const getEffectiveRole = (fallback?: UserRole | null): UserRole => {
       ) {
         return 'ARTISAN';
       }
-      if (search.includes('role=admin') || search.includes('admin')) return 'ADMIN';
+      // Note: Only standard non-privileged roles can be selected via URL. ADMIN role cannot be set via URL.
     } catch {}
 
     // 2. Tab-isolated role in sessionStorage (persists across refresh in this specific tab)
@@ -143,8 +143,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   sessionExpiryReason: null,
 
   setActiveRole: (role: UserRole) => {
-    const currentRole = role;
     const currentUser = get().user;
+    // Security Guard: Prevent unauthorized role escalation to ADMIN
+    if (role === 'ADMIN' && currentUser && currentUser.role !== 'ADMIN') {
+      logger.warn('AUTH_STORE', 'Blocked unauthorized switch to ADMIN role', {
+        userId: currentUser.id,
+        currentRole: currentUser.role,
+      });
+      return;
+    }
+
+    const currentRole = role;
     const updatedUser = currentUser
       ? { ...currentUser, role: currentRole }
       : {
@@ -199,7 +208,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             set({
               tokens: null,
               user: null,
-              activeRole: effectiveRole,
+              activeRole: null,
               isAuthenticated: false,
               activeProfileId: null,
               isLoading: false,
@@ -215,8 +224,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (rawTabSession) {
             const parsed = JSON.parse(rawTabSession);
             if (parsed && (parsed.user || parsed.tokens)) {
-              const tabRole = effectiveRole || parsed.activeRole || parsed.user?.role || 'ARTISAN';
-              const restoredUser = parsed.user ? { ...parsed.user, role: tabRole } : null;
+              const storedRole = parsed.user?.role || parsed.activeRole;
+              let tabRole = storedRole || effectiveRole || 'ARTISAN';
+              if (tabRole === 'ADMIN' && parsed.user?.role && parsed.user.role !== 'ADMIN') {
+                tabRole = parsed.user.role;
+              }
+              const restoredUser = parsed.user ? { ...parsed.user, role: parsed.user.role || tabRole } : null;
               const isAuth = !!restoredUser?.isProfileComplete || !!parsed.tokens?.accessToken;
 
               set({
@@ -240,8 +253,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const stored = await AsyncStorage.getItem(storageKey);
       if (stored) {
         const parsed = JSON.parse(stored);
-        const tabRole = effectiveRole || parsed.activeRole || parsed.user?.role || 'ARTISAN';
-        const restoredUser = parsed.user ? { ...parsed.user, role: tabRole } : null;
+        const storedRole = parsed.user?.role || parsed.activeRole;
+        let tabRole = storedRole || effectiveRole || 'ARTISAN';
+        if (tabRole === 'ADMIN' && parsed.user?.role && parsed.user.role !== 'ADMIN') {
+          tabRole = parsed.user.role;
+        }
+        const restoredUser = parsed.user ? { ...parsed.user, role: parsed.user.role || tabRole } : null;
         const isAuth =
           !!parsed.tokens?.accessToken ||
           !!restoredUser?.isProfileComplete ||
@@ -301,8 +318,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setSession: async (tokens: AuthTokens, user: UserProfile) => {
-    const tabRole = getEffectiveRole(user.role || get().activeRole);
-    const enforcedUser = { ...user, role: tabRole };
+    let tabRole = user.role || getEffectiveRole(get().activeRole);
+    if (tabRole === 'ADMIN' && user.role !== 'ADMIN') {
+      tabRole = user.role;
+    }
+    const enforcedUser = { ...user, role: user.role || tabRole };
     const currentProfiles = get().profilesOnDevice;
     const exists = currentProfiles.some((p) => p.id === enforcedUser.id);
     const updatedProfiles = exists
@@ -324,8 +344,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     logger.info('AUTH_STORE', `Session initialized for user ${enforcedUser.id} with role ${tabRole}`);
   },
   updateProfile: async (patch: Partial<UserProfile>) => {
+    const existingUser = get().user;
+    // Security Guard: Prevent non-admin users from escalating to ADMIN role via profile patch
+    if (patch.role === 'ADMIN' && existingUser && existingUser.role !== 'ADMIN') {
+      logger.warn('AUTH_STORE', 'Blocked unauthorized profile patch to ADMIN role', {
+        userId: existingUser.id,
+        currentRole: existingUser.role,
+      });
+      patch.role = existingUser.role;
+    }
+
     const targetRole = patch.role || get().activeRole || getEffectiveRole();
-    const currentUser = get().user || {
+    const currentUser = existingUser || {
       id: get().activeProfileId || `user_${targetRole.toLowerCase()}_demo`,
       phoneNumber: '9876543210',
       fullName: targetRole === 'BUYER' ? 'प्रिया शर्मा' : 'रामेश्वर शर्मा',
@@ -408,18 +438,29 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
-    const activeRole = get().activeRole;
     try {
       await authService.logout();
-      if (activeRole) {
-        await AsyncStorage.removeItem(getRoleScopedStorageKey(activeRole));
-      }
-      await AsyncStorage.removeItem('@kalakar_auth_session');
+      await AsyncStorage.multiRemove([
+        '@kalakar_auth_session_admin',
+        '@kalakar_auth_session_buyer',
+        '@kalakar_auth_session_artisan',
+        '@kalakar_auth_session',
+        '@kalakar_active_role',
+      ]);
 
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         try {
           window.sessionStorage.removeItem('@kalakar_tab_session');
           window.sessionStorage.removeItem('@kalakar_tab_role');
+          window.localStorage.removeItem('@kalakar_active_role');
+          window.localStorage.removeItem('@kalakar_auth_session_admin');
+          window.localStorage.removeItem('@kalakar_auth_session_buyer');
+          window.localStorage.removeItem('@kalakar_auth_session_artisan');
+          const url = new URL(window.location.href);
+          if (url.searchParams.has('role')) {
+            url.searchParams.delete('role');
+            window.history.replaceState(null, '', url.toString());
+          }
         } catch {}
       }
     } catch (error) {
@@ -429,11 +470,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({
       user: null,
       tokens: null,
+      activeRole: null,
       isAuthenticated: false,
       activeProfileId: null,
+      profilesOnDevice: [],
       isSessionExpired: false,
       sessionExpiryReason: null,
     });
-    logger.info('AUTH_STORE', 'User session terminated');
+    logger.info('AUTH_STORE', 'User session terminated cleanly');
   },
 }));

@@ -38,13 +38,15 @@ export interface ChatMessage {
 }
 
 export class GeminiSaathiService {
-  private apiKey: string = 'AIzaSyBNy_ezmOT2JUzVJL40XUHw3_A9P-p9VVc';
+  private apiKey: string = '';
   private primaryModel: string = 'gemini-3.6-flash';
   private fallbackModels: string[] = ['gemini-3.5-flash', 'gemini-flash-latest'];
 
   public setApiKey(key: string) {
     if (key && key.trim().length > 10) {
       this.apiKey = key.trim();
+    } else {
+      this.apiKey = '';
     }
   }
 
@@ -70,13 +72,20 @@ export class GeminiSaathiService {
       };
     }
 
+    // If no client-side Gemini API key is configured, gracefully use the Indic Smart Local Fallback
+    if (!this.apiKey || this.apiKey.trim().length < 10) {
+      logger.info('SAATHI_AI', 'Gemini API key not configured on client. Using Indic Smart Assistant fallback.');
+      return this.generateSmartLocalFallback(trimmed, context);
+    }
+
     try {
       logger.info('SAATHI_AI', `Sending query to Gemini AI: "${trimmed}"`);
       const response = await this.callGeminiChat(trimmed, context, conversationHistory);
       return response;
     } catch (err: any) {
+      const safeError = (err?.message || String(err)).replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
       logger.warn('SAATHI_AI', 'Gemini API call failed, falling back to Indic NLP Assistant', {
-        error: err?.message || String(err),
+        error: safeError,
       });
       return this.generateSmartLocalFallback(trimmed, context);
     }
@@ -195,10 +204,13 @@ Return strict JSON matching this structure:
 
     for (const model of modelsToTry) {
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.apiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': this.apiKey,
+          },
           body: JSON.stringify({
             contents,
             generationConfig: {
@@ -226,9 +238,10 @@ Return strict JSON matching this structure:
           actionType: parsed.actionType || 'general',
           actionTitle: parsed.actionTitle,
         };
-      } catch (e) {
+      } catch (e: any) {
         lastError = e;
-        logger.warn('SAATHI_AI', `Failed calling model ${model}, trying next...`, { error: String(e) });
+        const safeError = (e?.message || String(e)).replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
+        logger.warn('SAATHI_AI', `Failed calling model ${model}, trying next...`, { error: safeError });
       }
     }
 

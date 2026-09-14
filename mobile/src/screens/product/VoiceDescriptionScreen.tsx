@@ -82,46 +82,82 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
     };
   }, [isRecording, pulseAnim]);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleStartRecording = () => {
     setSecondsRecorded(0);
-    setIsRecording(true);
     setTranscriptionResult(null);
     setAiModifiedResult(null);
+    setErrorMessage(null);
 
-    speechRecognitionService.startListening(
+    const started = speechRecognitionService.startListening(
       {
+        onStart: () => {
+          setIsRecording(true);
+          setErrorMessage(null);
+        },
         onResult: (transcript) => {
           setSpokenTranscript(transcript);
         },
         onError: (err) => {
           console.warn('Speech error:', err);
+          setIsRecording(false);
+          setErrorMessage(err || 'Voice recognition error occurred.');
+        },
+        onEnd: () => {
+          setIsRecording(false);
         },
       },
       selectedLanguage
     );
+
+    if (!started) {
+      setIsRecording(false);
+      setErrorMessage(
+        selectedLanguage.startsWith('hi')
+          ? 'आवाज़ पहचान शुरू नहीं हो सकी। कृपया माइक्रोफ़ोन अनुमति और डिवाइस स्पीच सेटिंग्स जांचें।'
+          : selectedLanguage.startsWith('mr')
+          ? 'आवाज ओळख सुरू होऊ शकली नाही. कृपया मायक्रोफोन परवानगी आणि डिव्हाइस स्पीच सेटिंग्ज तपासा.'
+          : 'Android speech recognition could not start. Please check microphone permissions and device speech settings.'
+      );
+    } else {
+      setIsRecording(true);
+    }
   };
 
   const handleStopRecording = async () => {
     speechRecognitionService.stopListening();
     setIsRecording(false);
+
+    const userText = spokenTranscript.trim();
+    if (!userText) {
+      setErrorMessage(
+        selectedLanguage.startsWith('hi')
+          ? 'कोई आवाज़ सुनाई नहीं दी। कृपया माइक बटन दबाकर बोलें या नीचे लिखें।'
+          : selectedLanguage.startsWith('mr')
+          ? 'कोणताही आवाज ऐकू आला नाही. कृपया माइक बटण दाबून बोला किंवा खाली लिहा.'
+          : 'No speech detected. Please speak into the mic or type your story.'
+      );
+      return;
+    }
+
     setIsProcessing(true);
+    setErrorMessage(null);
 
     try {
-      const userText = spokenTranscript.trim();
       const result = await voiceService.transcribeDescription(
         'file:///mock/recorded_voice.wav',
         selectedLanguage.split('-')[0],
-        userText || undefined
+        userText
       );
 
       setTranscriptionResult(result);
-      if (!userText) {
-        setSpokenTranscript(result.transcript);
-      }
+      setSpokenTranscript(result.transcript);
       setVoiceStory('file:///mock/recorded_voice.wav', result.transcript, result.extractedEntities);
       setIsProcessing(false);
     } catch (_err) {
       setIsProcessing(false);
+      setErrorMessage('Could not process speech description. You can edit text directly.');
     }
   };
 
@@ -294,6 +330,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
 
+          {errorMessage ? (
+            <View style={{ backgroundColor: '#FEE2E2', padding: 8, borderRadius: 8, marginTop: 8, maxWidth: '90%' }}>
+              <Text variant="bodySmall" color="#DC2626" weight="semiBold" style={{ textAlign: 'center' }}>
+                ⚠️ {errorMessage}
+              </Text>
+            </View>
+          ) : null}
+
           {/* Sound Wave Visualization when recording */}
           {isRecording && (
             <View style={styles.waveRow}>
@@ -403,7 +447,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
               color={theme.colors.terracotta[600]}
               style={{ marginTop: 8 }}
             >
-              Bhashini AI Speech Engine is listening...
+              Artisan Voice Assistant is listening...
             </Text>
             <Text variant="bodySmall" color={theme.colors.charcoal[500]}>
               Transcribing voice & extracting craft attributes

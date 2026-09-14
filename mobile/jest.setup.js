@@ -3,8 +3,8 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
-// expo-av mock: Sound immediately finishes synchronously to avoid blocking tests
-jest.mock('expo-av', () => {
+// audioPlayer & expo-av mock: Sound immediately finishes synchronously to avoid blocking tests
+const createAudioMock = () => {
   class Sound {
     constructor() {
       this._onStatus = null;
@@ -16,6 +16,7 @@ jest.mock('expo-av', () => {
       }
       return { isLoaded: true, isPlaying: false, didJustFinish: true };
     }
+    async pauseAsync() { return { isLoaded: true, isPlaying: false, didJustFinish: false }; }
     async stopAsync() { return { isLoaded: true }; }
     async unloadAsync() { return { isLoaded: false }; }
     async getStatusAsync() { return { isLoaded: true, isPlaying: false, didJustFinish: true }; }
@@ -30,12 +31,16 @@ jest.mock('expo-av', () => {
     }
   }
   return {
+    Sound,
     Audio: {
       Sound,
       setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
     },
   };
-});
+};
+
+jest.mock('@/utils/audioPlayer', () => createAudioMock());
+jest.mock('expo-av', () => createAudioMock(), { virtual: true });
 
 jest.mock('expo-linear-gradient', () => {
   const React = require('react');
@@ -248,3 +253,78 @@ jest.mock('@/api/supabaseClient', () => {
     },
   };
 });
+
+// expo-audio Mock
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn().mockImplementation(() => ({
+    play: jest.fn().mockResolvedValue(undefined),
+    pause: jest.fn().mockResolvedValue(undefined),
+    seekTo: jest.fn().mockResolvedValue(undefined),
+    remove: jest.fn().mockResolvedValue(undefined),
+    addListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
+    playing: false,
+    duration: 5,
+    currentTime: 0,
+  })),
+  setAudioModeAsync: jest.fn().mockResolvedValue(undefined),
+  setIsAudioActiveAsync: jest.fn().mockResolvedValue(undefined),
+  requestRecordingPermissionsAsync: jest.fn().mockResolvedValue({ granted: true, status: 'granted' }),
+  getRecordingPermissionsAsync: jest.fn().mockResolvedValue({ granted: true, status: 'granted' }),
+}));
+
+// expo-speech Mock
+jest.mock('expo-speech', () => ({
+  speak: jest.fn().mockImplementation((text, options) => {
+    options?.onStart?.();
+    options?.onDone?.();
+  }),
+  stop: jest.fn().mockResolvedValue(undefined),
+  isSpeakingAsync: jest.fn().mockResolvedValue(false),
+  getAvailableVoicesAsync: jest.fn().mockResolvedValue([]),
+}));
+
+// expo-speech-recognition Mock
+const speechListeners = {};
+jest.mock('expo-speech-recognition', () => ({
+  ExpoSpeechRecognitionModule: {
+    requestPermissionsAsync: jest.fn().mockResolvedValue({ granted: true, status: 'granted' }),
+    getPermissionsAsync: jest.fn().mockResolvedValue({ granted: true, status: 'granted' }),
+    isRecognitionAvailable: jest.fn().mockReturnValue(true),
+    getSpeechRecognitionServices: jest.fn().mockReturnValue([
+      'com.google.android.googlequicksearchbox',
+      'com.google.android.tts',
+    ]),
+    getDefaultRecognitionService: jest.fn().mockReturnValue({
+      packageName: 'com.google.android.googlequicksearchbox',
+    }),
+    getAssistantService: jest.fn().mockReturnValue({
+      packageName: 'com.google.android.googlequicksearchbox',
+    }),
+    start: jest.fn().mockImplementation(() => {
+      if (speechListeners['result']) {
+        speechListeners['result']({
+          results: [{ transcript: 'यह हाथ से बना पारंपरिक टेराकोटा फूलदान है, प्राकृतिक मिट्टी से तैयार किया गया।' }],
+          isFinal: true,
+        });
+      }
+      // Native start() is synchronous and returns void (undefined)
+      return undefined;
+    }),
+    stop: jest.fn().mockImplementation(() => {
+      if (speechListeners['end']) {
+        speechListeners['end']();
+      }
+      return undefined;
+    }),
+    abort: jest.fn().mockImplementation(() => undefined),
+    addListener: jest.fn().mockImplementation((event, cb) => {
+      speechListeners[event] = cb;
+      return {
+        remove: jest.fn(() => {
+          delete speechListeners[event];
+        }),
+      };
+    }),
+  },
+}));
+

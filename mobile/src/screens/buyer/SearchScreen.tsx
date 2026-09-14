@@ -50,7 +50,10 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
       accessibilityLabel={item.title.en || item.title.hi}
     >
       <Card style={styles.resultCard}>
-        <Image source={{ uri: item.images[0] }} style={styles.resultImage} />
+        <Image
+          source={typeof item.images[0] === 'number' ? item.images[0] : { uri: item.images[0] }}
+          style={styles.resultImage}
+        />
         <View style={styles.resultDetails}>
           <Text variant="caption" weight="bold" color={theme.colors.brand.primary}>
             {item.categoryName} • {item.artisan.state}

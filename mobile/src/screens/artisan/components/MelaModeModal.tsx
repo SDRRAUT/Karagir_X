@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 import Svg, { Rect } from 'react-native-svg';
 
 interface MelaModeModalProps {
@@ -68,17 +69,13 @@ export const MelaModeModal: React.FC<MelaModeModalProps> = ({ visible, onClose }
     setSalesCount((prev) => prev + 1);
     setFollowersCount((prev) => prev + 1);
 
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? `${totalAmount} रुपये का भुगतान प्राप्त हुआ। बिल सफलतापूर्वक सहेजा गया।`
-          : `Payment of ${totalAmount} rupees received. Bill saved successfully.`
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    const speechText = isHindi
+      ? `${totalAmount} रुपये का भुगतान प्राप्त हुआ। बिल सफलतापूर्वक सहेजा गया।`
+      : `Payment of ${totalAmount} rupees received. Bill saved successfully.`;
+    realisticVoiceService.speak(speechText, {
+      language: isHindi ? 'hi-IN' : 'en-IN',
+      rate: 0.95,
+    });
 
     setTimeout(() => {
       setShowSuccess(false);

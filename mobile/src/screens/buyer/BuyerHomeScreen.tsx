@@ -308,6 +308,9 @@ export const MarketplaceHomeScreen: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 14 });
 
   useEffect(() => {
+    // Rehydrate persistent seller catalog items from storage on mount
+    useCatalogStore.getState().initialize().catch(() => {});
+
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.title = isHindi ? 'कलाकार सेतु ~ खरीदार' : 'Kalakar Setu ~ Buyer';
     }
@@ -339,12 +342,19 @@ export const MarketplaceHomeScreen: React.FC = () => {
   const catalogProducts = useCatalogStore((s) => s.catalogProducts);
 
   const filteredProducts = catalogProducts.filter((p) => {
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    const matchesState = selectedState === 'ALL' || p.state === selectedState;
+    const selCat = selectedCategory.toLowerCase();
+    const prodCat = (p.category || '').toLowerCase();
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      prodCat === selCat ||
+      prodCat.includes(selCat) ||
+      selCat.includes(prodCat);
+    const matchesState = selectedState === 'ALL' || (p.state || '').toUpperCase() === selectedState.toUpperCase();
     const matchesSearch =
       !searchQuery ||
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.artisan.toLowerCase().includes(searchQuery.toLowerCase());
+      p.artisan.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.craftInfo && p.craftInfo.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesState && matchesSearch;
   });
 
@@ -590,7 +600,13 @@ export const MarketplaceHomeScreen: React.FC = () => {
                 {/* Product Image Container */}
                 <View style={styles.cardImageContainer}>
                   <Image
-                    source={prod.imageSource ? prod.imageSource : { uri: prod.imageUrl }}
+                    source={
+                      prod.imageUrl
+                        ? { uri: prod.imageUrl }
+                        : prod.imageSource
+                        ? prod.imageSource
+                        : { uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' }
+                    }
                     style={styles.cardImage}
                     resizeMode="cover"
                   />

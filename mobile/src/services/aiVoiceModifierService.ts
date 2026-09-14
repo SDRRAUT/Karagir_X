@@ -55,7 +55,8 @@ export class AiVoiceModifierService {
         logger.info('AI_VOICE_MODIFIER', 'Calling Gemini 3.6 Flash to polish voice transcript...');
         return await this.callGeminiModifier(trimmed, context, apiKey, language);
       } catch (err) {
-        logger.warn('AI_VOICE_MODIFIER', 'Gemini polishing failed, using Indic NLP engine', { err });
+        const safeErr = (err instanceof Error ? err.message : String(err)).replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
+        logger.warn('AI_VOICE_MODIFIER', 'Gemini polishing failed, using Indic NLP engine', { error: safeErr });
       }
     }
 
@@ -72,7 +73,7 @@ export class AiVoiceModifierService {
     apiKey: string,
     language: string = 'hi-IN'
   ): Promise<AiVoiceModificationResult> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
     const langName = language.startsWith('mr') ? 'Marathi' : language.startsWith('en') ? 'English' : 'Hindi';
 
@@ -86,8 +87,9 @@ Target Language: "${langName}" (${language})
 
 Tasks:
 1. Polish the spoken text: remove filler words (e.g. um, uh, arre, matlab, basically, like), correct transcription typos, maintain the authentic language style in ${langName}, and write a clear, poetic, e-commerce ready product description highlighting artisan heritage and craftsmanship.
-2. Extract all craft attributes (craft category, materials used, technique, motif, labor time in hours, dimensions, suggested fair price in INR).
-3. Provide a clear, encouraging explanation in ${langName} of what was improved (e.g., filler words removed, craft heritage highlighted, materials specified).
+2. MANDATORY NAME & IDENTITY INTEGRITY: If the artisan mentions their name or artisan title, YOU MUST NEVER ALTER, SUBSTITUTE, OR REMOVE IT. Seller-provided names have absolute priority over AI inference.
+3. Extract all craft attributes (craft category, materials used, technique, motif, labor time in hours, dimensions, suggested fair price in INR).
+4. Provide a clear, encouraging explanation in ${langName} of what was improved (e.g., filler words removed, craft heritage highlighted, materials specified).
 
 Return JSON in this exact structure:
 {
@@ -107,7 +109,10 @@ Return JSON in this exact structure:
 
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {

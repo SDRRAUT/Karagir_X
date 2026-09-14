@@ -9,6 +9,7 @@ import {
   Dimensions,
   TextInput,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
@@ -22,6 +23,7 @@ import { aiVoiceModifierService, AiVoiceModificationResult } from '@/services/ai
 import { useCatalogStore } from '@/store/useCatalogStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
+import * as ImagePicker from 'expo-image-picker';
 
 const { width } = Dimensions.get('window');
 
@@ -72,7 +74,13 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const { isHindi } = useTranslation();
   const { addProductToCatalog } = useCatalogStore();
 
-  const artisanName = user?.fullName || (isHindi ? 'रमेश कुंभार' : 'Ramesh Kumbhar');
+  const [artisanNameInput, setArtisanNameInput] = useState<string>(
+    user?.fullName || ''
+  );
+  const [reviewTitleInput, setReviewTitleInput] = useState<string>('');
+  const [reviewArtisanInput, setReviewArtisanInput] = useState<string>('');
+
+  const artisanName = artisanNameInput.trim() || user?.fullName || '';
   const artisanDistrict = user?.district || 'Kolhapur';
 
   // -----------------------------------------------------------------
@@ -201,26 +209,97 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const handleSnapPhoto = async () => {
     let capturedUri = '';
 
-    if (Platform.OS === 'web' && videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      canvas.width = video.videoWidth || 800;
-      canvas.height = video.videoHeight || 600;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        capturedUri = canvas.toDataURL('image/jpeg', 0.9);
+    if (Platform.OS === 'web') {
+      if (videoRef.current && canvasRef.current) {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        canvas.width = video.videoWidth || 800;
+        canvas.height = video.videoHeight || 600;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          capturedUri = canvas.toDataURL('image/jpeg', 0.9);
+        }
+      }
+    } else {
+      try {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert(
+            isHindi ? 'कैमरा अनुमति अस्वीकृत' : 'Camera Permission Denied',
+            isHindi
+              ? 'कृपया अपने शिल्प की तस्वीर लेने के लिए ऐप को कैमरा अनुमति दें।'
+              : 'Please allow camera permission to capture your craft photograph.'
+          );
+          return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.85,
+        });
+
+        if (!result.canceled && result.assets && result.assets[0]?.uri) {
+          capturedUri = result.assets[0].uri;
+        } else {
+          return;
+        }
+      } catch (cameraErr: any) {
+        Alert.alert(
+          isHindi ? 'कैमरा त्रुटि' : 'Camera Error',
+          cameraErr?.message || 'Could not access device camera.'
+        );
+        return;
       }
     }
 
     if (!capturedUri) {
-      capturedUri = CRAFT_IMAGES.terracottaDiya;
+      return;
     }
 
     setCapturedImageUri(capturedUri);
     setSelectedPresetImage(null);
     stopWebCamera();
     await processAndGoToEnhance(capturedUri);
+  };
+
+  const handlePickFromGallery = async () => {
+    if (Platform.OS === 'web') return;
+
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          isHindi ? 'गैलरी अनुमति अस्वीकृत' : 'Gallery Permission Denied',
+          isHindi
+            ? 'कृपया अपने शिल्प की तस्वीर चुनने के लिए गैलरी अनुमति दें।'
+            : 'Please allow photos permission to select a craft photograph.'
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.85,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0]?.uri) {
+        const uri = result.assets[0].uri;
+        setCapturedImageUri(uri);
+        setSelectedPresetImage(null);
+        stopWebCamera();
+        await processAndGoToEnhance(uri);
+      }
+    } catch (galleryErr: any) {
+      Alert.alert(
+        isHindi ? 'गैलरी त्रुटि' : 'Gallery Error',
+        galleryErr?.message || 'Could not select photo from gallery.'
+      );
+    }
   };
 
   const handleSelectPreset = async (preset: typeof SAMPLE_CRAFT_PRESETS[0]) => {
@@ -321,10 +400,6 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         timerIntervalRef.current = null;
       }
 
-      if (Platform.OS === 'web') {
-        await speechRecognitionService.requestMicrophonePermission();
-      }
-
       setRecordingSecondsLeft(20);
 
       const started = speechRecognitionService.startListening(
@@ -360,6 +435,9 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
 
             // Also extract parameters into state for downstream accuracy
             const extracted = speechRecognitionService.parseCraftVoiceInput(transcript);
+            if (extracted.artisanName && extracted.artisanName.length >= 2) {
+              setArtisanNameInput(extracted.artisanName);
+            }
             if (extracted.craftName && extracted.craftName.length >= 3) {
               setCraftNameInput(extracted.craftName);
             }
@@ -370,13 +448,17 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
               setMaterialCostInput(String(extracted.materialCost));
             }
           },
-          onError: () => {
+          onError: (err) => {
             if (timerIntervalRef.current) {
               clearInterval(timerIntervalRef.current);
               timerIntervalRef.current = null;
             }
             setIsListening(false);
             setRecordingSecondsLeft(20);
+            Alert.alert(
+              isHindi ? 'ध्वनि पहचान त्रुटि' : 'Speech Recognition Notice',
+              err || (isHindi ? 'कृपया पुनः प्रयास करें।' : 'Voice recognition error. Please try again or type directly.')
+            );
           },
           onEnd: () => {
             if (timerIntervalRef.current) {
@@ -396,6 +478,12 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         }
         setIsListening(false);
         setRecordingSecondsLeft(20);
+        Alert.alert(
+          isHindi ? 'माइक्रोफ़ोन अनुमति आवश्यक है' : 'Microphone Permission Required',
+          isHindi
+            ? 'कृपया ऐप सेटिंग्स में माइक्रोफ़ोन अनुमति दें।'
+            : 'Please grant microphone permission to record your craft story.'
+        );
       }
     }
   };
@@ -508,35 +596,52 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
       const effectiveTitle = extracted.craftName || craftNameInput;
       const effectiveStory = craftStoryInput || aiModifiedResult?.modifiedText || '';
 
+      const currentArtisan = artisanNameInput.trim() || user?.fullName?.trim() || '';
+      if (!currentArtisan) {
+        Alert.alert(
+          isHindi ? 'कारीगर का नाम आवश्यक है' : 'Artisan Name Required',
+          isHindi
+            ? 'कृपया जारी रखने से पहले कारीगर का नाम दर्ज करें।'
+            : 'Please enter the artisan name before generating the catalog.'
+        );
+        return;
+      }
+
       const structuredCatalog = await geminiCatalogService.generateCatalog({
         imageBase64: (enhancedResult?.enhancedUri || capturedImageUri || '') as string,
         voiceTranscript: `${effectiveStory}. Details: Craft: ${effectiveTitle}, Labor: ${effectiveLabor} hours, Material cost: Rs ${effectiveCost}.`,
-        artisanName,
+        artisanName: currentArtisan,
         artisanLocation: artisanDistrict,
+        productTitleHint: craftNameInput.trim() || undefined,
       });
 
       // Mint Unique Kalakar IP Tag
       const mintedIp = kalakarIpPassportService.generateIpTag({
-        artisanName,
+        artisanName: currentArtisan,
         district: artisanDistrict,
         craftCategory: structuredCatalog.craftCategoryName,
-        productTitle: structuredCatalog.titles.en,
+        productTitle: structuredCatalog.titles.en || craftNameInput,
       });
 
       setCatalogData(structuredCatalog);
       setKalakarIpTag(mintedIp);
+      setReviewTitleInput(structuredCatalog.titles.hi || structuredCatalog.titles.en || craftNameInput);
+      setReviewArtisanInput(currentArtisan);
       setFinalSellingPrice(structuredCatalog.fairPricing.suggestedRecommended || 850);
 
       setTimeout(() => {
         setCurrentStep(5);
         playSpeech(
           isHindi
-            ? `बधाई हो ${artisanName} जी! आपका एआई कैटलॉग और कलाकार आईपी पासपोर्ट तैयार है।`
-            : `Congratulations ${artisanName}! Your AI Catalog and Kalakar IP Passport are ready.`
+            ? `बधाई हो ${currentArtisan} जी! आपका एआई कैटलॉग और कलाकार आईपी पासपोर्ट तैयार है।`
+            : `Congratulations ${currentArtisan}! Your AI Catalog and Kalakar IP Passport are ready.`
         );
       }, 3500);
     } catch (err) {
       // Fallback
+      const currentArtisan = artisanNameInput.trim() || user?.fullName?.trim() || '';
+      setReviewTitleInput(craftNameInput);
+      setReviewArtisanInput(currentArtisan);
       setCurrentStep(5);
     }
   };
@@ -545,24 +650,51 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   // STEP 5 -> STEP 6: PUBLISH TO MARKETPLACE & MY PRODUCTS
   // -----------------------------------------------------------------
   const handlePublishListing = () => {
-    const title = catalogData?.titles.hi || catalogData?.titles.en || craftNameInput;
+    const title = reviewTitleInput.trim() || catalogData?.titles.hi || catalogData?.titles.en || craftNameInput;
+    const finalArtisan = reviewArtisanInput.trim() || artisanNameInput.trim() || user?.fullName?.trim() || '';
+    if (!finalArtisan) {
+      Alert.alert(
+        isHindi ? 'कारीगर का नाम आवश्यक है' : 'Artisan Name Required',
+        isHindi
+          ? 'कृपया जारी रखने से पहले कारीगर का नाम दर्ज करें।'
+          : 'Please enter the artisan name before publishing.'
+      );
+      return;
+    }
     const price = finalSellingPrice;
 
-    // Immediately publish to shared catalog store
+    // Normalize category to standard marketplace groups
+    let normalizedCategory = 'POTTERY';
+    const rawCode = (catalogData?.craftCategoryCode || '').toUpperCase();
+    if (rawCode.includes('TEXTILE') || rawCode.includes('SAREE') || rawCode.includes('SILK')) {
+      normalizedCategory = 'TEXTILE';
+    } else if (rawCode.includes('PAINTING') || rawCode.includes('MITHILA') || rawCode.includes('MADHUBANI')) {
+      normalizedCategory = 'PAINTING';
+    } else if (rawCode.includes('METAL') || rawCode.includes('DHOKRA') || rawCode.includes('BRASS')) {
+      normalizedCategory = 'METAL';
+    } else if (rawCode.includes('WOOD') || rawCode.includes('CHANNAPATNA')) {
+      normalizedCategory = 'WOOD';
+    } else if (rawCode.includes('POTTERY') || rawCode.includes('TERRACOTTA') || rawCode.includes('CLAY')) {
+      normalizedCategory = 'POTTERY';
+    }
+
+    const exactImageUri = enhancedResult?.enhancedUri || (typeof capturedImageUri === 'string' ? capturedImageUri : undefined);
+
+    // Immediately publish to shared persistent catalog store
     const published = addProductToCatalog({
       title,
-      artisan: `${artisanName}, ${artisanDistrict}`,
+      artisan: finalArtisan, // EXACT SELLER-ENTERED NAME (Never overridden by AI)
       price,
       originalPrice: Math.round(price * 1.4),
-      imageUri: enhancedResult?.enhancedUri || (typeof capturedImageUri === 'string' ? capturedImageUri : undefined),
-      imageSource: selectedPresetImage || (enhancedResult?.enhancedUri ? { uri: enhancedResult.enhancedUri } : CRAFT_IMAGES.terracottaDiya),
-      category: catalogData?.craftCategoryCode || 'POTTERY',
-      state: 'MAHARASHTRA',
+      imageUri: exactImageUri,
+      imageSource: selectedPresetImage || (exactImageUri ? { uri: exactImageUri } : CRAFT_IMAGES.terracottaDiya),
+      category: normalizedCategory,
+      state: user?.state || 'MAHARASHTRA',
       giCertified: true,
-      giNumber: kalakarIpTag?.ipTagId || 'GI-IN-0412',
+      giNumber: kalakarIpTag?.ipTagId || `GI-IN-${Date.now().toString().slice(-4)}`,
       cluster: `${artisanDistrict} Artisan Cluster`,
       craftTag: `🛡️ Kalakar IP: ${kalakarIpTag?.ipTagId?.slice(-6) || '8492'}`,
-      craftInfo: catalogData?.descriptions.hi || catalogData?.descriptions.en || '100% Authentic Handcrafted Item',
+      craftInfo: catalogData?.descriptions.hi || catalogData?.descriptions.en || craftStoryInput || '100% Authentic Handcrafted Item',
     });
 
     setPublishedItem(published);
@@ -646,8 +778,10 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
               </View>
             )}
 
-            {/* Hidden canvas for taking snapshot */}
-            <canvas ref={canvasRef} style={{ display: 'none' }} />
+            {/* Hidden canvas for taking snapshot (web only) */}
+            {Platform.OS === 'web' && (
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+            )}
 
             {/* Viewfinder Overlays & 45° Framing Guide */}
             {isCameraActive && (
@@ -678,14 +812,14 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
             )}
           </View>
 
-          {/* Action Row: Snap + File Upload */}
+          {/* Action Row: Snap + File / Gallery Upload */}
           <View style={styles.captureActionRow}>
             <TouchableOpacity style={styles.snapButton} onPress={handleSnapPhoto} activeOpacity={0.85}>
               <Text style={styles.snapButtonIcon}>📸</Text>
               <Text style={styles.snapButtonText}>Take Craft Photo</Text>
             </TouchableOpacity>
 
-            {Platform.OS === 'web' && (
+            {Platform.OS === 'web' ? (
               <label style={styles.uploadLabelBtn}>
                 <Text style={styles.uploadBtnText}>📁 Upload File</Text>
                 <input
@@ -695,6 +829,14 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                   style={{ display: 'none' }}
                 />
               </label>
+            ) : (
+              <TouchableOpacity
+                style={styles.uploadLabelBtn}
+                onPress={handlePickFromGallery}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.uploadBtnText}>📁 Gallery Photo</Text>
+              </TouchableOpacity>
             )}
           </View>
 
@@ -883,6 +1025,84 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 English
               </Text>
             </TouchableOpacity>
+          </View>
+
+          {/* 🛡️ SELLER-CONTROLLED PRIMARY ATTRIBUTES */}
+          <View style={styles.sellerControlledCard}>
+            <View style={styles.sellerControlledHeader}>
+              <View style={styles.sellerControlledBadge}>
+                <Text style={styles.sellerControlledBadgeText}>🔒 SELLER-CONTROLLED ATTRIBUTES</Text>
+              </View>
+              <Text style={styles.sellerControlledSub}>
+                {isHindi
+                  ? 'कारीगर का नाम और उत्पाद का नाम आपके नियंत्रण में है — AI इसे कभी नहीं बदलेगा।'
+                  : 'Your Artisan Name & Product Title are strictly protected and will never be overwritten by AI.'}
+              </Text>
+            </View>
+
+            {/* 1. Artisan / Seller Name Input */}
+            <View style={styles.inputFieldGroup}>
+              <View style={styles.inputLabelRow}>
+                <Text style={styles.fieldLabel}>
+                  👤 {isHindi ? 'कारीगर / विक्रेता का नाम (Seller / Artisan Name):' : 'Artisan / Seller Name:'}
+                </Text>
+                <View style={styles.protectedPill}>
+                  <Text style={styles.protectedPillText}>🔒 Protected</Text>
+                </View>
+              </View>
+              <TextInput
+                style={styles.textInputRegular}
+                value={artisanNameInput}
+                onChangeText={setArtisanNameInput}
+                placeholder="e.g. Sunita Devi"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            {/* 2. Craft / Product Title Input */}
+            <View style={styles.inputFieldGroup}>
+              <View style={styles.inputLabelRow}>
+                <Text style={styles.fieldLabel}>
+                  🏷️ {isHindi ? 'शिल्प / उत्पाद का नाम (Craft / Product Title):' : 'Craft / Product Title:'}
+                </Text>
+                <View style={styles.protectedPill}>
+                  <Text style={styles.protectedPillText}>🔒 Protected</Text>
+                </View>
+              </View>
+              <TextInput
+                style={styles.textInputRegular}
+                value={craftNameInput}
+                onChangeText={setCraftNameInput}
+                placeholder="e.g. Terracotta Diya Set / Madhubani Painting"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            {/* 3. Labor & Material Cost Inputs */}
+            <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fieldLabel}>⏱️ {isHindi ? 'श्रम (घंटे):' : 'Labor (hrs):'}</Text>
+                <TextInput
+                  style={styles.textInputRegular}
+                  value={laborHoursInput}
+                  onChangeText={setLaborHoursInput}
+                  keyboardType="numeric"
+                  placeholder="16"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.fieldLabel}>💰 {isHindi ? 'लागत (₹):' : 'Material (₹):'}</Text>
+                <TextInput
+                  style={styles.textInputRegular}
+                  value={materialCostInput}
+                  onChangeText={setMaterialCostInput}
+                  keyboardType="numeric"
+                  placeholder="150"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+            </View>
           </View>
 
           {/* 1. AUDIO GUIDE: What to say */}
@@ -1241,9 +1461,44 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
             />
 
             <View style={styles.previewBody}>
-              <Text style={styles.previewTitle}>
-                {catalogData?.titles.hi || catalogData?.titles.en || craftNameInput}
-              </Text>
+              {/* Editable Product Title Review Field */}
+              <View style={styles.reviewFieldBox}>
+                <View style={styles.reviewLabelRow}>
+                  <Text style={styles.reviewFieldLabel}>
+                    🏷️ {isHindi ? 'उत्पाद शीर्षक (Edit Title):' : 'Product Title (Edit):'}
+                  </Text>
+                  <View style={styles.protectedPill}>
+                    <Text style={styles.protectedPillText}>Editable</Text>
+                  </View>
+                </View>
+                <TextInput
+                  style={styles.reviewTextInput}
+                  value={reviewTitleInput}
+                  onChangeText={setReviewTitleInput}
+                  placeholder="Product Title"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
+              {/* Editable Artisan Name Review Field */}
+              <View style={styles.reviewFieldBox}>
+                <View style={styles.reviewLabelRow}>
+                  <Text style={styles.reviewFieldLabel}>
+                    👤 {isHindi ? 'कारीगर / विक्रेता का नाम (Seller / Artisan):' : 'Artisan / Seller Name:'}
+                  </Text>
+                  <View style={styles.protectedPill}>
+                    <Text style={styles.protectedPillText}>🔒 Seller Priority</Text>
+                  </View>
+                </View>
+                <TextInput
+                  style={styles.reviewTextInput}
+                  value={reviewArtisanInput}
+                  onChangeText={setReviewArtisanInput}
+                  placeholder="Artisan Name (e.g. Sunita Devi)"
+                  placeholderTextColor="#94A3B8"
+                />
+              </View>
+
               <Text style={styles.previewCategory}>
                 {catalogData?.craftCategoryName || 'Traditional Pottery & Terracotta'} • GI Certified
               </Text>
@@ -1356,10 +1611,16 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
             <View style={styles.successActionButtons}>
               <TouchableOpacity
                 style={styles.viewBuyerBtn}
-                onPress={() => navigation?.navigate?.('HomeTab')}
+                onPress={() => {
+                  try {
+                    navigation?.navigate?.('MarketplaceHome');
+                  } catch {
+                    navigation?.navigate?.('HomeTab');
+                  }
+                }}
                 activeOpacity={0.85}
               >
-                <Text style={styles.viewBuyerBtnText}>🏠 Go to Dashboard</Text>
+                <Text style={styles.viewBuyerBtnText}>🛍️ View in Buyer Marketplace →</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -1373,6 +1634,14 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 activeOpacity={0.85}
               >
                 <Text style={styles.createAnotherBtnText}>+ Catalog Another Craft</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.createAnotherBtn, { backgroundColor: '#F1F5F9', borderColor: '#CBD5E1', marginTop: 4 }]}
+                onPress={() => navigation?.navigate?.('HomeTab')}
+                activeOpacity={0.85}
+              >
+                <Text style={[styles.createAnotherBtnText, { color: '#475569' }]}>🏠 Go to Artisan Dashboard</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -2576,5 +2845,102 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  sellerControlledCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#FDBA74',
+    marginBottom: 16,
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  sellerControlledHeader: {
+    marginBottom: 12,
+  },
+  sellerControlledBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FDBA74',
+    marginBottom: 4,
+  },
+  sellerControlledBadgeText: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#C2410C',
+    letterSpacing: 0.5,
+  },
+  sellerControlledSub: {
+    fontSize: 11.5,
+    color: '#7C2D12',
+    lineHeight: 16,
+  },
+  inputLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  protectedPill: {
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  protectedPillText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#047857',
+  },
+  textInputRegular: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    fontSize: 13.5,
+    color: '#0F172A',
+    fontWeight: '500',
+  },
+  reviewFieldBox: {
+    marginBottom: 10,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  reviewLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  reviewFieldLabel: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  reviewTextInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
   },
 });

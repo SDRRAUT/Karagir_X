@@ -18,6 +18,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { CRAFT_IMAGES } from '@/assets/craftImages';
+import { useCatalogStore } from '@/store/useCatalogStore';
 
 interface FlashProduct {
   id: string;
@@ -118,7 +119,11 @@ export const MarketplaceHomeScreen: React.FC = () => {
   // Live Flash Deals Countdown Timer (04h 18m 14s)
   const [timeLeft, setTimeLeft] = useState({ hours: 4, minutes: 18, seconds: 14 });
 
+  const catalogProducts = useCatalogStore((s) => s.catalogProducts);
+
   useEffect(() => {
+    useCatalogStore.getState().initialize().catch(() => {});
+
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.title = 'Kalakar Setu ~ Buyer';
     }
@@ -147,8 +152,14 @@ export const MarketplaceHomeScreen: React.FC = () => {
     return `${h}h ${m}m ${s}s`;
   };
 
-  const filteredProducts = FLASH_PRODUCTS.filter((p) => {
-    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+  const filteredProducts = catalogProducts.filter((p) => {
+    const selCat = selectedCategory.toLowerCase();
+    const prodCat = (p.category || '').toLowerCase();
+    const matchesCategory =
+      selectedCategory === 'all' ||
+      prodCat === selCat ||
+      prodCat.includes(selCat) ||
+      selCat.includes(prodCat);
     const matchesSearch =
       !searchQuery ||
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -382,13 +393,19 @@ export const MarketplaceHomeScreen: React.FC = () => {
                 {/* Product Image Container */}
                 <View style={styles.cardImageContainer}>
                   <Image
-                    source={prod.imageSource || { uri: prod.imageUrl }}
+                    source={
+                      prod.imageUrl
+                        ? { uri: prod.imageUrl }
+                        : prod.imageSource
+                        ? prod.imageSource
+                        : { uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' }
+                    }
                     style={styles.cardImage}
                     resizeMode="cover"
                   />
 
                   {/* Top-Left Discount Badge */}
-                  {discountPercent && (
+                  {Boolean(discountPercent) && (
                     <View style={styles.discountBadge}>
                       <Text style={styles.discountBadgeText}>{discountPercent}% OFF</Text>
                     </View>
@@ -441,7 +458,7 @@ export const MarketplaceHomeScreen: React.FC = () => {
                         ₹{prod.originalPrice.toLocaleString('en-IN')}
                       </Text>
                     )}
-                    {discountPercent && (
+                    {Boolean(discountPercent) && (
                       <Text style={styles.discountPercentText}>
                         {discountPercent}% off
                       </Text>

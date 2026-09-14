@@ -33,8 +33,43 @@ export interface BhashiniAsrResult {
 
 export class BhashiniService {
   private readonly baseUrl = 'https://dhruva-api.bhashini.gov.in/services/inference/pipeline';
-  private apiKey: string = process.env.EXPO_PUBLIC_BHASHINI_API_KEY || 'bhashini_meity_nltm_dpi_2026';
-  private userId: string = process.env.EXPO_PUBLIC_BHASHINI_USER_ID || 'kalakar_setu_artisan_hub';
+  private apiKey: string = process.env.EXPO_PUBLIC_BHASHINI_API_KEY || '';
+  private userId: string = process.env.EXPO_PUBLIC_BHASHINI_USER_ID || '';
+
+  private lastHttpStatus: number | null = null;
+  private lastError: string | null = null;
+
+  /**
+   * Whether valid, live Bhashini API credentials are configured.
+   * Rejects empty or placeholder/mock keys.
+   */
+  public isConfigured(): boolean {
+    return Boolean(
+      this.apiKey &&
+      this.apiKey.trim().length > 10 &&
+      this.apiKey !== 'bhashini_meity_nltm_dpi_2026' &&
+      this.userId &&
+      this.userId !== 'kalakar_setu_artisan_hub'
+    );
+  }
+
+  /**
+   * Diagnostic inspection for developer/admin screens.
+   * NEVER exposes API keys, user IDs, or auth tokens.
+   */
+  public getDiagnostics(): {
+    isConfigured: boolean;
+    endpointUrl: string;
+    lastHttpStatus: number | null;
+    lastError: string | null;
+  } {
+    return {
+      isConfigured: this.isConfigured(),
+      endpointUrl: this.baseUrl,
+      lastHttpStatus: this.lastHttpStatus,
+      lastError: this.lastError,
+    };
+  }
 
   /**
    * Translates text between Indian languages using Digital India Bhashini NMT
@@ -54,8 +89,21 @@ export class BhashiniService {
       };
     }
 
+    if (!this.isConfigured()) {
+      this.lastHttpStatus = null;
+      this.lastError = 'Bhashini NMT requires backend credentials. Using on-device Indic craft dictionary.';
+      logger.info('BHASHINI_SERVICE', this.lastError);
+      const translatedText = this.fallbackTranslate(text, sourceLanguage, targetLanguage);
+      return {
+        sourceText: text,
+        translatedText,
+        sourceLanguage,
+        targetLanguage,
+        engine: 'INDIC_NLP_OFFLINE',
+      };
+    }
+
     try {
-      // 1. Live Bhashini Dhruva Pipeline (REST API)
       const response = await fetch(this.baseUrl, {
         method: 'POST',
         headers: {
@@ -81,6 +129,8 @@ export class BhashiniService {
         }),
       });
 
+      this.lastHttpStatus = response.status;
+
       if (response.ok) {
         const data = await response.json();
         const translated =
@@ -97,12 +147,16 @@ export class BhashiniService {
             engine: 'BHASHINI_NMT_V2',
           };
         }
+      } else {
+        this.lastError = `Bhashini HTTP ${response.status}: ${response.statusText}`;
+        logger.warn('BHASHINI_SERVICE', `Bhashini NMT request rejected with HTTP ${response.status}`);
       }
-    } catch (error) {
-      logger.warn('BHASHINI_SERVICE', 'Bhashini cloud gateway unreachable, using on-device Indic translation rule-engine', { error });
+    } catch (error: any) {
+      this.lastError = error?.message || 'Bhashini network request failed';
+      logger.warn('BHASHINI_SERVICE', 'Bhashini gateway unreachable, using on-device Indic translation rule-engine', { error });
     }
 
-    // 2. High-Precision Indic Craft Dictionary Fallback
+    // High-Precision Indic Craft Dictionary Fallback
     const translatedText = this.fallbackTranslate(text, sourceLanguage, targetLanguage);
     return {
       sourceText: text,
@@ -114,12 +168,21 @@ export class BhashiniService {
   }
 
   /**
-   * Transcribe spoken audio buffer via Digital India Bhashini ASR
+   * Transcribe spoken audio buffer via Digital India Bhashini ASR.
+   * If Bhashini credentials are not configured or request fails, throws an error.
+   * Does NOT return synthetic or fake transcription results.
    */
   public async transcribeAudio(
     audioBase64: string,
     language: BhashiniLanguage = 'hi'
   ): Promise<BhashiniAsrResult> {
+    if (!this.isConfigured()) {
+      this.lastHttpStatus = 401;
+      this.lastError = 'Bhashini ASR requires a secure backend proxy with valid MeitY credentials. Client credentials unconfigured.';
+      logger.warn('BHASHINI_SERVICE', this.lastError);
+      throw new Error(this.lastError);
+    }
+
     try {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
@@ -144,6 +207,8 @@ export class BhashiniService {
         }),
       });
 
+      this.lastHttpStatus = response.status;
+
       if (response.ok) {
         const data = await response.json();
         const transcript =
@@ -160,16 +225,16 @@ export class BhashiniService {
           };
         }
       }
-    } catch (err) {
-      logger.warn('BHASHINI_SERVICE', 'Bhashini ASR endpoint offline, routing through on-device STT', { err });
-    }
 
-    return {
-      transcript: 'पारंपरिक हस्तनिर्मित टेराकोटा कलाकृति (Handmade Terracotta Craft)',
-      confidence: 0.9,
-      detectedLanguage: language,
-      engine: 'WEB_SPEECH_INDIC',
-    };
+      this.lastError = `Bhashini ASR rejected with HTTP ${response.status}`;
+      logger.warn('BHASHINI_SERVICE', this.lastError);
+      throw new Error(this.lastError);
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Bhashini ASR connection failed';
+      this.lastError = errorMsg;
+      logger.warn('BHASHINI_SERVICE', 'Bhashini ASR failed', { err });
+      throw new Error(errorMsg);
+    }
   }
 
   /**

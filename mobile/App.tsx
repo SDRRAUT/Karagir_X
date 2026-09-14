@@ -10,6 +10,7 @@ import { RootNavigator } from '@/navigation/RootNavigator';
 import { setupApiClient } from '@/api/setup';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useAppStore } from '@/store/useAppStore';
+import { useCatalogStore } from '@/store/useCatalogStore';
 
 LogBox.ignoreAllLogs(true);
 
@@ -58,6 +59,7 @@ export default function App() {
     // Rehydrate local storage states
     useAuthStore.getState().initialize();
     useAppStore.getState().initialize();
+    useCatalogStore.getState().initialize();
   }, []);
 
   return (

@@ -1,14 +1,14 @@
 import { geminiSaathiService } from '@/services/geminiSaathiService';
 
 describe('GeminiSaathiService', () => {
-  it('should initialize with default API key', () => {
-    expect(geminiSaathiService.getApiKey()).toBe('AIzaSyBNy_ezmOT2JUzVJL40XUHw3_A9P-p9VVc');
+  it('should initialize with empty default API key', () => {
+    expect(geminiSaathiService.getApiKey()).toBe('');
   });
 
   it('should allow updating API key', () => {
     const originalKey = geminiSaathiService.getApiKey();
-    geminiSaathiService.setApiKey('AIzaSyBNy_custom_test_key_123456789');
-    expect(geminiSaathiService.getApiKey()).toBe('AIzaSyBNy_custom_test_key_123456789');
+    geminiSaathiService.setApiKey('mock_test_key_123456789');
+    expect(geminiSaathiService.getApiKey()).toBe('mock_test_key_123456789');
     geminiSaathiService.setApiKey(originalKey);
   });
 

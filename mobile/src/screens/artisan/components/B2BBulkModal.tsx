@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 interface B2BBulkModalProps {
   visible: boolean;
@@ -24,17 +25,13 @@ export const B2BBulkModal: React.FC<B2BBulkModalProps> = ({ visible, onClose }) 
   };
 
   const handleSpeak = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(
-        isHindi
-          ? 'टाटा कैपिटल से 500 टेराकोटा दीया का बल्क ऑर्डर प्राप्त हुआ है। कुल बजट 1 लाख 25 हज़ार रुपये है। आपके क्लस्टर के 5 कारीगर मिलकर यह ऑर्डर पूरा करेंगे। आपकी हिस्सेदारी 25 हज़ार रुपये है।'
-          : 'Bulk inquiry received from TATA Capital for 500 terracotta diya sets with a budget of 1 lakh 25 thousand rupees. Your local 5-artisan cooperative cluster will fulfill this order together, yielding 25 thousand rupees for your share.'
-      );
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    const text = isHindi
+      ? 'टाटा कैपिटल से 500 टेराकोटा दीया का बल्क ऑर्डर प्राप्त हुआ है। कुल बजट 1 लाख 25 हज़ार रुपये है। आपके क्लस्टर के 5 कारीगर मिलकर यह ऑर्डर पूरा करेंगे। आपकी हिस्सेदारी 25 हज़ार रुपये है।'
+      : 'Bulk inquiry received from TATA Capital for 500 terracotta diya sets with a budget of 1 lakh 25 thousand rupees. Your local 5-artisan cooperative cluster will fulfill this order together, yielding 25 thousand rupees for your share.';
+    realisticVoiceService.speak(text, {
+      language: isHindi ? 'hi-IN' : 'en-IN',
+      rate: 0.95,
+    });
   };
 
   return (
