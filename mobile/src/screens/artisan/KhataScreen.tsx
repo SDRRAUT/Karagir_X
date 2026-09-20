@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 const { width } = Dimensions.get('window');
 
@@ -20,13 +21,10 @@ export const KhataScreen: React.FC<{ navigation?: any; embedded?: boolean }> = (
   const [loanApplied, setLoanApplied] = useState(false);
 
   const handleSpeak = (text: string) => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    realisticVoiceService.speak(text, {
+      language: 'hi-IN',
+      rate: 0.95,
+    });
   };
 
   const handleApplyCredit = () => {

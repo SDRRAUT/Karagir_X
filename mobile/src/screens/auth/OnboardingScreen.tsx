@@ -21,7 +21,7 @@ import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { INDIC_DISPLAY_FONT } from '@/theme/typography';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Audio } from 'expo-av';
+import { Audio } from '@/utils/audioPlayer';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 

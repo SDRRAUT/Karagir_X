@@ -17,6 +17,7 @@ import { MelaModeModal } from './components/MelaModeModal';
 import { B2BBulkModal } from './components/B2BBulkModal';
 import { FairPriceCalculatorModal } from './components/FairPriceCalculatorModal';
 import { CraftPassportModal } from './components/CraftPassportModal';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 const { width } = Dimensions.get('window');
 
@@ -31,13 +32,10 @@ export const ArtisanHomeScreen: React.FC<any> = ({ navigation }) => {
   const artisanName = user?.fullName || (isHindi ? 'रमेश' : 'Ramesh');
 
   const handleSpeak = (textEn: string, textHi: string) => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(isHindi ? textHi : textEn);
-      utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    realisticVoiceService.speak(isHindi ? textHi : textEn, {
+      language: isHindi ? 'hi-IN' : 'en-IN',
+      rate: 0.95,
+    });
   };
 
   const quickActions = [

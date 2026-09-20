@@ -321,11 +321,6 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
       setActiveSpeech('');
       setLastSpokenText('');
 
-      // Request browser microphone permission explicitly
-      if (Platform.OS === 'web') {
-        await speechRecognitionService.requestMicrophonePermission();
-      }
-
       const started = speechRecognitionService.startListening(
         {
           onStart: () => {
@@ -365,7 +360,7 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
               clearTimeout(silenceTimerRef.current);
               silenceTimerRef.current = null;
             }
-            setActiveSpeech(`Mic: ${err}`);
+            setActiveSpeech(err ? `Mic: ${err}` : 'Microphone unavailable');
           },
           onEnd: () => {
             setIsListening(false);
@@ -384,8 +379,8 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
         setVolumeLevel(0);
         setActiveSpeech(
           isHindi
-            ? 'वॉइस इनपुट इस ब्राउज़र में उपलब्ध नहीं है। कृपया नीचे टाइप करें।'
-            : 'Voice input unavailable in this browser. Please type below.'
+            ? 'माइक्रोफ़ोन शुरू नहीं हो सका। कृपया अनुमतियाँ जांचें।'
+            : 'Microphone could not start. Please check microphone permission.'
         );
       }
     }
@@ -568,7 +563,7 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
                     )}
 
                     {/* Bottom Audio Speaker Pill */}
-                    {msg.audioText && (
+                    {Boolean(msg.audioText) && (
                       <View style={styles.bubbleAudioRow}>
                         <TouchableOpacity
                           onPress={() => playVoice(msg.audioText || msg.text, msg.id)}
@@ -590,7 +585,7 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
         )}
 
         {/* Live Recognized Speech Floating Preview */}
-        {(isListening || (activeSpeech && activeSpeech.length > 0)) && (
+        {Boolean(isListening || (activeSpeech && activeSpeech.length > 0)) && (
           <View style={styles.liveSpeechCard}>
             <View style={styles.liveHeader}>
               <View style={styles.liveIndicator}>
@@ -743,9 +738,9 @@ export const VoiceSaathiScreen: React.FC<any> = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
 
-            {/* Center: Model Selector Pill (Digital India Bhashini + Gemini) */}
+            {/* Center: Assistant Selector Pill */}
             <View style={styles.modelBadgePill}>
-              <Text style={styles.modelBadgeText}>🇮🇳 Bhashini AI ▾</Text>
+              <Text style={styles.modelBadgeText}>🇮🇳 Indic Saathi AI</Text>
             </View>
 
             {/* Right Cluster: Mic + Send/Audio Circle */}

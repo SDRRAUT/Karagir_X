@@ -11,6 +11,7 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { productService } from '@/api/productService';
 import { useCatalogStore } from '@/store/useCatalogStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductPreview'>;
 
@@ -23,8 +24,10 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
     descriptions,
     careInstructions,
     tags,
+    craftCategoryCode,
     craftCategoryName,
     finalSellingPrice,
+    extractedEntities,
     setPublishedProduct,
   } = useProductDraftStore();
 
@@ -60,14 +63,36 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
         careInstructions: careInstructions.hi,
       });
 
+      const authUser = useAuthStore.getState().user;
+      const sellerName =
+        (extractedEntities?.artisanName as string)?.trim() ||
+        authUser?.fullName?.trim() ||
+        'Sunita Devi';
+
+      // Dynamically resolve category from craftCategoryCode or draft
+      let resolvedCategory = 'POTTERY';
+      const catCode = (craftCategoryCode || '').toUpperCase();
+      if (catCode.includes('TEXTILE') || catCode.includes('SAREE') || catCode.includes('SILK') || catCode.includes('WEAV')) {
+        resolvedCategory = 'TEXTILE';
+      } else if (catCode.includes('PAINTING') || catCode.includes('MITHILA') || catCode.includes('MADHUBANI') || catCode.includes('ART')) {
+        resolvedCategory = 'PAINTING';
+      } else if (catCode.includes('METAL') || catCode.includes('DHOKRA') || catCode.includes('BRASS') || catCode.includes('BELL')) {
+        resolvedCategory = 'METAL';
+      } else if (catCode.includes('WOOD') || catCode.includes('CHANNAPATNA') || catCode.includes('CARV')) {
+        resolvedCategory = 'WOOD';
+      } else if (catCode.includes('POTTERY') || catCode.includes('TERRACOTTA') || catCode.includes('CLAY')) {
+        resolvedCategory = 'POTTERY';
+      }
+
       // Add to central live catalog store
       useCatalogStore.getState().addProductToCatalog({
         id: result.id,
         title: displayTitle,
+        artisan: sellerName,
         price: finalSellingPrice || 2150,
         originalPrice: Math.round((finalSellingPrice || 2150) * 1.35),
         imageUri: primaryPhoto?.enhancedUri || primaryPhoto?.uri,
-        category: 'POTTERY',
+        category: resolvedCategory,
         craftTag: `✓ ${craftCategoryName || '100% Handcrafted'}`,
         craftInfo: displayDescription,
         cluster: 'Kolhapur Heritage Cluster',
@@ -77,13 +102,34 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
       setIsPublishing(false);
       navigation.replace('PublishSuccess');
     } catch (_err) {
+      const authUser = useAuthStore.getState().user;
+      const sellerName =
+        (extractedEntities?.artisanName as string)?.trim() ||
+        authUser?.fullName?.trim() ||
+        'Sunita Devi';
+
+      let resolvedCategory = 'POTTERY';
+      const catCode = (craftCategoryCode || '').toUpperCase();
+      if (catCode.includes('TEXTILE') || catCode.includes('SAREE') || catCode.includes('SILK') || catCode.includes('WEAV')) {
+        resolvedCategory = 'TEXTILE';
+      } else if (catCode.includes('PAINTING') || catCode.includes('MITHILA') || catCode.includes('MADHUBANI') || catCode.includes('ART')) {
+        resolvedCategory = 'PAINTING';
+      } else if (catCode.includes('METAL') || catCode.includes('DHOKRA') || catCode.includes('BRASS') || catCode.includes('BELL')) {
+        resolvedCategory = 'METAL';
+      } else if (catCode.includes('WOOD') || catCode.includes('CHANNAPATNA') || catCode.includes('CARV')) {
+        resolvedCategory = 'WOOD';
+      } else if (catCode.includes('POTTERY') || catCode.includes('TERRACOTTA') || catCode.includes('CLAY')) {
+        resolvedCategory = 'POTTERY';
+      }
+
       // Even if offline/network fails, ensure it is added to the local catalog
       useCatalogStore.getState().addProductToCatalog({
         title: displayTitle,
+        artisan: sellerName,
         price: finalSellingPrice || 2150,
         originalPrice: Math.round((finalSellingPrice || 2150) * 1.35),
         imageUri: primaryPhoto?.enhancedUri || primaryPhoto?.uri,
-        category: 'POTTERY',
+        category: resolvedCategory,
         craftTag: `✓ ${craftCategoryName || '100% Handcrafted'}`,
         craftInfo: displayDescription,
         cluster: 'Kolhapur Heritage Cluster',

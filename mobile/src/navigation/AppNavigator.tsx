@@ -146,7 +146,14 @@ export const AppNavigator: React.FC<any> = ({ route }) => {
   const user = useAuthStore((s) => s.user);
   const { t, isHindi } = useTranslation();
   const routeRole = route?.params?.role as UserRole | undefined;
-  const role: UserRole = activeRole || routeRole || user?.role || 'ARTISAN';
+
+  // Strict Role Isolation Guard:
+  // Admin tabs can ONLY be loaded by authenticated users whose profile role is 'ADMIN'.
+  const authenticatedRole = user?.role;
+  let role: UserRole = activeRole || routeRole || authenticatedRole || 'ARTISAN';
+  if (role === 'ADMIN' && authenticatedRole !== 'ADMIN') {
+    role = authenticatedRole === 'BUYER' ? 'BUYER' : 'ARTISAN';
+  }
 
   const bottomInset = Math.max(insets.bottom, 10);
   const tabHeight = 60 + bottomInset;

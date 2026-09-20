@@ -13,6 +13,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/typography/Text';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Audio } from '@/utils/audioPlayer';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -188,74 +189,44 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     );
     pulseLoop.start();
 
-    // 4. Play splash.mp3 with universal fallback
+    // 4. Play splash.mp3 with universal real audio playback
     const playSplashAudio = async () => {
       try {
-        if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof window.Audio !== 'undefined') {
-          // Web Native HTML Audio
-          const audio = new window.Audio(require('../../../assets/audio/splash.mp3'));
-          audioPlayerRef.current = audio;
-          audio.volume = 1.0;
+        const { sound } = await Audio.Sound.createAsync(
+          require('../../../assets/audio/splash.mp3'),
+          { shouldPlay: true, volume: 1.0 }
+        );
+        audioPlayerRef.current = sound;
 
-          audio.onplay = () => {
-            if (!isMounted) return;
+        setIsAudioPlaying(true);
+        startWaveAnimation();
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (!isMounted) return;
+          if (status.isPlaying) {
             setIsAudioPlaying(true);
-            startWaveAnimation();
-          };
-
-          audio.onended = () => {
-            if (!isMounted) return;
+          }
+          if (status.didJustFinish) {
             setIsAudioPlaying(false);
             setAudioFinished(true);
             stopWaveAnimation();
             navigationTimerRef.current = setTimeout(() => {
               if (isMounted) doNavigate();
             }, 400);
-          };
-
-          try {
-            await audio.play();
-            setIsAudioPlaying(true);
-            startWaveAnimation();
-
-            Animated.timing(progressAnim, {
-              toValue: 1,
-              duration: 7000,
-              easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-              useNativeDriver: false,
-            }).start();
-          } catch (_e) {
-            setIsAudioPlaying(false);
-            setAudioFinished(true);
-            navigationTimerRef.current = setTimeout(() => {
-              if (isMounted) doNavigate();
-            }, 3500);
           }
-        } else {
-          // Native Device (Expo Go / Android / iOS)
-          // Timed elegant cinematic splash entrance
-          setIsAudioPlaying(true);
-          startWaveAnimation();
+        });
 
-          Animated.timing(progressAnim, {
-            toValue: 1,
-            duration: 3200,
-            easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            useNativeDriver: false,
-          }).start();
-
-          navigationTimerRef.current = setTimeout(() => {
-            if (isMounted) {
-              setIsAudioPlaying(false);
-              setAudioFinished(true);
-              stopWaveAnimation();
-              doNavigate();
-            }
-          }, 3200);
-        }
+        Animated.timing(progressAnim, {
+          toValue: 1,
+          duration: 3500,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+          useNativeDriver: false,
+        }).start();
       } catch (_err) {
         if (!isMounted) return;
+        setIsAudioPlaying(false);
         setAudioFinished(true);
+        stopWaveAnimation();
         navigationTimerRef.current = setTimeout(() => {
           if (isMounted) doNavigate();
         }, 3000);

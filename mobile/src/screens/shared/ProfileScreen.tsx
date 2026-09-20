@@ -79,9 +79,12 @@ export const ProfileScreen: React.FC = () => {
     },
   ];
 
-  const role = activeRole || user?.role || 'ARTISAN';
+  const isUserAdmin = user?.role === 'ADMIN';
+  const rawRole = activeRole || user?.role || 'ARTISAN';
+  // Strict authorization: non-admin users cannot have role === 'ADMIN'
+  const role = (rawRole === 'ADMIN' && !isUserAdmin) ? (user?.role || 'ARTISAN') : rawRole;
   const isBuyer = role === 'BUYER';
-  const isAdmin = role === 'ADMIN';
+  const isAdmin = isUserAdmin && role === 'ADMIN';
   const isArtisan = role === 'ARTISAN';
 
   const roleName = user?.fullName || (isBuyer ? 'Priya Sharma' : isAdmin ? 'Rajesh Sharma (Admin)' : 'Ramesh Kumbhar');
@@ -213,7 +216,7 @@ export const ProfileScreen: React.FC = () => {
               {/* Orders */}
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('Orders' as any)}
+                onPress={() => navigation.navigate('OrderTracking', { orderId: 'ORD_2026_8831' })}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
@@ -320,7 +323,7 @@ export const ProfileScreen: React.FC = () => {
 
               <TouchableOpacity
                 style={styles.financeItem}
-                onPress={() => navigation.navigate('BulkInquiry' as any)}
+                onPress={() => navigation.navigate('CreateBulkRfq')}
                 activeOpacity={0.8}
               >
                 <View style={[styles.financeIconBox, { backgroundColor: 'rgba(244, 185, 66, 0.15)' }]}>
@@ -347,7 +350,7 @@ export const ProfileScreen: React.FC = () => {
             <View style={styles.utilityGrid}>
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('Orders' as any)}
+                onPress={() => navigation.navigate('MainTabs' as any, { screen: 'OrdersTab' })}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
@@ -844,7 +847,7 @@ export const ProfileScreen: React.FC = () => {
             {[
               { role: 'BUYER', label: `🛍️ ${t.profile.buyerRole}`, title: t.profile.buyerTitle },
               { role: 'ARTISAN', label: `🎨 ${t.profile.artisanRole}`, title: t.profile.artisanTitle },
-              { role: 'ADMIN', label: '🛡️ Admin', title: 'Command Center' },
+              ...(isUserAdmin ? [{ role: 'ADMIN', label: '🛡️ Admin', title: 'Command Center' }] : []),
             ].map((r) => {
               const isCurrent = role === r.role;
               return (
@@ -861,6 +864,9 @@ export const ProfileScreen: React.FC = () => {
                     backgroundColor: isCurrent ? 'rgba(234, 88, 12, 0.08)' : '#FFFFFF',
                   }}
                   onPress={async () => {
+                    if (r.role === 'ADMIN' && !isUserAdmin) {
+                      return;
+                    }
                     setActiveRole(r.role as any);
                     await updateProfile({ role: r.role as any });
                     navigation.navigate('MainTabs', { screen: 'HomeTab' });

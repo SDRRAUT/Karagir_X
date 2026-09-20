@@ -12,6 +12,8 @@ import { Text } from '@/components/typography/Text';
 import { useTranslation } from '@/hooks/useTranslation';
 import { KhataScreen } from './KhataScreen';
 
+import { realisticVoiceService } from '@/services/realisticVoiceService';
+
 const { width } = Dimensions.get('window');
 
 type OrderTabType = 'new' | 'making' | 'done';
@@ -34,13 +36,10 @@ export const OrdersScreen: React.FC<any> = ({ route, navigation }) => {
   }, [route?.params?.section]);
 
   const handleSpeak = (text: string) => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'hi-IN';
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
+    realisticVoiceService.speak(text, {
+      language: 'hi-IN',
+      rate: 0.95,
+    });
   };
 
   const handleAcceptOrder = (id: string) => {

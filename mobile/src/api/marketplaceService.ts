@@ -409,25 +409,85 @@ export class MarketplaceService {
 
       const { data, error } = await query;
 
-      if (error || !data || data.length === 0) {
-        logger.warn('MARKETPLACE_SERVICE', 'Supabase returned empty or error, falling back to mock catalog', { error });
-        return MOCK_PRODUCTS;
+      let baseProducts: MarketplaceProduct[] = MOCK_PRODUCTS;
+      if (!error && data && data.length > 0) {
+        baseProducts = data.map((row: any) => this.mapProductRow(row));
       }
 
-      const mapped = data.map((row: any) => this.mapProductRow(row));
+      // Merge live products from useCatalogStore (shared single source of truth for seller & buyer)
+      const liveCatalogProducts = useCatalogStore.getState().catalogProducts || [];
+      const liveMapped: MarketplaceProduct[] = liveCatalogProducts.map((liveItem) => {
+        const primaryImg =
+          liveItem.imageUrl ||
+          (typeof liveItem.imageSource === 'string'
+            ? liveItem.imageSource
+            : liveItem.imageSource?.uri
+            ? liveItem.imageSource.uri
+            : typeof liveItem.imageSource === 'number'
+            ? (liveItem.imageSource as any)
+            : 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80');
+
+        return {
+          id: liveItem.id,
+          title: { en: liveItem.title, hi: liveItem.title },
+          description: { en: liveItem.craftInfo, hi: liveItem.craftInfo },
+          price: liveItem.price,
+          categoryCode: liveItem.category || 'POTTERY',
+          categoryName: liveItem.craftTag || 'Handmade Craft',
+          images: [primaryImg],
+          artisan: {
+            id: `art_${liveItem.id}`,
+            name: liveItem.artisan || 'Verified Artisan',
+            cluster: liveItem.cluster || 'Artisan Cluster',
+            state: liveItem.state || 'India',
+            craftYears: 20,
+            community: 'हस्तशिल्प संघ',
+          },
+          passport: {
+            passportId: liveItem.giNumber || 'PASS-KALAKAR-2026',
+            isVerified: liveItem.giCertified ?? true,
+            materialsUsed: [liveItem.craftTag || 'Natural Materials', '100% Organic Local Materials'],
+            technique: liveItem.craftTag || 'Master Handcrafted',
+            laborHours: 16,
+            provenanceVillage: liveItem.cluster || 'Craft Cluster',
+            verificationBadge: 'Kalakar Setu Verified Artisan',
+          },
+          stockType: 'READY_STOCK' as const,
+          rating: 4.9,
+          reviewsCount: 14,
+          tags: ['Handmade', 'GI-Certified', liveItem.category],
+        };
+      });
+
+      const liveIds = new Set(liveMapped.map((p) => p.id));
+      let mergedProducts = [
+        ...liveMapped,
+        ...baseProducts.filter((p) => !liveIds.has(p.id)),
+      ];
+
+      if (filters?.categoryCode) {
+        const cat = filters.categoryCode.toUpperCase();
+        mergedProducts = mergedProducts.filter(
+          (p) =>
+            p.categoryCode?.toUpperCase() === cat ||
+            p.categoryCode?.toUpperCase().includes(cat) ||
+            cat.includes(p.categoryCode?.toUpperCase())
+        );
+      }
 
       if (filters?.searchQuery) {
         const q = filters.searchQuery.toLowerCase();
-        return mapped.filter(
+        return mergedProducts.filter(
           (p) =>
             p.title.hi?.toLowerCase().includes(q) ||
             p.title.en?.toLowerCase().includes(q) ||
             p.categoryName?.toLowerCase().includes(q) ||
+            p.artisan.name?.toLowerCase().includes(q) ||
             p.tags?.some((t) => t.toLowerCase().includes(q))
         );
       }
 
-      return mapped;
+      return mergedProducts;
     } catch (error) {
       logger.error('MARKETPLACE_SERVICE', 'Exception during getProducts, falling back to mock products', error);
       return MOCK_PRODUCTS;
@@ -438,7 +498,7 @@ export class MarketplaceService {
    * Fetch single product detail from Catalog Store or Supabase
    */
   public async getProductById(id: string): Promise<MarketplaceProduct> {
-    // 1. Check live in-memory catalog store first (for newly listed items)
+    // 1. Check live shared catalog store first (for all seller-created and listed items)
     try {
       const liveItem = useCatalogStore.getState().catalogProducts.find((p) => p.id === id);
       if (liveItem) {
@@ -446,6 +506,10 @@ export class MarketplaceService {
           liveItem.imageUrl ||
           (typeof liveItem.imageSource === 'string'
             ? liveItem.imageSource
+            : liveItem.imageSource?.uri
+            ? liveItem.imageSource.uri
+            : typeof liveItem.imageSource === 'number'
+            ? (liveItem.imageSource as any)
             : 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=600&q=80');
 
         return {
@@ -453,24 +517,24 @@ export class MarketplaceService {
           title: { en: liveItem.title, hi: liveItem.title },
           description: { en: liveItem.craftInfo, hi: liveItem.craftInfo },
           price: liveItem.price,
-          categoryCode: liveItem.category || 'POTTERY_TERRACOTTA',
+          categoryCode: liveItem.category || 'POTTERY',
           categoryName: liveItem.craftTag || 'Handmade Craft',
           images: [primaryImg],
           artisan: {
             id: `art_${liveItem.id}`,
-            name: liveItem.artisan || 'Ramesh Kumbhar',
-            cluster: liveItem.cluster || 'Kolhapur Heritage Cluster',
-            state: liveItem.state || 'Maharashtra',
+            name: liveItem.artisan || 'Verified Artisan',
+            cluster: liveItem.cluster || 'Artisan Cluster',
+            state: liveItem.state || 'India',
             craftYears: 25,
-            community: 'माती कला संघ',
+            community: 'हस्तशिल्प संघ',
           },
           passport: {
             passportId: liveItem.giNumber || 'PASS-KLH-2026',
             isVerified: liveItem.giCertified ?? true,
-            materialsUsed: [liveItem.craftTag, '100% Organic Local Materials'],
+            materialsUsed: [liveItem.craftTag || 'Natural River Clay', '100% Organic Local Materials'],
             technique: liveItem.craftTag || 'Master Handcrafted',
-            laborHours: 6,
-            provenanceVillage: liveItem.cluster || 'Kolhapur, Maharashtra',
+            laborHours: 16,
+            provenanceVillage: liveItem.cluster || 'Artisan Studio',
             verificationBadge: 'Kalakar Setu Verified Artisan',
           },
           stockType: 'READY_STOCK',

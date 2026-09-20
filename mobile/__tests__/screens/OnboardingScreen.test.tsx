@@ -2,7 +2,7 @@ import React, { act } from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { OnboardingScreen } from '@/screens/auth/OnboardingScreen';
 import { ThemeProvider } from '@/theme/ThemeProvider';
-import { Audio } from 'expo-av';
+import { Audio } from '@/utils/audioPlayer';
 
 const mockNavigation: any = {
   navigate: jest.fn(),

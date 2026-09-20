@@ -20,7 +20,14 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.mobile"
+      "package": "com.kalakarsetu.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,7 +36,36 @@
       "expo-font",
       "expo-image",
       "expo-asset",
-      "expo-av"
-    ]
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Kalakar Setu to access your camera to photograph artisan crafts."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Kalakar Setu to access your photos to upload craft images."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow Kalakar Setu to access your microphone for voice cataloging.",
+          "speechRecognitionPermission": "Allow Kalakar Setu to use speech recognition.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.tts",
+            "com.google.android.as",
+            "com.samsung.android.bixby.agent"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "dca4504f-11c4-43ea-9525-bcfa98545042"
+      }
+    }
   }
 }

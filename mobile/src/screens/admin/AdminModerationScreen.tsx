@@ -7,11 +7,17 @@ import { Card } from '@/components/cards/Card';
 import { Icon } from '@/components/icons/Icon';
 import { useAdminStore } from '@/store/useAdminStore';
 import { AdminFlaggedListing } from '@/api/types';
+import { useRequireAdminRole } from '@/components/auth/useRequireAdminRole';
 
 export const AdminModerationScreen: React.FC = () => {
+  const { isAuthorizedAdmin } = useRequireAdminRole();
   const navigation = useNavigation<any>();
   const { moderationQueue, approveListing, rejectListing } = useAdminStore();
   const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('PENDING');
+
+  if (!isAuthorizedAdmin) {
+    return null;
+  }
 
   const handleGoBack = () => {
     if (navigation.canGoBack()) {

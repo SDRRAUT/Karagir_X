@@ -7,6 +7,7 @@ export interface GeminiCatalogInput {
   artisanName?: string;
   artisanLocation?: string;
   craftCategoryHint?: string;
+  productTitleHint?: string;
   apiKey?: string;
 }
 
@@ -15,6 +16,7 @@ export interface GeminiStructuredCatalog {
   descriptions: MultilingualText;
   craftCategoryCode: string;
   craftCategoryName: string;
+  artisanName?: string;
   giTagCertified: boolean;
   giRegion: string;
   materials: string[];
@@ -43,15 +45,13 @@ export interface GeminiStructuredCatalog {
 }
 
 export class GeminiCatalogService {
-  private defaultApiKey: string =
-    (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_GEMINI_API_KEY) ||
-    'AIzaSyBNy_ezmOT2JUzVJL40XUHw3_A9P-p9VVc';
+  private defaultApiKey: string = '';
 
   /**
    * Set dynamic API key at runtime if artisan or admin provides one
    */
   public setApiKey(key: string) {
-    this.defaultApiKey = key;
+    this.defaultApiKey = key ? key.trim() : '';
   }
 
   public getApiKey(): string {
@@ -69,8 +69,9 @@ export class GeminiCatalogService {
         logger.info('GEMINI_SERVICE', 'Calling Gemini 3.6 Flash Multimodal Vision API...');
         return await this.callGeminiApi(input, key.trim());
       } catch (error) {
+        const safeMsg = (error instanceof Error ? error.message : String(error)).replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
         logger.warn('GEMINI_SERVICE', 'Gemini API call failed, falling back to Indic AI Engine', {
-          error: error instanceof Error ? error.message : String(error),
+          error: safeMsg,
         });
       }
     }
@@ -83,15 +84,23 @@ export class GeminiCatalogService {
     input: GeminiCatalogInput,
     apiKey: string
   ): Promise<GeminiStructuredCatalog> {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
 
     const promptText = `
 You are Kalakar Setu's Master Indic Handicrafts Appraiser and Multimodal Cataloging Engine.
 Analyze the provided handcrafted product image and the artisan's spoken transcript.
 
 Artisan Spoken Description: "${input.voiceTranscript || 'Traditional handcrafted Indian artisan item'}"
-Artisan Name: "${input.artisanName || 'Master Artisan'}"
+Artisan / Seller Name: "${input.artisanName || 'Master Artisan'}"
 Location: "${input.artisanLocation || 'India'}"
+${input.productTitleHint ? `Seller-Provided Craft Title: "${input.productTitleHint}"` : ''}
+
+CRITICAL MANDATORY NAME & IDENTITY INTEGRITY RULES:
+1. The Seller/Artisan explicitly provided their name: "${input.artisanName || 'Master Artisan'}".
+2. YOU MUST NEVER OVERWRITE, CHANGE, NORMALIZE, OR INFER A DIFFERENT NAME. If the seller entered a name, that exact text must strictly be preserved verbatim without any changes.
+3. DO NOT attempt to identify people or faces in the image. DO NOT assume the maker is a celebrity or substitute any historical or other artisan's name.
+4. Seller-controlled fields have absolute priority over AI inference.
+5. In your generated descriptions and titles, honor the exact craft and maintain the artisan's genuine authorship without altering their identity.
 
 Perform the following tasks:
 1. Identify the exact traditional Indian craft type (e.g. Terracotta Pottery, Madhubani / Mithila Painting, Banarasi Weaving, Dhokra Bell Metal, Blue Pottery, Channapatna Toys, Kolhapuri Chappal, etc.).
@@ -172,6 +181,7 @@ Return ONLY a valid JSON object matching this exact structure:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
         contents,
@@ -184,7 +194,8 @@ Return ONLY a valid JSON object matching this exact structure:
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`Gemini API error (${response.status}): ${errText}`);
+      const safeErrText = errText.replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
+      throw new Error(`Gemini API error (${response.status}): ${safeErrText}`);
     }
 
     const data = await response.json();
@@ -194,8 +205,19 @@ Return ONLY a valid JSON object matching this exact structure:
       throw new Error('No candidate content received from Gemini');
     }
 
-    // Parse JSON
-    const parsed = JSON.parse(candidateText);
+    // Parse JSON cleanly stripping potential markdown code fences
+    const cleanJson = candidateText
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/\s*```$/i, '')
+      .trim();
+
+    const parsed = JSON.parse(cleanJson);
+    if (!parsed || !parsed.titles || !parsed.descriptions) {
+      throw new Error('Gemini API response missing essential catalog fields');
+    }
+
+    // Strictly enforce seller-provided artisan name
+    parsed.artisanName = input.artisanName;
     return parsed as GeminiStructuredCatalog;
   }
 
@@ -204,41 +226,79 @@ Return ONLY a valid JSON object matching this exact structure:
    */
   public generateIndicSmartFallback(input: GeminiCatalogInput): GeminiStructuredCatalog {
     const transcript = (input.voiceTranscript || '').toLowerCase();
+    const effectiveArtisan = input.artisanName || 'Master Artisan';
 
     // Check craft category based on transcript keywords
     let craftCode = 'POTTERY_TERRACOTTA';
     let craftName = 'पारंपरिक टेराकोटा एवं मृत्तिका शिल्प (Terracotta Craft)';
-    let giRegion = 'Kolhapur / Gorakhpur';
+    let giRegion = input.artisanLocation || 'Kolhapur / Gorakhpur';
     let isGi = true;
     let materials = ['शुद्ध नदी की चिकनी मिट्टी (Riverbed Clay)', 'प्राकृतिक लाल गेरू रंग (Natural Ochre)'];
-    let defaultTitleEn = 'Handcrafted Traditional Terracotta Diya Set - 5 Pieces, GI Certified';
-    let defaultTitleHi = 'हाथ से बना पारंपरिक कोल्हापुरी टेराकोटा दीया सेट - 5 पीस, जीआई प्रमाणित';
-    let defaultTitleMr = 'हस्तनिर्मित पारंपरिक कोल्हापुरी मातीचा दिवा संच - ५ नमुने, जीआय प्रमाणित';
+    let defaultTitleEn = input.productTitleHint || 'Handcrafted Traditional Terracotta Diya Set - 5 Pieces, GI Certified';
+    let defaultTitleHi = input.productTitleHint || 'हाथ से बना पारंपरिक कोल्हापुरी टेराकोटा दीया सेट - 5 पीस, जीआई प्रमाणित';
+    let defaultTitleMr = input.productTitleHint || 'हस्तनिर्मित पारंपरिक कोल्हापुरी मातीचा दिवा संच - ५ नमुने, जीआय प्रमाणित';
 
-    if (transcript.includes('saree') || transcript.includes('saadi') || transcript.includes('silk') || transcript.includes('weav') || transcript.includes('handloom') || transcript.includes('kapda')) {
+    const isTextile =
+      transcript.includes('saree') ||
+      transcript.includes('saadi') ||
+      transcript.includes('silk') ||
+      transcript.includes('weav') ||
+      transcript.includes('handloom') ||
+      transcript.includes('kapda') ||
+      transcript.includes('साड़ी') ||
+      transcript.includes('सिल्क') ||
+      transcript.includes('रेशम') ||
+      transcript.includes('हथकरघा') ||
+      transcript.includes('कापड');
+
+    const isPainting =
+      transcript.includes('paint') ||
+      transcript.includes('chitra') ||
+      transcript.includes('madhubani') ||
+      transcript.includes('mithila') ||
+      transcript.includes('warli') ||
+      transcript.includes('पेंटिंग') ||
+      transcript.includes('चित्र') ||
+      transcript.includes('मधुबनी') ||
+      transcript.includes('मिथिला') ||
+      transcript.includes('वारली');
+
+    const isMetal =
+      transcript.includes('metal') ||
+      transcript.includes('brass') ||
+      transcript.includes('peetal') ||
+      transcript.includes('dhokra') ||
+      transcript.includes('murti') ||
+      transcript.includes('धातु') ||
+      transcript.includes('पीतल') ||
+      transcript.includes('कांसा') ||
+      transcript.includes('ढोकरा') ||
+      transcript.includes('मूर्ति');
+
+    if (isTextile) {
       craftCode = 'TEXTILE_HANDLOOM';
       craftName = 'हथकरघा एवं पारंपरिक वस्त्र शिल्प (Handloom Textiles)';
-      giRegion = 'Varanasi / Paithan / Chanderi';
+      giRegion = input.artisanLocation || 'Varanasi / Paithan / Chanderi';
       materials = ['शुद्ध मलबरी सिल्क (Pure Mulberry Silk)', 'प्राकृतिक ज़री धागा (Natural Zari)'];
-      defaultTitleEn = 'Authentic Handwoven Pure Silk Heritage Saree with Zari Border';
-      defaultTitleHi = 'प्रामाणिक हथकरघा शुद्ध रेशम साड़ी - पारंपरिक ज़री पल्लू';
-      defaultTitleMr = 'अस्सल हातमाग शुद्ध रेशमी पैठणी साडी - पारंपरिक नक्षी';
-    } else if (transcript.includes('paint') || transcript.includes('chitra') || transcript.includes('madhubani') || transcript.includes('mithila') || transcript.includes('warli')) {
+      defaultTitleEn = input.productTitleHint || 'Handcrafted Authentic Handwoven Pure Silk Heritage Saree with Zari Border';
+      defaultTitleHi = input.productTitleHint || 'प्रामाणिक हथकरघा शुद्ध रेशम साड़ी - पारंपरिक ज़री पल्लू';
+      defaultTitleMr = input.productTitleHint || 'अस्सल हातमाग शुद्ध रेशमी पैठणी साडी - पारंपरिक नक्षी';
+    } else if (isPainting) {
       craftCode = 'PAINTING_MITHILA';
       craftName = 'पारंपरिक लोक चित्रकला (Folk Art Painting)';
-      giRegion = 'Mithila, Bihar / Warli, Maharashtra';
+      giRegion = input.artisanLocation || 'Mithila, Bihar / Warli, Maharashtra';
       materials = ['हाथ से बना कॉटन पेपर (Handmade Rag Paper)', 'प्राकृतिक वनस्पति रंग (Botanical Pigments)'];
-      defaultTitleEn = 'Authentic Traditional Hand-Painted Folk Art Painting (GI Certified)';
-      defaultTitleHi = 'हाथ से चित्रित प्रामाणिक पारंपरिक लोक कला पेंटिंग';
-      defaultTitleMr = 'हस्तचित्रित अस्सल पारंपरिक लोककला चित्र (जीआय मानांकित)';
-    } else if (transcript.includes('metal') || transcript.includes('brass') || transcript.includes('peetal') || transcript.includes('dhokra') || transcript.includes('murti')) {
+      defaultTitleEn = input.productTitleHint || 'Authentic Traditional Hand-Painted Folk Art Painting (GI Certified)';
+      defaultTitleHi = input.productTitleHint || 'हाथ से चित्रित प्रामाणिक पारंपरिक लोक कला पेंटिंग';
+      defaultTitleMr = input.productTitleHint || 'हस्तचित्रित अस्सल पारंपरिक लोककला चित्र (जीआय मानांकित)';
+    } else if (isMetal) {
       craftCode = 'METAL_DHOKRA';
       craftName = 'पारंपरिक ढोकरा एवं कांसा धातु शिल्प (Bell Metal / Brass)';
-      giRegion = 'Bastar, Chhattisgarh';
+      giRegion = input.artisanLocation || 'Bastar, Chhattisgarh';
       materials = ['कांसा एवं पीतल धातु (Bell Metal & Brass)', 'मोम तकनीक (Lost-Wax Cast)'];
-      defaultTitleEn = 'Authentic Bastar Dhokra Lost-Wax Bell Metal Handcrafted Sculpture';
-      defaultTitleHi = 'बस्तर पारंपरिक ढोकरा लॉस्ट-वैक्स कांसा धातु शिल्प';
-      defaultTitleMr = 'बस्तर अस्सल ढोकरा पितळ धातू हस्तकला मूर्ती';
+      defaultTitleEn = input.productTitleHint || 'Authentic Bastar Dhokra Lost-Wax Bell Metal Handcrafted Sculpture';
+      defaultTitleHi = input.productTitleHint || 'बस्तर पारंपरिक ढोकरा लॉस्ट-वैक्स कांसा धातु शिल्प';
+      defaultTitleMr = input.productTitleHint || 'बस्तर अस्सल ढोकरा पितळ धातू हस्तकला मूर्ती';
     }
 
     return {
@@ -248,12 +308,13 @@ Return ONLY a valid JSON object matching this exact structure:
         mr: defaultTitleMr,
       },
       descriptions: {
-        en: `Meticulously handcrafted by master artisans using time-honoured heritage techniques. Each piece reflects generational craftsmanship, natural organic materials, and authentic cultural motifs.`,
-        hi: `कारीगर द्वारा पारंपरिक तकनीक और प्राकृतिक सामग्रियों के शुद्ध उपयोग से तैयार किया गया प्रामाणिक हस्तशिल्प। यह हमारी सांस्कृतिक विरासत और पीढ़ी-दर-पीढ़ी चले आ रहे कौशल का प्रतीक है।`,
-        mr: `पिढ्यानपिढ्या चालत आलेल्या कौशल्यातून आणि अस्सल नैसर्गिक घटकांपासून बनवलेली सुंदर हस्तकला. भारतीय परंपरेचा अद्वितीय वारसा.`,
+        en: `Meticulously handcrafted by ${effectiveArtisan} using time-honoured heritage techniques. Each piece reflects generational craftsmanship, natural organic materials, and authentic cultural motifs.`,
+        hi: `कारीगर ${effectiveArtisan} द्वारा पारंपरिक तकनीक और प्राकृतिक सामग्रियों के शुद्ध उपयोग से तैयार किया गया प्रामाणिक हस्तशिल्प। यह हमारी सांस्कृतिक विरासत और पीढ़ी-दर-पीढ़ी चले आ रहे कौशल का प्रतीक है।`,
+        mr: `${effectiveArtisan} यांनी पिढ्यानपिढ्या चालत आलेल्या कौशल्यातून आणि अस्सल नैसर्गिक घटकांपासून बनवलेली सुंदर हस्तकला. भारतीय परंपरेचा अद्वितीय वारसा.`,
       },
       craftCategoryCode: craftCode,
       craftCategoryName: craftName,
+      artisanName: input.artisanName,
       giTagCertified: isGi,
       giRegion: giRegion,
       materials: materials,

@@ -138,7 +138,17 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Main Product Image with 360 Studio Tag */}
         <View style={[styles.imageContainer, { backgroundColor: theme.colors.surface.card, borderColor: theme.colors.sand[200] }]}>
-          <Image source={{ uri: product.images[0] }} style={styles.mainImage} resizeMode="cover" />
+          <Image
+            source={
+              typeof product.images[0] === 'number'
+                ? product.images[0]
+                : typeof product.images[0] === 'string'
+                ? { uri: product.images[0] }
+                : product.images[0]
+            }
+            style={styles.mainImage}
+            resizeMode="cover"
+          />
           <View style={[styles.studioBadge, { backgroundColor: 'rgba(20,24,21,0.75)' }]}>
             <Text style={styles.studioBadgeText}>🔄 360° Studio View</Text>
           </View>

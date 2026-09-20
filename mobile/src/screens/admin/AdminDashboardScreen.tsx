@@ -17,6 +17,8 @@ import { Button } from '@/components/buttons/Button';
 import { Icon } from '@/components/icons/Icon';
 import { useAdminStore } from '@/store/useAdminStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useRequireAdminRole } from '@/components/auth/useRequireAdminRole';
+import { VoiceDiagnosticsModal } from '@/components/modals/VoiceDiagnosticsModal';
 
 interface ClusterHeatPoint {
   id: string;
@@ -89,6 +91,7 @@ const HEATMAP_CLUSTERS: ClusterHeatPoint[] = [
 ];
 
 export const AdminDashboardScreen: React.FC = () => {
+  const { isAuthorizedAdmin } = useRequireAdminRole();
   const theme = useTheme();
   const navigation = useNavigation<any>();
   const { metrics, isLoading, fetchDashboardData } = useAdminStore();
@@ -96,10 +99,17 @@ export const AdminDashboardScreen: React.FC = () => {
 
   const [selectedCluster, setSelectedCluster] = useState<ClusterHeatPoint>(HEATMAP_CLUSTERS[0]);
   const [dnaModalVisible, setDnaModalVisible] = useState(false);
+  const [voiceDiagModalVisible, setVoiceDiagModalVisible] = useState(false);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    if (isAuthorizedAdmin) {
+      fetchDashboardData();
+    }
+  }, [fetchDashboardData, isAuthorizedAdmin]);
+
+  if (!isAuthorizedAdmin) {
+    return null;
+  }
 
   const handleSwitchToRole = async (targetRole: 'ARTISAN' | 'BUYER') => {
     await switchProfile(targetRole === 'ARTISAN' ? 'artisan_demo' : 'buyer_demo');
@@ -166,6 +176,16 @@ export const AdminDashboardScreen: React.FC = () => {
             >
               <Text variant="bodySmall" style={styles.demoButtonText}>
                 🛍️ Buyer Storefront
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.demoButton, { backgroundColor: '#0284C7' }]}
+              onPress={() => setVoiceDiagModalVisible(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Voice Diagnostics"
+            >
+              <Text variant="bodySmall" style={styles.demoButtonText}>
+                🎙️ Voice Diag
               </Text>
             </TouchableOpacity>
           </View>
@@ -604,6 +624,11 @@ export const AdminDashboardScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+
+      <VoiceDiagnosticsModal
+        visible={voiceDiagModalVisible}
+        onClose={() => setVoiceDiagModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };

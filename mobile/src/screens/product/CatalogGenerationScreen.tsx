@@ -7,6 +7,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { Text } from '@/components/typography/Text';
 import { Card } from '@/components/cards/Card';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { catalogSynthesisService } from '@/api/catalogSynthesisService';
 import { pricingService } from '@/api/pricingService';
 
@@ -28,6 +29,9 @@ const STEPS: StepItem[] = [
 export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const {
+    photos,
+    primaryPhotoId,
+    craftCategoryCode,
     extractedEntities,
     interviewAnswers,
     voiceTranscript,
@@ -35,6 +39,7 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
     setPricingResult,
   } = useProductDraftStore();
 
+  const authUser = useAuthStore((s) => s.user);
   const [completedSteps, setCompletedSteps] = useState<number[]>([1]);
 
   useEffect(() => {
@@ -42,10 +47,21 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
 
     async function runGeneration() {
       try {
+        const primaryPhoto = photos.find((p) => p.id === primaryPhotoId) || photos[0];
+        const imageBase64 = primaryPhoto?.enhancedUri || primaryPhoto?.uri;
+        const sellerName =
+          (extractedEntities?.artisanName as string)?.trim() ||
+          authUser?.fullName?.trim() ||
+          'Sunita Devi';
+
         const catalogResult = await catalogSynthesisService.synthesizeCatalog({
+          craftCategoryCode,
+          imageBase64,
+          artisanName: sellerName,
           entities: {
             ...extractedEntities,
             ...interviewAnswers,
+            artisanName: sellerName,
           },
           artisanStoryTranscript: voiceTranscript || undefined,
         });

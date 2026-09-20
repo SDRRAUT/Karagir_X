@@ -10,6 +10,9 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { FOLLOW_UP_QUESTIONS, FollowUpQuestion, voiceService } from '@/api/voiceService';
 
+import { speechRecognitionService } from '@/services/speechRecognitionService';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'VoiceFollowUp'>;
 
 export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
@@ -19,6 +22,9 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceAnswerText, setVoiceAnswerText] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const currentQuestion: FollowUpQuestion =
     FOLLOW_UP_QUESTIONS[questionIndex] || FOLLOW_UP_QUESTIONS[0];
@@ -38,6 +44,8 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
       navigation.replace('CatalogGeneration');
     } else {
       setSelectedOption(null);
+      setVoiceAnswerText('');
+      setErrorMessage(null);
       setQuestionIndex((prev) => prev + 1);
     }
   };
@@ -47,21 +55,65 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
       navigation.replace('CatalogGeneration');
     } else {
       setSelectedOption(null);
+      setVoiceAnswerText('');
+      setErrorMessage(null);
       setQuestionIndex((prev) => prev + 1);
     }
   };
 
   const speakQuestion = (text: string) => {
     try {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-IN';
-        utterance.rate = 0.95;
-        window.speechSynthesis.speak(utterance);
-      }
+      realisticVoiceService.speak(text, { lang: 'en-IN' });
     } catch (_err) {
       // Audio readback graceful fallback
+    }
+  };
+
+  const handleVoiceAnswerToggle = () => {
+    if (isListening) {
+      speechRecognitionService.stopListening();
+      setIsListening(false);
+      return;
+    }
+
+    setErrorMessage(null);
+    setVoiceAnswerText('');
+
+    const started = speechRecognitionService.startListening(
+      {
+        onStart: () => {
+          setIsListening(true);
+          setErrorMessage(null);
+        },
+        onResult: (transcript, isFinal) => {
+          setVoiceAnswerText(transcript);
+          if (isFinal && transcript.trim()) {
+            setIsListening(false);
+            speechRecognitionService.stopListening();
+            const lower = transcript.toLowerCase();
+            const matchedOpt = currentQuestion.quickOptions.find(
+              (opt) =>
+                lower.includes(String(opt.value).toLowerCase()) ||
+                lower.includes(opt.labelEn.toLowerCase()) ||
+                lower.includes(opt.labelHi.toLowerCase())
+            );
+            handleSelectOption(matchedOpt ? matchedOpt.value : transcript.trim());
+          }
+        },
+        onError: (err) => {
+          setIsListening(false);
+          setErrorMessage(err || 'Could not recognize speech.');
+        },
+        onEnd: () => {
+          setIsListening(false);
+        },
+      },
+      'en-IN'
+    );
+
+    if (!started) {
+      setIsListening(false);
+      setErrorMessage('Microphone access denied or speech recognition unavailable.');
     }
   };
 
@@ -117,15 +169,28 @@ export const VoiceFollowUpScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.voiceAnswerContainer}>
           <TouchableOpacity
             testID="speak-answer-btn"
-            onPress={() => handleSelectOption(currentQuestion.quickOptions[0].value)}
-            style={styles.speakBtn}
+            onPress={handleVoiceAnswerToggle}
+            style={[
+              styles.speakBtn,
+              isListening && { backgroundColor: '#EA580C' },
+            ]}
             activeOpacity={0.85}
           >
-            <Text style={styles.speakMicIcon}>🎙️</Text>
+            <Text style={styles.speakMicIcon}>{isListening ? '⏹️' : '🎙️'}</Text>
             <Text variant="bodyLarge" weight="bold" color="#FFFFFF">
-              Tap to Speak Answer
+              {isListening ? 'Listening... Speak Answer' : 'Tap to Speak Answer'}
             </Text>
           </TouchableOpacity>
+          {voiceAnswerText ? (
+            <Text variant="bodySmall" color="#EA580C" style={{ marginTop: 6, textAlign: 'center' }}>
+              🗣️ "{voiceAnswerText}"
+            </Text>
+          ) : null}
+          {errorMessage ? (
+            <Text variant="bodySmall" color="#DC2626" style={{ marginTop: 6, textAlign: 'center' }}>
+              ⚠️ {errorMessage}
+            </Text>
+          ) : null}
         </View>
 
         {/* Quick Suggestion Chips */}
