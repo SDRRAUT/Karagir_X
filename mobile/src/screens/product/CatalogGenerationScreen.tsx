@@ -21,8 +21,8 @@ interface StepItem {
 
 const STEPS: StepItem[] = [
   { id: 1, label: 'Studio Photography Finish', detail: 'Enhancing shadows, lighting & background' },
-  { id: 2, label: 'Craft Storytelling & Attributes', detail: 'Extracting GI pedigree, motif & materials' },
-  { id: 3, label: 'Trilingual Catalog Translation', detail: 'Generating localized listings & SEO tags' },
+  { id: 2, label: 'Multimodal Vision Analysis', detail: 'Analyzing visible object, colors & craftsmanship' },
+  { id: 3, label: 'Trilingual Catalog Storytelling', detail: 'Preserving artisan identity & generating listings' },
   { id: 4, label: 'Fair Price Algorithm Calculation', detail: 'Computing raw costs, labor floor & benchmark' },
 ];
 
@@ -41,6 +41,7 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
 
   const authUser = useAuthStore((s) => s.user);
   const [completedSteps, setCompletedSteps] = useState<number[]>([1]);
+  const [visionStatusText, setVisionStatusText] = useState<string>('Analyzing product image...');
 
   useEffect(() => {
     let isMounted = true;
@@ -48,7 +49,7 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
     async function runGeneration() {
       try {
         const primaryPhoto = photos.find((p) => p.id === primaryPhotoId) || photos[0];
-        const imageBase64 = primaryPhoto?.enhancedUri || primaryPhoto?.uri;
+        const imagePayload = primaryPhoto?.base64 || primaryPhoto?.enhancedUri || primaryPhoto?.uri;
         const sellerName =
           (extractedEntities?.artisanName as string)?.trim() ||
           authUser?.fullName?.trim() ||
@@ -56,7 +57,7 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
 
         const catalogResult = await catalogSynthesisService.synthesizeCatalog({
           craftCategoryCode,
-          imageBase64,
+          imageBase64: imagePayload,
           artisanName: sellerName,
           entities: {
             ...extractedEntities,
@@ -69,6 +70,12 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
         if (isMounted) {
           setCatalogSynthesis(catalogResult);
           setCompletedSteps([1, 2, 3]);
+
+          if (catalogResult.visionStatus === 'VISION_SUCCESS') {
+            setVisionStatusText('Image analyzed ✓');
+          } else {
+            setVisionStatusText('AI image analysis unavailable');
+          }
         }
 
         const laborHours = Number(interviewAnswers['labor_time']) || 24;
@@ -86,11 +93,16 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
             if (isMounted) {
               navigation.replace('PricingRecommendation');
             }
-          }, 800);
+          }, 1000);
         }
       } catch (_err) {
         if (isMounted) {
-          navigation.replace('PricingRecommendation');
+          setVisionStatusText('AI image analysis unavailable');
+          setTimeout(() => {
+            if (isMounted) {
+              navigation.replace('PricingRecommendation');
+            }
+          }, 800);
         }
       }
     }
@@ -129,8 +141,13 @@ export const CatalogGenerationScreen: React.FC<Props> = ({ navigation }) => {
         <Text variant="headlineLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.title}>
           Synthesizing AI Catalogue
         </Text>
-        <Text variant="bodyLarge" weight="semiBold" color="#EA580C" style={{ textAlign: 'center', marginBottom: 6 }}>
-          AI Smart Cataloguing in Progress...
+        <Text
+          variant="bodyLarge"
+          weight="semiBold"
+          color={visionStatusText === 'Image analyzed ✓' ? '#16A34A' : visionStatusText === 'AI image analysis unavailable' ? '#DC2626' : '#EA580C'}
+          style={{ textAlign: 'center', marginBottom: 6 }}
+        >
+          {visionStatusText}
         </Text>
         <Text variant="bodyMedium" color={theme.colors.charcoal[600]} style={styles.subtitle}>
           Generating complete product listing, craft storytelling, and Digital Craft Passport...

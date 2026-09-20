@@ -4,6 +4,8 @@ import { UserProfile, AuthTokens, UserRole } from '@/api/types';
 import { supabase } from '@/api/supabaseClient';
 import { authService } from '@/api/authService';
 import { logger } from '@/utils/logger';
+import { useCartStore } from './useCartStore';
+import { useProductDraftStore } from './useProductDraftStore';
 
 import { Platform } from 'react-native';
 
@@ -440,6 +442,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       await authService.logout();
+      useCartStore.getState().clearCart();
+      useProductDraftStore.getState().resetDraft();
       await AsyncStorage.multiRemove([
         '@kalakar_auth_session_admin',
         '@kalakar_auth_session_buyer',

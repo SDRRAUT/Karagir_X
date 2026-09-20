@@ -1,9 +1,10 @@
 import { logger } from '@/utils/logger';
-import { MultilingualText, CatalogSynthesisResult } from './catalogSynthesisService';
+import { MultilingualText } from './catalogSynthesisService';
+import { resolveImagePayload, ResolvedImagePayload } from '@/utils/imagePayloadHelper';
 
 export interface GeminiCatalogInput {
-  imageBase64?: string; // base64 encoded image string (with or without data URL prefix)
-  voiceTranscript?: string; // Spoken artisan description in Hindi, Marathi, or English
+  imageBase64?: string; // base64, file:// URI, or data URL
+  voiceTranscript?: string; // Spoken artisan description
   artisanName?: string;
   artisanLocation?: string;
   craftCategoryHint?: string;
@@ -11,11 +12,25 @@ export interface GeminiCatalogInput {
   apiKey?: string;
 }
 
+export interface VisualAttributes {
+  objectType: string;
+  colors: string[];
+  patterns: string[];
+  material: string;
+  style: string;
+  visibleFeatures: string[];
+}
+
 export interface GeminiStructuredCatalog {
+  visionStatus: 'VISION_SUCCESS' | 'VISION_UNAVAILABLE';
+  visionStatusMessage?: string;
+  productTitle?: string;
   titles: MultilingualText;
   descriptions: MultilingualText;
   craftCategoryCode: string;
   craftCategoryName: string;
+  categoryConfidence?: number;
+  visualAttributes?: VisualAttributes;
   artisanName?: string;
   giTagCertified: boolean;
   giRegion: string;
@@ -45,7 +60,7 @@ export interface GeminiStructuredCatalog {
 }
 
 export class GeminiCatalogService {
-  private defaultApiKey: string = '';
+  private defaultApiKey: string = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 
   /**
    * Set dynamic API key at runtime if artisan or admin provides one
@@ -58,124 +73,166 @@ export class GeminiCatalogService {
     return this.defaultApiKey;
   }
 
+  public isConfigured(): boolean {
+    const key = this.getApiKey();
+    return Boolean(key && key.trim().length > 10);
+  }
+
   /**
-   * Calls Google Gemini 3.6 Flash multimodal API with image + voice transcript
+   * Calls Google Gemini Multimodal Vision API with actual product image bytes.
+   * If unconfigured, returns an honest VISION_UNAVAILABLE response without fake descriptions.
    */
   public async generateCatalog(input: GeminiCatalogInput): Promise<GeminiStructuredCatalog> {
     const key = input.apiKey || this.defaultApiKey;
 
-    if (key && key.trim().length > 10) {
-      try {
-        logger.info('GEMINI_SERVICE', 'Calling Gemini 3.6 Flash Multimodal Vision API...');
-        return await this.callGeminiApi(input, key.trim());
-      } catch (error) {
-        const safeMsg = (error instanceof Error ? error.message : String(error)).replace(/[A-Za-z0-9_-]{20,}/g, '[REDACTED]');
-        logger.warn('GEMINI_SERVICE', 'Gemini API call failed, falling back to Indic AI Engine', {
-          error: safeMsg,
-        });
-      }
+    // 1. Resolve image payload to real base64 bytes and MIME type
+    let resolvedImage: ResolvedImagePayload | null = null;
+    if (input.imageBase64) {
+      resolvedImage = await resolveImagePayload(input.imageBase64);
     }
 
-    // High-fidelity fallback based on real image/voice features
-    return this.generateIndicSmartFallback(input);
+    if (key && key.trim().length > 10) {
+      try {
+        logger.info('AI-VISION', 'Initiating real Gemini Multimodal Vision analysis...', {
+          hasImageBytes: Boolean(resolvedImage?.base64),
+          mimeType: resolvedImage?.mimeType || 'unknown',
+          byteCount: resolvedImage?.byteCount || 0,
+        });
+
+        return await this.callGeminiVisionApi(input, resolvedImage, key.trim());
+      } catch (error) {
+        const safeMsg = (error instanceof Error ? error.message : String(error)).replace(
+          /[A-Za-z0-9_-]{20,}/g,
+          '[REDACTED]'
+        );
+        logger.warn('AI-VISION', 'Gemini Vision API request failed', { error: safeMsg });
+      }
+    } else {
+      logger.info('AI-VISION', 'Gemini Vision API key is not configured; returning VISION_UNAVAILABLE state');
+    }
+
+    // Truthful fallback: Return explicit VISION_UNAVAILABLE state with no fake/canned descriptions
+    return this.generateTruthfulUnavailableResponse(input);
   }
 
-  private async callGeminiApi(
+  private async callGeminiVisionApi(
     input: GeminiCatalogInput,
+    imagePayload: ResolvedImagePayload | null,
     apiKey: string
   ): Promise<GeminiStructuredCatalog> {
-    const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent';
+    const primaryModel = 'gemini-2.5-flash';
+    const fallbackModel = 'gemini-1.5-flash';
+
+    try {
+      return await this.executeGeminiRequest(primaryModel, input, imagePayload, apiKey);
+    } catch (primaryError) {
+      logger.warn('AI-VISION', `Primary model ${primaryModel} error, trying fallback ${fallbackModel}`);
+      return await this.executeGeminiRequest(fallbackModel, input, imagePayload, apiKey);
+    }
+  }
+
+  private async executeGeminiRequest(
+    modelName: string,
+    input: GeminiCatalogInput,
+    imagePayload: ResolvedImagePayload | null,
+    apiKey: string
+  ): Promise<GeminiStructuredCatalog> {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+
+    const effectiveArtisan = input.artisanName || 'Master Artisan';
 
     const promptText = `
-You are Kalakar Setu's Master Indic Handicrafts Appraiser and Multimodal Cataloging Engine.
-Analyze the provided handcrafted product image and the artisan's spoken transcript.
+You are Kalakar Setu's AI Multimodal Image Understanding Engine for Indian Handcrafted Products.
 
-Artisan Spoken Description: "${input.voiceTranscript || 'Traditional handcrafted Indian artisan item'}"
-Artisan / Seller Name: "${input.artisanName || 'Master Artisan'}"
-Location: "${input.artisanLocation || 'India'}"
-${input.productTitleHint ? `Seller-Provided Craft Title: "${input.productTitleHint}"` : ''}
+Analyze the actual attached product image and extract FACTUAL visual observations.
+Artisan / Seller Name: "${effectiveArtisan}"
+${input.productTitleHint ? `Seller-Provided Title: "${input.productTitleHint}"` : ''}
+${input.voiceTranscript ? `Artisan Spoken Description: "${input.voiceTranscript}"` : ''}
 
-CRITICAL MANDATORY NAME & IDENTITY INTEGRITY RULES:
-1. The Seller/Artisan explicitly provided their name: "${input.artisanName || 'Master Artisan'}".
-2. YOU MUST NEVER OVERWRITE, CHANGE, NORMALIZE, OR INFER A DIFFERENT NAME. If the seller entered a name, that exact text must strictly be preserved verbatim without any changes.
-3. DO NOT attempt to identify people or faces in the image. DO NOT assume the maker is a celebrity or substitute any historical or other artisan's name.
-4. Seller-controlled fields have absolute priority over AI inference.
-5. In your generated descriptions and titles, honor the exact craft and maintain the artisan's genuine authorship without altering their identity.
+CRITICAL MANDATORY RULES:
+1. SELLER IDENTITY IS SACROSANCT:
+   - The seller entered their name as: "${effectiveArtisan}".
+   - You must NEVER change, invent, translate, or replace this name.
+   - Seller-entered facts have strict priority over AI guesses.
+2. IMAGE-SPECIFIC ANALYSIS:
+   - Your description MUST describe what is visually present in the image: object type, visible shapes, colors, patterns, and visible crafting details.
+   - DO NOT use generic phrases like "This is a beautiful handicraft" for every product.
+   - Different product images MUST produce clearly different, factual descriptions.
+3. DO NOT INVENT UNVERIFIABLE FACTS:
+   - Do NOT invent exact dimensions, weight, age, or historical pedigree unless provided by the seller.
+   - Keep observations strictly grounded in what is visible in the image.
+4. CATEGORY NORMALIZATION:
+   - Map to one of: "POTTERY", "TEXTILE", "PAINTING", "WOOD", "METAL", "OTHER".
+   - Provide a category confidence score between 0.0 and 1.0.
 
-Perform the following tasks:
-1. Identify the exact traditional Indian craft type (e.g. Terracotta Pottery, Madhubani / Mithila Painting, Banarasi Weaving, Dhokra Bell Metal, Blue Pottery, Channapatna Toys, Kolhapuri Chappal, etc.).
-2. Generate culturally rich, SEO-optimized product titles in English (en), Hindi (hi), and Marathi (mr).
-3. Write an emotional, heritage-first storytelling product narrative in English (en) and Hindi (hi) highlighting the artisan's traditional technique and cultural significance.
-4. Estimate physical dimensions (height, width, weight) and raw materials used.
-5. Compute a 100% Fair Price valuation (Material Cost + Labor Hours * Hourly Rate * GI Skill Multiplier).
-6. Provide care instructions and high-traffic SEO e-commerce tags.
-
-Return ONLY a valid JSON object matching this exact structure:
+Return ONLY a valid JSON object matching this exact schema:
 {
+  "productTitle": "Factual descriptive title in English",
   "titles": {
-    "en": "...",
-    "hi": "...",
-    "mr": "..."
+    "en": "Descriptive title in English",
+    "hi": "Descriptive title in Hindi",
+    "mr": "Descriptive title in Marathi"
   },
+  "description": "Image-specific factual description in English",
   "descriptions": {
-    "en": "...",
-    "hi": "...",
-    "mr": "..."
+    "en": "Factual, visually grounded description in English describing visible object, colors, materials, and features",
+    "hi": "Factual, visually grounded description in Hindi",
+    "mr": "Factual, visually grounded description in Marathi"
   },
+  "category": "POTTERY" | "TEXTILE" | "PAINTING" | "WOOD" | "METAL" | "OTHER",
   "craftCategoryCode": "POTTERY_TERRACOTTA" | "PAINTING_MITHILA" | "TEXTILE_HANDLOOM" | "METAL_DHOKRA" | "WOOD_CHANNAPATNA" | "OTHER",
-  "craftCategoryName": "...",
-  "giTagCertified": true,
-  "giRegion": "...",
-  "materials": ["..."],
+  "craftCategoryName": "Readable Craft Category Name",
+  "categoryConfidence": 0.95,
+  "visualAttributes": {
+    "objectType": "Specific object detected (e.g. Diya lamp, Silk Saree, Carved Elephant)",
+    "colors": ["List visible colors, e.g. terracotta red, natural clay"],
+    "patterns": ["List visible patterns, e.g. floral engraving, geometric border"],
+    "material": "Visible material, e.g. alluvial clay, pure silk, seasoned wood, brass metal",
+    "style": "Visible artistic style, e.g. traditional folk, tribal lost-wax, handloom",
+    "visibleFeatures": ["List 2-4 key features clearly seen in image"]
+  },
+  "materials": ["List visible materials"],
+  "giTagCertified": false,
+  "giRegion": "${input.artisanLocation || 'India'}",
   "dimensions": {
-    "heightCm": 15,
-    "widthCm": 12,
-    "depthCm": 12,
-    "weightGrams": 450,
-    "formatted": "15cm x 12cm x 12cm (Approx 450g)"
+    "formatted": "Standard artisan craft scale"
   },
   "fairPricing": {
-    "materialCost": 180,
+    "materialCost": 200,
     "laborHours": 6,
     "hourlyRate": 90,
-    "giHeritageMultiplier": 1.25,
-    "suggestedMin": 550,
+    "giHeritageMultiplier": 1.2,
+    "suggestedMin": 500,
     "suggestedRecommended": 850,
     "suggestedPremium": 1200,
-    "breakdownExplanation": "Calculated based on 6 hours skilled shaping + kiln firing + natural pigments"
+    "breakdownExplanation": "Calculated based on estimated labor and material floor"
   },
   "careInstructions": {
-    "en": "...",
-    "hi": "..."
+    "en": "Handle with care.",
+    "hi": "सावधानी से रखें।"
   },
-  "tags": ["Handmade", "VocalForLocal", "AuthenticCraft", "..."]
+  "tags": ["Handmade", "VocalForLocal", "AuthenticCraft"]
 }
 `;
 
-    const contents: any[] = [];
     const parts: any[] = [{ text: promptText }];
 
-    // If Base64 image is provided, attach as inline_data
-    // If Base64 image is provided, attach as inlineData
-    if (input.imageBase64 && input.imageBase64.length > 50) {
-      let cleanBase64 = input.imageBase64;
-      let mimeType = 'image/jpeg';
-
-      if (cleanBase64.includes(';base64,')) {
-        const split = cleanBase64.split(';base64,');
-        mimeType = split[0].replace('data:', '') || 'image/jpeg';
-        cleanBase64 = split[1];
-      }
-
+    // Attach real image bytes if available
+    if (imagePayload && imagePayload.base64 && imagePayload.base64.length > 50) {
       parts.unshift({
         inlineData: {
-          mimeType,
-          data: cleanBase64,
+          mimeType: imagePayload.mimeType || 'image/jpeg',
+          data: imagePayload.base64,
         },
       });
-    }
 
-    contents.push({ role: 'user', parts });
+      logger.info('AI-VISION', 'Attached real image bytes to vision request', {
+        model: modelName,
+        mimeType: imagePayload.mimeType,
+        byteCount: imagePayload.byteCount,
+        visionRequest: 'sent',
+      });
+    }
 
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -184,9 +241,9 @@ Return ONLY a valid JSON object matching this exact structure:
         'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
-        contents,
+        contents: [{ role: 'user', parts }],
         generationConfig: {
-          temperature: 0.2,
+          temperature: 0.15,
           responseMimeType: 'application/json',
         },
       }),
@@ -202,10 +259,9 @@ Return ONLY a valid JSON object matching this exact structure:
     const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!candidateText) {
-      throw new Error('No candidate content received from Gemini');
+      throw new Error('No candidate content received from Gemini Vision');
     }
 
-    // Parse JSON cleanly stripping potential markdown code fences
     const cleanJson = candidateText
       .replace(/^```(?:json)?\s*/i, '')
       .replace(/\s*```$/i, '')
@@ -213,140 +269,141 @@ Return ONLY a valid JSON object matching this exact structure:
 
     const parsed = JSON.parse(cleanJson);
     if (!parsed || !parsed.titles || !parsed.descriptions) {
-      throw new Error('Gemini API response missing essential catalog fields');
+      throw new Error('Gemini Vision response missing essential catalog fields');
     }
 
-    // Strictly enforce seller-provided artisan name
+    // Strictly enforce seller identity priority
     parsed.artisanName = input.artisanName;
+    if (input.productTitleHint && input.productTitleHint.trim()) {
+      parsed.titles.en = input.productTitleHint.trim();
+      parsed.titles.hi = input.productTitleHint.trim();
+    }
+
+    parsed.visionStatus = 'VISION_SUCCESS';
+    parsed.visionStatusMessage = 'Image analyzed ✓';
+
+    logger.info('AI-VISION', 'Successfully synthesized image-specific catalog with Gemini Vision', {
+      detectedObject: parsed.visualAttributes?.objectType,
+      category: parsed.category || parsed.craftCategoryCode,
+      confidence: parsed.categoryConfidence,
+    });
+
     return parsed as GeminiStructuredCatalog;
   }
 
   /**
-   * Indic Smart Rule-Based Multimodal Fallback Engine
+   * Truthful fallback when no real Multimodal Vision API is configured or vision fails.
+   * Strictly avoids pretending analysis occurred or inventing canned descriptions.
    */
-  public generateIndicSmartFallback(input: GeminiCatalogInput): GeminiStructuredCatalog {
-    const transcript = (input.voiceTranscript || '').toLowerCase();
+  public generateTruthfulUnavailableResponse(input: GeminiCatalogInput): GeminiStructuredCatalog {
+    const rawTranscript = (input.voiceTranscript || '').trim();
     const effectiveArtisan = input.artisanName || 'Master Artisan';
+    const effectiveTitle = input.productTitleHint || 'हस्तनिर्मित शिल्प (Handcrafted Artisan Item)';
 
-    // Check craft category based on transcript keywords
-    let craftCode = 'POTTERY_TERRACOTTA';
-    let craftName = 'पारंपरिक टेराकोटा एवं मृत्तिका शिल्प (Terracotta Craft)';
-    let giRegion = input.artisanLocation || 'Kolhapur / Gorakhpur';
-    let isGi = true;
-    let materials = ['शुद्ध नदी की चिकनी मिट्टी (Riverbed Clay)', 'प्राकृतिक लाल गेरू रंग (Natural Ochre)'];
-    let defaultTitleEn = input.productTitleHint || 'Handcrafted Traditional Terracotta Diya Set - 5 Pieces, GI Certified';
-    let defaultTitleHi = input.productTitleHint || 'हाथ से बना पारंपरिक कोल्हापुरी टेराकोटा दीया सेट - 5 पीस, जीआई प्रमाणित';
-    let defaultTitleMr = input.productTitleHint || 'हस्तनिर्मित पारंपरिक कोल्हापुरी मातीचा दिवा संच - ५ नमुने, जीआय प्रमाणित';
+    const textToCheck = `${rawTranscript} ${input.productTitleHint || ''} ${input.craftCategoryHint || ''}`.toLowerCase();
+    let derivedCategoryCode = input.craftCategoryHint || '';
+    let derivedCategoryName = 'पारंपरिक शिल्प (Handicrafts)';
 
-    const isTextile =
-      transcript.includes('saree') ||
-      transcript.includes('saadi') ||
-      transcript.includes('silk') ||
-      transcript.includes('weav') ||
-      transcript.includes('handloom') ||
-      transcript.includes('kapda') ||
-      transcript.includes('साड़ी') ||
-      transcript.includes('सिल्क') ||
-      transcript.includes('रेशम') ||
-      transcript.includes('हथकरघा') ||
-      transcript.includes('कापड');
-
-    const isPainting =
-      transcript.includes('paint') ||
-      transcript.includes('chitra') ||
-      transcript.includes('madhubani') ||
-      transcript.includes('mithila') ||
-      transcript.includes('warli') ||
-      transcript.includes('पेंटिंग') ||
-      transcript.includes('चित्र') ||
-      transcript.includes('मधुबनी') ||
-      transcript.includes('मिथिला') ||
-      transcript.includes('वारली');
-
-    const isMetal =
-      transcript.includes('metal') ||
-      transcript.includes('brass') ||
-      transcript.includes('peetal') ||
-      transcript.includes('dhokra') ||
-      transcript.includes('murti') ||
-      transcript.includes('धातु') ||
-      transcript.includes('पीतल') ||
-      transcript.includes('कांसा') ||
-      transcript.includes('ढोकरा') ||
-      transcript.includes('मूर्ति');
-
-    if (isTextile) {
-      craftCode = 'TEXTILE_HANDLOOM';
-      craftName = 'हथकरघा एवं पारंपरिक वस्त्र शिल्प (Handloom Textiles)';
-      giRegion = input.artisanLocation || 'Varanasi / Paithan / Chanderi';
-      materials = ['शुद्ध मलबरी सिल्क (Pure Mulberry Silk)', 'प्राकृतिक ज़री धागा (Natural Zari)'];
-      defaultTitleEn = input.productTitleHint || 'Handcrafted Authentic Handwoven Pure Silk Heritage Saree with Zari Border';
-      defaultTitleHi = input.productTitleHint || 'प्रामाणिक हथकरघा शुद्ध रेशम साड़ी - पारंपरिक ज़री पल्लू';
-      defaultTitleMr = input.productTitleHint || 'अस्सल हातमाग शुद्ध रेशमी पैठणी साडी - पारंपरिक नक्षी';
-    } else if (isPainting) {
-      craftCode = 'PAINTING_MITHILA';
-      craftName = 'पारंपरिक लोक चित्रकला (Folk Art Painting)';
-      giRegion = input.artisanLocation || 'Mithila, Bihar / Warli, Maharashtra';
-      materials = ['हाथ से बना कॉटन पेपर (Handmade Rag Paper)', 'प्राकृतिक वनस्पति रंग (Botanical Pigments)'];
-      defaultTitleEn = input.productTitleHint || 'Authentic Traditional Hand-Painted Folk Art Painting (GI Certified)';
-      defaultTitleHi = input.productTitleHint || 'हाथ से चित्रित प्रामाणिक पारंपरिक लोक कला पेंटिंग';
-      defaultTitleMr = input.productTitleHint || 'हस्तचित्रित अस्सल पारंपरिक लोककला चित्र (जीआय मानांकित)';
-    } else if (isMetal) {
-      craftCode = 'METAL_DHOKRA';
-      craftName = 'पारंपरिक ढोकरा एवं कांसा धातु शिल्प (Bell Metal / Brass)';
-      giRegion = input.artisanLocation || 'Bastar, Chhattisgarh';
-      materials = ['कांसा एवं पीतल धातु (Bell Metal & Brass)', 'मोम तकनीक (Lost-Wax Cast)'];
-      defaultTitleEn = input.productTitleHint || 'Authentic Bastar Dhokra Lost-Wax Bell Metal Handcrafted Sculpture';
-      defaultTitleHi = input.productTitleHint || 'बस्तर पारंपरिक ढोकरा लॉस्ट-वैक्स कांसा धातु शिल्प';
-      defaultTitleMr = input.productTitleHint || 'बस्तर अस्सल ढोकरा पितळ धातू हस्तकला मूर्ती';
+    if (!derivedCategoryCode) {
+      if (
+        textToCheck.includes('silk') ||
+        textToCheck.includes('saree') ||
+        textToCheck.includes('handloom') ||
+        textToCheck.includes('textile') ||
+        textToCheck.includes('साड़ी') ||
+        textToCheck.includes('रेशम')
+      ) {
+        derivedCategoryCode = 'TEXTILE_HANDLOOM';
+        derivedCategoryName = 'हथकरघा वस्त्र (Handloom Textiles)';
+      } else if (
+        textToCheck.includes('painting') ||
+        textToCheck.includes('mithila') ||
+        textToCheck.includes('madhubani') ||
+        textToCheck.includes('पेंटिंग') ||
+        textToCheck.includes('चित्र')
+      ) {
+        derivedCategoryCode = 'PAINTING_MITHILA';
+        derivedCategoryName = 'पारंपरिक लोक चित्रकला (Mithila Folk Painting)';
+      } else if (
+        textToCheck.includes('metal') ||
+        textToCheck.includes('dhokra') ||
+        textToCheck.includes('brass') ||
+        textToCheck.includes('bell metal') ||
+        textToCheck.includes('धातु')
+      ) {
+        derivedCategoryCode = 'METAL_DHOKRA';
+        derivedCategoryName = 'ढोकरा धातु शिल्प (Dhokra Bell Metal)';
+      } else if (
+        textToCheck.includes('wood') ||
+        textToCheck.includes('carv') ||
+        textToCheck.includes('elephant') ||
+        textToCheck.includes('लकड़ी')
+      ) {
+        derivedCategoryCode = 'WOOD_CHANNAPATNA';
+        derivedCategoryName = 'काष्ठ नक्काशी शिल्प (Wood Carving)';
+      } else {
+        derivedCategoryCode = 'POTTERY_TERRACOTTA';
+        derivedCategoryName = 'टेराकोटा मिट्टी शिल्प (Terracotta Pottery)';
+      }
     }
 
+    const enDesc = rawTranscript
+      ? input.artisanName
+        ? `${rawTranscript} — Handcrafted by ${input.artisanName}`
+        : rawTranscript
+      : '';
+    const hiDesc = rawTranscript
+      ? input.artisanName
+        ? `${rawTranscript} — कारीगर: ${input.artisanName}`
+        : rawTranscript
+      : '';
+    const mrDesc = rawTranscript
+      ? input.artisanName
+        ? `${rawTranscript} — कारागीर: ${input.artisanName}`
+        : rawTranscript
+      : '';
+
     return {
+      visionStatus: 'VISION_UNAVAILABLE',
+      visionStatusMessage:
+        'AI image analysis is currently unavailable. Please enter the description manually or configure the AI vision service.',
+      productTitle: input.productTitleHint || undefined,
       titles: {
-        en: defaultTitleEn,
-        hi: defaultTitleHi,
-        mr: defaultTitleMr,
+        en: input.productTitleHint || 'Handcrafted Artisan Item',
+        hi: input.productTitleHint || 'हस्तनिर्मित शिल्प उत्पाद',
+        mr: input.productTitleHint || 'हस्तनिर्मित कला वस्तू',
       },
       descriptions: {
-        en: `Meticulously handcrafted by ${effectiveArtisan} using time-honoured heritage techniques. Each piece reflects generational craftsmanship, natural organic materials, and authentic cultural motifs.`,
-        hi: `कारीगर ${effectiveArtisan} द्वारा पारंपरिक तकनीक और प्राकृतिक सामग्रियों के शुद्ध उपयोग से तैयार किया गया प्रामाणिक हस्तशिल्प। यह हमारी सांस्कृतिक विरासत और पीढ़ी-दर-पीढ़ी चले आ रहे कौशल का प्रतीक है।`,
-        mr: `${effectiveArtisan} यांनी पिढ्यानपिढ्या चालत आलेल्या कौशल्यातून आणि अस्सल नैसर्गिक घटकांपासून बनवलेली सुंदर हस्तकला. भारतीय परंपरेचा अद्वितीय वारसा.`,
+        en: enDesc,
+        hi: hiDesc,
+        mr: mrDesc,
       },
-      craftCategoryCode: craftCode,
-      craftCategoryName: craftName,
+      craftCategoryCode: derivedCategoryCode,
+      craftCategoryName: derivedCategoryName,
+      categoryConfidence: 0.0,
+      visualAttributes: undefined,
       artisanName: input.artisanName,
-      giTagCertified: isGi,
-      giRegion: giRegion,
-      materials: materials,
+      giTagCertified: false,
+      giRegion: input.artisanLocation || 'India',
+      materials: [],
       dimensions: {
-        heightCm: 14,
-        widthCm: 10,
-        depthCm: 10,
-        weightGrams: 380,
-        formatted: '14cm × 10cm × 10cm (380g)',
+        formatted: 'Standard scale',
       },
       fairPricing: {
-        materialCost: 210,
-        laborHours: 5,
+        materialCost: 200,
+        laborHours: 6,
         hourlyRate: 90,
-        giHeritageMultiplier: 1.25,
-        suggestedMin: 480,
+        giHeritageMultiplier: 1.0,
+        suggestedMin: 500,
         suggestedRecommended: 850,
-        suggestedPremium: 1250,
-        breakdownExplanation: 'पारदर्शी मूल्य: कच्चा माल ₹210 + 5 घंटे कुशल श्रम ₹450 + 25% जीआई शिल्प प्रीमियम',
+        suggestedPremium: 1200,
+        breakdownExplanation: 'Artisan benchmark estimate',
       },
       careInstructions: {
-        en: 'Handle with care. Clean gently with a soft dry cloth. Keep away from harsh moisture and direct sunlight.',
-        hi: 'सावधानी से रखें। केवल सूखे मुलायम कपड़े से साफ करें। तेज धूप और नमी से बचाएं।',
+        en: 'Handle with care.',
+        hi: 'सावधानी से रखें।',
       },
-      tags: [
-        'Handmade',
-        'VocalForLocal',
-        'AuthenticCraft',
-        'GICertified',
-        'ArtisanDirect',
-        'HeritageIndia',
-      ],
+      tags: ['Handmade', 'ArtisanDirect', 'VocalForLocal', 'CraftHeritage'],
     };
   }
 }

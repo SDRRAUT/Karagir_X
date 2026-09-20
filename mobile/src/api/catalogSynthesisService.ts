@@ -1,7 +1,7 @@
-import { apiClient } from './client';
+﻿import { apiClient } from './client';
 import { ENDPOINTS } from './endpoints';
 import { logger } from '@/utils/logger';
-import { geminiCatalogService, GeminiStructuredCatalog } from './geminiCatalogService';
+import { geminiCatalogService, GeminiStructuredCatalog, VisualAttributes } from './geminiCatalogService';
 
 export interface MultilingualText {
   en: string;
@@ -21,6 +21,10 @@ export interface CatalogSynthesisResult {
   tags: string[];
   craftCategoryCode: string;
   craftCategoryName: string;
+  visionStatus?: 'VISION_SUCCESS' | 'VISION_UNAVAILABLE';
+  visionStatusMessage?: string;
+  visualAttributes?: VisualAttributes;
+  categoryConfidence?: number;
   giTagCertified?: boolean;
   giRegion?: string;
   fairPricing?: {
@@ -55,25 +59,26 @@ export interface SynthesizeCatalogPayload {
   artisanStoryTranscript?: string;
   artisanName?: string;
   artisanLocation?: string;
+  productTitleHint?: string;
   apiKey?: string;
 }
 
 export class CatalogSynthesisService {
   /**
    * Synthesizes trilingual SEO-optimized titles, cultural storytelling descriptions, and tags
-   * using Google Gemini 1.5 Flash Multimodal Vision/NLP with high-accuracy Indic fallback.
+   * using Google Gemini Multimodal Vision API with truthful fallback when unconfigured.
    */
   public async synthesizeCatalog(
     payload: SynthesizeCatalogPayload
   ): Promise<CatalogSynthesisResult> {
     try {
-      // 1. Try Gemini 1.5 Flash Multimodal Service
       const geminiResult = await geminiCatalogService.generateCatalog({
         imageBase64: payload.imageBase64,
         voiceTranscript: payload.artisanStoryTranscript,
         artisanName: payload.artisanName,
         artisanLocation: payload.artisanLocation,
         craftCategoryHint: payload.craftCategoryCode,
+        productTitleHint: payload.productTitleHint,
         apiKey: payload.apiKey,
       });
 
@@ -84,37 +89,39 @@ export class CatalogSynthesisService {
         tags: geminiResult.tags,
         craftCategoryCode: geminiResult.craftCategoryCode,
         craftCategoryName: geminiResult.craftCategoryName,
+        visionStatus: geminiResult.visionStatus,
+        visionStatusMessage: geminiResult.visionStatusMessage,
+        visualAttributes: geminiResult.visualAttributes,
+        categoryConfidence: geminiResult.categoryConfidence,
         giTagCertified: geminiResult.giTagCertified,
         giRegion: geminiResult.giRegion,
         fairPricing: geminiResult.fairPricing,
         dimensions: geminiResult.dimensions,
       };
     } catch (_error) {
-      logger.warn('CATALOG_SYNTHESIS', 'Gemini synthesis error, falling back to Indic template engine');
+      logger.warn('CATALOG_SYNTHESIS', 'Gemini synthesis error, using truthful unavailable response');
 
-      const material = payload.entities?.material || 'प्राकृतिक कॉटन व रेशम';
-      const motif = payload.entities?.motif || 'मत्स्य / मछली (Matsya)';
+      const unavailable = geminiCatalogService.generateTruthfulUnavailableResponse({
+        voiceTranscript: payload.artisanStoryTranscript,
+        artisanName: payload.artisanName,
+        artisanLocation: payload.artisanLocation,
+        craftCategoryHint: payload.craftCategoryCode,
+        productTitleHint: payload.productTitleHint,
+      });
 
       return {
-        titles: {
-          en: `Handcrafted Traditional Folk Art Painting — ${motif}`,
-          hi: `हाथ से बनी पारंपरिक लोक कला पेंटिंग — ${motif}`,
-          mr: `हस्तनिर्मित अस्सल पारंपरिक लोककला चित्र — ${motif}`,
-          bn: `হাতে তৈরি ঐতিহ্যবাহী লোকশিল্প চিত্রকর্ম — ${motif}`,
-        },
-        descriptions: {
-          en: `Authentic traditional hand-painted artwork meticulously created over multiple days. Crafted using ${material}, preserving centuries-old indigenous artisan techniques and cultural motifs that bring prosperity to any home.`,
-          hi: `कारीगर द्वारा कई दिनों के अथक परिश्रम से तैयार की गई प्रामाणिक पारंपरिक हस्तकला। इसमें ${material} का शुद्ध उपयोग हुआ है, जो भारतीय सांस्कृतिक धरोहर और शिल्प कौशल का अनूठा उदाहरण है।`,
-          mr: `पिढ्यानपिढ्या चालत आलेल्या कौशल्यातून आणि अस्सल नैसर्गिक घटकांपासून बनवलेली सुंदर हस्तकला. भारतीय परंपरेचा अद्वितीय वारसा.`,
-          bn: `কারিগর দ্বারা নিষ্ঠার সাথে তৈরি খাঁটি লোকশিল্প। এতে প্রাকৃতিক উপাদান ব্যবহার করা হয়েছে যা भारतीय सांस्कृतिक ঐতিহ্যের পরিচায়ক।`,
-        },
-        careInstructions: {
-          en: 'Keep away from direct moisture and water. Frame under glass for long-lasting vibrancy.',
-          hi: 'सीधी नमी और पानी से बचाएं। लंबे समय तक रंगों की चमक बनाए रखने के लिए कांच के फ्रेम में रखें।',
-        },
-        tags: ['Handmade', 'AuthenticCraft', 'VocalForLocal', 'ArtisanMade', 'EcoFriendly', 'HeritageArt'],
-        craftCategoryCode: payload.craftCategoryCode || 'PAINTING_MITHILA',
-        craftCategoryName: 'पारंपरिक लोक चित्रकला (Mithila / Madhubani Painting)',
+        titles: unavailable.titles,
+        descriptions: unavailable.descriptions,
+        careInstructions: unavailable.careInstructions,
+        tags: unavailable.tags,
+        craftCategoryCode: unavailable.craftCategoryCode,
+        craftCategoryName: unavailable.craftCategoryName,
+        visionStatus: 'VISION_UNAVAILABLE',
+        visionStatusMessage:
+          'AI image analysis is currently unavailable. Please enter the description manually or configure the AI vision service.',
+        categoryConfidence: 0.0,
+        giTagCertified: false,
+        giRegion: unavailable.giRegion,
       };
     }
   }

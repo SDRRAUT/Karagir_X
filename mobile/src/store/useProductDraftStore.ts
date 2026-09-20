@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { logger } from '@/utils/logger';
 import { MultilingualText, CatalogSynthesisResult } from '@/api/catalogSynthesisService';
+import { VisualAttributes } from '@/api/geminiCatalogService';
 import { PricingResult } from '@/api/pricingService';
 import { ProductListing } from '@/api/productService';
 
@@ -17,6 +18,7 @@ export interface QualityMetrics {
 export interface ProductPhoto {
   id: string;
   uri: string;
+  base64?: string;
   angle: PhotoAngle;
   quality: QualityScore;
   isEnhanced: boolean;
@@ -44,6 +46,10 @@ export interface ProductDraftState {
   tags: string[];
   craftCategoryCode: string;
   craftCategoryName: string;
+  visionStatus: 'VISION_SUCCESS' | 'VISION_UNAVAILABLE' | 'NOT_STARTED';
+  visionStatusMessage: string | null;
+  categoryConfidence: number;
+  visualAttributes?: VisualAttributes;
 
   // Dynamic Fair Pricing State
   pricing: PricingResult | null;
@@ -88,6 +94,10 @@ export const useProductDraftStore = create<ProductDraftState>((set, get) => ({
   tags: [],
   craftCategoryCode: 'TEXTILE_HANDLOOM',
   craftCategoryName: 'हस्तनिर्मित शिल्प',
+  visionStatus: 'NOT_STARTED',
+  visionStatusMessage: null,
+  categoryConfidence: 0,
+  visualAttributes: undefined,
 
   pricing: null,
   finalSellingPrice: 0,
@@ -189,8 +199,15 @@ export const useProductDraftStore = create<ProductDraftState>((set, get) => ({
       tags: result.tags,
       craftCategoryCode: result.craftCategoryCode,
       craftCategoryName: result.craftCategoryName,
+      visionStatus: result.visionStatus || 'NOT_STARTED',
+      visionStatusMessage: result.visionStatusMessage || null,
+      categoryConfidence: result.categoryConfidence ?? 0,
+      visualAttributes: result.visualAttributes,
     });
-    logger.info('PRODUCT_DRAFT', 'AI Catalog synthesis applied to draft');
+    logger.info('PRODUCT_DRAFT', 'AI Catalog synthesis applied to draft', {
+      visionStatus: result.visionStatus,
+      detectedObject: result.visualAttributes?.objectType,
+    });
   },
 
   updateTitle: (lang: keyof MultilingualText, text: string) => {
@@ -245,6 +262,10 @@ export const useProductDraftStore = create<ProductDraftState>((set, get) => ({
       tags: [],
       craftCategoryCode: 'TEXTILE_HANDLOOM',
       craftCategoryName: 'हस्तनिर्मित शिल्प',
+      visionStatus: 'NOT_STARTED',
+      visionStatusMessage: null,
+      categoryConfidence: 0,
+      visualAttributes: undefined,
       pricing: null,
       finalSellingPrice: 0,
       publishedProduct: null,

@@ -203,16 +203,11 @@ export const AuthPhoneScreen: React.FC<Props> = ({ route, navigation }) => {
     );
 
     if (!started) {
-      voiceGuidance.speakHindi(
-        roleData.voicePrompt,
-        () => {},
-        () => {
-          setTimeout(() => {
-            setPhoneNumber(roleData.demoPhone);
-            setIsVoiceListening(false);
-            setErrorMessage(null);
-          }, 900);
-        }
+      setIsVoiceListening(false);
+      setErrorMessage(
+        lang.startsWith('hi')
+          ? 'आवाज़ पहचान शुरू नहीं हो सकी। कृपया नंबर कीपैड से दर्ज करें।'
+          : 'Microphone voice recognition could not start. Please enter phone number using the keypad.'
       );
     }
   };

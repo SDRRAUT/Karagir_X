@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, Image, Linking, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Image, Linking, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -8,12 +8,21 @@ import { Button } from '@/components/buttons/Button';
 import { Card } from '@/components/cards/Card';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PublishSuccess'>;
 
 export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
   const { publishedProduct, resetDraft, extractedEntities } = useProductDraftStore();
   const user = useAuthStore((s) => s.user);
+  const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      realisticVoiceService.stop();
+    };
+  }, []);
+
   const artisanDisplayName =
     (extractedEntities?.artisanName as string)?.trim() ||
     user?.fullName?.trim() ||
@@ -29,20 +38,36 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleGoHome = () => {
+    realisticVoiceService.stop();
     resetDraft();
     navigation.navigate('MainTabs', { screen: 'HomeTab' });
   };
 
   const handleViewCatalog = () => {
+    realisticVoiceService.stop();
     resetDraft();
     navigation.navigate('MarketplaceHome');
   };
 
   const handleListenStory = () => {
-    Alert.alert(
-      '▶ Craft Story Audio',
-      '"Hand-thrown using local natural clay, sun-dried for 3 days and fired with traditional organic wood kiln."'
-    );
+    if (isListening || realisticVoiceService.isSpeaking()) {
+      realisticVoiceService.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const storyText =
+      publishedProduct?.description?.hi ||
+      publishedProduct?.description?.en ||
+      'पारंपरिक स्थानीय मिट्टी से हाथ से गढ़ा गया, 3 दिनों तक धूप में सुखाया गया और भट्ठी में पकाया गया प्रामाणिक धरोहर शिल्प।';
+
+    setIsListening(true);
+    realisticVoiceService.speak(storyText, {
+      language: 'hi-IN',
+      onStart: () => setIsListening(true),
+      onEnd: () => setIsListening(false),
+      onError: () => setIsListening(false),
+    });
   };
 
   return (
@@ -169,10 +194,18 @@ export const PublishSuccessScreen: React.FC<Props> = ({ navigation }) => {
                   Artisan's Voice Story
                 </Text>
               </View>
-              <TouchableOpacity style={styles.listenBtn} onPress={handleListenStory}>
-                <Text style={{ fontSize: 12, marginRight: 4 }}>▶</Text>
+              <TouchableOpacity
+                style={[
+                  styles.listenBtn,
+                  isListening && { backgroundColor: 'rgba(232, 93, 42, 0.25)' },
+                ]}
+                onPress={handleListenStory}
+                accessibilityRole="button"
+                accessibilityLabel={isListening ? 'Stop Story Audio' : 'Listen to Story Audio'}
+              >
+                <Text style={{ fontSize: 12, marginRight: 4 }}>{isListening ? '⏹' : '▶'}</Text>
                 <Text variant="caption" weight="bold" color="#e85d2a">
-                  Listen
+                  {isListening ? 'Stop' : 'Listen'}
                 </Text>
               </TouchableOpacity>
             </View>

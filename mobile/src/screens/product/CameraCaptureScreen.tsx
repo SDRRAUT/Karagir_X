@@ -42,11 +42,13 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
         const photo = await cameraRef.current.takePictureAsync({
           quality: 0.9,
           skipProcessing: false,
+          base64: true,
         });
 
         if (photo?.uri) {
           addPhoto({
             uri: photo.uri,
+            base64: photo.base64,
             angle: currentAngle,
             quality: 'GOOD',
           });
@@ -54,19 +56,23 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
         }
       }
 
-      // Fallback for emulator / mock camera view
-      addPhoto({
-        uri: `file:///data/cache/craft_${Date.now()}.jpg`,
-        angle: currentAngle,
-        quality: 'GOOD',
-      });
+      Alert.alert(
+        'Camera Error',
+        'Could not capture image from device camera. Please try again or select an image from your gallery.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Gallery', onPress: handleImportGallery },
+        ]
+      );
     } catch (_err) {
-      // Fallback capture simulation
-      addPhoto({
-        uri: `file:///data/cache/craft_${Date.now()}.jpg`,
-        angle: currentAngle,
-        quality: 'GOOD',
-      });
+      Alert.alert(
+        'Camera Capture Failed',
+        'Could not capture image from device camera. Please try again or select an image from your gallery.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Gallery', onPress: handleImportGallery },
+        ]
+      );
     }
   };
 
@@ -82,11 +88,13 @@ export const CameraCaptureScreen: React.FC<Props> = ({ navigation }) => {
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.9,
+        base64: true,
       });
 
       if (!result.canceled && result.assets && result.assets[0]?.uri) {
         addPhoto({
           uri: result.assets[0].uri,
+          base64: result.assets[0].base64 || undefined,
           angle: currentAngle,
           quality: 'GOOD',
         });

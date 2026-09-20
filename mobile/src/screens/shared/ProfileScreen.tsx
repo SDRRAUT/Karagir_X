@@ -16,6 +16,7 @@ import { RootStackParamList } from '@/navigation/types';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { useProductDraftStore } from '@/store/useProductDraftStore';
+import { useOrderStore } from '@/store/useOrderStore';
 import { MelaModeModal } from '../artisan/components/MelaModeModal';
 import { B2BBulkModal } from '../artisan/components/B2BBulkModal';
 import { FairPriceCalculatorModal } from '../artisan/components/FairPriceCalculatorModal';
@@ -34,6 +35,8 @@ export const ProfileScreen: React.FC = () => {
   const [showB2BModal, setShowB2BModal] = useState(false);
   const [showFairPriceModal, setShowFairPriceModal] = useState(false);
   const [showPassportModal, setShowPassportModal] = useState(false);
+  const orders = useOrderStore((s) => s.orders);
+  const activeOrder = orders[0] || null;
 
   const languages: { code: SupportedLocale; name: string; native: string }[] = [
     { code: 'hi_IN', name: 'हिन्दी', native: '🇮🇳 हिन्दी' },
@@ -212,7 +215,16 @@ export const ProfileScreen: React.FC = () => {
               {/* Orders */}
               <TouchableOpacity
                 style={styles.utilityTile}
-                onPress={() => navigation.navigate('OrderTracking', { orderId: 'ORD_2026_8831' })}
+                onPress={() => {
+                  if (activeOrder) {
+                    navigation.navigate('OrderTracking', { orderId: activeOrder.orderId });
+                  } else {
+                    Alert.alert(
+                      isHindi ? 'कोई सक्रिय ऑर्डर नहीं' : 'No Active Orders',
+                      isHindi ? 'आपने अभी तक कोई ऑर्डर नहीं दिया है।' : 'You have not placed any orders yet. Discover authentic crafts in the marketplace!'
+                    );
+                  }
+                }}
                 activeOpacity={0.8}
               >
                 <View style={styles.tileTop}>
@@ -221,7 +233,7 @@ export const ProfileScreen: React.FC = () => {
                   </View>
                   <View style={[styles.tilePill, { backgroundColor: '#4338CA' }]}>
                     <Text variant="labelSmall" weight="bold" color="#FFFFFF">
-                      3 {t.common.active}
+                      {orders.length} {t.common.active}
                     </Text>
                   </View>
                 </View>
@@ -230,7 +242,13 @@ export const ProfileScreen: React.FC = () => {
                     {t.profile.myOrders}
                   </Text>
                   <Text variant="labelSmall" color={theme.colors.text.secondary}>
-                    {isHindi ? '1 प्रेषण मार्ग में' : '1 in transit'}
+                    {orders.length > 0
+                      ? isHindi
+                        ? `${orders[0].items[0]?.title || 'ऑर्डर'} मार्ग में`
+                        : `${orders[0].items[0]?.title || 'Order'} in transit`
+                      : isHindi
+                      ? 'कोई सक्रिय ऑर्डर नहीं'
+                      : 'No active orders'}
                   </Text>
                 </View>
               </TouchableOpacity>

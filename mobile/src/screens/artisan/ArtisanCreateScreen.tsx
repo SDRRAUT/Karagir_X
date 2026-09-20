@@ -285,14 +285,16 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.85,
+        base64: true,
       });
 
-      if (!result.canceled && result.assets && result.assets[0]?.uri) {
-        const uri = result.assets[0].uri;
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const asset = result.assets[0];
+        const uri = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
         setCapturedImageUri(uri);
         setSelectedPresetImage(null);
         stopWebCamera();
-        await processAndGoToEnhance(uri);
+        await processAndGoToEnhance(asset.uri || uri);
       }
     } catch (galleryErr: any) {
       Alert.alert(
@@ -1403,8 +1405,12 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
       {currentStep === 4 && (
         <View style={styles.synthesisContainer}>
           <ActivityIndicator size="large" color="#EA580C" />
-          <Text style={styles.synthesisMainTitle}>🧠 Google Gemini 3.6 Multimodal AI</Text>
-          <Text style={styles.synthesisSubtitle}>{synthesisStageLabel}</Text>
+          <Text style={styles.synthesisMainTitle}>🧠 Google Gemini Multimodal Vision AI</Text>
+          <Text style={styles.synthesisSubtitle}>
+            {catalogData?.visionStatus === 'VISION_SUCCESS'
+              ? 'Image analyzed ✓'
+              : 'Analyzing product image...'}
+          </Text>
 
           <View style={styles.stageProgressWrapper}>
             <View style={[styles.stageStep, synthesisStage >= 1 && styles.stageStepActive]}>
@@ -1461,6 +1467,32 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
             />
 
             <View style={styles.previewBody}>
+              {/* Vision Analysis Status Badge */}
+              <View style={{
+                padding: 10,
+                borderRadius: 10,
+                backgroundColor: catalogData?.visionStatus === 'VISION_SUCCESS' ? '#F0FDF4' : '#FEF2F2',
+                borderWidth: 1,
+                borderColor: catalogData?.visionStatus === 'VISION_SUCCESS' ? '#BBF7D0' : '#FECACA',
+                marginBottom: 12,
+              }}>
+                <Text style={{
+                  fontSize: 13,
+                  fontWeight: '700',
+                  color: catalogData?.visionStatus === 'VISION_SUCCESS' ? '#15803D' : '#DC2626',
+                }}>
+                  {catalogData?.visionStatus === 'VISION_SUCCESS'
+                    ? '✨ Image analyzed ✓'
+                    : '⚠️ AI image analysis unavailable (Manual review enabled)'}
+                </Text>
+                {catalogData?.visualAttributes?.objectType && (
+                  <Text style={{ fontSize: 11, color: '#166534', marginTop: 3 }}>
+                    Detected Object: {catalogData.visualAttributes.objectType}
+                    {catalogData.visualAttributes.material ? ` • Material: ${catalogData.visualAttributes.material}` : ''}
+                  </Text>
+                )}
+              </View>
+
               {/* Editable Product Title Review Field */}
               <View style={styles.reviewFieldBox}>
                 <View style={styles.reviewLabelRow}>

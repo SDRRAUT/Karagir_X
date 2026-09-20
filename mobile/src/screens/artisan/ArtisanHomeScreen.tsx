@@ -18,12 +18,18 @@ import { B2BBulkModal } from './components/B2BBulkModal';
 import { FairPriceCalculatorModal } from './components/FairPriceCalculatorModal';
 import { CraftPassportModal } from './components/CraftPassportModal';
 import { realisticVoiceService } from '@/services/realisticVoiceService';
+import { useCatalogStore } from '@/store/useCatalogStore';
+import { useOrderStore } from '@/store/useOrderStore';
 
 const { width } = Dimensions.get('window');
 
 export const ArtisanHomeScreen: React.FC<any> = ({ navigation }) => {
   const { user } = useAuthStore();
   const { t, isHindi, langKey } = useTranslation();
+  const artisanProducts = useCatalogStore((s) => s.artisanProducts);
+  const totalListingsCount = useCatalogStore((s) => s.totalListingsCount);
+  const orders = useOrderStore((s) => s.orders);
+
   const [showMelaModal, setShowMelaModal] = useState(false);
   const [showB2BModal, setShowB2BModal] = useState(false);
   const [showFairPriceModal, setShowFairPriceModal] = useState(false);
@@ -417,15 +423,21 @@ export const ArtisanHomeScreen: React.FC<any> = ({ navigation }) => {
           <Text style={styles.sectionHeaderTitle}>📊 {t.artisan.myShopTitle}</Text>
           <View style={styles.snapshotGrid}>
             <View style={[styles.snapshotTile, styles.snapshotTileBlue]}>
-              <Text style={[styles.snapshotVal, { color: '#0284C7' }]}>12</Text>
+              <Text style={[styles.snapshotVal, { color: '#0284C7' }]}>
+                {totalListingsCount || artisanProducts.length}
+              </Text>
               <Text style={styles.snapshotLbl}>{t.artisan.productsCountLabel}</Text>
             </View>
             <View style={[styles.snapshotTile, styles.snapshotTileGreen]}>
-              <Text style={[styles.snapshotVal, { color: '#16A34A' }]}>3</Text>
+              <Text style={[styles.snapshotVal, { color: '#16A34A' }]}>
+                {artisanProducts.length}
+              </Text>
               <Text style={styles.snapshotLbl}>{t.artisan.liveActiveLabel}</Text>
             </View>
             <View style={[styles.snapshotTile, styles.snapshotTilePurple]}>
-              <Text style={[styles.snapshotVal, { color: '#7C3AED' }]}>₹8k</Text>
+              <Text style={[styles.snapshotVal, { color: '#7C3AED' }]}>
+                ₹{orders.length > 0 ? (orders.reduce((sum, o) => sum + o.totalAmount, 0)).toLocaleString('en-IN') : '8k'}
+              </Text>
               <Text style={styles.snapshotLbl}>{t.artisan.thisWeekLabel}</Text>
             </View>
             <View style={[styles.snapshotTile, styles.snapshotTileAmber]}>
@@ -433,6 +445,71 @@ export const ArtisanHomeScreen: React.FC<any> = ({ navigation }) => {
               <Text style={styles.snapshotLbl}>{t.artisan.ratingLabel}</Text>
             </View>
           </View>
+        </View>
+
+        {/* 9. Seller's Own Catalog Listings */}
+        <View style={styles.listingsSection}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionHeaderTitle}>
+              🏺 {isHindi ? 'मेरी शिल्प सूचियां' : 'My Live Listings'} ({artisanProducts.length})
+            </Text>
+            <TouchableOpacity onPress={() => navigation?.navigate?.('CreateTab')}>
+              <Text style={styles.seeAllText}>+ {isHindi ? 'नया शिल्प' : 'Add New'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {artisanProducts.length === 0 ? (
+            <View style={styles.emptyListingsBox}>
+              <Text style={{ fontSize: 32, marginBottom: 6 }}>🏺</Text>
+              <Text style={styles.emptyListingsTitle}>
+                {isHindi ? 'अभी कोई शिल्प सूचीबद्ध नहीं है' : 'No listings added yet'}
+              </Text>
+              <Text style={styles.emptyListingsSub}>
+                {isHindi ? 'कैमरे से फोटो लें और AI कैटलॉग से तुरंत लाइव करें।' : 'Take photos to catalog with AI and publish live.'}
+              </Text>
+              <TouchableOpacity
+                style={styles.createFirstBtn}
+                onPress={() => navigation?.navigate?.('CreateTab')}
+              >
+                <Text style={styles.createFirstBtnText}>+ {isHindi ? 'पहला उत्पाद बनाएं' : 'Create First Listing'}</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.listingsScroll}
+            >
+              {artisanProducts.map((prod) => (
+                <View key={prod.id} style={styles.artisanProductCard}>
+                  <Image
+                    source={
+                      prod.imageUrl
+                        ? { uri: prod.imageUrl }
+                        : prod.imageSource
+                        ? prod.imageSource
+                        : { uri: 'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=400' }
+                    }
+                    style={styles.artisanProductImg}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.artisanProductInfo}>
+                    <Text numberOfLines={1} style={styles.artisanProductName}>
+                      {prod.name}
+                    </Text>
+                    <Text style={styles.artisanProductPrice}>
+                      {prod.price}
+                    </Text>
+                    <View style={styles.liveMarketPill}>
+                      <Text style={styles.liveMarketPillText}>
+                        🟢 {isHindi ? 'बाज़ार में लाइव' : 'Live on Market'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </View>
       </ScrollView>
 
@@ -1249,5 +1326,90 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
     fontWeight: '600',
+  },
+  listingsSection: {
+    marginTop: 20,
+    marginBottom: 24,
+  },
+  emptyListingsBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginTop: 10,
+  },
+  emptyListingsTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1E293B',
+    marginBottom: 4,
+  },
+  emptyListingsSub: {
+    fontSize: 12,
+    color: '#64748B',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  createFirstBtn: {
+    backgroundColor: '#EA580C',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  createFirstBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  listingsScroll: {
+    paddingVertical: 10,
+    gap: 12,
+  },
+  artisanProductCard: {
+    width: 150,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  artisanProductImg: {
+    width: '100%',
+    height: 110,
+  },
+  artisanProductInfo: {
+    padding: 10,
+  },
+  artisanProductName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  artisanProductPrice: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#EA580C',
+    marginTop: 2,
+  },
+  liveMarketPill: {
+    marginTop: 6,
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  liveMarketPillText: {
+    fontSize: 9.5,
+    color: '#15803D',
+    fontWeight: 'bold',
   },
 });

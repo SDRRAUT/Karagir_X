@@ -146,14 +146,14 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
 
     try {
       const result = await voiceService.transcribeDescription(
-        'file:///mock/recorded_voice.wav',
+        'speech-stream://microphone',
         selectedLanguage.split('-')[0],
         userText
       );
 
       setTranscriptionResult(result);
       setSpokenTranscript(result.transcript);
-      setVoiceStory('file:///mock/recorded_voice.wav', result.transcript, result.extractedEntities);
+      setVoiceStory('speech-stream://microphone', result.transcript, result.extractedEntities);
       setIsProcessing(false);
     } catch (_err) {
       setIsProcessing(false);
@@ -175,7 +175,7 @@ export const VoiceDescriptionScreen: React.FC<Props> = ({ navigation }) => {
         ...(aiRes.extractedAttributes || {}),
       };
 
-      setVoiceStory('file:///mock/recorded_voice.wav', aiRes.modifiedText, updatedEntities);
+      setVoiceStory('speech-stream://microphone', aiRes.modifiedText, updatedEntities);
       setTranscriptionResult((prev) =>
         prev
           ? {

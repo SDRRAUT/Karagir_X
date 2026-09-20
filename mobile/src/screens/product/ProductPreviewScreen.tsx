@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Modal,
+  TextInput,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@/navigation/types';
@@ -28,11 +36,20 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
     craftCategoryName,
     finalSellingPrice,
     extractedEntities,
+    visionStatus,
+    visionStatusMessage,
+    visualAttributes,
+    categoryConfidence,
+    updateTitle,
+    updateDescription,
     setPublishedProduct,
   } = useProductDraftStore();
 
   const [selectedLang, setSelectedLang] = useState<'hi' | 'en' | 'bn'>('en');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   const primaryPhoto =
     photos.find((p) => p.id === primaryPhotoId) || photos[0];
@@ -43,6 +60,22 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
   const displayDescription =
     descriptions[selectedLang] || descriptions.en || descriptions.hi || 'Artisan handcrafted with traditional heritage techniques.';
 
+  const handleOpenEdit = () => {
+    setEditTitle(displayTitle);
+    setEditDescription(displayDescription);
+    setIsEditModalVisible(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editTitle.trim()) {
+      updateTitle(selectedLang, editTitle.trim());
+    }
+    if (editDescription.trim()) {
+      updateDescription(selectedLang, editDescription.trim());
+    }
+    setIsEditModalVisible(false);
+  };
+
   const handlePublish = async () => {
     setIsPublishing(true);
 
@@ -50,7 +83,7 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
       const result = await productService.createProduct({
         title: titles,
         description: descriptions,
-        craftCategoryCode: 'PAINTING_MITHILA',
+        craftCategoryCode: craftCategoryCode || 'TEXTILE_HANDLOOM',
         sellingPrice: finalSellingPrice || 2150,
         aiSuggestedPrice: finalSellingPrice || 2150,
         stockQuantity: 1,
@@ -172,6 +205,72 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </Card>
 
+        {/* Multimodal Vision Analysis Status Banner */}
+        {visionStatus === 'VISION_SUCCESS' && (
+          <View style={styles.visionSuccessBanner}>
+            <View style={styles.visionBannerHeader}>
+              <Text style={styles.visionSuccessIcon}>✨</Text>
+              <Text variant="bodyMedium" weight="bold" color="#166534">
+                Image analyzed ✓
+              </Text>
+              {categoryConfidence > 0 && (
+                <View style={styles.confidencePill}>
+                  <Text style={styles.confidenceText}>
+                    {Math.round(categoryConfidence * 100)}% match
+                  </Text>
+                </View>
+              )}
+            </View>
+            {visualAttributes && (
+              <View style={styles.visionAttrRow}>
+                {Boolean(visualAttributes.objectType) && (
+                  <View style={styles.attrPill}>
+                    <Text style={styles.attrPillText}>
+                      📦 {visualAttributes.objectType}
+                    </Text>
+                  </View>
+                )}
+                {Boolean(visualAttributes.material) && (
+                  <View style={styles.attrPill}>
+                    <Text style={styles.attrPillText}>
+                      🧱 {visualAttributes.material}
+                    </Text>
+                  </View>
+                )}
+                {Boolean(visualAttributes.colors?.length) && (
+                  <View style={styles.attrPill}>
+                    <Text style={styles.attrPillText}>
+                      🎨 {visualAttributes.colors.slice(0, 2).join(', ')}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        )}
+
+        {visionStatus === 'VISION_UNAVAILABLE' && (
+          <View style={styles.visionUnavailableBanner}>
+            <View style={styles.visionBannerHeader}>
+              <Text style={{ fontSize: 18, marginRight: 8 }}>⚠️</Text>
+              <Text variant="bodyMedium" weight="bold" color="#991B1B">
+                AI image analysis unavailable
+              </Text>
+            </View>
+            <Text variant="bodySmall" color="#7F1D1D" style={{ marginTop: 4, marginBottom: 8, lineHeight: 18 }}>
+              {visionStatusMessage ||
+                'AI image analysis is currently unavailable. Please enter or edit the description manually before publishing.'}
+            </Text>
+            <TouchableOpacity
+              style={styles.manualEditBannerBtn}
+              onPress={handleOpenEdit}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.manualEditBannerBtnText}>✏️ Enter / Edit Description Manually</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Trilingual Language Selector Tabs */}
         <View style={styles.langRow}>
           <Text variant="bodySmall" weight="bold" color={theme.colors.charcoal[600]} style={styles.langLabel}>
@@ -204,9 +303,18 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Product Details Card */}
         <Card style={styles.detailsCard} variant="elevated">
-          <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]} style={styles.titleText}>
-            {displayTitle}
-          </Text>
+          <View style={styles.titleRow}>
+            <Text variant="headlineMedium" weight="bold" color={theme.colors.charcoal[900]} style={[styles.titleText, { flex: 1 }]}>
+              {displayTitle}
+            </Text>
+            <TouchableOpacity
+              onPress={handleOpenEdit}
+              style={styles.editIconBtn}
+              accessibilityLabel="Edit Details"
+            >
+              <Text style={{ fontSize: 16 }}>✏️</Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Price Bar */}
           <View style={styles.priceRow}>
@@ -228,9 +336,16 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.divider} />
 
           {/* Cultural Storytelling Copy */}
-          <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionHeading}>
-            Artisan Story:
-          </Text>
+          <View style={styles.sectionHeaderRow}>
+            <Text variant="bodyLarge" weight="bold" color={theme.colors.charcoal[900]} style={styles.sectionHeading}>
+              Artisan Story:
+            </Text>
+            <TouchableOpacity onPress={handleOpenEdit}>
+              <Text variant="bodySmall" weight="bold" color="#6C63FF">
+                Edit
+              </Text>
+            </TouchableOpacity>
+          </View>
           <Text variant="bodyMedium" color={theme.colors.charcoal[700]} style={styles.descriptionText}>
             {displayDescription}
           </Text>
@@ -256,6 +371,61 @@ export const ProductPreviewScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </Card>
       </ScrollView>
+
+      {/* Manual Edit Modal */}
+      <Modal
+        visible={isEditModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text variant="headlineSmall" weight="bold" color="#0F172A" style={{ marginBottom: 12 }}>
+              ✏️ Edit Product Details ({selectedLang.toUpperCase()})
+            </Text>
+
+            <Text variant="bodySmall" weight="bold" color="#334155" style={{ marginBottom: 4 }}>
+              Product Title:
+            </Text>
+            <TextInput
+              style={styles.modalInput}
+              value={editTitle}
+              onChangeText={setEditTitle}
+              placeholder="Enter product title..."
+              placeholderTextColor="#94A3B8"
+            />
+
+            <Text variant="bodySmall" weight="bold" color="#334155" style={{ marginTop: 12, marginBottom: 4 }}>
+              Product Description:
+            </Text>
+            <TextInput
+              style={[styles.modalInput, styles.modalTextArea]}
+              value={editDescription}
+              onChangeText={setEditDescription}
+              placeholder="Enter detailed craft description..."
+              placeholderTextColor="#94A3B8"
+              multiline
+              numberOfLines={4}
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalCancelBtn]}
+                onPress={() => setIsEditModalVisible(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalSaveBtn]}
+                onPress={handleSaveEdit}
+              >
+                <Text style={styles.modalSaveText}>Save Changes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Sticky Bottom Bar */}
       <View style={[styles.bottomBar, { backgroundColor: '#FFFFFF', borderTopColor: theme.colors.sand[200] }]}>
@@ -418,6 +588,150 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 8,
+  },
+  visionSuccessBanner: {
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+  },
+  visionUnavailableBanner: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 14,
+  },
+  visionBannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  visionSuccessIcon: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  confidencePill: {
+    marginLeft: 'auto',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  confidenceText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#15803D',
+  },
+  visionAttrRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+    gap: 6,
+  },
+  attrPill: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  attrPillText: {
+    fontSize: 11,
+    color: '#166534',
+    fontWeight: '600',
+  },
+  manualEditBannerBtn: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#F87171',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  manualEditBannerBtnText: {
+    color: '#B91C1C',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  editIconBtn: {
+    padding: 6,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    marginLeft: 8,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 14,
+    color: '#0F172A',
+    backgroundColor: '#F8FAFC',
+  },
+  modalTextArea: {
+    minHeight: 90,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 18,
+  },
+  modalBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+  },
+  modalCancelBtn: {
+    backgroundColor: '#F1F5F9',
+  },
+  modalCancelText: {
+    color: '#475569',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  modalSaveBtn: {
+    backgroundColor: '#6C63FF',
+  },
+  modalSaveText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });
 

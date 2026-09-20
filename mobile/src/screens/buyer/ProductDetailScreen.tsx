@@ -11,6 +11,7 @@ import { AppHeader } from '@/components/navigation/AppHeader';
 import { useCartStore } from '@/store/useCartStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { marketplaceService, MarketplaceProduct } from '@/api/marketplaceService';
+import { realisticVoiceService } from '@/services/realisticVoiceService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
@@ -28,6 +29,9 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   useEffect(() => {
     marketplaceService.getProductById(productId).then(setProduct);
+    return () => {
+      realisticVoiceService.stop();
+    };
   }, [productId]);
 
   if (!product) {
@@ -77,7 +81,23 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   const handleToggleVoice = () => {
-    setIsPlayingAudio(!isPlayingAudio);
+    if (isPlayingAudio) {
+      realisticVoiceService.stop();
+      setIsPlayingAudio(false);
+    } else {
+      const storyText =
+        product.description?.hi ||
+        product.description?.en ||
+        `नमस्ते, मेरा नाम ${product.artisan.name} है। यह ${product.title.hi || product.title.en} हमारे ${product.artisan.cluster} में शुद्ध हस्तशिल्प तकनीक से बनाया गया है।`;
+
+      setIsPlayingAudio(true);
+      realisticVoiceService.speak(storyText, {
+        language: 'hi-IN',
+        onStart: () => setIsPlayingAudio(true),
+        onEnd: () => setIsPlayingAudio(false),
+        onError: () => setIsPlayingAudio(false),
+      });
+    }
   };
 
   return (
