@@ -18,6 +18,7 @@ import { imageProcessingService, EnhancedImageResult } from '@/services/imagePro
 import { kalakarIpPassportService, KalakarIpTag } from '@/services/kalakarIpPassportService';
 import { speechRecognitionService, SpeechLanguage } from '@/services/speechRecognitionService';
 import { realisticVoiceService } from '@/services/realisticVoiceService';
+import { aiVoiceModifierService, AiVoiceModificationResult } from '@/services/aiVoiceModifierService';
 import { useCatalogStore } from '@/store/useCatalogStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -95,7 +96,7 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const [showEnhancedView, setShowEnhancedView] = useState<boolean>(true);
   const [isEnhancing, setIsEnhancing] = useState<boolean>(false);
 
-  // Step 3: Structured Voice Input State
+  // Step 3: Structured Voice Input & AI Modification State
   const [selectedLanguage, setSelectedLanguage] = useState<SpeechLanguage>('hi-IN');
   const [isListening, setIsListening] = useState(false);
   const [micPermissionGranted, setMicPermissionGranted] = useState<boolean>(true);
@@ -103,9 +104,14 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
   const [laborHoursInput, setLaborHoursInput] = useState('16');
   const [materialCostInput, setMaterialCostInput] = useState('150');
   const [craftStoryInput, setCraftStoryInput] = useState('हाथ से बना टेराकोटा दीया सेट, 16 घंटे मेहनत लगी और 150 रुपये कच्चा माल लगा');
-  const [recordingSecondsLeft, setRecordingSecondsLeft] = useState<number>(10);
+  const [spokenRawTranscript, setSpokenRawTranscript] = useState('');
+  const [recordingSecondsLeft, setRecordingSecondsLeft] = useState<number>(15);
   const [isPlayingGuide, setIsPlayingGuide] = useState<boolean>(false);
+  const [isPlayingAiAudio, setIsPlayingAiAudio] = useState<boolean>(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [isModifyingWithAi, setIsModifyingWithAi] = useState<boolean>(false);
+  const [aiModifiedResult, setAiModifiedResult] = useState<AiVoiceModificationResult | null>(null);
+  const [isAiApplied, setIsAiApplied] = useState<boolean>(false);
   const timerIntervalRef = useRef<any>(null);
 
   // Step 4: AI Multimodal Synthesis State
@@ -304,10 +310,11 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
       }
       speechRecognitionService.stopListening();
       setIsListening(false);
-      setRecordingSecondsLeft(10);
+      setRecordingSecondsLeft(20);
     } else {
       realisticVoiceService.stop();
       setIsPlayingGuide(false);
+      setIsPlayingAiAudio(false);
 
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
@@ -318,16 +325,16 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         await speechRecognitionService.requestMicrophonePermission();
       }
 
-      setRecordingSecondsLeft(10);
+      setRecordingSecondsLeft(20);
 
       const started = speechRecognitionService.startListening(
         {
           onStart: () => {
             setIsListening(true);
-            setRecordingSecondsLeft(10);
+            setRecordingSecondsLeft(20);
 
-            // 10-Second Countdown Timer from starting
-            let remaining = 10;
+            // 20-Second Countdown Timer from starting
+            let remaining = 20;
             timerIntervalRef.current = setInterval(() => {
               remaining -= 1;
               if (remaining <= 0) {
@@ -338,16 +345,18 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 speechRecognitionService.stopListening();
                 setIsListening(false);
                 setRecordingSecondsLeft(0);
-                setTimeout(() => setRecordingSecondsLeft(10), 1200);
+                setTimeout(() => setRecordingSecondsLeft(20), 1200);
               } else {
                 setRecordingSecondsLeft(remaining);
               }
             }, 1000);
           },
           onResult: (transcript, _isFinal) => {
-            // Real-time audio to typing directly in the single input box!
+            // Real-time audio to typing directly in the input box!
             setCraftStoryInput(transcript);
+            setSpokenRawTranscript(transcript);
             setVoiceTranscript(transcript);
+            setIsAiApplied(false);
 
             // Also extract parameters into state for downstream accuracy
             const extracted = speechRecognitionService.parseCraftVoiceInput(transcript);
@@ -367,7 +376,7 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
               timerIntervalRef.current = null;
             }
             setIsListening(false);
-            setRecordingSecondsLeft(10);
+            setRecordingSecondsLeft(20);
           },
           onEnd: () => {
             if (timerIntervalRef.current) {
@@ -386,9 +395,76 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
           timerIntervalRef.current = null;
         }
         setIsListening(false);
-        setRecordingSecondsLeft(10);
+        setRecordingSecondsLeft(20);
       }
     }
+  };
+
+  // -----------------------------------------------------------------
+  // STEP 3: AI ANALYZE & MODIFY VOCAL DESCRIPTION
+  // -----------------------------------------------------------------
+  const handleModifyVoiceWithAi = async () => {
+    const rawText = craftStoryInput.trim() || spokenRawTranscript.trim();
+    if (!rawText) return;
+
+    setIsModifyingWithAi(true);
+    try {
+      const result = await aiVoiceModifierService.modifyWithAi(
+        rawText,
+        'product_story',
+        selectedLanguage
+      );
+
+      setAiModifiedResult(result);
+
+      // Auto-extract attributes into state if present
+      if (result.extractedAttributes) {
+        if (result.extractedAttributes.laborHours && result.extractedAttributes.laborHours > 0) {
+          setLaborHoursInput(String(result.extractedAttributes.laborHours));
+        }
+      }
+
+      // Reassuring audio prompt
+      playSpeech(
+        selectedLanguage === 'hi-IN'
+          ? 'एआई ने आपके शिल्प का विवरण तैयार कर दिया है। नीचे विवरण सुनें या उपयोग करें।'
+          : selectedLanguage === 'mr-IN'
+          ? 'एआयने तुमच्या हस्तकलेचे विवरण तयार केले आहे. खालील बटणाने ते ऐका किंवा वापरा.'
+          : 'AI has enhanced your product description with authentic craft details. Listen or apply it below.'
+      );
+    } catch (err) {
+      console.warn('AI Modification error:', err);
+    } finally {
+      setIsModifyingWithAi(false);
+    }
+  };
+
+  const handleApplyAiDescription = () => {
+    if (!aiModifiedResult?.modifiedText) return;
+    setCraftStoryInput(aiModifiedResult.modifiedText);
+    setIsAiApplied(true);
+  };
+
+  const handlePlayAiAudio = () => {
+    const textToRead = aiModifiedResult?.modifiedText || craftStoryInput;
+    if (!textToRead) return;
+
+    if (isPlayingAiAudio) {
+      realisticVoiceService.stop();
+      setIsPlayingAiAudio(false);
+      return;
+    }
+
+    setIsPlayingAiAudio(true);
+    realisticVoiceService.speak(textToRead, {
+      lang: selectedLanguage,
+      gender: 'female',
+      rate: 0.94,
+      pitch: 1.02,
+      onStart: () => setIsPlayingAiAudio(true),
+      onEnd: () => setIsPlayingAiAudio(false),
+      onError: () => setIsPlayingAiAudio(false),
+    });
   };
 
   // -----------------------------------------------------------------
@@ -418,15 +494,23 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         setSynthesisStageLabel('Minting unique Kalakar IP Tag & Authenticity Passport...');
       }, 2700);
 
-      // Extract parameters from single input box
+      // Extract parameters from input box & AI result
       const extracted = speechRecognitionService.parseCraftVoiceInput(craftStoryInput);
-      const effectiveLabor = extracted.laborHours || parseInt(laborHoursInput, 10) || 16;
-      const effectiveCost = extracted.materialCost || parseInt(materialCostInput, 10) || 150;
+      const effectiveLabor =
+        aiModifiedResult?.extractedAttributes?.laborHours ||
+        extracted.laborHours ||
+        parseInt(laborHoursInput, 10) ||
+        16;
+      const effectiveCost =
+        aiModifiedResult?.extractedAttributes?.suggestedPrice
+          ? Math.round(aiModifiedResult.extractedAttributes.suggestedPrice * 0.3)
+          : extracted.materialCost || parseInt(materialCostInput, 10) || 150;
       const effectiveTitle = extracted.craftName || craftNameInput;
+      const effectiveStory = craftStoryInput || aiModifiedResult?.modifiedText || '';
 
       const structuredCatalog = await geminiCatalogService.generateCatalog({
         imageBase64: (enhancedResult?.enhancedUri || capturedImageUri || '') as string,
-        voiceTranscript: `${craftStoryInput}. Details: Craft: ${effectiveTitle}, Labor: ${effectiveLabor} hours, Material cost: Rs ${effectiveCost}.`,
+        voiceTranscript: `${effectiveStory}. Details: Craft: ${effectiveTitle}, Labor: ${effectiveLabor} hours, Material cost: Rs ${effectiveCost}.`,
         artisanName,
         artisanLocation: artisanDistrict,
       });
@@ -735,9 +819,43 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
         </ScrollView>
       )}
 
-      {/* STEP 3: AUDIO GUIDE + SINGLE INPUT BOX + 10S VOICE RECORDING */}
+      {/* STEP 3: AUDIO GUIDE + VOICE RECORDING + AI ANALYSIS & DESCRIPTION MODIFIER */}
       {currentStep === 3 && (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          {/* Photo Context Banner */}
+          <View style={styles.photoContextBanner}>
+            <Image
+              source={
+                enhancedResult?.enhancedUri
+                  ? { uri: enhancedResult.enhancedUri }
+                  : typeof capturedImageUri === 'string'
+                  ? { uri: capturedImageUri }
+                  : capturedImageUri || CRAFT_IMAGES.terracottaDiya
+              }
+              style={styles.photoContextThumb}
+              resizeMode="cover"
+            />
+            <View style={styles.photoContextInfo}>
+              <View style={styles.photoContextTag}>
+                <Text style={styles.photoContextTagText}>📸 CRAFT PHOTO READY</Text>
+              </View>
+              <Text style={styles.photoContextTitle}>
+                {selectedLanguage === 'hi-IN'
+                  ? 'अब अपनी शिल्प का विवरण अपनी आवाज़ में बताएं'
+                  : selectedLanguage === 'mr-IN'
+                  ? 'आता तुमच्या हस्तकलेची माहिती तुमच्या आवाजात सांगा'
+                  : 'Now describe your handcrafted product with your voice'}
+              </Text>
+              <Text style={styles.photoContextSub}>
+                {selectedLanguage === 'hi-IN'
+                  ? 'माइक दबाएं और बोलें — एआई आपके विवरण का विश्लेषण करके उसे ई-कॉमर्स कैटलॉग के लिए तैयार करेगा।'
+                  : selectedLanguage === 'mr-IN'
+                  ? 'माइक दाबा आणि बोला — एआय विश्लेषणाद्वारे ई-कॉमर्स कॅटलॉग विवरण तयार करेल.'
+                  : 'Speak naturally — AI will analyze your voice, polish the narrative, and publish to the catalog.'}
+              </Text>
+            </View>
+          </View>
+
           {/* Language Selector */}
           <View style={styles.languageBar}>
             <Text style={styles.languageBarLabel}>Speaking in / भाषा:</Text>
@@ -799,21 +917,21 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
             </Text>
           </View>
 
-          {/* 2. VOICE RECORDING BOX WITH 10S COUNTDOWN TIMER */}
+          {/* 2. CENTRAL VOICE RECORDING STUDIO */}
           <View style={styles.voicePromptCard}>
             <View style={styles.voicePromptHeader}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.voicePromptTitle}>🎙️ Boliye ya Likhiye (Craft Story):</Text>
+                <Text style={styles.voicePromptTitle}>🎙️ 1. अपनी आवाज़ में विवरण बोलें (Speak Voice Description):</Text>
                 {isListening ? (
                   <View style={styles.timerLiveRow}>
                     <View style={styles.timerLiveDot} />
                     <Text style={styles.timerLiveText}>
-                      रिकॉर्डिंग चालू है • ⏱️ {recordingSecondsLeft}s शेष (remaining)
+                      रिकॉर्डिंग चालू है • ⏱️ {recordingSecondsLeft}s शेष (बोलते रहिए...)
                     </Text>
                   </View>
                 ) : (
                   <Text style={styles.voicePromptSub}>
-                    10 सेकंड का वॉइस इनपुट या नीचे एक बॉक्स में लिखें
+                    माइक बटन दबाकर बोलें या नीचे टेक्स्ट बॉक्स में लिखें
                   </Text>
                 )}
               </View>
@@ -824,10 +942,28 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.voiceRecordEmoji}>
-                  {isListening ? `⏹️ Stop (${recordingSecondsLeft}s)` : '🎙️ बोलें (10s Speak)'}
+                  {isListening ? `⏹️ Stop Recording (${recordingSecondsLeft}s)` : '🎙️ बोलें (Tap to Speak)'}
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* Sound Wave Animation while recording */}
+            {isListening && (
+              <View style={styles.waveRow}>
+                {[10, 22, 34, 18, 28, 38, 24, 14, 30, 20, 36, 26, 12, 24, 32, 16].map((h, i) => (
+                  <View
+                    key={i}
+                    style={[
+                      styles.waveBar,
+                      {
+                        height: h,
+                        backgroundColor: i % 2 === 0 ? '#EA580C' : '#F59E0B',
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+            )}
 
             {/* Quick 1-Tap Voice Prompts for Instant 30s Demo */}
             <View style={{ marginBottom: 10 }}>
@@ -870,20 +1006,27 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 </TouchableOpacity>
               </ScrollView>
             </View>
-
-            {/* 3. THE SINGLE INPUT BOX: Real-time Audio-to-Typing happens here! */}
             <View style={styles.singleInputFieldGroup}>
-              <Text style={styles.fieldLabel}>
-                {selectedLanguage === 'hi-IN'
-                  ? 'शिल्प की पूरी जानकारी (बोलें या लिखें):'
-                  : selectedLanguage === 'mr-IN'
-                  ? 'हस्तकलेची संपूर्ण माहिती (बोला किंवा लिहा):'
-                  : 'Craft Story & Details (Speak or Type):'}
-              </Text>
+              <View style={styles.spokenInputHeader}>
+                <Text style={styles.fieldLabel}>
+                  {selectedLanguage === 'hi-IN'
+                    ? 'आपकी बोली गई आवाज़ (Tap to Edit):'
+                    : selectedLanguage === 'mr-IN'
+                    ? 'तुमचा बोललेला आवाज (Tap to Edit):'
+                    : 'Your Spoken Voice Transcript (Tap to Edit):'}
+                </Text>
+                <Text style={styles.charCountText}>
+                  {craftStoryInput.length} chars
+                </Text>
+              </View>
+
               <TextInput
                 style={styles.storyTextArea}
                 value={craftStoryInput}
-                onChangeText={setCraftStoryInput}
+                onChangeText={(text) => {
+                  setCraftStoryInput(text);
+                  setIsAiApplied(false);
+                }}
                 multiline={true}
                 numberOfLines={4}
                 placeholder={
@@ -895,16 +1038,183 @@ export const ArtisanCreateScreen: React.FC<any> = ({ navigation }) => {
                 }
                 placeholderTextColor="#94A3B8"
               />
+
+              {/* Quick Suggestion Chips */}
+              <View style={styles.chipsRow}>
+                <TouchableOpacity
+                  style={styles.quickChip}
+                  onPress={() =>
+                    setCraftStoryInput((prev) =>
+                      prev ? prev + ' शुद्ध टेराकोटा नदी की मिट्टी से बना।' : 'शुद्ध टेराकोटा नदी की मिट्टी से बना 5 पीस का दीया सेट।'
+                    )
+                  }
+                >
+                  <Text style={styles.quickChipText}>+ 🏺 Terracotta Clay</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickChip}
+                  onPress={() =>
+                    setCraftStoryInput((prev) =>
+                      prev ? prev + ' शुद्ध हथकरघा सिल्क साड़ी।' : 'अस्सल पैठणी शुद्ध रेशम हथकरघा साड़ी।'
+                    )
+                  }
+                >
+                  <Text style={styles.quickChipText}>+ 🧶 Pure Silk</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickChip}
+                  onPress={() =>
+                    setCraftStoryInput((prev) =>
+                      prev ? prev + ' 2 दिन का कठिन हाथ का श्रम लगा।' : '2 दिन का कठिन हाथ का श्रम लगा है।'
+                    )
+                  }
+                >
+                  <Text style={styles.quickChipText}>+ ⏱️ 2 Days Labor</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+
+            {/* STEP 3A ACTION: Trigger AI Analysis & Modification */}
+            <TouchableOpacity
+              style={[
+                styles.modifyAiActionBtn,
+                (!craftStoryInput.trim() || isModifyingWithAi) && styles.btnDisabled,
+              ]}
+              disabled={!craftStoryInput.trim() || isModifyingWithAi}
+              onPress={handleModifyVoiceWithAi}
+              activeOpacity={0.85}
+            >
+              {isModifyingWithAi ? (
+                <View style={styles.aiLoadingRow}>
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                  <Text style={styles.modifyAiActionBtnText}>
+                    🧠 AI Analyzing Voice & Crafting Story...
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.modifyAiActionBtnText}>
+                  ✨ 2. AI से विवरण सुधारें व बदलें (Analyze & Modify with AI)
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
 
-          {/* Step 3 Action: Gemini AI Analysis & Catalog Generation */}
+          {/* STEP 3B: AI ANALYZED & MODIFIED RESULT DISPLAY CARD */}
+          {aiModifiedResult && (
+            <View style={styles.aiModifiedCard}>
+              <View style={styles.aiModifiedHeader}>
+                <View style={styles.aiSparkleBadge}>
+                  <Text style={styles.aiSparkleBadgeText}>✨ AI ENHANCED STORY</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={handlePlayAiAudio}
+                  style={styles.aiAudioListenBtn}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.aiAudioListenBtnText}>
+                    {isPlayingAiAudio ? '⏹️ Stop' : '🔊 सुनिए (Listen)'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.aiModifiedHeading}>
+                {selectedLanguage === 'hi-IN'
+                  ? 'AI द्वारा सुधारा गया पेशेवर कैटलॉग विवरण:'
+                  : selectedLanguage === 'mr-IN'
+                  ? 'एआयने तयार केलेले व्यावसायिक हस्तकला विवरण:'
+                  : 'AI Refined E-Commerce Catalog Description:'}
+              </Text>
+
+              <View style={styles.aiModifiedBodyBox}>
+                <Text style={styles.aiModifiedBodyText}>
+                  "{aiModifiedResult.modifiedText}"
+                </Text>
+              </View>
+
+              {/* What AI Improved Explanation */}
+              {aiModifiedResult.explanation ? (
+                <View style={styles.aiExplanationBox}>
+                  <Text style={styles.aiExplanationTitle}>💡 AI सुधार (What AI Improved):</Text>
+                  <Text style={styles.aiExplanationText}>
+                    ✓ {aiModifiedResult.explanation}
+                  </Text>
+                </View>
+              ) : null}
+
+              {/* Extracted Craft Attributes Badges */}
+              {aiModifiedResult.extractedAttributes && (
+                <View style={styles.extractedBadgesRow}>
+                  {aiModifiedResult.extractedAttributes.material ? (
+                    <View style={styles.extractedBadge}>
+                      <Text style={styles.extractedBadgeText}>
+                        🧵 {aiModifiedResult.extractedAttributes.material}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {aiModifiedResult.extractedAttributes.technique ? (
+                    <View style={styles.extractedBadge}>
+                      <Text style={styles.extractedBadgeText}>
+                        🖌️ {aiModifiedResult.extractedAttributes.technique}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {aiModifiedResult.extractedAttributes.motif ? (
+                    <View style={styles.extractedBadge}>
+                      <Text style={styles.extractedBadgeText}>
+                        🪡 {aiModifiedResult.extractedAttributes.motif}
+                      </Text>
+                    </View>
+                  ) : null}
+                  {aiModifiedResult.extractedAttributes.laborHours ? (
+                    <View style={styles.extractedBadge}>
+                      <Text style={styles.extractedBadgeText}>
+                        ⏱️ {aiModifiedResult.extractedAttributes.laborHours}h Labor
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              )}
+
+              {/* Decision Buttons: Apply or Keep Original */}
+              <View style={styles.aiDecisionButtonsRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.applyAiBtn,
+                    isAiApplied && styles.applyAiBtnActive,
+                  ]}
+                  onPress={handleApplyAiDescription}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.applyAiBtnText}>
+                    {isAiApplied ? '✓ AI विवरण लागू है (Applied)' : '✓ यह AI विवरण उपयोग करें (Use AI Story)'}
+                  </Text>
+                </TouchableOpacity>
+
+                {spokenRawTranscript ? (
+                  <TouchableOpacity
+                    style={styles.revertBtn}
+                    onPress={() => {
+                      setCraftStoryInput(spokenRawTranscript);
+                      setIsAiApplied(false);
+                    }}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.revertBtnText}>↺ मूल आवाज़ (Original)</Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+          )}
+
+          {/* Step 3 Action: Proceed to Gemini Multimodal Synthesis & IP Minting */}
           <TouchableOpacity
             style={styles.generateAiBtn}
             onPress={handleGenerateAiCatalog}
             activeOpacity={0.85}
           >
-            <Text style={styles.generateAiBtnText}>🚀 Generate AI Catalog & Kalakar IP →</Text>
+            <Text style={styles.generateAiBtnText}>
+              🚀 3. कैटलॉग और आईपी बनाएं (Generate AI Catalog & IP) →
+            </Text>
           </TouchableOpacity>
         </ScrollView>
       )}
@@ -1684,6 +1994,272 @@ const styles = StyleSheet.create({
     minHeight: 90,
     textAlignVertical: 'top',
     lineHeight: 20,
+  },
+
+  /* Photo Context Banner in Step 3 */
+  photoContextBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    shadowColor: '#EA580C',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  photoContextThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  photoContextInfo: {
+    flex: 1,
+  },
+  photoContextTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    marginBottom: 3,
+  },
+  photoContextTagText: {
+    fontSize: 9.5,
+    fontWeight: '800',
+    color: '#C2410C',
+    letterSpacing: 0.4,
+  },
+  photoContextTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0F172A',
+    lineHeight: 17,
+  },
+  photoContextSub: {
+    fontSize: 10.5,
+    color: '#64748B',
+    marginTop: 2,
+    lineHeight: 14,
+  },
+
+  /* Wave animation */
+  waveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    height: 42,
+    marginVertical: 10,
+  },
+  waveBar: {
+    width: 4,
+    borderRadius: 2,
+  },
+
+  /* Spoken text header */
+  spokenInputHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  charCountText: {
+    fontSize: 10.5,
+    color: '#94A3B8',
+  },
+
+  /* Quick chips */
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  quickChip: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 14,
+  },
+  quickChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#C2410C',
+  },
+
+  /* Modify with AI button */
+  modifyAiActionBtn: {
+    backgroundColor: '#6366F1',
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 12,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  aiLoadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modifyAiActionBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  btnDisabled: {
+    opacity: 0.55,
+  },
+
+  /* AI Modified Display Card */
+  aiModifiedCard: {
+    backgroundColor: '#F5F3FF',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#C7D2FE',
+    marginBottom: 16,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  aiModifiedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  aiSparkleBadge: {
+    backgroundColor: '#4F46E5',
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  aiSparkleBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  aiAudioListenBtn: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+  },
+  aiAudioListenBtnText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#4F46E5',
+  },
+  aiModifiedHeading: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#312E81',
+    marginBottom: 6,
+  },
+  aiModifiedBodyBox: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+    marginBottom: 10,
+  },
+  aiModifiedBodyText: {
+    fontSize: 13.5,
+    color: '#1E1B4B',
+    lineHeight: 20,
+    fontWeight: '500',
+  },
+  aiExplanationBox: {
+    backgroundColor: '#ECFDF5',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    marginBottom: 10,
+  },
+  aiExplanationTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#065F46',
+    marginBottom: 2,
+  },
+  aiExplanationText: {
+    fontSize: 11.5,
+    color: '#047857',
+    lineHeight: 16,
+  },
+  extractedBadgesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 12,
+  },
+  extractedBadge: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DDD6FE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  extractedBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#5B21B6',
+  },
+  aiDecisionButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  applyAiBtn: {
+    flex: 2,
+    backgroundColor: '#059669',
+    paddingVertical: 11,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  applyAiBtnActive: {
+    backgroundColor: '#047857',
+  },
+  applyAiBtnText: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  revertBtn: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    paddingVertical: 11,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  revertBtnText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#64748B',
   },
 
   /* Step 4 Synthesis */

@@ -66,4 +66,24 @@ describe('AiVoiceModifierService', () => {
     expect(response.actionType).toBe('create');
     expect(response.replyText).toContain('AI studio photo aur GI catalog');
   });
+
+  it('generates Marathi craft story polish with authentic phrasing', async () => {
+    const rawMarathi = 'ha maatiche dive ahet, 16 taas lagle aani 150 rupaye kharch';
+    const result = await aiVoiceModifierService.modifyWithAi(rawMarathi, 'product_story', 'mr-IN');
+
+    expect(result.originalText).toBe(rawMarathi);
+    expect(result.modifiedText).toContain('अस्सल हस्तकला:');
+    expect(result.explanation).toContain('AI ने');
+    expect(result.extractedAttributes.craftCategory).toBe('POTTERY_TERRACOTTA');
+  });
+
+  it('generates English craft story polish with e-commerce narrative', async () => {
+    const rawEnglish = 'handcrafted terracotta diya set shaped on wheel with 2 days labor';
+    const result = await aiVoiceModifierService.modifyWithAi(rawEnglish, 'product_story', 'en-IN');
+
+    expect(result.originalText).toBe(rawEnglish);
+    expect(result.modifiedText).toContain('Authentic Handcrafted Masterpiece:');
+    expect(result.explanation).toContain('AI removed vocal fillers');
+    expect(result.extractedAttributes.laborHours).toBe(16);
+  });
 });

@@ -40,17 +40,26 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const waveLoopRef = useRef<Animated.CompositeAnimation | null>(null);
   const { isAuthenticated, user, isLoading, activeRole } = useAuthStore();
 
-  const doNavigate = () => {
-    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+  const stopAudio = () => {
     if (audioPlayerRef.current) {
       try {
         if (typeof audioPlayerRef.current.pause === 'function') {
           audioPlayerRef.current.pause();
-        } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
+        }
+        if (typeof audioPlayerRef.current.stopAsync === 'function') {
           audioPlayerRef.current.stopAsync().catch(() => {});
         }
+        if (typeof audioPlayerRef.current.unloadAsync === 'function') {
+          audioPlayerRef.current.unloadAsync().catch(() => {});
+        }
       } catch {}
+      audioPlayerRef.current = null;
     }
+  };
+
+  const doNavigate = () => {
+    if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
+    stopAudio();
     const currentAuth = useAuthStore.getState();
     const effectiveRole = currentAuth.activeRole || currentAuth.user?.role || 'ARTISAN';
     if (currentAuth.isAuthenticated && currentAuth.user?.isProfileComplete) {
@@ -69,15 +78,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       const targetRole = activeRole || user?.role || 'ARTISAN';
       const quickTimer = setTimeout(() => {
         if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
-        if (audioPlayerRef.current) {
-          try {
-            if (typeof audioPlayerRef.current.pause === 'function') {
-              audioPlayerRef.current.pause();
-            } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
-              audioPlayerRef.current.stopAsync().catch(() => {});
-            }
-          } catch {}
-        }
+        stopAudio();
         navigation.replace('MainTabs', {
           screen: 'HomeTab',
           params: { role: targetRole },
@@ -269,15 +270,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
       if (navigationTimerRef.current) clearTimeout(navigationTimerRef.current);
       stopWaveAnimation();
       pulseLoop.stop();
-      if (audioPlayerRef.current) {
-        try {
-          if (typeof audioPlayerRef.current.pause === 'function') {
-            audioPlayerRef.current.pause();
-          } else if (typeof audioPlayerRef.current.stopAsync === 'function') {
-            audioPlayerRef.current.stopAsync().catch(() => {});
-          }
-        } catch {}
-      }
+      stopAudio();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -21,6 +21,7 @@ import { useAppStore, SupportedLocale } from '@/store/useAppStore';
 import { INDIC_DISPLAY_FONT } from '@/theme/typography';
 import { Audio } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Audio } from 'expo-av';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -722,8 +723,15 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
     stopWaveAnimation();
     if (soundRef.current) {
       try {
-        await soundRef.current.stopAsync();
-        await soundRef.current.unloadAsync();
+        if (typeof (soundRef.current as any).pauseAsync === 'function') {
+          await soundRef.current.pauseAsync();
+        }
+        if (typeof (soundRef.current as any).stopAsync === 'function') {
+          await soundRef.current.stopAsync();
+        }
+        if (typeof (soundRef.current as any).unloadAsync === 'function') {
+          await soundRef.current.unloadAsync();
+        }
       } catch (_) {}
       soundRef.current = null;
     }
@@ -745,7 +753,7 @@ export const OnboardingScreen: React.FC<Props> = ({ navigation }) => {
       );
       soundRef.current = sound;
 
-      sound.setOnPlaybackStatusUpdate((s) => {
+      sound.setOnPlaybackStatusUpdate((s: any) => {
         if (!s.isLoaded) {
           setIsAudioPlaying(false);
           setAudioRemainingSec(null);
