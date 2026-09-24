@@ -60,3 +60,7 @@ serviceAccountKey.json
 
 # Temp user uploads
 WhatsApp Image*
+
+# Documentation (Internal docs ignored, README kept)
+*.md
+!README.md
