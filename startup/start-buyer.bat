@@ -6,7 +6,7 @@ echo ===================================================
 echo   Starting Buyer Marketplace on http://localhost:2883
 echo ===================================================
 
-cd /d "%~dp0mobile"
+cd /d "%~dp0..\mobile"
 
 echo Opening browser at http://localhost:2883 ...
 start http://localhost:2883

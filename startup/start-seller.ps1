@@ -2,7 +2,7 @@ Write-Host "===================================================" -ForegroundColo
 Write-Host "  Starting Artisan Studio on http://localhost:2882" -ForegroundColor Green
 Write-Host "===================================================" -ForegroundColor Cyan
 
-$MobileDir = Join-Path $PSScriptRoot "mobile"
+$MobileDir = Join-Path (Split-Path -Parent $PSScriptRoot) "mobile"
 Set-Location $MobileDir
 $env:WEB_PORT = "2882"
 

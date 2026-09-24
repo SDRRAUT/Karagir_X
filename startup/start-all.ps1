@@ -6,7 +6,7 @@ Write-Host "  - Buyer Marketplace:  http://localhost:2883" -ForegroundColor Mage
 Write-Host "  - Admin Operations:   http://localhost:3000" -ForegroundColor Blue
 Write-Host "===================================================================" -ForegroundColor Cyan
 
-$RootDir = $PSScriptRoot
+$RootDir = Split-Path -Parent $PSScriptRoot
 
 # 1. Admin Web
 Write-Host "[1/3] Launching Admin Web Command Center (Port 3000)..." -ForegroundColor Blue

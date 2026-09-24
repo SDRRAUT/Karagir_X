@@ -11,13 +11,13 @@ echo   - Admin Operations:   http://localhost:3000
 echo ===================================================================
 echo.
 
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo [1/3] Launching Admin Web Command Center (Port 3000)...
 start "Kalakar Setu - Admin OPS (3000)" cmd /k "node admin-web/server.js"
 
 echo [2/3] Launching Artisan Studio (Port 2882)...
-cd /d "%~dp0mobile"
+cd /d "%~dp0..\mobile"
 start "Kalakar Setu - Artisan Studio (2882)" cmd /k "npx expo start --port 2882 --localhost"
 
 echo [3/3] Launching Buyer Marketplace (Port 2883)...

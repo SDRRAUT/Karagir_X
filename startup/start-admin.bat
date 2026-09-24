@@ -6,7 +6,7 @@ echo ===================================================
 echo   Starting Admin Dashboard on http://localhost:3000
 echo ===================================================
 
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 node admin-web/server.js
 pause

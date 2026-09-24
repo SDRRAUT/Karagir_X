@@ -57,7 +57,7 @@ call "%~dp0start-admin.bat"
 goto exit_launcher
 
 :start_lan
-cd /d "%~dp0mobile"
+cd /d "%~dp0..\mobile"
 echo ===================================================
 echo   Launching Artisan Studio in LAN Mode (Port 2882)
 echo ===================================================

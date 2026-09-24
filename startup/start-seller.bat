@@ -6,7 +6,7 @@ echo ===================================================
 echo   Starting Artisan Studio on http://localhost:2882
 echo ===================================================
 
-cd /d "%~dp0mobile"
+cd /d "%~dp0..\mobile"
 
 echo Opening browser at http://localhost:2882 ...
 start http://localhost:2882

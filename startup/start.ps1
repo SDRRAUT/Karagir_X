@@ -9,7 +9,7 @@ param(
   [string]$Service
 )
 
-$RootDir = $PSScriptRoot
+$RootDir = Split-Path -Parent $PSScriptRoot
 
 if (-not $Service) {
   Clear-Host
@@ -38,16 +38,16 @@ if (-not $Service) {
 
 switch ($Service.ToLower()) {
   'all' {
-    & "$RootDir\start-all.ps1"
+    & "$PSScriptRoot\start-all.ps1"
   }
   { $_ -in 'artisan', 'seller' } {
-    & "$RootDir\start-artisan.ps1"
+    & "$PSScriptRoot\start-artisan.ps1"
   }
   'buyer' {
-    & "$RootDir\start-buyer.ps1"
+    & "$PSScriptRoot\start-buyer.ps1"
   }
   'admin' {
-    & "$RootDir\start-admin.ps1"
+    & "$PSScriptRoot\start-admin.ps1"
   }
   'lan' {
     Set-Location "$RootDir\mobile"

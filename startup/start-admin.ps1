@@ -2,5 +2,5 @@ Write-Host "===================================================" -ForegroundColo
 Write-Host "  Starting Admin OPS on http://localhost:3000" -ForegroundColor Blue
 Write-Host "===================================================" -ForegroundColor Cyan
 
-Set-Location $PSScriptRoot
+Set-Location (Split-Path -Parent $PSScriptRoot)
 node admin-web/server.js
